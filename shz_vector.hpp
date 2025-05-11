@@ -7,8 +7,7 @@
 
 namespace shz {
 
-struct vec2: public shz_vec2_t {
-
+struct vec2: shz_vec2_t {
     vec2() = default;
 
     vec2(shz_vec2_t vec2) noexcept:

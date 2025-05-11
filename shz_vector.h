@@ -17,10 +17,6 @@ typedef struct shz_vec2 {
     };
 } shz_vec2_t;
 
-shz_vec2_t shz_vec2_from_angle(float angle);
-
-float shz_vec2_angle(shz_vec2_t vec);
-
 SHZ_FORCE_INLINE float shz_vec2_dot(shz_vec2_t vec1, shz_vec2_t vec2) {
     return vec1.x * vec2.x + vec1.y * vec2.y;
 }
@@ -80,6 +76,10 @@ SHZ_FORCE_INLINE float shz_vec2_cross(shz_vec2_t vec1, shz_vec2_t vec2) {
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_reflect(shz_vec2_t incidence, shz_vec2_t normal) {
 
 }
+
+shz_vec2_t shz_vec2_from_angle(float angle);
+
+float shz_vec2_angle(shz_vec2_t vec);
 
 typedef union shz_vec3 {
     struct {

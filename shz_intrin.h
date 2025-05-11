@@ -7,6 +7,7 @@
 #define SHZ_FSCA_RAD_FACTOR     10430.37835f
 
 #define SHZ_DEG_TO_RAD(deg)     ((deg) * SHZ_F_PI / 180.0f)
+#define SHZ_RAD_TO_DEG(rad)     ((rad) * 180.0f / SHZ_F_PI)
 
 #define SHZ_MIN(a, b)           (((a) < (b))? (a) : (b))
 #define SHZ_MAX(a, b)           (((a) > (b))? (a) : (b))
@@ -16,24 +17,36 @@
 SHZ_BEGIN_DECLS
 
 SHZ_FORCE_INLINE float shz_floorf(float x) {
-    float result, neg1;
+    float result, tmp;
 
     asm volatile(R"(
-            fldi1   %[neg1]
-            fneg    %[neg1]
-            fcmp/gt %[neg1], %[in]
+            fldi0   %[tmp]
+            fcmp/gt %[tmp], %[in]
             ftrc    %[in], fpul
             bt.s    1f
             float   fpul, %[out]
-            fadd    %[neg1], %[out]
+            fldi1   %[tmp]
+            fneg    %[tmp]
+            fadd    %[tmp], %[out]
         1:
     )"
-    : [neg1] "=&f" (neg1), [out] "=f" (result)
+    : [tmp] "=&f" (tmp), [out] "=f" (result)
     : [in] "f" (x)
     : "fpul", "t");
 
     return result;
 }
+
+#if 0
+float shz_floorf2(float x) {
+    float result = (float)(int)x;
+
+    if (x < 0.0f)
+        result -= 1.0f;
+
+    return result;
+}
+#endif
 
 SHZ_FORCE_INLINE float shz_ceilf(float x) {
     float result, zero_one;

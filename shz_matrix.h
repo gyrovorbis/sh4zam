@@ -46,6 +46,42 @@ typedef SHZ_ALIGNAS(8) union shz_matrix_4x4 {
     };
 } shz_matrix_4x4_t;
 
+SHZ_INLINE shz_matrix_4x4_copy(shz_matrix_4x4 *dest, const shz_matrix_4x4 *src) {
+    asm volatile(R"(
+        fschg
+
+        pref    @%[dst]
+        fmov.d  @%[src]+, xd0
+        fmov.d  @%[src]+, xd2
+        fmov.d  @%[src]+, xd4
+        fmov.d  @%[src]+, xd6
+    
+        pref    @%[src]
+        add     #32, %[dst]
+
+        fmov.d  xd6, @-%[dst]
+        fmov.d  xd4, @-%[dst]
+        fmov.d  xd2, @-%[dst]
+        fmov.d  xd0, @-%[dst]
+
+        add     #32, %[dst]
+        pref    @%[dst]
+
+        fmov.d  @%[src]+, xd0
+        fmov.d  @%[src]+, xd2
+        fmov.d  @%[src]+, xd4
+        fmov.d  @%[src]+, xd6
+
+        add     #32, %[dst]
+        fmov.d  xd6, @-%[dst]
+        fmov.d  xd4, @-%[dst]
+        fmov.d  xd2, @-%[dst]
+        fmov.d  xd0, @-%[dst]
+
+        fschg
+    )"
+    : [dst] "+&r" (dst), [src] "+&r" (src), "=m" (*dst));
+}
 
 SHZ_END_DECLS
 

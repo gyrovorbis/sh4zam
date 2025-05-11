@@ -5,7 +5,6 @@
 
 SHZ_BEGIN_DECLS
 
-SHZ_HOT SHZ_ICACHE_ALIGNED
 SHZ_INLINE void shz_xmtrx_load_4x4(const shz_matrix_4x4_t *matrix) {
     asm volatile(R"(
         fschg
@@ -25,7 +24,6 @@ SHZ_INLINE void shz_xmtrx_load_4x4(const shz_matrix_4x4_t *matrix) {
     : [mtx] "+r" (matrix));
 }
 
-SHZ_HOT SHZ_ICACHE_ALIGNED
 SHZ_INLINE void shz_xmtrx_load_4x4_rows(const shz_vec4_t *r1,
                                         const shz_vec4_t *r2,
                                         const shz_vec4_t *r3,
@@ -61,7 +59,6 @@ SHZ_INLINE void shz_xmtrx_load_4x4_rows(const shz_vec4_t *r1,
     : "+&r" (r1), "+&r" (r2), "+&r" (r3), "+&r" (r4));
 }
 
-SHZ_HOT SHZ_ICACHE_ALIGNED
 SHZ_INLINE void shz_xmtrx_load_4x4_transpose(const shz_matrix_4x4_t *matrix) {
     asm volatile(R"(
         frchg
@@ -96,7 +93,6 @@ SHZ_INLINE void shz_xmtrx_load_4x4_transpose(const shz_matrix_4x4_t *matrix) {
     : [mtx] "+r" (matrix));
 }
 
-SHZ_HOT SHZ_ICACHE_ALIGNED
 SHZ_INLINE void shz_xmtrx_load_4x4_apply(const shz_matrix_4x4_t *matrix1,
                                          const shz_matrix_4x4_t *matrix2)
 {
@@ -146,7 +142,7 @@ SHZ_INLINE void shz_xmtrx_load_4x4_apply(const shz_matrix_4x4_t *matrix1,
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-void shz_xmtrx_load_3x4(const shz_matrix_3x4_t *matrix) {
+SHZ_INLINE void shz_xmtrx_load_3x4(const shz_matrix_3x4_t *matrix) {
     asm volatile(R"(
         frchg
 
@@ -175,7 +171,7 @@ void shz_xmtrx_load_3x4(const shz_matrix_3x4_t *matrix) {
     : [mat] "+r" (matrix));
 }
 
-void shz_xmtrx_load_3x3(const shz_matrix_3x3_t *matrix) {
+SHZ_INLINE void shz_xmtrx_load_3x3(const shz_matrix_3x3_t *matrix) {
     asm volatile(R"(
         frchg
 
@@ -203,7 +199,7 @@ void shz_xmtrx_load_3x3(const shz_matrix_3x3_t *matrix) {
     : [mat] "+r" (matrix));
 }
 
-void shz_xmtrx_load_2x2(const shz_matrix_2x2_t *matrix) {
+SHZ_INLINE void shz_xmtrx_load_2x2(const shz_matrix_2x2_t *matrix) {
     asm volatile(R"(
         pref    @%[mat]
         frchg
@@ -269,7 +265,6 @@ void shz_xmtrx_set_reg(float value, unsigned reg) {
     }
 }
 
-SHZ_HOT SHZ_ICACHE_ALIGNED
 SHZ_INLINE void shz_xmtrx_store_4x4(shz_matrix_4x4_t *matrix) {
     asm volatile(R"(
         fschg
@@ -290,7 +285,6 @@ SHZ_INLINE void shz_xmtrx_store_4x4(shz_matrix_4x4_t *matrix) {
     : [mtx] "+&r" (matrix), "=m" (*matrix));
 }
 
-SHZ_HOT SHZ_ICACHE_ALIGNED
 SHZ_INLINE void shz_xmtrx_store_3x4(shz_matrix_3x4_t *matrix) {
     asm volatile(R"(
         frchg
@@ -317,7 +311,6 @@ SHZ_INLINE void shz_xmtrx_store_3x4(shz_matrix_3x4_t *matrix) {
     : [mtx] "+&r" (matrix), "=m" (*matrix));
 }
 
-SHZ_HOT SHZ_ICACHE_ALIGNED
 SHZ_INLINE void shz_xmtrx_store_3x3(shz_matrix_3x3_t *matrix) {
     asm volatile(R"(
         frchg
@@ -340,7 +333,6 @@ SHZ_INLINE void shz_xmtrx_store_3x3(shz_matrix_3x3_t *matrix) {
     : [mtx] "+&r" (matrix), "=m" (*matrix));
 }
 
-SHZ_HOT SHZ_ICACHE_ALIGNED
 SHZ_INLINE void shz_xmtrx_store_2x2(shz_matrix_2x2_t *matrix) {
     asm volatile(R"(
         frchg
@@ -357,8 +349,7 @@ SHZ_INLINE void shz_xmtrx_store_2x2(shz_matrix_2x2_t *matrix) {
     : [mtx] "+&r" (matrix), "=m" (*matrix));
 }
 
-SHZ_HOT SHZ_ICACHE_ALIGNED
- SHZ_INLINE void shz_xmtrx_set_identity(void) {
+SHZ_INLINE void shz_xmtrx_set_identity(void) {
     asm volatile(R"(
         frchg
         fldi1	fr0
@@ -378,7 +369,6 @@ SHZ_HOT SHZ_ICACHE_ALIGNED
     )");
 }
 
-SHZ_HOT SHZ_ICACHE_ALIGNED
 SHZ_INLINE void shz_xmtrx_set_diagonal(float x, float y, float z, float w) {
     asm volatile(R"(
         frchg
@@ -407,26 +397,371 @@ SHZ_FORCE_INLINE void shz_xmtrx_set_scale(float x, float y, float z) {
     shz_xmtrx_set_diagonal(x, y, z, 1.0f);
 }
 
-void shz_xmtrx_set_rotation_x(float angle);
-void shz_xmtrx_set_rotation_y(float angle);
-void shz_xmtrx_set_rotation_z(float angle);
-void shz_xmtrx_set_rotate(float roll, float pitch, float yaw);
-void shz_xmtrx_set_translation(float x, float y, float z);
-void shz_xmtrx_set_symmetric_skew(float x, float y, float z);
+SHZ_INLINE void shz_xmtrx_set_rotation_x(float angle) {
+    x *= SHZ_FSCA_RAD_FACTOR;
+    asm volatile(R"(
+        ftrc    %[x], fpul
+        frchg
+        fldi0   fr1
+        fldi0   fr2
+        fldi0   fr3
+        fldi0   fr7
+        fldi0   fr8
+        fldi0   fr12
+        fldi0   fr13
+        fsca    fpul, dr0
+        fldi0   fr4
+        fldi0   fr11
+        fldi0   fr14
+        fldi1   fr15
+        fmov    fr1, fr5
+        fmov    fr1, fr10
+        fmov    fr0, fr9
+        fmov    fr0, fr6
+        fneg    fr6
+        fldi1   fr0
+        fldi0   fr1
+        frchg
+    )"
+    :
+    : [x] "f" (x)
+    : "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_set_rotation_y(float angle) {
+    y *= SHZ_FSCA_RAD_FACTOR;
+    asm volatile(R"(
+        ftrc    %[y], fpul
+        frchg
+        fldi0	fr3
+        fldi1	fr5
+        fldi0	fr6
+        fldi0	fr7
+        fldi0	fr12
+        fldi0	fr13
+        fsca	fpul, dr0
+        fldi0	fr4
+        fldi0	fr9
+        fldi0	fr11
+        fldi0	fr14
+        fldi1	fr15
+        fmov	fr1, fr10
+        fmov	fr0, fr8
+        fneg	fr8
+        fmov	fr0, fr2
+        fmov	fr1, fr0
+        fldi0	fr1
+        frchg
+    )"
+    :
+    : [y] "f" (y)
+    : "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_set_rotation_z(float angle) {
+    z *= SHZ_FSCA_RAD_FACTOR; 
+    asm volatile(R"(
+        ftrc    %[z], fpul
+        frchg
+        fldi0	fr2
+        fldi0	fr3
+        fldi1	fr10
+        fldi0	fr11
+        fsca	fpul, dr4
+        fschg
+        fmov	dr2, dr6
+        fmov	dr2, dr8
+        fmov	dr2, dr12
+        fldi0	fr14
+        fldi1	fr15
+        fschg
+        fmov	fr5, fr0
+        fmov	fr4, fr1
+        fneg	fr1
+        frchg
+    )"
+    :
+    : [z] "f" (z)
+    : "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_set_translation(float x, float y, float z) {
+    asm volatile(R"(
+        frchg
+        fldi1	fr0
+        fschg
+        fldi0	fr1
+        fldi0	fr2
+        fldi0	fr3
+        fldi0	fr4
+        fldi1	fr5
+        fmov	dr2,dr6
+        fmov	dr2,dr8
+        fmov	dr0,dr10
+        fschg
+        fmov.s  @%[x], fr12
+        fmov.s  @%[y], fr13
+        fmov.s  @%[z], fr14
+        fldi1   fr15
+        frchg
+    )"
+    :
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z));
+}
+
+SHZ_INLINE void shz_xmtrx_set_symmetric_skew(float x, float y, float z) {
+    asm volatile(R"(
+        frchg
+        
+        fldi0   fr0
+        fmov.s  @%[z], fr1
+        fmov.s  @%[y], fr2
+        fldi0   fr3
+
+        fmov    fr1, fr4
+        fldi0   fr5
+        fmov.s  @%[x], fr6
+        fldi0   fr7
+
+        fmov    fr2, fr8
+        fmov    fr6, fr9
+        fldi0   fr10
+        fldi0   fr11
+
+        fldi0   fr12
+        fneg    fr1
+        fldi0   fr13
+        fneg    fr6
+        fldi0   fr14
+        fneg    fr8
+        fldi1   fr15
+    
+        frchg
+    )"
+    :
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z));
+}
+
 void shz_xmtrx_set_frustum(float left, float right, float bottom, float top, float near, float far);
 void shz_xmtrx_set_orthographic(float left, float right, float bottom, float top);
 void shz_xmtrx_set_perspective(float fovy, float aspect, float znear, float zfar);
 
-void shz_xmtrx_apply_4x4(const shz_matrix_4x4_t *matrix);
+SHZ_INLINE void shz_xmtrx_apply_4x4(const shz_matrix_4x4_t *matrix) {
+    asm volatile(R"(
+        mov     r15, r0
+        pref    @%[mtx]
+        or      #0x0f, r0
+        xor     #0x0f, r0
+        mov     r15, r7
+        fschg
+        mov     r0, r15
+
+        fmov.d  dr14, @-r15
+        fmov.d  dr12, @-r15
+
+        fmov.d  @%[mtx], dr0
+        add     #32, %[mtx]
+        pref    @%[mtx]
+        add     #-(32-8), %[mtx]
+        fmov.d  @%[mtx]+, dr2
+        fmov.d  @%[mtx]+, dr4
+        fmov.d  @%[mtx]+, dr6
+
+        ftrv    xmtrx, fv0
+
+        fmov.d  @%[mtx]+, dr8
+        fmov.d  @%[mtx]+, dr10
+
+        ftrv    xmtrx, fv4
+
+        fmov.d  @%[mtx]+, dr12
+        fmov.d  @%[mtx]+, dr14
+
+        ftrv    xmtrx, fv8
+        ftrv    xmtrx, fv12
+
+        frchg
+        fmov.d  @r15+, dr12
+        fmov.d  @r15, dr14
+
+        mov     r7, r15
+        fschg
+    )"
+    : [mtx] "+r" (matrix)
+    :
+    : "r0", "r7", "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6",
+      "fr7", "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+}
+
 void shz_xmtrx_apply_4x3(const shz_matrix_3x3_t *matrix);
 void shz_xmtrx_apply_3x3(const shz_matrix_3x3_t *matrix);
-void shz_xmtrx_apply_2x2(const shz_matrix_2x2_t *matrix, shz_xmtrx_quadrant_t pos);
-void shz_xmtrx_apply_translation(float x, float y, float z);
-void shz_xmtrx_apply_scale(float x, float y, float z);
-void shz_xmtrx_apply_rotation_x(float angle);
-void shz_xmtrx_apply_rotation_y(float angle);
-void shz_xmtrx_apply_rotation_z(float angle);
-void shz_xmtrx_apply_rotation(float roll, float pitch, float yaw);
+void shz_xmtrx_apply_2x2(const shz_matrix_2x2_t *matrix);
+
+SHZ_INLINE void shz_xmtrx_apply_translation(float x, float y, float z) {
+    asm volatile(R"(
+        fschg
+        fmov	xd12, dr4
+        fmov	xd14, dr6
+        fschg
+
+        fmov.s  @%[x], fr0
+        fmov.s  @%[y], fr1
+        fmov.s  @%[z], fr2
+
+        fadd	fr0, fr4
+        fadd	fr1, fr5
+        fadd	fr2, fr6
+
+        fschg
+        fmov	dr4, xd12
+        fmov	dr6, xd14
+        fschg
+    )"
+    :
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z)
+    : "fr0", "fr1", "fr2", "fr4", "fr5", "fr6", "fr7");
+}
+
+SHZ_INLINE void shz_xmtrx_apply_scale(float x, float y, float z) {
+        asm volatile(R"(
+        fschg
+        fmov	xd0, dr4
+        fmov	xd2, dr6
+        fschg
+
+        frchg
+        fmov.s  @%[x], fr0
+        fmov.s  @%[y], fr1
+        fmov.s  @%[z], fr2
+
+        fmul	fr0, fr4
+        fmul	fr0, fr8
+        fmul	fr0, fr12
+        fmul	fr1, fr5
+        fmul	fr1, fr9
+        fmul	fr1, fr13
+        fmul	fr2, fr6
+        fmul	fr2, fr10
+        fmul	fr2, fr14
+
+        fschg
+        fmov	dr4, xd0
+        fmul	fr3, fr7
+        fmov	dr6, xd2
+        fmul	fr3, fr11
+        fmov	xd4, dr4
+        fmul	fr3, fr15
+        fmov	xd6, dr6
+        fschg
+
+        fmul	fr4, fr0
+
+        fmul	fr5, fr1
+        fmul	fr6, fr2
+        fmul	fr7, fr3
+
+        fschg
+        fmov	xd0, dr4
+        fmov	xd2, dr6
+        fschg
+
+        frchg
+    )"
+    :
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z)
+    : "fr0", "fr1", "fr2");
+}
+
+SHZ_INLINE void shz_xmtrx_apply_rotation_x(float x) {
+    x *= SHZ_FSCA_RAD_FACTOR;
+    asm volatile(R"(
+        ftrc	%[x], fpul
+        fsca 	fpul, dr4
+        fldi0	fr8
+        fldi0	fr11
+        fmov	fr5, fr10
+        fmov	fr4, fr9
+        fneg	fr9
+        ftrv	xmtrx, fv8
+        fmov	fr4, fr6
+        fldi0	fr7
+        fldi0	fr4
+        ftrv	xmtrx, fv4
+        fschg
+        fmov	dr8, xd8
+        fmov	dr10, xd10
+        fmov	dr4, xd4
+        fmov	dr6, xd6
+        fschg
+    )"
+    :
+    : [x] "f"(x)
+    : "fpul", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
+}
+
+SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) {
+    y *= SHZ_FSCA_RAD_FACTOR;
+    asm volatile(R"(
+        ftrc	%[y], fpul
+        fsca    fpul, dr6
+        fldi0	fr9
+        fldi0	fr11
+        fmov	fr6, fr8
+        fmov	fr7, fr10
+        ftrv	xmtrx, fv8
+        fmov	fr7, fr4
+        fldi0	fr5
+        fneg	fr6
+        fldi0	fr7
+        ftrv	xmtrx, fv4
+        fschg
+        fmov	dr8, xd8
+        fmov	dr10, xd10
+        fmov	dr4, xd0
+        fmov	dr6, xd2
+        fschg
+    )"
+    :
+    : [y] "f" (y)
+    : "fpul", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
+}
+
+SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) {
+    z *= SHZ_FSCA_RAD_FACTOR;
+    asm volatile(R"(
+        ftrc	%[z], fpul
+        fsca    fpul, dr8
+        fldi0	fr10
+        fldi0	fr11
+        fmov	fr8, fr5
+        fneg	fr8
+        ftrv	xmtrx, fv8
+        fmov	fr9, fr4
+        fschg
+        fmov	dr10, dr6
+        ftrv	xmtrx, fv4
+        fmov	dr8, xd4
+        fmov	dr10, xd6
+        fmov	dr4, xd0
+        fmov	dr6, xd2
+        fschg
+    )"
+    :
+    : [z] "f" (z)
+    : "fpul", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
+}
+
+SHZ_INLINE void shz_xmtrx_set_rotation(float roll, float pitch, float yaw) {
+    shz_xmtrx_set_rotation_x(roll);
+    shz_xmtrx_apply_rotation_y(pitch);
+    shz_xmtrx_apply_rotation_z(yaw);
+}
+
+SHZ_INLINE void shz_xmtrx_apply_rotation(float roll, float pitch, float yaw) {
+    shz_xmtrx_apply_rotation_x(x);
+    shz_xmtrx_apply_rotation_y(y);
+    shz_xmtrx_apply_rotation_z(z);
+}
 
 void shz_xmtrx_outer_product_2x2(shz_vec2_t col, shz_vec2_t row);
 void shz_xmtrx_outer_product_3x3(shz_vec3_t col, shz_vec3_t row);
