@@ -397,7 +397,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_set_scale(float x, float y, float z) {
     shz_xmtrx_set_diagonal(x, y, z, 1.0f);
 }
 
-SHZ_INLINE void shz_xmtrx_set_rotation_x(float angle) {
+SHZ_INLINE void shz_xmtrx_set_rotation_x(float x {
     x *= SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    %[x], fpul
@@ -428,7 +428,7 @@ SHZ_INLINE void shz_xmtrx_set_rotation_x(float angle) {
     : "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_set_rotation_y(float angle) {
+SHZ_INLINE void shz_xmtrx_set_rotation_y(float y) {
     y *= SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    %[y], fpul
@@ -458,7 +458,7 @@ SHZ_INLINE void shz_xmtrx_set_rotation_y(float angle) {
     : "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_set_rotation_z(float angle) {
+SHZ_INLINE void shz_xmtrx_set_rotation_z(float z) {
     z *= SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    %[z], fpul
@@ -696,7 +696,7 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_x(float x) {
     )"
     :
     : [x] "f"(x)
-    : "fpul", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
+    : "fpul", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
 SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) {
@@ -723,7 +723,7 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) {
     )"
     :
     : [y] "f" (y)
-    : "fpul", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
+    : "fpul", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
 SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) {
@@ -748,7 +748,7 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) {
     )"
     :
     : [z] "f" (z)
-    : "fpul", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
+    : "fpul", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
 SHZ_INLINE void shz_xmtrx_set_rotation(float roll, float pitch, float yaw) {
