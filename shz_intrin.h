@@ -16,29 +16,11 @@
 
 SHZ_BEGIN_DECLS
 
+typedef struct shz_sincos {
+    _Complex float f;
+} shz_sincos_t;
+
 SHZ_FORCE_INLINE float shz_floorf(float x) {
-    float result, tmp;
-
-    asm volatile(R"(
-            fldi0   %[tmp]
-            fcmp/gt %[tmp], %[in]
-            ftrc    %[in], fpul
-            bt.s    1f
-            float   fpul, %[out]
-            fldi1   %[tmp]
-            fneg    %[tmp]
-            fadd    %[tmp], %[out]
-        1:
-    )"
-    : [tmp] "=&f" (tmp), [out] "=f" (result)
-    : [in] "f" (x)
-    : "fpul", "t");
-
-    return result;
-}
-
-#if 0
-float shz_floorf2(float x) {
     float result = (float)(int)x;
 
     if (x < 0.0f)
@@ -46,105 +28,47 @@ float shz_floorf2(float x) {
 
     return result;
 }
-#endif
 
 SHZ_FORCE_INLINE float shz_ceilf(float x) {
-    float result, zero_one;
+    float result = (float)(int)x;
 
-    asm volatile(R"(
-            fldi0   %[zero_one]
-            fcmp/gt %[zero_one], %[in]
-            ftrc    %[in], fpul
-            bf.s    1f
-            float   fpul, %[out]
-            fldi1   %[zero_one]
-            fadd    %[zero_one], %[out]
-        1:
-    )"
-    : [zero_one] "=&f" (zero_one), [out] "=f" (result)
-    : [in] "f" (x)
-    : "fpul", "t");
+    if (x > result) {
+        result += 1.0f;
+    }
 
     return result;
 }
 
 SHZ_FORCE_INLINE float shz_fmacf(float a, float b, float c) {
-    register float ra asm("fr0") = a;
-
-    asm volatile("fmac fr0, %[b], %[c]"
-                 : [c] "+f" (c)
-                 : "f" (ra), [b] "f" (b));
-
-    return c;
+    return a * b + c;
 }
 
 SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) {
     return shz_fmacf(t, (b - a), a);
 }
 
-SHZ_FORCE_INLINE float shz_sinf(float radians) {
-    register float rsin asm("fr10");
+SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) {
+    register _Complex float rsin;
 
-    radians *= SHZ_FSCA_RAD_FACTOR;
+    asm("fsca fpul, %0" : "=f" (rsin) : "y" (radians * SHZ_FSCA_RAD_FACTOR));
 
-    asm volatile(R"(
-        ftrc    %[radians], fpul
-        fsca    fpul, dr10
-    )"
-    : "=f" (rsin)
-    : [radians] "f" (radians)
-    : "fr11", "fpul");
-
-    return rsin;
+    return (shz_sincos_t){ rsin };
 }
 
-SHZ_FORCE_INLINE float shz_cosf(float radians) {
-    register float rcos asm("fr11");
-
-    radians *= SHZ_FSCA_RAD_FACTOR;
-
-    asm volatile(R"(
-        ftrc    %[radians], fpul
-        fsca    fpul, dr10
-    )"
-    : "=f" (rcos)
-    : [radians] "f" (radians)
-    : "fr10", "fpul");
-
-    return rcos;
+SHZ_FORCE_INLINE float shz_sinf(shz_sincos_t sincos) {
+    return __real__ sincos.f;
 }
 
-SHZ_FORCE_INLINE void shz_sin_cosf(float radians, float *sin, float *cos) {
-    register float rsin asm("fr10");
-    register float rcos asm("fr11");
-
-    radians *= SHZ_FSCA_RAD_FACTOR;
-
-    asm volatile(R"(
-        ftrc    %[radians], fpul
-        fsca    fpul, dr10
-    )"
-    : "=f" (rsin), "=f" (rcos)
-    : [radians] "f" (radians)
-    : "fpul");
-
-    *sin = rsin;
-    *cos = rcos;
-}
-
-SHZ_FORCE_INLINE float shz_tanf(float radians) {
-    float s, c;
-    shz_sin_cosf(radians, &s, &c);
-    return s / c;
+SHZ_FORCE_INLINE float shz_cosf(shz_sincos_t sincos) {
+    return __imag__ sincos.f;
 }
 
 SHZ_FORCE_INLINE float shz_sqrtf(float x) {
-    asm volatile("fsqrt %0" : "+f" (x));
-    return x;
+    return __builtin_sqrtf(x);
 }
 
 SHZ_FORCE_INLINE float shz_inverse_sqrtf(float x) {
-    asm volatile("fsrra %0" : "+f" (x));
+    asm("fsrra %0" : "+f" (x));
     return x;
 }
 
@@ -154,6 +78,12 @@ SHZ_FORCE_INLINE float shz_inverse_posf(float x) {
 
 SHZ_FORCE_INLINE float shz_div_posf(float num, float denom) {
     return num * shz_inverse_posf(denom);
+}
+
+SHZ_FORCE_INLINE float shz_tanf(float radians) {
+    shz_sincos_t sincos = shz_sincosf(radians);
+
+    return shz_div_posf(shz_sinf(sincos), shz_cosf(sincos));
 }
 
 SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
@@ -167,10 +97,10 @@ SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
     register float rz2 asm("fr6") = z2;
     register float rw2 asm("fr7") = w2;
 
-    asm volatile("fipr	fv0, fv4"
-                 : "+f" (rw2)
-                 : "f" (rx1), "f" (ry1), "f" (rz1), "f" (rw1)
-                   "f" (rx2), "f" (ry2), "f" (rz2));
+    asm("fipr fv0, fv4"
+	: "+f" (rw2)
+	: "f" (rx1), "f" (ry1), "f" (rz1), "f" (rw1)
+	"f" (rx2), "f" (ry2), "f" (rz2));
 
     return rw1;
 }
@@ -181,9 +111,9 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) {
     register float rz asm("fr2") = z;
     register float rw asm("fr3") = w;
 
-    asm volatile("fipr fv0, fv0"
-                 : "+f" (rw)
-                 : "f" (rx), "f" (ry), "f" (rz));
+    asm("fipr fv0, fv0"
+	: "+f" (rw)
+	: "f" (rx), "f" (ry), "f" (rz));
 
     return rw;
 }
