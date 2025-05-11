@@ -145,30 +145,30 @@ SH4_FORCE_INLINE float sh4_div_posf(float num, float denom) {
 
 SH4_FORCE_INLINE float sh4_dot8f(float x1, float y1, float z1, float w1,
                                  float x2, float y2, float z2, float w2) {
-    register float rx1 asm("fr4")  = x1;
-    register float ry1 asm("fr5")  = y1;
-    register float rz1 asm("fr6")  = z1;
-    register float rw1 asm("fr7")  = w1;
-    register float rx2 asm("fr8")  = x2;
-    register float ry2 asm("fr9")  = y2;
-    register float rz2 asm("fr10") = z2;
-    register float rw2 asm("fr11") = w2;
+    register float rx1 asm("fr0") = x1;
+    register float ry1 asm("fr1") = y1;
+    register float rz1 asm("fr2") = z1;
+    register float rw1 asm("fr3") = w1;
+    register float rx2 asm("fr4") = x2;
+    register float ry2 asm("fr5") = y2;
+    register float rz2 asm("fr6") = z2;
+    register float rw2 asm("fr7") = w2;
 
-    asm volatile("fipr	fv8, fv4"
-                 : "+f" (rw1)
-                 : "f" (rx1), "f" (ry1), "f" (rz1),
-                   "f" (rx2), "f" (ry2), "f" (rz2), "f" (rw2));
+    asm volatile("fipr	fv0, fv4"
+                 : "+f" (rw2)
+                 : "f" (rx1), "f" (ry1), "f" (rz1), "f" (rw1)
+                   "f" (rx2), "f" (ry2), "f" (rz2));
 
     return rw1;
 }
 
 SH4_FORCE_INLINE float sh4_mag_sqr4f(float x, float y, float z, float w) {
-    register float rx asm("fr4") = x;
-    register float ry asm("fr5") = y;
-    register float rz asm("fr6") = z;
-    register float rw asm("fr7") = w;
+    register float rx asm("fr0") = x;
+    register float ry asm("fr1") = y;
+    register float rz asm("fr2") = z;
+    register float rw asm("fr3") = w;
 
-    asm volatile("fipr fv4, fv4"
+    asm volatile("fipr fv0, fv0"
                  : "+f" (rw)
                  : "f" (rx), "f" (ry), "f" (rz));
 

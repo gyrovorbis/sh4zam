@@ -7,12 +7,14 @@
 
 SH4_BEGIN_DECLS
 
-typedef union sh4_vec2 {
-    struct {
-        float x;
-        float y;
+typedef struct sh4_vec2 {
+    union {
+        struct {
+            float x;
+            float y;
+        };
+        float elem SH4_SIMD(8);
     };
-    float elem SH4_SIMD(8);
 } sh4_vec2_t;
 
 sh4_vec2_t sh4_vec2_from_angle(float angle);

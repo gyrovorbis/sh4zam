@@ -35,9 +35,11 @@
 #ifdef __cplusplus
 #   define SH4_BEGIN_DECLS      extern "C" {
 #   define SH4_END_DECLS        }
+#   define SH4_INLINE           inline
 #else
 #   define SH4_BEGIN_DECLS
 #   define SH4_END_DECLS
+#   define SH4_INLINE           inline static
 #endif
 
 #endif // SH4_CDEFS_H
