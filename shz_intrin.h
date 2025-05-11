@@ -1,21 +1,21 @@
-#ifndef SH4_INTRIN_H
-#define SH4_INTRIN_H
+#ifndef SHZ_INTRIN_H
+#define SHZ_INTRIN_H
 
-#include "sh4_cdefs.h"
+#include "shz_cdefs.h"
 
-#define SH4_F_PI                3.1415926f
-#define SH4_FSCA_RAD_FACTOR     10430.37835f
+#define SHZ_F_PI                3.1415926f
+#define SHZ_FSCA_RAD_FACTOR     10430.37835f
 
-#define SH4_DEG_TO_RAD(deg)     ((deg) * SH4_F_PI / 180.0f)
+#define SHZ_DEG_TO_RAD(deg)     ((deg) * SHZ_F_PI / 180.0f)
 
-#define SH4_MIN(a, b)           (((a) < (b))? (a) : (b))
-#define SH4_MAX(a, b)           (((a) > (b))? (a) : (b))
-#define SH4_CLAMP(v, min, max)  SH4_MIN(SH4_MAX(v, min), max)
-#define SH4_NORM(v, min, max)   ((SH4_CLAMP(v, min, max) - (min)) / ((max) - (min)))
+#define SHZ_MIN(a, b)           (((a) < (b))? (a) : (b))
+#define SHZ_MAX(a, b)           (((a) > (b))? (a) : (b))
+#define SHZ_CLAMP(v, min, max)  SHZ_MIN(SHZ_MAX(v, min), max)
+#define SHZ_NORM(v, min, max)   ((SHZ_CLAMP(v, min, max) - (min)) / ((max) - (min)))
 
-SH4_BEGIN_DECLS
+SHZ_BEGIN_DECLS
 
-SH4_FORCE_INLINE float sh4_floorf(float x) {
+SHZ_FORCE_INLINE float shz_floorf(float x) {
     float result, neg1;
 
     asm volatile(R"(
@@ -35,7 +35,7 @@ SH4_FORCE_INLINE float sh4_floorf(float x) {
     return result;
 }
 
-SH4_FORCE_INLINE float sh4_ceilf(float x) {
+SHZ_FORCE_INLINE float shz_ceilf(float x) {
     float result, zero_one;
 
     asm volatile(R"(
@@ -55,7 +55,7 @@ SH4_FORCE_INLINE float sh4_ceilf(float x) {
     return result;
 }
 
-SH4_FORCE_INLINE float sh4_fmacf(float a, float b, float c) {
+SHZ_FORCE_INLINE float shz_fmacf(float a, float b, float c) {
     register float ra asm("fr0") = a;
 
     asm volatile("fmac fr0, %[b], %[c]"
@@ -65,14 +65,14 @@ SH4_FORCE_INLINE float sh4_fmacf(float a, float b, float c) {
     return c;
 }
 
-SH4_FORCE_INLINE float sh4_lerpf(float a, float b, float t) {
-    return sh4_fmacf(t, (b - a), a);
+SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) {
+    return shz_fmacf(t, (b - a), a);
 }
 
-SH4_FORCE_INLINE float sh4_sinf(float radians) {
+SHZ_FORCE_INLINE float shz_sinf(float radians) {
     register float rsin asm("fr10");
 
-    radians *= SH4_FSCA_RAD_FACTOR;
+    radians *= SHZ_FSCA_RAD_FACTOR;
 
     asm volatile(R"(
         ftrc    %[radians], fpul
@@ -85,10 +85,10 @@ SH4_FORCE_INLINE float sh4_sinf(float radians) {
     return rsin;
 }
 
-SH4_FORCE_INLINE float sh4_cosf(float radians) {
+SHZ_FORCE_INLINE float shz_cosf(float radians) {
     register float rcos asm("fr11");
 
-    radians *= SH4_FSCA_RAD_FACTOR;
+    radians *= SHZ_FSCA_RAD_FACTOR;
 
     asm volatile(R"(
         ftrc    %[radians], fpul
@@ -101,11 +101,11 @@ SH4_FORCE_INLINE float sh4_cosf(float radians) {
     return rcos;
 }
 
-SH4_FORCE_INLINE void sh4_sin_cosf(float radians, float *sin, float *cos) {
+SHZ_FORCE_INLINE void shz_sin_cosf(float radians, float *sin, float *cos) {
     register float rsin asm("fr10");
     register float rcos asm("fr11");
 
-    radians *= SH4_FSCA_RAD_FACTOR;
+    radians *= SHZ_FSCA_RAD_FACTOR;
 
     asm volatile(R"(
         ftrc    %[radians], fpul
@@ -119,31 +119,31 @@ SH4_FORCE_INLINE void sh4_sin_cosf(float radians, float *sin, float *cos) {
     *cos = rcos;
 }
 
-SH4_FORCE_INLINE float sh4_tanf(float radians) {
+SHZ_FORCE_INLINE float shz_tanf(float radians) {
     float s, c;
-    sh4_sin_cosf(radians, &s, &c);
+    shz_sin_cosf(radians, &s, &c);
     return s / c;
 }
 
-SH4_FORCE_INLINE float sh4_sqrtf(float x) {
+SHZ_FORCE_INLINE float shz_sqrtf(float x) {
     asm volatile("fsqrt %0" : "+f" (x));
     return x;
 }
 
-SH4_FORCE_INLINE float sh4_inverse_sqrtf(float x) {
+SHZ_FORCE_INLINE float shz_inverse_sqrtf(float x) {
     asm volatile("fsrra %0" : "+f" (x));
     return x;
 }
 
-SH4_FORCE_INLINE float sh4_inverse_posf(float x) {
-    return sh4_inverse_sqrtf(x * x);
+SHZ_FORCE_INLINE float shz_inverse_posf(float x) {
+    return shz_inverse_sqrtf(x * x);
 }
 
-SH4_FORCE_INLINE float sh4_div_posf(float num, float denom) {
-    return num * sh4_inverse_posf(denom);
+SHZ_FORCE_INLINE float shz_div_posf(float num, float denom) {
+    return num * shz_inverse_posf(denom);
 }
 
-SH4_FORCE_INLINE float sh4_dot8f(float x1, float y1, float z1, float w1,
+SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
                                  float x2, float y2, float z2, float w2) {
     register float rx1 asm("fr0") = x1;
     register float ry1 asm("fr1") = y1;
@@ -162,7 +162,7 @@ SH4_FORCE_INLINE float sh4_dot8f(float x1, float y1, float z1, float w1,
     return rw1;
 }
 
-SH4_FORCE_INLINE float sh4_mag_sqr4f(float x, float y, float z, float w) {
+SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) {
     register float rx asm("fr0") = x;
     register float ry asm("fr1") = y;
     register float rz asm("fr2") = z;
@@ -175,6 +175,6 @@ SH4_FORCE_INLINE float sh4_mag_sqr4f(float x, float y, float z, float w) {
     return rw;
 }
 
-SH4_END_DECLS
+SHZ_END_DECLS
 
-#endif // SH4_INTRIN_H
+#endif // SHZ_INTRIN_H

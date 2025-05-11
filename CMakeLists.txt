@@ -6,13 +6,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(libsh4 main.cpp
-    sh4_intrin.h
-    sh4_matrix.h
-    sh4_vector.h
-    sh4_xmtrx.h
-    sh4_quat.h
-    sh4_cdefs.h
-    sh4_vector.hpp)
+    shz_intrin.h
+    shz_matrix.h
+    shz_vector.h
+    shz_xmtrx.h
+    shz_quat.h
+    shz_cdefs.h
+    shz_vector.hpp)
 
 include(GNUInstallDirs)
 install(TARGETS libsh4
