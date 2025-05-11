@@ -5,6 +5,7 @@
 
 #define SHZ_F_PI                3.1415926f
 #define SHZ_FSCA_RAD_FACTOR     10430.37835f
+#define SHZ_FSCA_DEG_FACTOR     SHZ_DEG_TO_RAD(SHZ_FSCA_RAD_FACTOR)
 
 #define SHZ_DEG_TO_RAD(deg)     ((deg) * SHZ_F_PI / 180.0f)
 #define SHZ_RAD_TO_DEG(rad)     ((rad) * 180.0f / SHZ_F_PI)
@@ -47,12 +48,20 @@ SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) {
     return shz_fmacf(t, (b - a), a);
 }
 
-SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) {
+SHZ_FORCE_INLINE shz_sincos_t shz_sincos16(uint16_t radians16) {
     register _Complex float rsin;
 
-    asm("fsca fpul, %0" : "=f" (rsin) : "y" (radians * SHZ_FSCA_RAD_FACTOR));
+    asm("fsca fpul, %0" : "=f" (rsin) : "y" (radians16));
 
     return (shz_sincos_t){ rsin };
+}
+
+SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) {
+    return shz_sincos16(radians * SHZ_FSCA_RAD_FACTOR);
+}
+
+SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) {
+    return shz_sincos16(radians * SHZ_FSCA_DEG_FACTOR);
 }
 
 SHZ_FORCE_INLINE float shz_sinf(shz_sincos_t sincos) {
@@ -80,9 +89,7 @@ SHZ_FORCE_INLINE float shz_div_posf(float num, float denom) {
     return num * shz_inverse_posf(denom);
 }
 
-SHZ_FORCE_INLINE float shz_tanf(float radians) {
-    shz_sincos_t sincos = shz_sincosf(radians);
-
+SHZ_FORCE_INLINE float shz_tanf(shz_sincos_t sincos) {
     return shz_div_posf(shz_sinf(sincos), shz_cosf(sincos));
 }
 
