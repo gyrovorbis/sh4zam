@@ -5,14 +5,6 @@
 
 SHZ_BEGIN_DECLS
 
-typedef enum shz_xmtrx_regs {
-    SHZ_XMTRX_XF0,  SHZ_XMTRX_XF1,  SHZ_XMTRX_XF2,  SHZ_XMTRX_XF3,  // XV0  (LEFT)
-    SHZ_XMTRX_XF4,  SHZ_XMTRX_XF5,  SHZ_XMTRX_XF6,  SHZ_XMTRX_XF7,  // XV4  (UP)
-    SHZ_XMTRX_XF8,  SHZ_XMTRX_XF9,  SHZ_XMTRX_XF10, SHZ_XMTRX_XF11, // XV8  (FORWARD)
-    SHZ_XMTRX_XF12, SHZ_XMTRX_XF13, SHZ_XMTRX_XF14, SHZ_XMTRX_XF15  // XV12 (POS)
-} shz_xmtrx_regs_t;
-
-// Shear + reflection
 SHZ_HOT SHZ_ICACHE_ALIGNED
 SHZ_INLINE void shz_xmtrx_load_4x4(const shz_matrix_4x4_t *matrix) {
     asm volatile(R"(
@@ -147,9 +139,11 @@ SHZ_INLINE void shz_xmtrx_load_4x4_apply(const shz_matrix_4x4_t *matrix1,
         ftrv    xmtrx, fv12
         frchg
     )"
-    : [m1] "+&r" (matrix1), [m2] "+r" (matrix2), [prefscr] "=&r" (prefetch_scratch)
+    : [m1] "+&r" (matrix1), [m2] "+r" (matrix2),
+      [prefscr] "=&r" (prefetch_scratch)
     :
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
 void shz_xmtrx_load_3x4(const shz_matrix_3x4_t *matrix) {
@@ -238,8 +232,12 @@ void shz_xmtrx_load_2x2(const shz_matrix_2x2_t *matrix) {
     : [mat] "+r" (matrix));
 }
 
+SHZ_FORCE_INLINE unsigned shz_xmtrx_reg(unsigned row, unsigned col) {
+    return col * 4 + row;
+}
+
+// go through FPUL instead of taking value
 #define SHZ_XMTRX_LOAD_SCALAR(val, reg) do { \
-        const auto var = (val);              \
         asm volatile(R"(                     \
             frchg                            \
             fmov.s  @%[s], reg               \
@@ -249,30 +247,30 @@ void shz_xmtrx_load_2x2(const shz_matrix_2x2_t *matrix) {
         : [s] "r" (&var));                   \
     } while(false)
 
-void shz_xmtrx_load_scalar(float value, shz_xmtrx_regs_t reg) {
+void shz_xmtrx_set_reg(float value, unsigned reg) {
     switch(reg) {
-    case SHZ_XMTRX_XF0 : SHZ_XMTRX_LOAD_SCALAR(value, fr0);  break;
-    case SHZ_XMTRX_XF1 : SHZ_XMTRX_LOAD_SCALAR(value, fr1);  break;
-    case SHZ_XMTRX_XF2 : SHZ_XMTRX_LOAD_SCALAR(value, fr2);  break;
-    case SHZ_XMTRX_XF3 : SHZ_XMTRX_LOAD_SCALAR(value, fr3);  break;
-    case SHZ_XMTRX_XF4 : SHZ_XMTRX_LOAD_SCALAR(value, fr4);  break;
-    case SHZ_XMTRX_XF5 : SHZ_XMTRX_LOAD_SCALAR(value, fr5);  break;
-    case SHZ_XMTRX_XF6 : SHZ_XMTRX_LOAD_SCALAR(value, fr6);  break;
-    case SHZ_XMTRX_XF7 : SHZ_XMTRX_LOAD_SCALAR(value, fr7);  break;
-    case SHZ_XMTRX_XF8 : SHZ_XMTRX_LOAD_SCALAR(value, fr8);  break;
-    case SHZ_XMTRX_XF9 : SHZ_XMTRX_LOAD_SCALAR(value, fr9);  break;
-    case SHZ_XMTRX_XF10: SHZ_XMTRX_LOAD_SCALAR(value, fr10); break;
-    case SHZ_XMTRX_XF11: SHZ_XMTRX_LOAD_SCALAR(value, fr11); break;
-    case SHZ_XMTRX_XF12: SHZ_XMTRX_LOAD_SCALAR(value, fr12); break;
-    case SHZ_XMTRX_XF13: SHZ_XMTRX_LOAD_SCALAR(value, fr13); break;
-    case SHZ_XMTRX_XF14: SHZ_XMTRX_LOAD_SCALAR(value, fr14); break;
-    case SHZ_XMTRX_XF15: SHZ_XMTRX_LOAD_SCALAR(value, fr15); break;
+    case 0 : SHZ_XMTRX_LOAD_SCALAR(value, fr0);  break;
+    case 1 : SHZ_XMTRX_LOAD_SCALAR(value, fr1);  break;
+    case 2 : SHZ_XMTRX_LOAD_SCALAR(value, fr2);  break;
+    case 3 : SHZ_XMTRX_LOAD_SCALAR(value, fr3);  break;
+    case 4 : SHZ_XMTRX_LOAD_SCALAR(value, fr4);  break;
+    case 5 : SHZ_XMTRX_LOAD_SCALAR(value, fr5);  break;
+    case 6 : SHZ_XMTRX_LOAD_SCALAR(value, fr6);  break;
+    case 7 : SHZ_XMTRX_LOAD_SCALAR(value, fr7);  break;
+    case 8 : SHZ_XMTRX_LOAD_SCALAR(value, fr8);  break;
+    case 9 : SHZ_XMTRX_LOAD_SCALAR(value, fr9);  break;
+    case 10: SHZ_XMTRX_LOAD_SCALAR(value, fr10); break;
+    case 11: SHZ_XMTRX_LOAD_SCALAR(value, fr11); break;
+    case 12: SHZ_XMTRX_LOAD_SCALAR(value, fr12); break;
+    case 13: SHZ_XMTRX_LOAD_SCALAR(value, fr13); break;
+    case 14: SHZ_XMTRX_LOAD_SCALAR(value, fr14); break;
+    case 15: SHZ_XMTRX_LOAD_SCALAR(value, fr15); break;
     default: break;
     }
 }
 
-SHZ_HOT SHZ_ICACHE_ALIGNED SHZ_INLINE
-void shz_xmtrx_store_4x4(shz_matrix_4x4_t *matrix) {
+SHZ_HOT SHZ_ICACHE_ALIGNED
+SHZ_INLINE void shz_xmtrx_store_4x4(shz_matrix_4x4_t *matrix) {
     asm volatile(R"(
         fschg
         add     #64-8, %[mtx]
@@ -292,13 +290,75 @@ void shz_xmtrx_store_4x4(shz_matrix_4x4_t *matrix) {
     : [mtx] "+&r" (matrix), "=m" (*matrix));
 }
 
-void shz_xmtrx_store_3x4(shz_matrix_3x4_t *matrix);
-void shz_xmtrx_store_3x3(shz_matrix_3x3_t *matrix);
-void shz_xmtrx_store_2x2(shz_matrix_2x2_t *matrix);
-float shz_xmtrx_store_scalar(shz_xmtrx_regs_t reg);
+SHZ_HOT SHZ_ICACHE_ALIGNED
+SHZ_INLINE void shz_xmtrx_store_3x4(shz_matrix_3x4_t *matrix) {
+    asm volatile(R"(
+        frchg
+        add     #48, %[mtx]
 
-SHZ_HOT SHZ_ICACHE_ALIGNED SHZ_INLINE
-void shz_xmtrx_set_identity(void) {
+        fmov.s	fr14, @-%[mtx]
+        fmov.s  fr13, @-%[mtx]
+        fmov.s  fr12, @-%[mtx]
+
+        fmov.s	fr10, @-%[mtx]
+        fmov.s  fr9, @-%[mtx]
+        fmov.s  fr8, @-%[mtx]
+
+        fmov.s	fr6, @-%[mtx]
+        fmov.s  fr5, @-%[mtx]
+        fmov.s  fr4, @-%[mtx]
+
+        fmov.s	fr2, @-%[mtx]
+        fmov.s  fr1, @-%[mtx]
+        fmov.s  fr0, @%[mtx]
+
+        frchg
+    )"
+    : [mtx] "+&r" (matrix), "=m" (*matrix));
+}
+
+SHZ_HOT SHZ_ICACHE_ALIGNED
+SHZ_INLINE void shz_xmtrx_store_3x3(shz_matrix_3x3_t *matrix) {
+    asm volatile(R"(
+        frchg
+        add     #36, %[mtx]
+
+        fmov.s	fr10, @-%[mtx]
+        fmov.s  fr9, @-%[mtx]
+        fmov.s  fr8, @-%[mtx]
+
+        fmov.s	fr6, @-%[mtx]
+        fmov.s  fr5, @-%[mtx]
+        fmov.s  fr4, @-%[mtx]
+
+        fmov.s	fr2, @-%[mtx]
+        fmov.s  fr1, @-%[mtx]
+        fmov.s  fr0, @%[mtx]
+
+        frchg
+    )"
+    : [mtx] "+&r" (matrix), "=m" (*matrix));
+}
+
+SHZ_HOT SHZ_ICACHE_ALIGNED
+SHZ_INLINE void shz_xmtrx_store_2x2(shz_matrix_2x2_t *matrix) {
+    asm volatile(R"(
+        frchg
+        add     #16, %[mtx]
+
+        fmov.s  fr5, @-%[mtx]
+        fmov.s  fr4, @-%[mtx]
+
+        fmov.s  fr1, @-%[mtx]
+        fmov.s  fr0, @%[mtx]
+
+        frchg
+    )"
+    : [mtx] "+&r" (matrix), "=m" (*matrix));
+}
+
+SHZ_HOT SHZ_ICACHE_ALIGNED
+ SHZ_INLINE void shz_xmtrx_set_identity(void) {
     asm volatile(R"(
         frchg
         fldi1	fr0
@@ -319,7 +379,7 @@ void shz_xmtrx_set_identity(void) {
 }
 
 SHZ_HOT SHZ_ICACHE_ALIGNED
-SHZ_INLINE void shz_xmtrx_set_scale(float x, float y, float z) {
+SHZ_INLINE void shz_xmtrx_set_diagonal(float x, float y, float z, float w) {
     asm volatile(R"(
         frchg
         fldi0	fr1
@@ -336,14 +396,17 @@ SHZ_INLINE void shz_xmtrx_set_scale(float x, float y, float z) {
         fmov.s	@%[x], fr0
         fmov.s	@%[y], fr5
         fmov.s	@%[z], fr10
-        fldi1   fr15
+        fmov.s  @%[w], fr15
         frchg
     )"
     :
     : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z));
 }
 
-void shz_xmtrx_set_diagonal(float x, float y, float z, float w);
+SHZ_FORCE_INLINE void shz_xmtrx_set_scale(float x, float y, float z) {
+    shz_xmtrx_set_diagonal(x, y, z, 1.0f);
+}
+
 void shz_xmtrx_set_rotation_x(float angle);
 void shz_xmtrx_set_rotation_y(float angle);
 void shz_xmtrx_set_rotation_z(float angle);
