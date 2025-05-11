@@ -459,7 +459,7 @@ SHZ_INLINE void shz_xmtrx_set_rotation_y(float angle) {
 }
 
 SHZ_INLINE void shz_xmtrx_set_rotation_z(float angle) {
-    z *= SHZ_FSCA_RAD_FACTOR; 
+    z *= SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    %[z], fpul
         frchg
@@ -512,7 +512,7 @@ SHZ_INLINE void shz_xmtrx_set_translation(float x, float y, float z) {
 SHZ_INLINE void shz_xmtrx_set_symmetric_skew(float x, float y, float z) {
     asm volatile(R"(
         frchg
-        
+
         fldi0   fr0
         fmov.s  @%[z], fr1
         fmov.s  @%[y], fr2
@@ -771,7 +771,41 @@ void shz_xmtrx_outer_product_4x4(shz_vec4_t col, shz_vec4_t row);
 void shz_xmtrx_invert(void);
 void shz_xmtrx_invert_full(void);
 float shz_xmtrx_determinant(void);
-void shz_xmtrx_transpose(void);
+
+SHZ_INLINE void shz_xmtrx_transpose(void) {
+    asm volatile (R"(
+        frchg
+
+        flds    fr1, fpul
+        fmov    fr4, fr1
+        fsts    fpul, fr4
+
+        flds    fr2, fpul
+        fmov    fr8, fr2
+        fsts    fpul, fr8
+
+        flds    fr3, fpul
+        fmov    fr12, fr3
+        fsts    fpul, fr12
+
+        flds    fr6, fpul
+        fmov    fr9, fr6
+        fsts    fpul, fr9
+
+        flds    fr7, fpul
+        fmov    fr13, fr7
+        fsts    fpul, fr13
+
+        flds    fr11, fpUL
+        fmov    fr14, fr11
+        fsts    fpul, fr14
+
+        frchg
+    )"
+    :
+    :
+    : "fpul");
+}
 
 SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_trans_vec4(shz_vec4_t vec) {
     register float rx asm("fr0") = vec.x;

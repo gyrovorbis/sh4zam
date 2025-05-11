@@ -55,7 +55,7 @@ SHZ_INLINE shz_matrix_4x4_copy(shz_matrix_4x4 *dest, const shz_matrix_4x4 *src) 
         fmov.d  @%[src]+, xd2
         fmov.d  @%[src]+, xd4
         fmov.d  @%[src]+, xd6
-    
+
         pref    @%[src]
         add     #32, %[dst]
 
