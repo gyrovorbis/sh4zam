@@ -88,6 +88,20 @@ SHZ_FORCE_INLINE float shz_div_posf(float num, float denom) {
     return num * shz_inverse_posf(denom);
 }
 
+SHZ_FORCE_INLINE float shz_fast_invf(float x) {
+    float inv;
+
+    if (__builtin_constant_p(x))
+        return 1.0f / x;
+
+    inv = shz_inverse_posf(x);
+
+    if (x < 0.0f)
+        inv = -inv;
+
+    return inv;
+}
+
 SHZ_FORCE_INLINE float shz_tanf(shz_sincos_t sincos) {
     return shz_div_posf(shz_sinf(sincos), shz_cosf(sincos));
 }
