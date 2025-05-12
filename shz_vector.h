@@ -69,17 +69,36 @@ SHZ_FORCE_INLINE float shz_vec2_distance(shz_vec2_t vec1, shz_vec2_t vec2) {
     return shz_vec2_magnitude(shz_vec2_sub(vec1, vec2));
 }
 
+SHZ_FORCE_INLINE float shz_vec2_distance_sqr(shz_vec2_t vec1, shz_vec2_t vec2) {
+    return shz_vec2_magnitude_sqr(shz_vec2_sub(vec1, vec2));
+}
+
 SHZ_FORCE_INLINE float shz_vec2_cross(shz_vec2_t vec1, shz_vec2_t vec2) {
     return vec1.x * vec2.y - vec1.y * vec2.x;
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_lerp(shz_vec2_t a, shz_vec2_t b, float t) {
+    return (shz_vec2_t) { shz_lerpf(a.x, b.x, t), shz_lerpf(a.y, b.y, t) };
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_reflect(shz_vec2_t incidence, shz_vec2_t normal) {
 
 }
 
-shz_vec2_t shz_vec2_from_angle(float angle);
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project(shz_vec2_t vec, sh_vec2_t onto) {
 
-float shz_vec2_angle(shz_vec2_t vec);
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_angle(float radians) {
+    shz_sincos_t sin_cos = shz_sincosf(radians);
+    return (shz_vec2_t) { __real__ sin_cos.f, __image__ sincos.f };}
+}
+
+SHZ_FORCE_INLINE float shz_vec2_angle(shz_vec2_t vec) {
+    return atan2f(vec.y, vec.x);
+}
+
+SHZ_FORCE_INLINE float sh2_vec2_angle_between(sh2_vec2_t vec1, sh2_vec2_t vec2);
 
 typedef union shz_vec3 {
     struct {
@@ -107,6 +126,7 @@ shz_vec3_t shz_vec3_sub(shz_vec3_t vec1, shz_vec3_t vec2);
 shz_vec3_t shz_vec3_mul(shz_vec3_t vec, float factor);
 shz_vec3_t shz_vec3_div(shz_vec3_t vec, float factor);
 float shz_vec3_distance(shz_vec3_t vec1, shz_vec3_t vec2);
+float shz_vec3_distance_sqr(shz_vec3_t vec1, shz_vec3_t vec2);
 shz_vec3_t shz_vec3_cross(shz_vec3_t vec1, shz_vec3_t vec2);
 
 typedef union shz_vec4 {

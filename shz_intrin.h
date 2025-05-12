@@ -33,9 +33,8 @@ SHZ_FORCE_INLINE float shz_floorf(float x) {
 SHZ_FORCE_INLINE float shz_ceilf(float x) {
     float result = (float)(int)x;
 
-    if (x > result) {
+    if (x > result)
         result += 1.0f;
-    }
 
     return result;
 }
@@ -107,7 +106,7 @@ SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
     asm("fipr fv0, fv4"
         : "+f" (rw2)
         : "f" (rx1), "f" (ry1), "f" (rz1), "f" (rw1)
-        "f" (rx2), "f" (ry2), "f" (rz2));
+          "f" (rx2), "f" (ry2), "f" (rz2));
 
     return rw1;
 }
