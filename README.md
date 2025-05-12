@@ -1,6 +1,6 @@
 <!-- PROJECT LOGO -->
 <div align="center">
-  <a href="https://github.com/gyrovorbis/sh4zam">
+  <a href="https://github.com/gyrovorbis/SH4ZAM!">
     <img src="doc/logo.png" alt="Sh4zam">
   </a>
   <h3 align="center"><strong>Sh4zam</strong></h1>
