@@ -3,14 +3,14 @@
   <a href="https://github.com/gyrovorbis/sh4zam">
     <img src="doc/logo.png" alt="Sh4zam">
   </a>
-  <h1 align="center"><strong>Sh4zam</strong></h1>
+  <h3 align="center"><strong>Sh4zam</strong></h1>
   <p align="center">
     Fast math library for the Sega Dreamcast's SH4 CPU.
     <br />
   </p>
 </div>
-
-NOTE: This repo is still undergoing rapid changes as we pull in these routines from various places, get them exposed via both C and C++ APIs, and get them unit tested. It is not advised that you use it just yet, as we have yet to rigorously validate things; however, please do open tickets if you are in need of any math routines or operations that you aren't seeing as part of the API!
+<hr>
+NOTE: <i>This repo is still undergoing rapid changes as we pull in these routines from various places, get them exposed via both C and C++ APIs, and get them unit tested. It is not advised that you use it just yet, as we have yet to rigorously validate things; however, please do open tickets if you are in need of any math routines or operations that you aren't seeing as part of the API!</i>
 
 # Overview
 
