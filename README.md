@@ -35,7 +35,7 @@ Special thanks to the following individuals who have either directly or indirect
 - MoopTheHedgehog
 - Mikael Kalms
 - Twada
-- yombo
+- yomboprime
 - freakdave
 - Ian Michael
 - HailToDodongo
