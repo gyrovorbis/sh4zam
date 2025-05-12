@@ -94,20 +94,22 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_mul(shz_vec4_t vec, float factor) {
              shz_vec4_t: shz_vec4_mul)(vec, factor)
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_div(shz_vec2_t vec, float factor) {
-    float inv_factor;
-
-    if (__builtin_constant_p(factor)) {
-        /* TODO: verify this branch is actually taken */
-        inv_factor = 1.0f / factor;
-    } else {
-        inv_factor = shz_inverse_posf(factor);
-
-        if(factor < 0.0f)
-            inv_factor *= -1.0f;
-    }
-
-    return shz_vec2_mul(vec, inv_factor);
+    return shz_vec2_mul(vec, shz_fast_invf(factor));
 }
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_div(shz_vec3_t vec, float factor) {
+    return shz_vec3_mul(vec, shz_fast_invf(factor));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_div(shz_vec4_t vec, float factor) {
+    return shz_vec4_mul(vec, shz_fast_invf(factor));
+}
+
+#define shz_vec_div(vec, factor) \
+    _Generic((vec), \
+             shz_vec2_t: shz_vec2_div, \
+             shz_vec3_t: shz_vec3_div, \
+             shz_vec4_t: shz_vec4_div)(vec, factor)
 
 /* 3D math */
 
