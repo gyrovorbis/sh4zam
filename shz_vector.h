@@ -34,7 +34,7 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec3_to_vec4(shz_vec3_t vec) {
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec2_to_vec3(shz_vec2_t vec) {
-    return (shz_vec4_t){ vec.x, vec.y, 0.0f };
+    return (shz_vec3_t){ vec.x, vec.y, 0.0f };
 }
 
 /* Simple arithmetic */
@@ -44,11 +44,11 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_add(shz_vec2_t vec1, shz_vec2_t vec2) {
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_add(shz_vec3_t vec1, shz_vec3_t vec2) {
-    return (shz_vec2_t) { vec1.x + vec2.x, vec1.y + vec2.y, vec1.z + vec2.z };
+    return (shz_vec3_t) { vec1.x + vec2.x, vec1.y + vec2.y, vec1.z + vec2.z };
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_add(shz_vec4_t vec1, shz_vec4_t vec2) {
-    return (shz_vec2_t) { vec1.x + vec2.x, vec1.y + vec2.y, vec1.z + vec2.z, vec1.w + vec2.w };
+    return (shz_vec4_t) { vec1.x + vec2.x, vec1.y + vec2.y, vec1.z + vec2.z, vec1.w + vec2.w };
 }
 
 #define shz_vec_add(vec1, vec2) \
@@ -62,11 +62,11 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_sub(shz_vec2_t vec1, shz_vec2_t vec2) {
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_sub(shz_vec3_t vec1, shz_vec3_t vec2) {
-    return (shz_vec2_t) { vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z };
+    return (shz_vec3_t) { vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z };
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_sub(shz_vec4_t vec1, shz_vec4_t vec2) {
-    return (shz_vec2_t) { vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z, vec1.w - vec2.w };
+    return (shz_vec4_t) { vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z, vec1.w - vec2.w };
 }
 
 #define shz_vec_sub(vec1, vec2) \
@@ -80,11 +80,11 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_mul(shz_vec2_t vec, float factor) {
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_mul(shz_vec3_t vec, float factor) {
-    return (shz_vec2_t) { vec.x * factor, vec.y * factor, vec.z * factor };
+    return (shz_vec3_t) { vec.x * factor, vec.y * factor, vec.z * factor };
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_mul(shz_vec4_t vec, float factor) {
-    return (shz_vec2_t) { vec.x * factor, vec.y * factor, vec.z * factor, vec.w * factor };
+    return (shz_vec4_t) { vec.x * factor, vec.y * factor, vec.z * factor, vec.w * factor };
 }
 
 #define shz_vec_mul(vec, factor) \
@@ -268,8 +268,8 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_lerp(shz_vec3_t a, shz_vec3_t b, float t) {
     };
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_lerp(shz_vec3_t a, shz_vec3_t b, float t) {
-    return (shz_vec3_t) {
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_lerp(shz_vec4_t a, shz_vec4_t b, float t) {
+    return (shz_vec4_t) {
         shz_lerpf(a.x, b.x, t),
         shz_lerpf(a.y, b.y, t),
         shz_lerpf(a.z, b.z, t),
