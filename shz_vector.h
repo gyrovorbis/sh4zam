@@ -166,9 +166,12 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project(shz_vec2_t vec, sh_vec2_t onto) {
 
 }
 
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_sincos(shz_sincos_t sincos) {
+    return (shz_vec2_t) { __real__ sincos.f, __image__ sincos.f };
+}
+
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_angle(float radians) {
-    shz_sincos_t sin_cos = shz_sincosf(radians);
-    return (shz_vec2_t) { __real__ sin_cos.f, __image__ sincos.f };}
+    return shz_vec2_from_sincos(shz_sincosf(radians));
 }
 
 SHZ_FORCE_INLINE float shz_vec2_angle(shz_vec2_t vec) {
