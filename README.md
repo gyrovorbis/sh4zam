@@ -1,9 +1,9 @@
 <!-- PROJECT LOGO -->
 <div align="center">
-  <a href="https://github.com/gyrovorbis/SH4ZAM!">
+  <a href="https://github.com/gyrovorbis/sh4zam">
     <img src="doc/logo.png" alt="Sh4zam">
   </a>
-  <h3 align="center"><strong>Sh4zam</strong></h1>
+  <h3 align="center"><strong>SH4ZAM!</strong></h1>
   <p align="center">
     Fast math library for the Sega Dreamcast's SH4 CPU.
     <br />
