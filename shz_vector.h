@@ -43,13 +43,55 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_add(shz_vec2_t vec1, shz_vec2_t vec2) {
     return (shz_vec2_t) { vec1.x + vec2.x, vec1.y + vec2.y };
 }
 
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_add(shz_vec3_t vec1, shz_vec3_t vec2) {
+    return (shz_vec2_t) { vec1.x + vec2.x, vec1.y + vec2.y, vec1.z + vec2.z };
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_add(shz_vec4_t vec1, shz_vec4_t vec2) {
+    return (shz_vec2_t) { vec1.x + vec2.x, vec1.y + vec2.y, vec1.z + vec2.z, vec1.w + vec2.w };
+}
+
+#define shz_vec_add(vec1, vec2) \
+    _Generic((vec1), \
+             shz_vec2_t: shz_vec2_add, \
+             shz_vec3_t: shz_vec3_add, \
+             shz_vec4_t: shz_vec4_add)(vec1, vec2)
+
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_sub(shz_vec2_t vec1, shz_vec2_t vec2) {
     return (shz_vec2_t) { vec1.x - vec2.x, vec1.y - vec2.y };
 }
 
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_sub(shz_vec3_t vec1, shz_vec3_t vec2) {
+    return (shz_vec2_t) { vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z };
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_sub(shz_vec4_t vec1, shz_vec4_t vec2) {
+    return (shz_vec2_t) { vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z, vec1.w - vec2.w };
+}
+
+#define shz_vec_sub(vec1, vec2) \
+    _Generic((vec1), \
+             shz_vec2_t: shz_vec2_sub, \
+             shz_vec3_t: shz_vec3_sub, \
+             shz_vec4_t: shz_vec4_sub)(vec1, vec2)
+
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_mul(shz_vec2_t vec, float factor) {
     return (shz_vec2_t) { vec.x * factor, vec.y * factor };
 }
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_mul(shz_vec3_t vec, float factor) {
+    return (shz_vec2_t) { vec.x * factor, vec.y * factor, vec.z * factor };
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_mul(shz_vec4_t vec, float factor) {
+    return (shz_vec2_t) { vec.x * factor, vec.y * factor, vec.z * factor, vec.w * factor };
+}
+
+#define shz_vec_mul(vec, factor) \
+    _Generic((vec), \
+             shz_vec2_t: shz_vec2_mul, \
+             shz_vec3_t: shz_vec3_mul, \
+             shz_vec4_t: shz_vec4_mul)(vec, factor)
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_div(shz_vec2_t vec, float factor) {
     float inv_factor;
