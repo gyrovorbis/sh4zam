@@ -117,6 +117,21 @@ SHZ_FORCE_INLINE float shz_vec2_dot(shz_vec2_t vec1, shz_vec2_t vec2) {
     return vec1.x * vec2.x + vec1.y * vec2.y;
 }
 
+SHZ_FORCE_INLINE float shz_vec4_dot(shz_vec4_t vec1, shz_vec4_t vec2) {
+    return shz_dot8f(vec1.x, vec1.y, vec1.z, vec1.w,
+                     vec2.x, vec2.y, vec2.z, vec2.w);
+}
+
+SHZ_FORCE_INLINE float shz_vec3_dot(shz_vec3_t vec1, shz_vec3_t vec2) {
+    return shz_vec4_dot(shz_vec3_to_vec4(vec1), shz_vec3_to_vec4(vec2));
+}
+
+#define shz_vec_dot(vec1, vec2) \
+    _Generic((vec1), \
+             shz_vec2_t: shz_vec2_dot, \
+             shz_vec3_t: shz_vec3_dot, \
+             shz_vec4_t: shz_vec4_dot)(vec1, vec2)
+
 SHZ_FORCE_INLINE float shz_vec2_magnitude_sqr(shz_vec2_t vec) {
     return shz_vec2_dot(vec, vec);
 }
@@ -182,28 +197,18 @@ SHZ_FORCE_INLINE float sh2_vec2_angle_between(sh2_vec2_t vec1, sh2_vec2_t vec2);
 
 void shz_vec3_angles(shz_vec3_t vec, float *azimuth, float *elevation, float *roll);
 shz_vec3_t shz_vec3_from_angles(float azimuth, float elevation, float roll);
-float shz_vec3_dot(shz_vec3_t vec1, shz_vec3_t vec2);
 float shz_vec3_magnitude(shz_vec3_t vec);
 float shz_vec3_magnitude_sqr(shz_vec3_t vec);
 shz_vec3_t shz_vec3_normalize(shz_vec3_t vec);
 shz_vec3_t shz_vec3_normalize_safe(shz_vec3_t vec);
-shz_vec3_t shz_vec3_add(shz_vec3_t vec1, shz_vec3_t vec2);
-shz_vec3_t shz_vec3_sub(shz_vec3_t vec1, shz_vec3_t vec2);
-shz_vec3_t shz_vec3_mul(shz_vec3_t vec, float factor);
-shz_vec3_t shz_vec3_div(shz_vec3_t vec, float factor);
 float shz_vec3_distance(shz_vec3_t vec1, shz_vec3_t vec2);
 float shz_vec3_distance_sqr(shz_vec3_t vec1, shz_vec3_t vec2);
 shz_vec3_t shz_vec3_cross(shz_vec3_t vec1, shz_vec3_t vec2);
 
-float shz_vec4_dot(shz_vec4_t vec1, shz_vec4_t vec2);
 float shz_vec4_magnitude(shz_vec4_t vec);
 float shz_vec4_magnitude_sqr(shz_vec4_t vec);
 shz_vec4_t shz_vec4_normalize(shz_vec4_t vec);
 shz_vec4_t shz_vec4_normalize_safe(shz_vec4_t vec);
-shz_vec4_t shz_vec4_add(shz_vec4_t vec1, shz_vec4_t vec2);
-shz_vec4_t shz_vec4_sub(shz_vec4_t vec1, shz_vec4_t vec2);
-shz_vec4_t shz_vec4_mul(shz_vec4_t vec, float factor);
-shz_vec4_t shz_vec4_div(shz_vec4_t vec, float factor);
 float shz_vec4_distance(shz_vec4_t vec1, shz_vec4_t vec2);
 shz_vec4_t shz_vec4_cross(shz_vec4_t vec1, shz_vec4_t vec2);
 
