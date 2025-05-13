@@ -122,7 +122,7 @@ SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
         : "f" (rx1), "f" (ry1), "f" (rz1), "f" (rw1)
           "f" (rx2), "f" (ry2), "f" (rz2));
 
-    return rw1;
+    return rw2;
 }
 
 SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) {

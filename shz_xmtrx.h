@@ -608,7 +608,10 @@ SHZ_INLINE void shz_xmtrx_apply_3x4(const shz_matrix_3x4_t *matrix) {
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-void shz_xmtrx_apply_3x3(const shz_matrix_3x3_t *matrix);
+void shz_xmtrx_apply_3x3(const shz_matrix_3x3_t *matrix) {
+
+}
+
 void shz_xmtrx_apply_2x2(const shz_matrix_2x2_t *matrix);
 
 SHZ_INLINE void shz_xmtrx_apply_translation(float x, float y, float z) {
