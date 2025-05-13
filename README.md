@@ -40,3 +40,4 @@ Special thanks to the following individuals who have either directly or indirect
 - David Reichelt
 - Ian Michael
 - HailToDodongo
+- Jesse Stojan

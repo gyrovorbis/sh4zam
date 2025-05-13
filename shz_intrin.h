@@ -47,6 +47,10 @@ SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) {
     return shz_fmacf(t, (b - a), a);
 }
 
+SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u, float v) {
+    return shz_fmacf(u, (b - a), shz_fmacf(v, (c - a), a));
+}
+
 SHZ_FORCE_INLINE shz_sincos_t shz_sincos16(uint16_t radians16) {
     register _Complex float rsin;
 

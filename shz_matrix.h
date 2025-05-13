@@ -5,7 +5,7 @@
 
 SHZ_BEGIN_DECLS
 
-typedef union shz_matrix_2x2 {
+typedef SHZ_ALIGNAS(8) union shz_matrix_2x2 {
     float       elem[4];
     float       elem2D[2][2];
     shz_vec2_t  col[2];
