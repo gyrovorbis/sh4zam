@@ -28,14 +28,15 @@ NOTE: <i>This repo is still undergoing rapid changes as we pull in these routine
 
 Special thanks to the following individuals who have either directly or indirectly contributed to `sh4zam`:
 - Falco Girgis
-- Paul Cercuei
+- Paul Cercueil
 - Oleg Endo
 - jnmartin64
-- skmp
+- Stefanos Kornilios Mitsis Poiitidis
 - MoopTheHedgehog
 - Mikael Kalms
 - Twada
+- TapamN
 - yomboprime
-- freakdave
+- David Reichelt
 - Ian Michael
 - HailToDodongo
