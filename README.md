@@ -38,6 +38,7 @@ Special thanks to the following individuals who have either directly or indirect
 - TapamN
 - yomboprime
 - David Reichelt
+- Luke Benstead
 - Ian Michael
 - HailToDodongo
 - Jesse Stojan

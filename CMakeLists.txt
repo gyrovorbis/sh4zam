@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(libsh4 LANGUAGES CXX)
+project(sh4zam LANGUAGES C CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
+
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
 
-add_executable(libsh4 main.cpp
+add_executable(sh4zam main.cpp
     shz_intrin.h
     shz_matrix.h
     shz_vector.h
@@ -15,7 +20,7 @@ add_executable(libsh4 main.cpp
     shz_vector.hpp)
 
 include(GNUInstallDirs)
-install(TARGETS libsh4
+install(TARGETS sh4zam
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

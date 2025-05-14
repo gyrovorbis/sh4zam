@@ -1,3 +1,13 @@
+/*! \file
+ *  \brief General-purpose math "intrinsics."
+ *
+ *  This file provides the lowest-level C API providing
+ *  general-purpose fast math routines.
+ * 
+ *  \author Falco Girgis
+ *  \author Paul Cercueil
+ */
+
 #ifndef SHZ_INTRIN_H
 #define SHZ_INTRIN_H
 
@@ -17,8 +27,9 @@
 
 SHZ_BEGIN_DECLS
 
-typedef struct shz_sincos {
-    _Complex float f;
+typedef SHZ_ALIGN(8) struct shz_sincos {
+    float sin;
+    float cos;
 } shz_sincos_t;
 
 SHZ_FORCE_INLINE float shz_floorf(float x) {
@@ -51,28 +62,51 @@ SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u,
     return shz_fmacf(u, (b - a), shz_fmacf(v, (c - a), a));
 }
 
-SHZ_FORCE_INLINE shz_sincos_t shz_sincos16(uint16_t radians16) {
-    register _Complex float rsin;
+SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16(uint16_t radians16) {
+    register float rsin asm("fr0");
+    register float rcos asm("fr1");
 
-    asm("fsca fpul, %0" : "=f" (rsin) : "y" (radians16));
+    asm("fsca fpul, dr0"
+        : "=f" (rsin), "=f" (rcos)
+        : "y" (radians16));
 
-    return (shz_sincos_t){ rsin };
+    return (shz_sincos_t){ rsin, rcos };
 }
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) {
-    return shz_sincos16(radians * SHZ_FSCA_RAD_FACTOR);
+    return shz_sincosu16(radians * SHZ_FSCA_RAD_FACTOR);
 }
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) {
-    return shz_sincos16(radians * SHZ_FSCA_DEG_FACTOR);
+    return shz_sincosu16(degrees * SHZ_FSCA_DEG_FACTOR);
 }
 
-SHZ_FORCE_INLINE float shz_sinf(shz_sincos_t sincos) {
-    return __real__ sincos.f;
+SHZ_FORCE_INLINE float shz_sincos_tanf(shz_sincos_t sincos) {
+    return sincos.sin / sincos.cos;
 }
 
-SHZ_FORCE_INLINE float shz_cosf(shz_sincos_t sincos) {
-    return __imag__ sincos.f;
+SHZ_FORCE_INLINE float shz_sinf(float radians) {
+    return shz_sincosf(radians).sin;
+}
+
+SHZ_FORCE_INLINE float shz_sinf_deg(float degrees) {
+    return shz_sincosf_deg(degrees).sin;
+}
+
+SHZ_FORCE_INLINE float shz_cosf(float radians) {
+    return shz_sincosf(radians).cos;
+}
+
+SHZ_FORCE_INLINE float shz_cosf_deg(float degrees) {
+    return shz_sincosf_deg(degrees).cos;
+}
+
+SHZ_FORCE_INLINE float shz_tanf(float radians) {
+    shz_sincos_tanf(shz_sincosf(radians));
+}
+
+SHZ_FORCE_INLINE float shz_tanf_deg(float degrees) {
+    shz_sincos_tanf(shz_sincosf_deg(degrees));
 }
 
 SHZ_FORCE_INLINE float shz_sqrtf(float x) {
@@ -123,7 +157,7 @@ SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
 
     asm("fipr fv0, fv4"
         : "+f" (rw2)
-        : "f" (rx1), "f" (ry1), "f" (rz1), "f" (rw1)
+        : "f" (rx1), "f" (ry1), "f" (rz1), "f" (rw1),
           "f" (rx2), "f" (ry2), "f" (rz2));
 
     return rw2;

@@ -11,7 +11,7 @@ typedef struct shz_quat {
 } shz_quat_t;
 
 SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
-     /*
+    /*
         // reorder the coefficients so that q1 stays in constant order {x,y,z,w}
         // q2 then needs to be rotated after each inner product
         x =  (q1.x * q2.w) + (q1.y * q2.z) - (q1.z * q2.y) + (q1.w * q2.x);
