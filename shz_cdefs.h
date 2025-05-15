@@ -48,6 +48,7 @@
     } while(false)
 //! @}
 
+//! \cond
 /*! \name Compiler attributes
  *  \brief Defines for commonly-used GCC attributes.
  *  @{
@@ -69,28 +70,29 @@
 
 #ifndef __cplusplus
     //! Dummy define provided for C++ compatibility
-#   define SHZ_BEGIN_DECLS
+#   define SHZ_DECLS_BEGIN
     //! Dummy define provided for C++ compatibility
-#   define SHZ_END_DECLS
+#   define SHZ_DECLS_END
     //! Requests a function or member to be inlined (nonforcibly) OR to have static linkage.
 #   define SHZ_INLINE           inline static
 #else
     //! Forces functions declared after this directive to use C linkage.
-#   define SHZ_BEGIN_DECLS      extern "C" {
+#   define SHZ_DECLS_BEGIN      extern "C" {
     //! Ends forcing functions to use C linkage.
-#   define SHZ_END_DECLS        }
+#   define SHZ_DECLS_END        }
     //! Requests a function or member to be inlined (nonforcibly).
 #   define SHZ_INLINE           inline
 #endif
 //! @}
+//! \endcond
 
 //! Namespace containing the C++23 interface of the SH4ZAM API.
 namespace shz {
-    //! Utility class used give a derived class compatibility with a value type.
+    //! Utility class template used give a derived class compatibility with a value type.
     template<typename P>
     class primitive_compatible {
     protected:
-        P value_;   //<! Encapsulated inner value of the requested type.
+        P value_; //<! Encapsulated inner value of the requested type.
     public:
         //! Allows construction from an existing compatible value or its default value.
         SHZ_FORCE_INLINE primitive_compatible(P value={}) noexcept:

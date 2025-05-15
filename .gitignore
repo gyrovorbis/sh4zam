@@ -5,3 +5,5 @@ CMakeLists.txt.user
 *.d
 build/
 .vscode/
+doc/html/
+doc/latex/

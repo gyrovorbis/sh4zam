@@ -22,7 +22,7 @@
 //! Clamps \p v within \p min and \p max then normalizes it between 0.0f and 1.0f
 #define SHZ_NORM(v, min, max)   ((SHZ_CLAMP(v, min, max) - (min)) / ((max) - (min)))
 
-SHZ_BEGIN_DECLS
+SHZ_DECLS_BEGIN
 
 //! Returns the closest integral value to \p x, rounded down, as a float.
 SHZ_FORCE_INLINE float shz_floorf(float x) {
@@ -129,6 +129,6 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) {
     return rw;
 }
 
-SHZ_END_DECLS
+SHZ_DECLS_END
 
 #endif // SHZ_INTRIN_H

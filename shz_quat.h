@@ -3,6 +3,8 @@
 
 #include "shz_intrin.h"
 
+SHZ_DECLS_BEGIN
+
 typedef struct shz_quat {
     float x;
     float y;
@@ -98,5 +100,6 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
         r->w = q2w;
 }
 
+SHZ_DECLS_END
 
 #endif // SHZ_QUAT_H

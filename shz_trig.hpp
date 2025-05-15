@@ -34,28 +34,16 @@ namespace shz {
         }
     };
 
-    constexpr auto floorf            = shz_floorf;
-    constexpr auto ceilf             = shz_ceilf;
-    constexpr auto fmacf             = shz_fmacf;
-    constexpr auto lerpf             = shz_lerpf;
-    constexpr auto barycentric_lerpf = shz_barycentric_lerpf;
-    constexpr auto sincosu16         = shz_sincosu16;
-    constexpr auto sincosf           = shz_sincosf;
-    constexpr auto sincosf_deg       = shz_sincosf_deg;
-    constexpr auto sincos_tanf       = shz_sincos_tanf;
-    constexpr auto sinf              = shz_sinf;
-    constexpr auto sinf_deg          = shz_sinf_deg;
-    constexpr auto cosf              = shz_cosf;
-    constexpr auto cosf_deg          = shz_cosf_deg;
-    constexpr auto tanf              = shz_tanf;
-    constexpr auto tanf_deg          = shz_tanf_deg;
-    constexpr auto sqrtf             = shz_sqrtf;
-    constexpr auto inverse_sqrtf     = shz_inverse_sqrtf;
-    constexpr auto inverse_posf      = shz_inverse_posf;
-    constexpr auto div_posf          = shz_div_posf;
-    constexpr auto fast_invf         = shz_fast_invf;
-    constexpr auto dot8f             = shz_dot8f;
-    constexpr auto mag_sqr4f         = shz_mag_sqr4f;
+    constexpr auto sincosu16   = shz_sincosu16;
+    constexpr auto sincosf     = shz_sincosf;
+    constexpr auto sincosf_deg = shz_sincosf_deg;
+    constexpr auto sincos_tanf = shz_sincos_tanf;
+    constexpr auto sinf        = shz_sinf;
+    constexpr auto sinf_deg    = shz_sinf_deg;
+    constexpr auto cosf        = shz_cosf;
+    constexpr auto cosf_deg    = shz_cosf_deg;
+    constexpr auto tanf        = shz_tanf;
+    constexpr auto tanf_deg    = shz_tanf_deg;
 }
 
 #endif

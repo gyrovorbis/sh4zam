@@ -10,6 +10,11 @@
 #ifndef SHZ_TRIG_H
 #define SHZ_TRIG_H
 
+/** \defgroup trig Trigonometry
+ *  \brief         Trig functions and utilities.
+ *  \todo          FILL ME IN
+ */
+
 #include "shz_cdefs.h"
 
 //! Single-precision floating-point PI approximation (do not use M_PI!)
@@ -24,10 +29,9 @@
 //! Converts the given angle in radians to degrees
 #define SHZ_RAD_TO_DEG(rad)     ((rad) * 180.0f / SHZ_F_PI)
 
-SHZ_BEGIN_DECLS
+SHZ_DECLS_BEGIN
 
 /*! Pair representing the sine and cosine of a given angle. 
- *  \ingroup trig
  *  
  *  The SH4 provides a single instruction, `FSCA`, for retrieving fast
  *  approximations of \b both the sine and cosine of a given angle. As such,
@@ -36,7 +40,7 @@ SHZ_BEGIN_DECLS
  * 
  *  \sa shz_sincosf(), shz_sincosf_deg()
  */
-typedef SHZ_ALIGN(8) struct shz_sincos {
+typedef SHZ_ALIGNAS(8) struct shz_sincos {
     float sin;      //!< sin() approximation of the angle
     float cos;      //!< cos() approximation of the angle
 } shz_sincos_t;
@@ -98,6 +102,6 @@ SHZ_FORCE_INLINE float shz_tanf_deg(float degrees) {
     shz_sincos_tanf(shz_sincosf_deg(degrees));
 }
 
-SHZ_END_DECLS
+SHZ_DECLS_END
 
 #endif

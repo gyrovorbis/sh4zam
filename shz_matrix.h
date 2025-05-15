@@ -3,7 +3,7 @@
 
 #include "shz_vector.h"
 
-SHZ_BEGIN_DECLS
+SHZ_DECLS_BEGIN
 
 typedef SHZ_ALIGNAS(8) union shz_matrix_2x2 {
     float       elem[4];
@@ -83,6 +83,6 @@ SHZ_INLINE shz_matrix_4x4_copy(shz_matrix_4x4 *dst, const shz_matrix_4x4 *src) {
     : [dst] "+&r" (dst), [src] "+&r" (src), "=m" (*dst));
 }
 
-SHZ_END_DECLS
+SHZ_DECLS_END
 
 #endif // SHZ_MATRIX_H
