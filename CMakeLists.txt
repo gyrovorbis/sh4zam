@@ -11,12 +11,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
 add_executable(sh4zam main.cpp
-    shz_intrin.h
-    shz_matrix.h
+    shz_cdefs.h
+    shz_trig.h
+    shz_scalar.h
     shz_vector.h
     shz_xmtrx.h
+    shz_matrix.h
     shz_quat.h
-    shz_cdefs.h
     shz_vector.hpp)
 
 include(GNUInstallDirs)

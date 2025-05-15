@@ -1,37 +1,30 @@
 /*! \file
- *  \brief General-purpose math "intrinsics."
+ *  \brief General-purpose scalar math routines.
+ *  \ingroup scalar
  *
- *  This file provides the lowest-level C API providing
- *  general-purpose fast math routines.
+ *  This file provides a collection of general-purpose math routines for
+ *  individual scalar values.
  * 
  *  \author Falco Girgis
  *  \author Paul Cercueil
  */
-
-#ifndef SHZ_INTRIN_H
-#define SHZ_INTRIN_H
+#ifndef SHZ_SCALAR_H
+#define SHZ_SCALAR_H
 
 #include "shz_cdefs.h"
 
-#define SHZ_F_PI                3.1415926f
-#define SHZ_FSCA_RAD_FACTOR     10430.37835f
-#define SHZ_FSCA_DEG_FACTOR     SHZ_DEG_TO_RAD(SHZ_FSCA_RAD_FACTOR)
-
-#define SHZ_DEG_TO_RAD(deg)     ((deg) * SHZ_F_PI / 180.0f)
-#define SHZ_RAD_TO_DEG(rad)     ((rad) * 180.0f / SHZ_F_PI)
-
+//! Returns the minimum of the two given values
 #define SHZ_MIN(a, b)           (((a) < (b))? (a) : (b))
+//! Return sthe maximum of the two given values
 #define SHZ_MAX(a, b)           (((a) > (b))? (a) : (b))
+//! Clamps \p v between the given \p min and \p max values
 #define SHZ_CLAMP(v, min, max)  SHZ_MIN(SHZ_MAX(v, min), max)
+//! Clamps \p v within \p min and \p max then normalizes it between 0.0f and 1.0f
 #define SHZ_NORM(v, min, max)   ((SHZ_CLAMP(v, min, max) - (min)) / ((max) - (min)))
 
 SHZ_BEGIN_DECLS
 
-typedef SHZ_ALIGN(8) struct shz_sincos {
-    float sin;
-    float cos;
-} shz_sincos_t;
-
+//! Returns the closest integral value to \p x, rounded down, as a float.
 SHZ_FORCE_INLINE float shz_floorf(float x) {
     float result = (float)(int)x;
 
@@ -41,6 +34,7 @@ SHZ_FORCE_INLINE float shz_floorf(float x) {
     return result;
 }
 
+//! Returns the closest integral value to \p x, rounded up, as a float.
 SHZ_FORCE_INLINE float shz_ceilf(float x) {
     float result = (float)(int)x;
 
@@ -50,82 +44,43 @@ SHZ_FORCE_INLINE float shz_ceilf(float x) {
     return result;
 }
 
+//! Returns \p a * \p b + \p c, performing an FP multiply + accumulate operation.
 SHZ_FORCE_INLINE float shz_fmacf(float a, float b, float c) {
     return a * b + c;
 }
 
+//! Returns a value that is linearly interpolated between \p a and \p b by the given ratio, \p t. 
 SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) {
     return shz_fmacf(t, (b - a), a);
 }
 
+//! 
 SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u, float v) {
     return shz_fmacf(u, (b - a), shz_fmacf(v, (c - a), a));
 }
 
-SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16(uint16_t radians16) {
-    register float rsin asm("fr0");
-    register float rcos asm("fr1");
-
-    asm("fsca fpul, dr0"
-        : "=f" (rsin), "=f" (rcos)
-        : "y" (radians16));
-
-    return (shz_sincos_t){ rsin, rcos };
-}
-
-SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) {
-    return shz_sincosu16(radians * SHZ_FSCA_RAD_FACTOR);
-}
-
-SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) {
-    return shz_sincosu16(degrees * SHZ_FSCA_DEG_FACTOR);
-}
-
-SHZ_FORCE_INLINE float shz_sincos_tanf(shz_sincos_t sincos) {
-    return sincos.sin / sincos.cos;
-}
-
-SHZ_FORCE_INLINE float shz_sinf(float radians) {
-    return shz_sincosf(radians).sin;
-}
-
-SHZ_FORCE_INLINE float shz_sinf_deg(float degrees) {
-    return shz_sincosf_deg(degrees).sin;
-}
-
-SHZ_FORCE_INLINE float shz_cosf(float radians) {
-    return shz_sincosf(radians).cos;
-}
-
-SHZ_FORCE_INLINE float shz_cosf_deg(float degrees) {
-    return shz_sincosf_deg(degrees).cos;
-}
-
-SHZ_FORCE_INLINE float shz_tanf(float radians) {
-    shz_sincos_tanf(shz_sincosf(radians));
-}
-
-SHZ_FORCE_INLINE float shz_tanf_deg(float degrees) {
-    shz_sincos_tanf(shz_sincosf_deg(degrees));
-}
-
+//! Returns the square root of the given value, \p x.
 SHZ_FORCE_INLINE float shz_sqrtf(float x) {
     return __builtin_sqrtf(x);
 }
 
+//! Calculates 1.0f/sqrtf( \p x ), using a fast approximation.
 SHZ_FORCE_INLINE float shz_inverse_sqrtf(float x) {
     asm("fsrra %0" : "+f" (x));
     return x;
 }
 
+//! Takes the inverse of \p p using a very fast approximation, returning a positive result.
 SHZ_FORCE_INLINE float shz_inverse_posf(float x) {
     return shz_inverse_sqrtf(x * x);
 }
 
+//! Divides \p num by \p denom using a very fast approximation, returning a positive result.
 SHZ_FORCE_INLINE float shz_div_posf(float num, float denom) {
     return num * shz_inverse_posf(denom);
 }
 
+//! Takes the inverse of \p p using a faster approximation than doing a full division.
 SHZ_FORCE_INLINE float shz_fast_invf(float x) {
     float inv;
 
@@ -140,10 +95,7 @@ SHZ_FORCE_INLINE float shz_fast_invf(float x) {
     return inv;
 }
 
-SHZ_FORCE_INLINE float shz_tanf(shz_sincos_t sincos) {
-    return shz_div_posf(shz_sinf(sincos), shz_cosf(sincos));
-}
-
+//! Takes two sets of 4D vectors as 4 floats and calculates their dot product using an approximation.
 SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
                                  float x2, float y2, float z2, float w2) {
     register float rx1 asm("fr0") = x1;
@@ -163,6 +115,7 @@ SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
     return rw2;
 }
 
+//! Takes a 4D vector as 4 floats and calculates its squared magnitude using a fast approximation.
 SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) {
     register float rx asm("fr0") = x;
     register float ry asm("fr1") = y;
