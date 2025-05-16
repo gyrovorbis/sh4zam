@@ -15,11 +15,17 @@
 #include "shz_trig.h"
 
 namespace shz {
+    constexpr float pi_f            = SHZ_F_PI;
+    constexpr float fsca_rad_factor = SHZ_FSCA_RAD_FACTOR;
+    constexpr float fsca_deg_factor = SHZ_FSCA_DEG_FACTOR:
+
+    SHZ_FORCE_INLINE constexpr float deg_to_rad(float deg) noexcept { return SHZ_DEG_TO_RAD(deg); }
+    SHZ_FORCE_INLINE constexpr float rad_to_deg(float rad) noexcept { return SHZ_RAD_TO_DEG(rad); }
+
     class sincos: public primitive_compatible<shz_sin_cos_t> {
     public:
         SHZ_FORCE_INLINE sin_cos(shz_sincos_t val) noexcept:
-            primitive_compatible(val)
-        {}
+            primitive_compatible(val) {}
 
         SHZ_FORCE_INLINE static sin_cos from_radians(float rad) noexcept {
             return shz_sincosf(rad);

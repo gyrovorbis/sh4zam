@@ -88,6 +88,7 @@ GBL_TEST_CASE(lerpf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(barycentric_lerpf)
+
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(inverse_sqrtf)
@@ -191,8 +192,7 @@ GBL_TEST_CASE(dot8f)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(mag_sqr4f)
-   auto test = [&](std::array<float, 4> vec1)
-   {
+   auto test = [&](std::array<float, 4> vec1) {
         float fipr_res = shz::mag_sqr4f(vec1[0], vec1[1], vec1[2], vec1[3]);    
         float c_res    = vec1[0] * vec1[0] + vec1[1] * vec1[1] +
                          vec1[2] * vec1[2] + vec1[3] * vec1[3];

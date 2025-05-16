@@ -12,6 +12,7 @@
  *      - Stack operations
  *      - Fourier transforms
  *      - Arbitrarily-sized matrix routines
+ *
  */
 #ifndef SHZ_XMTRX_H
 #define SHZ_XMTRX_H

@@ -284,7 +284,7 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_lerp(shz_vec4_t a, shz_vec4_t b, float t) {
              shz_vec4_t: shz_vec4_lerp)(vec1, vec2, t)
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_reflect(shz_vec2_t incidence, shz_vec2_t normal) {
-
+    return vec2_add(incidence, vec2_mul(normal, vec2_dot(normal, vec2_mul(incidence, -2.0))));
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project(shz_vec2_t vec, sh_vec2_t onto) {
@@ -309,6 +309,9 @@ void shz_vec3_angles(shz_vec3_t vec, float *azimuth, float *elevation, float *ro
 shz_vec3_t shz_vec3_from_angles(float azimuth, float elevation, float roll);
 shz_vec3_t shz_vec3_normalize_safe(shz_vec3_t vec);
 shz_vec3_t shz_vec3_cross(shz_vec3_t vec1, shz_vec3_t vec2);
+SHZ_FORCE_INLINE shz_vec2_t shz_vec3_reflect(shz_vec3_t incidence, shz_vec3_t normal) {
+    return vec3_add(incidence, vec3_mul(normal, vec3_dot(normal, vec3_mul(incidence, -2.0))));
+}
 
 shz_vec4_t shz_vec4_normalize_safe(shz_vec4_t vec);
 shz_vec4_t shz_vec4_cross(shz_vec4_t vec1, shz_vec4_t vec2);
