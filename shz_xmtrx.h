@@ -1,7 +1,27 @@
+/*! \file
+ *  \brief   Matrix Stack API.
+ *  \ingroup xmtrx
+ *
+ *  This file provides an API built around manipulating and performing
+ *  calculations using the SH4's "current" 4x4 matrix, which is held within
+ *  a secondary back-bank of 16 single-precision floating-point registers.
+ *
+ *  \author Falco Girgis
+ *
+ *  \todo
+ *      - Stack operations
+ *      - Fourier transforms
+ *      - Arbitrarily-sized matrix routines
+ */
 #ifndef SHZ_XMTRX_H
 #define SHZ_XMTRX_H
 
 #include "shz_matrix.h"
+
+/*! \defgroup xmtrx
+ *  \brief    Matrix Stack
+ *
+ */
 
 #define shz_xmtrx_set_reg(reg, value) do {      \
         const float tmp = (value);              \

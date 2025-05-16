@@ -10,12 +10,13 @@
 #ifndef SHZ_TRIG_H
 #define SHZ_TRIG_H
 
+#include "shz_cdefs.h"
+
 /** \defgroup trig Trigonometry
  *  \brief         Trig functions and utilities.
  *  \todo          FILL ME IN
+ *  \todo          Find fast approximations of arc trig functions
  */
-
-#include "shz_cdefs.h"
 
 //! Single-precision floating-point PI approximation (do not use M_PI!)
 #define SHZ_F_PI                3.1415926f
@@ -41,8 +42,8 @@ SHZ_DECLS_BEGIN
  *  \sa shz_sincosf(), shz_sincosf_deg()
  */
 typedef SHZ_ALIGNAS(8) struct shz_sincos {
-    float sin;      //!< sin() approximation of the angle
-    float cos;      //!< cos() approximation of the angle
+    float sin;  //!< sin() approximation of the angle
+    float cos;  //!< cos() approximation of the angle
 } shz_sincos_t;
 
 //! Returns sinf()/cosf() pairs for the given unsigned 16-bit angle in radians.

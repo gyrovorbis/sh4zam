@@ -1,6 +1,14 @@
 #ifndef SHZ_TRIG_HPP
 #define SHZ_TRIG_HPP
-
+/*! \file
+ *  \brief   C++ trigonometry API.
+ *  \ingroup trig
+ *
+ *  This file provides an API offering fast versions of trigonometry functions
+ *  for C++23.
+ *
+ *  \author Falco Girgis
+ */
 #include <tuple>
 #include <utility>
 

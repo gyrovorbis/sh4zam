@@ -7,11 +7,20 @@
  * 
  *  \author Falco Girgis
  *  \author Paul Cercueil
+ *
+ *  \todo
+ *      - set/check FP precision mode
+ *      - ceilf()/floorf() use rounding modes
  */
 #ifndef SHZ_SCALAR_H
 #define SHZ_SCALAR_H
 
 #include "shz_cdefs.h"
+
+/** \defgroup scalar Scalar
+ *  \brief           scalar functions and utilities.
+ *  \todo            FILL ME IN
+ */
 
 //! Returns the minimum of the two given values
 #define SHZ_MIN(a, b)           (((a) < (b))? (a) : (b))
@@ -20,10 +29,14 @@
 //! Clamps \p v between the given \p min and \p max values
 #define SHZ_CLAMP(v, min, max)  SHZ_MIN(SHZ_MAX(v, min), max)
 //! Clamps \p v within \p min and \p max then normalizes it between 0.0f and 1.0f
-#define SHZ_NORM(v, min, max)   ((SHZ_CLAMP(v, min, max) - (min)) / ((max) - (min)))
+#define SHZ_NORM(v, min, max)   ((float)(SHZ_CLAMP(v, min, max) - (min)) / (float)((max) - (min)))
 
 SHZ_DECLS_BEGIN
 
+/*! \name  Rounding
+ *  \brief Routines for rounding floats.
+ *  @{
+ */
 //! Returns the closest integral value to \p x, rounded down, as a float.
 SHZ_FORCE_INLINE float shz_floorf(float x) {
     float result = (float)(int)x;
@@ -43,7 +56,12 @@ SHZ_FORCE_INLINE float shz_ceilf(float x) {
 
     return result;
 }
+//! @}
 
+/*! \name  FMAC
+ *  \brief Routines built around multiply + accumulate operations.
+ *  @{
+ */
 //! Returns \p a * \p b + \p c, performing an FP multiply + accumulate operation.
 SHZ_FORCE_INLINE float shz_fmacf(float a, float b, float c) {
     return a * b + c;
@@ -58,7 +76,12 @@ SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) {
 SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u, float v) {
     return shz_fmacf(u, (b - a), shz_fmacf(v, (c - a), a));
 }
+//! @}
 
+/*! \name  FSRRA
+ *  \brief Routines built around fast reciprocal square root.
+ *  @{
+ */
 //! Returns the square root of the given value, \p x.
 SHZ_FORCE_INLINE float shz_sqrtf(float x) {
     return __builtin_sqrtf(x);
@@ -94,7 +117,13 @@ SHZ_FORCE_INLINE float shz_fast_invf(float x) {
 
     return inv;
 }
+//! @}
 
+/*! \name  FIPR
+ *  \brief Routines built around fast 4D dot product. 
+ *  \todo  Generalize these with a macro that lets you choose vector FP regs.
+ *  @{
+ */
 //! Takes two sets of 4D vectors as 4 floats and calculates their dot product using an approximation.
 SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
                                  float x2, float y2, float z2, float w2) {
@@ -128,6 +157,7 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) {
 
     return rw;
 }
+//! @}
 
 SHZ_DECLS_END
 
