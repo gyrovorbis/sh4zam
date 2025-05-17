@@ -17,8 +17,8 @@
 
 #include "shz_cdefs.h"
 
-/** \defgroup scalar Scalar
- *  \brief           scalar functions and utilities.
+/*! \defgroup scalar Scalar
+ *  \brief           Scalar functions and utilities.
  *  \todo            FILL ME IN
  */
 
