@@ -69,8 +69,6 @@
 #define SHZ_PACKED              __attribute__((packed))
 //! Tells GCC the function has no effects other than returning a value that depends on its arguments and global variables.
 #define SHZ_PURE                __attribute__((pure))
-//! Tells GCC the function ahs no effects other than returning a value that depends only on its arguments.
-#define SHZ_CONST               __attribute__((const))
 
 #ifndef __cplusplus
     //! Dummy define provided for C++ compatibility
@@ -79,6 +77,8 @@
 #   define SHZ_DECLS_END
     //! Requests a function or member to be inlined (nonforcibly) OR to have static linkage.
 #   define SHZ_INLINE           inline static
+    //! Tells GCC the function has no effects other than returning a value that depends only on its arguments.
+#   define SHZ_CONST            __attribute__((const))
 #else
     //! Forces functions declared after this directive to use C linkage.
 #   define SHZ_DECLS_BEGIN      extern "C" {
@@ -86,6 +86,8 @@
 #   define SHZ_DECLS_END        }
     //! Requests a function or member to be inlined (nonforcibly).
 #   define SHZ_INLINE           inline
+    //! Tells GCC the function has no effects other than returning a value that depends only on its arguments.
+#   define SHZ_CONST            __attribute__((const)) constexpr
 #endif
 //! @}
 //! \endcond

@@ -240,15 +240,15 @@ SHZ_FORCE_INLINE SHZ_CONST float shz_vec4_magnitude(shz_vec4_t vec) {
              shz_vec3_t: shz_vec3_magnitude, \
              shz_vec4_t: shz_vec4_magnitude)(vec)
 
-SHZ_FORCE_INLINE SHZ_CONST float shz_vec2_inv_magnitude(shz_vec2_t vec) {
+SHZ_FORCE_INLINE SHZ_CONST float shz_vec2_magnitude_inv(shz_vec2_t vec) {
     return shz_inverse_sqrtf(shz_vec2_magnitude_sqr(vec));
 }
 
-SHZ_FORCE_INLINE SHZ_CONST float shz_vec3_inv_magnitude(shz_vec3_t vec) {
+SHZ_FORCE_INLINE SHZ_CONST float shz_vec3_magnitude_inv(shz_vec3_t vec) {
     return shz_inverse_sqrtf(shz_vec3_magnitude_sqr(vec));
 }
 
-SHZ_FORCE_INLINE SHZ_CONST float shz_vec4_inv_magnitude(shz_vec4_t vec) {
+SHZ_FORCE_INLINE SHZ_CONST float shz_vec4_magnitude_inv(shz_vec4_t vec) {
     return shz_inverse_sqrtf(shz_vec4_magnitude_sqr(vec));
 }
 
@@ -259,15 +259,15 @@ SHZ_FORCE_INLINE SHZ_CONST float shz_vec4_inv_magnitude(shz_vec4_t vec) {
              shz_vec4_t: shz_vec4_inv_magnitude)(vec)
 
 SHZ_FORCE_INLINE SHZ_CONST shz_vec2_t shz_vec2_normalize(shz_vec2_t vec) {
-    return shz_vec2_mul(vec, shz_vec2_inv_magnitude(vec));
+    return shz_vec2_mul(vec, shz_vec2_magnitude_inv(vec));
 }
 
 SHZ_FORCE_INLINE SHZ_CONST shz_vec3_t shz_vec3_normalize(shz_vec3_t vec) {
-    return shz_vec3_mul(vec, shz_vec3_inv_magnitude(vec));
+    return shz_vec3_mul(vec, shz_vec3_magnitude_inv(vec));
 }
 
 SHZ_FORCE_INLINE SHZ_CONST shz_vec4_t shz_vec4_normalize(shz_vec4_t vec) {
-    return shz_vec4_mul(vec, shz_vec4_inv_magnitude(vec));
+    return shz_vec4_mul(vec, shz_vec4_magnitude_inv(vec));
 }
 
 #define shz_vec_normalize(vec) \
