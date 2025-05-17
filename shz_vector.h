@@ -93,8 +93,7 @@ typedef struct shz_vec4 {
 
 /* Simple arithmetic */
 
-SHZ_FORCE_INLINE SHZ_CONST 
-shz_vec2_t shz_vec2_add(shz_vec2_t vec1, shz_vec2_t vec2) {
+SHZ_FORCE_INLINE SHZ_CONST shz_vec2_t shz_vec2_add(shz_vec2_t vec1, shz_vec2_t vec2) {
     return (shz_vec2_t) { vec1.x + vec2.x, vec1.y + vec2.y };
 }
 
@@ -388,7 +387,7 @@ SHZ_FORCE_INLINE SHZ_CONST shz_vec4_t shz_vec4_reflect(shz_vec4_t incidence, shz
 #define shz_vec_reflect(incidence, normal) \
     _Generic((incidence), \
              shz_vec2_t: shz_vec2_reflect, \
-             shz_vec3_t: shz_vec3_reflect,
+             shz_vec3_t: shz_vec3_reflect, \
              shz_vec4_t: shz_vec4_reflect)(incidence, normal)
 
 
