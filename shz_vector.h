@@ -195,7 +195,7 @@ SHZ_FORCE_INLINE SHZ_CONST float shz_vec4_dot(shz_vec4_t vec1, shz_vec4_t vec2) 
 }
 
 SHZ_FORCE_INLINE SHZ_CONST float shz_vec3_dot(shz_vec3_t vec1, shz_vec3_t vec2) {
-    return shz_vec4_dot(shz_vec3_to_vec4(vec1), shz_vec3_to_vec4(vec2));
+    return shz_vec4_dot((shz_vec4_t){ .vec3 = vec1 }, (shz_vec4_t){ .vec3 = vec2 });
 }
 
 #define shz_vec_dot(vec1, vec2) \

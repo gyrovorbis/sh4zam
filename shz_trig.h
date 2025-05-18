@@ -41,7 +41,7 @@ SHZ_DECLS_BEGIN
  * 
  *  \sa shz_sincosf(), shz_sincosf_deg()
  */
-typedef SHZ_ALIGNAS(8) struct shz_sincos {
+typedef struct shz_sincos {
     float sin;  //!< sin() approximation of the angle
     float cos;  //!< cos() approximation of the angle
 } shz_sincos_t;
