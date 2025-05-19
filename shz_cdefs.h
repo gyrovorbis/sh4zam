@@ -42,7 +42,7 @@
 
 //! Swaps the contents of two variables
 #define SHZ_SWAP(a, b) do { \
-        auto tmp = a; \
+        typeof(a) tmp = a; \
         a = b; \
         b = tmp; \
     } while(false)
@@ -69,6 +69,14 @@
 #define SHZ_PACKED              __attribute__((packed))
 //! Tells GCC the function has no effects other than returning a value that depends on its arguments and global variables.
 #define SHZ_PURE                __attribute__((pure))
+//! Tells GCC that the decorated pointer may be breaking strict aliasing rules for C and C++
+#define SHZ_ALIASING            __attribute__((__may_alias__))
+//! Tells GCC that the expression is likely to be true (used for conditional and loop optimizations)
+#define SHZ_LIKELY(e)           __builtin_expect(!!(e), 1)   
+//! Tells GCC that the expression is likely to be false (used for conditional and loop optimizations)
+#define SHZ_UNLIKELY(e)         __builtin_expect(!!(e), 0)
+//! Tells GCC to use its builtin intrinsic for prefetching (better instruction scheduling than pure ASM pref)
+#define SHZ_PREFETCH(a)          __builtin_prefetch(a)
 
 #ifndef __cplusplus
     //! Dummy define provided for C++ compatibility
@@ -79,6 +87,8 @@
 #   define SHZ_INLINE           inline static
     //! Tells GCC the function has no effects other than returning a value that depends only on its arguments.
 #   define SHZ_CONST            __attribute__((const))
+    //! Tells GCC the pointer paramter is unique and is not aliased by another parameter
+#   define SHZ_RESTRICT         restrict
 #else
     //! Forces functions declared after this directive to use C linkage.
 #   define SHZ_DECLS_BEGIN      extern "C" {
@@ -88,6 +98,8 @@
 #   define SHZ_INLINE           inline
     //! Tells GCC the function has no effects other than returning a value that depends only on its arguments.
 #   define SHZ_CONST            __attribute__((const)) constexpr
+    //! Dummy define provided for C compatibility
+#   define SHZ_RESTRICT
 #endif
 //! @}
 //! \endcond

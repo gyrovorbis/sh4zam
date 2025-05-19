@@ -31,7 +31,9 @@ add_library(sh4zam STATIC
     shz_xmtrx.hpp
     shz_matrix.h
     shz_matrix.hpp
-    shz_quat.h)
+    shz_quat.h
+    shz_mem.h
+    shz_mem.s)
 
 include(GNUInstallDirs)
 install(TARGETS sh4zam
@@ -42,5 +44,5 @@ install(TARGETS sh4zam
 option(SHZ_ENABLE_TESTS "Enable SH4ZAM Unit Tests" OFF)
 
 if(SHZ_ENABLE_TESTS)
-    add_subdiretory(test)
+    add_subdirectory(test)
 endif(SHZ_ENABLE_TESTS)
