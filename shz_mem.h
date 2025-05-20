@@ -2,7 +2,7 @@
  *  \brief   Memory API 
  *  \ingroup memory
  *
- *  API built around copying and assignment memory.
+ *  API built around copying and assigning memory.
  * 
  *  \author Falco Girgis
  * 
@@ -11,6 +11,8 @@
  *      - memset4()
  *      - memset32()
  */
+#ifndef SHZ_MEM_H
+#define SHZ_MEM_H
 
 #include "shz_cdefs.h"
 
@@ -46,7 +48,7 @@ SHZ_INLINE void *shz_memcpy2(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT sr
         count &= 0xf;
     }
 
-    while(count--)
+    while(SHZ_LIKELY(count--))
         d[count] = s[count];
 
     return dst;
@@ -90,3 +92,5 @@ SHZ_CONST void *shz_memset8(void *dst, uint64_t value, size_t bytes);
 SHZ_CONST void *shz_memcpy32(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT src, size_t bytes);
 
 SHZ_DECLS_END
+
+#endif

@@ -72,7 +72,7 @@
 //! Tells GCC that the decorated pointer may be breaking strict aliasing rules for C and C++
 #define SHZ_ALIASING            __attribute__((__may_alias__))
 //! Tells GCC that the expression is likely to be true (used for conditional and loop optimizations)
-#define SHZ_LIKELY(e)           __builtin_expect(!!(e), 1)   
+#define SHZ_LIKELY(e)           __builtin_expect(!!(e), 1)
 //! Tells GCC that the expression is likely to be false (used for conditional and loop optimizations)
 #define SHZ_UNLIKELY(e)         __builtin_expect(!!(e), 0)
 //! Tells GCC to use its builtin intrinsic for prefetching (better instruction scheduling than pure ASM pref)
