@@ -68,7 +68,6 @@ _shz_memcpy32:
     rts                         
     fschg                       ! Swap back to float FMOVs
 
-
 !
 ! void *memcpy8(void *restrict dst, const void *restrict src, size_t bytes)
 !
@@ -99,7 +98,6 @@ _shz_memcpy8:
 .memcpy8_exit:
     rts     
     fschg
-
 
 !
 ! void *memset8(void *dst, uint64_t value, size_t bytes)

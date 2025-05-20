@@ -1,15 +1,15 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 set(SHZ_VERSION_MAJOR 0)
 set(SHZ_VERSION_MINOR 1)
 set(SHZ_VERSION_PATCH 0)
-set(SHZ_VERSION $(SHZ_VERSION_MAJOR).$(SHZ_VERSION_MINOR).$(SHZ_VERSION_PATCH))
+set(SHZ_VERSION ${SHZ_VERSION_MAJOR}.${SHZ_VERSION_MINOR}.${SHZ_VERSION_PATCH})
 
 project(sh4zam
-        VERSION      $(SHZ_VERSION)
+        VERSION      ${SHZ_VERSION}
         DESCRIPTION  "Fast math library for the Sega Dreamcast's SH4 CPU"
         HOMEPAGE_URL "sh4zam.elysianshadows.com"
-        LANGUAGES    C CXX)
+        LANGUAGES    ASM C CXX)
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
