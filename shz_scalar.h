@@ -67,12 +67,12 @@ SHZ_FORCE_INLINE float shz_fmacf(float a, float b, float c) {
     return a * b + c;
 }
 
-//! Returns a value that is linearly interpolated between \p a and \p b by the given ratio, \p t. 
+//! Returns a value that is linearly interpolated between \p a and \p b by the given ratio, \p t.
 SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) {
     return shz_fmacf(t, (b - a), a);
 }
 
-//! 
+//! Returns a value that is barycentrically interpolated between \p a, \p b, and \p c using the given barycentric coordinates, \p u and \p v.
 SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u, float v) {
     return shz_fmacf(u, (b - a), shz_fmacf(v, (c - a), a));
 }
@@ -120,7 +120,7 @@ SHZ_FORCE_INLINE float shz_fast_invf(float x) {
 //! @}
 
 /*! \name  FIPR
- *  \brief Routines built around fast 4D dot product. 
+ *  \brief Routines built around fast 4D dot product.
  *  \todo  Generalize these with a macro that lets you choose vector FP regs.
  *  @{
  */
