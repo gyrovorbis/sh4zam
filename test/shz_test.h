@@ -12,12 +12,12 @@
 
 GBL_DECLS_BEGIN
 
-GBL_DEFINE_EMPTY_TYPE(shz_scalar_test_suite)
-GBL_DEFINE_EMPTY_TYPE(shz_trig_test_suite)
-GBL_DEFINE_EMPTY_TYPE(shz_vector_test_suite)
-GBL_DEFINE_EMPTY_TYPE(shz_xmtrx_test_suite)
-GBL_DEFINE_EMPTY_TYPE(shz_matrix_test_suite)
-GBL_DEFINE_EMPTY_TYPE(shz_quat_test_suite)
+GBL_DERIVE_EMPTY_TYPE(shz_scalar_test_suite, GblTestSuite)
+GBL_DERIVE_EMPTY_TYPE(shz_trig_test_suite,   GblTestSuite)
+GBL_DERIVE_EMPTY_TYPE(shz_vector_test_suite, GblTestSuite)
+GBL_DERIVE_EMPTY_TYPE(shz_xmtrx_test_suite,  GblTestSuite)
+GBL_DERIVE_EMPTY_TYPE(shz_matrix_test_suite, GblTestSuite)
+GBL_DERIVE_EMPTY_TYPE(shz_quat_test_suite,   GblTestSuite)
 
 GBL_DECLS_END
 

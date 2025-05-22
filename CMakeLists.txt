@@ -19,27 +19,43 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
-add_library(sh4zam STATIC
-    shz_cdefs.h
-    shz_trig.h
-    shz_trig.hpp
-    shz_scalar.h
-    shz_scalar.hpp
-    shz_vector.h
-    shz_vector.hpp
-    shz_xmtrx.h
-    shz_xmtrx.hpp
-    shz_matrix.h
-    shz_matrix.hpp
-    shz_quat.h
-    shz_mem.h
-    shz_mem.s)
+set(SHZ_SOURCES
+    source/shz_mem.s)
 
-include(GNUInstallDirs)
+set(SHZ_INCLUDES
+    include/sh4zam/shz_cdefs.h
+    include/sh4zam/shz_trig.h
+    include/sh4zam/shz_trig.hpp
+    include/sh4zam/shz_scalar.h
+    include/sh4zam/shz_scalar.hpp
+    include/sh4zam/shz_vector.h
+    include/sh4zam/shz_vector.hpp
+    include/sh4zam/shz_xmtrx.h
+    include/sh4zam/shz_xmtrx.hpp
+    include/sh4zam/shz_matrix.h
+    include/sh4zam/shz_matrix.hpp
+    include/sh4zam/shz_quat.h
+    include/sh4zam/shz_mem.h)
+
+add_library(sh4zam STATIC ${SHZ_SOURCES})
+
+set_target_properties(sh4zam PROPERTIES
+                      PUBLIC_HEADER "${SHZ_INCLUDES}")
+
+target_compile_definitions(sh4zam 
+    PUBLIC
+        -DSHZ_VERSION_MAJOR=${SHZ_VERSION_MAJOR}
+        -DSHZ_VERSION_MINOR=${SHZ_VERSION_MINOR}
+        -DSHZ_VERSION_PATCH=${SHZ_VERSION_PATCH}
+        -DSHZ_VERSION="${SHZ_VERSION}")
+
+target_include_directories(sh4zam
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/api>
+        $<INSTALL_INTERFACE:api>)
+
 install(TARGETS sh4zam
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+        INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
 option(SHZ_ENABLE_TESTS "Enable SH4ZAM Unit Tests" OFF)
 

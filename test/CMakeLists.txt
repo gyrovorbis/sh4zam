@@ -24,5 +24,8 @@ add_executable(Sh4zamTests
     shz_xmtrx_test_suite.cpp
     shz_quat_test_suite.cpp)
 
+target_include_directories(Sh4zamTests
+    PRIVATE ..)
+
 target_link_libraries(Sh4zamTests
-                      PRIVATE libGimbal)
+                      PRIVATE libGimbal sh4zam)

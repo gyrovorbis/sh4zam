@@ -3,30 +3,18 @@
  *
  *  This file contains commonly used preprocessor definitions used throughout
  *  the project:
- *      - Version information
  *      - Compiler attributes
  *      - Miscellaneous utilities
  *
  *  \author Falco Girgis
+ * 
+ *  \todo
+ *      - run-time version function
  */
 #ifndef SHZ_CDEFS_H
 #define SHZ_CDEFS_H
 
 #include <stdint.h>
-
-/*! \name   Versioning
- *  \brief  Current library version information.
- *  @{
- */
-#define SHZ_VERSION_MAJOR       0   //!< Major release version number
-#define SHZ_VERSION_MINOR       1   //!< Minor release version number
-#define SHZ_VERSION_PATCH       0   //!< Patch release version number
-
-//! Full release version number
-#define SHZ_VERSION             ((uint32_t)((SHZ_VERSION_MAJOR << 24) | (SHZ_VERSION_MINOR << 8) | (SHZ_VERSION_PATCH)))
-//! Full release version number string representation
-#define SHZ_VERSION_STR         SHZ_STRINGIFY(SHZ_VERSION_MAJOR) "." SHZ_STRINGIFY(SHZ_VERSION_MINOR) "." SHZ_STRINGIFY(SHZ_VERSION_PATCH)
-//! @}
 
 /*! \name   Utilities
  *  \brief  Miscellaneous function-like macros
@@ -76,7 +64,7 @@
 //! Tells GCC that the expression is likely to be false (used for conditional and loop optimizations)
 #define SHZ_UNLIKELY(e)         __builtin_expect(!!(e), 0)
 //! Tells GCC to use its builtin intrinsic for prefetching (better instruction scheduling than pure ASM pref)
-#define SHZ_PREFETCH(a)          __builtin_prefetch(a)
+#define SHZ_PREFETCH(a)         __builtin_prefetch(a)
 
 #ifndef __cplusplus
     //! Dummy define provided for C++ compatibility

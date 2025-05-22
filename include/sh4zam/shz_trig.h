@@ -95,12 +95,12 @@ SHZ_FORCE_INLINE float shz_cosf_deg(float degrees) {
 
 //! One-off routine for returning only tanf() from an angle in radians.
 SHZ_FORCE_INLINE float shz_tanf(float radians) {
-    shz_sincos_tanf(shz_sincosf(radians));
+    return shz_sincos_tanf(shz_sincosf(radians));
 }
 
 //! One-off routine for returning only tanf() from an angle in degrees.
 SHZ_FORCE_INLINE float shz_tanf_deg(float degrees) {
-    shz_sincos_tanf(shz_sincosf_deg(degrees));
+    return shz_sincos_tanf(shz_sincosf_deg(degrees));
 }
 
 SHZ_DECLS_END
