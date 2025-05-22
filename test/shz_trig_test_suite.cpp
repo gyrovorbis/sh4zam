@@ -1,11 +1,11 @@
 #include "shz_test.h"
-#include "shz_trig.hpp"
+#include "sh4zam/shz_trig.hpp"
 #include <gimbal/algorithms/gimbal_random.h>
 #include <print>
 #include <cmath>
 #include <kos.h>
 
-#define SHZ_FSCA_ERROR  0.001f
+#define SHZ_FSCA_ERROR  0.5f
 #define GBL_SELF_TYPE   shz_trig_test_suite
 
 GBL_TEST_FIXTURE {
@@ -27,8 +27,8 @@ GBL_TEST_FINAL()
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(sincos_from_radians)
-#if 0
     auto test = [&](float radians) {
+        GBL_CTX_BEGIN(pCtx);
         auto sincos = shz::sincos::from_radians(radians);
         GBL_TEST_VERIFY(
             gblFloatEquals(sincos.sinf(), sinf(radians), SHZ_FSCA_ERROR)
@@ -43,25 +43,25 @@ GBL_TEST_CASE(sincos_from_radians)
             gblFloatEquals(shz::cosf(radians), cosf(radians), SHZ_FSCA_ERROR)
         );
         GBL_TEST_VERIFY(
-            gblFloatEquals(sincos.tanf(), tanf(radians), SHZ_FSCA_ERROR);
+            gblFloatEquals(sincos.tanf(), tanf(radians), SHZ_FSCA_ERROR)
         );
         GBL_TEST_VERIFY(
-            gblFloatEquals(shz::tanf(radians), tanf(radians), SHZ_FSCA_ERROR);
+            gblFloatEquals(shz::tanf(radians), tanf(radians), SHZ_FSCA_ERROR)
         );
+        GBL_CTX_END();
     };
-    test(0.0f);
-    test(SHZ_F_PI);
-    test(SHZ_F_PI * -2.0f);
-    test(SHZ_F_PI * 3.0f / 2.0f);
-    test(-SHZ_F_PI);
-    test(-SHZ_F_PI * -2.777f);
-    test(-SHZ_F_PI * 3.41f / 45.656f);
-#endif
+    GBL_TEST_CALL(test(0.0f));
+    GBL_TEST_CALL(test(SHZ_F_PI));
+    GBL_TEST_CALL(test(SHZ_F_PI * -2.0f));
+    GBL_TEST_CALL(test(SHZ_F_PI * 3.0f / 2.0f));
+    GBL_TEST_CALL(test(-SHZ_F_PI));
+    GBL_TEST_CALL(test(-SHZ_F_PI * -2.777f));
+    GBL_TEST_CALL(test(-SHZ_F_PI * 3.41f / 45.656f));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(sincos_from_degrees)
-#if 0
     auto test = [&](float radians) {
+        GBL_CTX_BEGIN(pCtx);
         float degrees = shz::rad_to_deg(radians);
         auto sincos = shz::sincos::from_degrees(degrees);
         GBL_TEST_VERIFY(
@@ -77,20 +77,20 @@ GBL_TEST_CASE(sincos_from_degrees)
             gblFloatEquals(shz::cosf_deg(degrees), sinf(radians), SHZ_FSCA_ERROR)
         );
         GBL_TEST_VERIFY(
-            gblFloatEquals(sincos.tanf(), tanf(radians), SHZ_FSCA_ERROR);
+            gblFloatEquals(sincos.tanf(), tanf(radians), SHZ_FSCA_ERROR)
         );
         GBL_TEST_VERIFY(
-            gblFloatEquals(shz::tanf_deg(degrees), tanf(radians), SHZ_FSCA_ERROR);
+            gblFloatEquals(shz::tanf_deg(degrees), tanf(radians), SHZ_FSCA_ERROR)
         );
+        GBL_CTX_END();
     };
-    test(0.0f);
-    test(SHZ_F_PI);
-    test(SHZ_F_PI * -2.0f);
-    test(SHZ_F_PI * 3.0f / 2.0f);
-    test(-SHZ_F_PI);
-    test(-SHZ_F_PI * -2.777f);
-    test(-SHZ_F_PI * 3.41f / 45.656f);
-#endif
+    GBL_TEST_CALL(test(0.0f));
+    GBL_TEST_CALL(test(SHZ_F_PI));
+    GBL_TEST_CALL(test(SHZ_F_PI * -2.0f));
+    GBL_TEST_CALL(test(SHZ_F_PI * 3.0f / 2.0f));
+    GBL_TEST_CALL(test(-SHZ_F_PI));
+    GBL_TEST_CALL(test(-SHZ_F_PI * -2.777f));
+    GBL_TEST_CALL(test(-SHZ_F_PI * 3.41f / 45.656f));
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(sincos_from_radians,

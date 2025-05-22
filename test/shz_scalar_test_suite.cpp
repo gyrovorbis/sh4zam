@@ -1,5 +1,5 @@
 #include "shz_test.h"
-#include "shz_scalar.hpp"
+#include "sh4zam/shz_scalar.hpp"
 
 #include <print>
 #include <array>

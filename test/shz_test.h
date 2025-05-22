@@ -9,6 +9,7 @@
 #define SHZ_XMTRX_TEST_SUITE_TYPE    (GBL_TYPEID(shz_xmtrx_test_suite))
 #define SHZ_MATRIX_TEST_SUITE_TYPE   (GBL_TYPEID(shz_matrix_test_suite))
 #define SHZ_QUAT_TEST_SUITE_TYPE     (GBL_TYPEID(shz_quat_test_suite))
+#define SHZ_MEM_TEST_SUITE_TYPE      (GBL_TYPEID(shz_mem_test_suite))
 
 GBL_DECLS_BEGIN
 
@@ -18,6 +19,7 @@ GBL_DERIVE_EMPTY_TYPE(shz_vector_test_suite, GblTestSuite)
 GBL_DERIVE_EMPTY_TYPE(shz_xmtrx_test_suite,  GblTestSuite)
 GBL_DERIVE_EMPTY_TYPE(shz_matrix_test_suite, GblTestSuite)
 GBL_DERIVE_EMPTY_TYPE(shz_quat_test_suite,   GblTestSuite)
+GBL_DERIVE_EMPTY_TYPE(shz_mem_test_suite,    GblTestSuite)
 
 GBL_DECLS_END
 

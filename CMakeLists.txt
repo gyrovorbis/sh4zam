@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(SHZ_VERSION_MAJOR 0)
-set(SHZ_VERSION_MINOR 1)
+set(SHZ_VERSION_MINOR 0)
 set(SHZ_VERSION_PATCH 0)
 set(SHZ_VERSION ${SHZ_VERSION_MAJOR}.${SHZ_VERSION_MINOR}.${SHZ_VERSION_PATCH})
 
@@ -51,8 +51,8 @@ target_compile_definitions(sh4zam
 
 target_include_directories(sh4zam
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/api>
-        $<INSTALL_INTERFACE:api>)
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>)
 
 install(TARGETS sh4zam
         INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
