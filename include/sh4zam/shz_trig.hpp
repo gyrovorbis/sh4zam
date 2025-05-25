@@ -22,8 +22,7 @@ namespace shz {
     SHZ_FORCE_INLINE constexpr float deg_to_rad(float deg) noexcept { return SHZ_DEG_TO_RAD(deg); }
     SHZ_FORCE_INLINE constexpr float rad_to_deg(float rad) noexcept { return SHZ_RAD_TO_DEG(rad); }
 
-    class sincos: shz_sincos_t {
-    public:
+    struct sincos: shz_sincos_t {
         SHZ_FORCE_INLINE sincos(shz_sincos_t val) noexcept:
             shz_sincos_t(val) {}
 
