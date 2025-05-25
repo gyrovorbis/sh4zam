@@ -1,6 +1,6 @@
 #include "shz_test.h"
 
-//#include "sh4zam/shz_vector.hpp"
+#include "sh4zam/shz_vector.hpp"
 
 #include <kos.h>
 #include <print>
