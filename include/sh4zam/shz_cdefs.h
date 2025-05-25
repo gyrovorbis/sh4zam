@@ -77,6 +77,8 @@
 #   define SHZ_CONST            __attribute__((const))
     //! Tells GCC the pointer paramter is unique and is not aliased by another parameter
 #   define SHZ_RESTRICT         restrict
+    //! Dummy define provided for C++ compatibility
+#   define SHZ_NOEXCEPT
 #else
     //! Forces functions declared after this directive to use C linkage.
 #   define SHZ_DECLS_BEGIN      extern "C" {
@@ -88,6 +90,8 @@
 #   define SHZ_CONST            __attribute__((const)) constexpr
     //! Dummy define provided for C compatibility
 #   define SHZ_RESTRICT
+    //! Tells the compiler that the function does not throw exceptions
+#   define SHZ_NOEXCEPT         noexcept
 #endif
 //! @}
 //! \endcond
