@@ -46,7 +46,7 @@ typedef SHZ_ALIGNAS(8) union shz_matrix_4x4 {
     };
 } shz_matrix_4x4_t;
 
-SHZ_INLINE shz_matrix_4x4_copy(shz_matrix_4x4 *dst, const shz_matrix_4x4 *src) {
+SHZ_INLINE void shz_matrix_4x4_copy(shz_matrix_4x4 *dst, const shz_matrix_4x4 *src) {
     asm volatile(R"(
         fschg
 

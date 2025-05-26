@@ -42,7 +42,7 @@
         val;                                    \
     })
 
-SHZ_BEGIN_DECLS
+SHZ_DECLS_BEGIN
 
 SHZ_INLINE void shz_xmtrx_load_4x4(const shz_matrix_4x4_t *matrix) {
     asm volatile(R"(
@@ -390,7 +390,7 @@ SHZ_INLINE void shz_xmtrx_set_diagonal(float x, float y, float z, float w) {
         frchg
     )"
     :
-    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z));
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z), [w] "r" (&w));
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_set_scale(float x, float y, float z) {
@@ -853,9 +853,9 @@ SHZ_INLINE void shz_xmtrx_set_rotation(float roll, float pitch, float yaw) {
 }
 
 SHZ_INLINE void shz_xmtrx_apply_rotation(float roll, float pitch, float yaw) {
-    shz_xmtrx_apply_rotation_x(x);
-    shz_xmtrx_apply_rotation_y(y);
-    shz_xmtrx_apply_rotation_z(z);
+    shz_xmtrx_apply_rotation_x(roll);
+    shz_xmtrx_apply_rotation_y(pitch);
+    shz_xmtrx_apply_rotation_z(yaw);
 }
 
 void shz_xmtrx_outer_product_2x2(shz_vec2_t col, shz_vec2_t row);
@@ -922,6 +922,6 @@ SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_trans_vec2(shz_vec2_t vec) {
     return shz_xmtrx_trans_vec3((shz_vec3_t) { .vec2 = vec }).vec2;
 }
 
-SHZ_END_DECLS
+SHZ_DECLS_END
 
 #endif // SHZ_XMTRX_H

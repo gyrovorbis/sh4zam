@@ -25,8 +25,12 @@ GBL_TEST_FINAL()
     irq_restore(pFixture->irq_state);
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(construct)
-
+GBL_TEST_CASE(vec2Construct)
+    auto vec1 = shz::vec2();
+    auto vec2 = shz::vec2(0.0f);
+    auto vec3 = shz::vec2(1.0f, 2.0f);
+    auto vec4 = shz::vec2((shz_vec2_t) { 3.0f, 4.0f });
+    auto vec5 = shz::vec2((shz_vec2_t) { 5.0f, 6.0f });
 GBL_TEST_CASE_END
 
-GBL_TEST_REGISTER(construct)
+GBL_TEST_REGISTER(vec2Construct)

@@ -12,6 +12,8 @@ int main(int argc, const char* argv[]) {
                                  GblTestSuite_create(SHZ_TRIG_TEST_SUITE_TYPE));
     GblTestScenario_enqueueSuite(scenario,
                                  GblTestSuite_create(SHZ_VECTOR_TEST_SUITE_TYPE));
+    GblTestScenario_enqueueSuite(scenario,
+                                 GblTestSuite_create(SHZ_XMTRX_TEST_SUITE_TYPE));
 
     return GblTestScenario_exec(scenario, argc, argv);
 }
