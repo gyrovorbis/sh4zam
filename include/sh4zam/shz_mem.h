@@ -120,7 +120,7 @@ SHZ_INLINE void *shz_memcpy32(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT s
         __builtin_prefetch(s);
         asm volatile("fschg");
 
-        while(__likely(cnt-- > 1)) {
+        while(SHZ_LIKELY(cnt-- > 1)) {
             shz_memcpy32_load_(&s);
             shz_memcpy32_store_(&d);
             __builtin_prefetch(s);
