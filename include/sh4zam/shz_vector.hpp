@@ -20,8 +20,8 @@ namespace shz {
 
 template<typename CRTP, typename C, size_t R>
 struct vecN: C {
-    using CppType = CRTP;
-    using CType   = C;
+    using CppType  = CRTP;
+    using CType    = C;
 
     static constexpr size_t Rows = R;
     static constexpr size_t Cols = 1;
@@ -36,10 +36,16 @@ struct vecN: C {
     }
 
     SHZ_FORCE_INLINE auto &&operator[](this auto &&self, size_t index) {
-        std::forward<decltype(self)>(self).e[index];
+        return std::forward<decltype(self)>(self).e[index];
     }
 
-    auto operator<=>(const vecN &rhs) const noexcept = default;
+    //friend constexpr auto operator<=>(vecN<CRTP, C, R> self, const C &rhs) noexcept {
+     //   return static_cast<const C &>(self) <=> rhs;
+    //}
+
+    //friend constexpr bool operator<=>(const C& self, const C &rhs) noexcept {
+     //   return self == rhs;
+   // }
 
     SHZ_FORCE_INLINE CppType &operator+=(CppType other) noexcept {
         *this = *this + other;

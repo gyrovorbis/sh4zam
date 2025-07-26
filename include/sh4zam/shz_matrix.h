@@ -49,6 +49,7 @@ typedef SHZ_ALIGNAS(8) union shz_matrix_4x4 {
 SHZ_INLINE void shz_matrix_4x4_copy(shz_matrix_4x4 *dst, const shz_matrix_4x4 *src) {
     asm volatile(R"(
         fschg
+        frchg
 
         pref    @%[dst]
         fmov.d  @%[src]+, xd0
@@ -78,9 +79,65 @@ SHZ_INLINE void shz_matrix_4x4_copy(shz_matrix_4x4 *dst, const shz_matrix_4x4 *s
         fmov.d  xd2, @-%[dst]
         fmov.d  xd0, @-%[dst]
 
+        frchg
         fschg
     )"
     : [dst] "+&r" (dst), [src] "+&r" (src), "=m" (*dst));
+}
+
+SHZ_INLINE shz_vec4_t shz_matrix_4x4_trans_vec4(const shz_matrix_4x4_t *mat, shz_vec4_t in) {
+    SHZ_PREFETCH(mat);
+
+    const shz_vec4_t *c[4] = {
+        &mat->col[0], &mat->col[1], &mat->col[2], &mat->col[3]
+    };
+
+    asm volatile(R"(
+        frchg
+
+        .irp    reg, 12, 13, 14, 15
+            fmov.s  @%[v]+, fr\reg
+        .endr
+
+        pref    @%[c2]
+
+        .irp    reg, 0, 1, 2, 3
+            fmov.s  @%[c\reg]+, fr\reg
+        .endr
+
+        fipr    fv12, fv0
+
+        fmov.s  @%[c0]+, fr4
+        fmov.s  @%[c1]+, fr5
+        fmov.s  @%[c2]+, fr6
+        fmov.s  @%[c2]+, fr7
+
+        fipr    fv12, fv4
+
+        fmov.s  @%[c0]+, fr8
+        fmov.s  @%[c1]+, fr9
+        fmov.s  @%[c2]+, fr10
+        fmov.s  @%[c2]+, fr11
+
+        fipr    fv12, fv8
+        fmov.s  fr3, @%[v]
+
+        .irp    reg, 0, 1, 2, 3
+            fmov.s  @%[c\reg]+, fr\reg
+        .endr
+
+        fipr    fv12, fv0
+        add     #4, @%[v]
+        fmov.s  fr7, @%[v]
+        add     #4, %[v]
+        fmov.s  fr11, @%[v]
+        add     #4, %[v]
+        fmov.s  fr3, @%[v]
+
+        frchg
+    )"
+    : [v] "+r" (&in),
+      [c0] "+r" (c[0]), [c1] "+r" (c[1]), [c2] "+r" (c[2]), [c3], "+r" (c[3]));
 }
 
 SHZ_DECLS_END

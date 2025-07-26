@@ -24,13 +24,15 @@
  *
  */
 
-#define shz_xmtrx_set_reg(reg, value) do {      \
-        const float tmp = (value);              \
-        asm volatile("frchg\n"                  \
-                     "fsts fpul, fr" #reg "\n"  \
-                     "frchg\n"                  \
-                     :                          \
-                     : "y" (tmp));              \
+#define shz_xmtrx_set_reg(reg, value) do {       \
+        const float tmp = (value);               \
+        asm volatile("flds %0, fpul\n\t"         \
+                     "frchg\n\t"                 \
+                     "fsts fpul, fr" #reg "\n\t" \
+                     "frchg\n\t"                 \
+                     :                           \
+                     : "f" (tmp)                 \
+                     : "fpul");                  \
     } while(false)
 
 #define shz_xmtrx_get_reg(reg) ({               \
@@ -38,7 +40,8 @@
         asm volatile("frchg\n"                  \
                      "flds fr" #reg ", fpul\n"  \
                      "frchg\n"                  \
-                     : "=y" (val))              \
+                     "fsts fpul, %0\n"          \
+                     : "=f" (val));             \
         val;                                    \
     })
 
@@ -208,6 +211,76 @@ SHZ_INLINE void shz_xmtrx_load_3x4(const shz_matrix_3x4_t *matrix) {
         frchg
     )"
     : [mat] "+r" (matrix));
+}
+
+SHZ_INLINE void shz_xmtrx_load_4x4_rows(const shz_vec4_t *r1,
+                                        const shz_vec4_t *r2,
+                                        const shz_vec4_t *r3,
+                                        const shz_vec4_t *r4) {
+    asm volatile (R"(
+        frchg
+
+        pref    @%1
+        fmov.s  @%0+, fr0
+        fmov.s  @%0+, fr4
+        fmov.s  @%0+, fr8
+        fmov.s  @%0, fr12
+
+        pref    @%2
+        fmov.s  @%1+, fr1
+        fmov.s  @%1+, fr5
+        fmov.s  @%1+, fr9
+        fmov.s  @%1, fr13
+
+        pref    @%3
+        fmov.s  @%2+, fr2
+        fmov.s  @%2+, fr6
+        fmov.s  @%2+, fr10
+        fmov.s  @%2, fr14
+
+        fmov.s  @%3+, fr3
+        fmov.s  @%3+, fr7
+        fmov.s  @%3+, fr11
+        fmov.s  @%3, fr15
+
+        frchg
+    )"
+    : "+&r" (r1), "+&r" (r2), "+&r" (r3), "+&r" (r4));
+}
+
+SHZ_INLINE void shz_xmtrx_load_3x4_cols(const shz_vec4_t *r1,
+                                        const shz_vec4_t *r2,
+                                        const shz_vec4_t *r3) {
+    asm volatile(R"(
+        pref    @%0
+        frchg
+
+        fldi0   fr3
+        fldi0   fr7
+        fldi0   fr11
+        fldi1   fr15
+
+        pref    @%1
+        fmov.s  @%0+, fr0
+        fmov.s  @%0+, fr4
+        fmov.s  @%0+, fr8
+        fmov.s  @%0, fr12
+
+        pref    @%2
+        fmov.s  @%1+, fr1
+        fmov.s  @%1+, fr5
+        fmov.s  @%1+, fr9
+        fmov.s  @%1, fr13
+
+        pref    @%3
+        fmov.s  @%2+, fr2
+        fmov.s  @%2+, fr6
+        fmov.s  @%2+, fr10
+        fmov.s  @%2, fr14
+
+        frchg
+    )"
+    : "+&r" (r1), "+&r" (r2), "+&r" (r3));
 }
 
 SHZ_INLINE void shz_xmtrx_load_3x3(const shz_matrix_3x3_t *matrix) {
@@ -491,12 +564,13 @@ SHZ_INLINE void shz_xmtrx_set_translation(float x, float y, float z) {
         fldi1	fr5
         fmov	dr2,dr6
         fmov	dr2,dr8
-        fmov	dr0,dr10
         fschg
+        fldi1   fr10
         fmov.s  @%[x], fr12
+        fldi0   fr11
         fmov.s  @%[y], fr13
-        fmov.s  @%[z], fr14
         fldi1   fr15
+        fmov.s  @%[z], fr14
         frchg
     )"
     :
@@ -539,6 +613,9 @@ SHZ_INLINE void shz_xmtrx_set_symmetric_skew(float x, float y, float z) {
 void shz_xmtrx_set_frustum(float left, float right, float bottom, float top, float near, float far);
 void shz_xmtrx_set_orthographic(float left, float right, float bottom, float top);
 void shz_xmtrx_set_perspective(float fovy, float aspect, float znear, float zfar);
+#if 0
+
+#endif
 
 SHZ_INLINE void shz_xmtrx_apply_4x4(const shz_matrix_4x4_t *matrix) {
     asm volatile(R"(
@@ -582,9 +659,9 @@ SHZ_INLINE void shz_xmtrx_apply_4x4(const shz_matrix_4x4_t *matrix) {
         fschg
     )"
     : [mtx] "+r" (matrix)
-    :
+    : "m" (*matrix)
     : "r0", "r7", "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6",
-      "fr7", "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+      "fr7", "fr8", "fr9", "fr10", "fr11", "fr12");
 }
 
 SHZ_INLINE void shz_xmtrx_apply_3x4(const shz_matrix_3x4_t *matrix) {
@@ -695,24 +772,42 @@ void shz_xmtrx_apply_2x2(const shz_matrix_2x2_t *matrix) {
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7");
 }
 
+SHZ_INLINE void shz_xmtrx_set_translation(float x, float y, float z) {
+    asm volatile(R"(
+        frchg
+
+        fmov.s  @%[x], fr12
+        fmov.s  @%[y], fr13
+        fmov.s  @%[z], fr14
+
+        frchg
+    )"
+    :
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z));
+}
+
 SHZ_INLINE void shz_xmtrx_apply_translation(float x, float y, float z) {
     asm volatile(R"(
         fschg
-        fmov	xd12, dr4
-        fmov	xd14, dr6
+        fmov	xd0, dr4
+        fmov	xd2, dr6
         fschg
+
+        frchg
 
         fmov.s  @%[x], fr0
         fmov.s  @%[y], fr1
         fmov.s  @%[z], fr2
 
-        fadd	fr0, fr4
-        fadd	fr1, fr5
-        fadd	fr2, fr6
+        fadd	fr0, fr12
+        fadd	fr1, fr13
+        fadd	fr2, fr14
+
+        frchg
 
         fschg
-        fmov	dr4, xd12
-        fmov	dr6, xd14
+        fmov	dr4, xd0
+        fmov	dr6, xd2
         fschg
     )"
     :
@@ -766,7 +861,8 @@ SHZ_INLINE void shz_xmtrx_apply_scale(float x, float y, float z) {
         frchg
     )"
     :
-    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z)
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z),
+      "m" ()
     : "fr0", "fr1", "fr2");
 }
 
@@ -891,7 +987,7 @@ SHZ_INLINE void shz_xmtrx_transpose(void) {
         fmov    fr13, fr7
         fsts    fpul, fr13
 
-        flds    fr11, fpUL
+        flds    fr11, fpul
         fmov    fr14, fr11
         fsts    fpul, fr14
 
