@@ -421,7 +421,7 @@ SHZ_DECLS_END
 #   define shz_vec_dot(vec1, vec2) \
         _Generic((vec1), \
                  shz_vec2_t: shz_vec2_dot, \
-                 shz_vec3_t: shz_vec3_dot, \﻿
+                 shz_vec3_t: shz_vec3_dot, \
                  shz_vec4_t: shz_vec4_dot)(vec1, vec2)
 
 #   define shz_vec_magnitude_sqr(vec) \
@@ -485,14 +485,14 @@ SHZ_DECLS_END
 
 #   define shz_vec_project(vec1, vec2) \
         _Generic((vec1), \
-                 shz_vec2_t: shz_vec2_project,
-                 shz_vec3_t: shz_vec3_project,
+                 shz_vec2_t: shz_vec2_project, \
+                 shz_vec3_t: shz_vec3_project, \
                  shz_vec4_t: shz_vec4_project)(vec1, vec2)
 
 #   define shz_vec_project_safe(vec1, vec2) \
         _Generic((vec1), \
-                 shz_vec2_t: shz_vec2_project_safe,
-                 shz_vec3_t: shz_vec3_project_safe,
+                 shz_vec2_t: shz_vec2_project_safe, \
+                 shz_vec3_t: shz_vec3_project_safe, \
                  shz_vec4_t: shz_vec4_project_safe)(vec1, vec2)
 
 #   define shz_vec_angles(vec) \
