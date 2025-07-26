@@ -16,11 +16,29 @@
 
 #include "shz_cdefs.h"
 
+#define SHZ_MEMORY_BARRIER_SOFT()   asm volatile("" : : : "memory")
+#define SHZ_MEMORY_BARRIER_HARD()   __sync_synchronize()
+
 /*! \defgroup memory
  *  \brief    Routines for managing memory
  */
 
 SHZ_DECLS_BEGIN
+
+SHZ_FORCE_INLINE void shz_dcache_alloc_line(void *src) {
+    SHZ_ALIASING uint32_t *src32 = (SHZ_ALIASING uint32_t *)src;
+
+    asm volatile("movca.l r0, @%8"
+     : "=m"(src32[0]),
+       "=m"(src32[1]),
+       "=m"(src32[2]),
+       "=m"(src32[3]),
+       "=m"(src32[4]),
+       "=m"(src32[5]),
+       "=m"(src32[6]),
+       "=m"(src32[7])
+     : "r" (src32));
+}
 
 SHZ_INLINE void *shz_memcpy2(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT src, size_t bytes) {
     SHZ_ALIASING uint16_t *d = (SHZ_ALIASING uint16_t *)dst;
@@ -134,6 +152,50 @@ SHZ_INLINE void *shz_memcpy32(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT s
     }
 
     return dst;
+}
+
+SHZ_INLINE void shz_memcpy4_16(void *dst, const void *src) {
+    SHZ_ALIASING const uint32_t (*d)[16] = (SHZ_ALIASING const uint32_t (*)[16])dst;
+    SHZ_ALIASING       uint32_t (*s)[16] = (SHZ_ALIASING       uint32_t (*)[16])src;
+
+    asm(R"(
+        mov.l   @%[s]+, r0
+        mov.l   @%[s]+, r1
+        mov.l   @%[s]+, r2
+        mov.l   @%[s]+, r3
+        mov.l   r0, @%[d]
+        mov.l   r1, @( 4, %[d])
+        mov.l   r2, @( 8, %[d])
+        mov.l   r3, @(12, %[d])
+        mov.l   @%[s]+, r0
+        mov.l   @%[s]+, r1
+        mov.l   @%[s]+, r2
+        mov.l   @%[s]+, r3
+        mov.l   r0, @(16, %[d])
+        mov.l   r1, @(20, %[d])
+        mov.l   r2, @(24, %[d])
+        mov.l   r3, @(28, %[d])
+        mov.l   @%[s]+, r0
+        mov.l   @%[s]+, r1
+        mov.l   @%[s]+, r2
+        mov.l   @%[s]+, r3
+        mov.l   r0, @(32, %[d])
+        mov.l   r1, @(36, %[d])
+        mov.l   r2, @(40, %[d])
+        mov.l   r3, @(44, %[d])
+        mov.l   @%[s]+, r0
+        mov.l   @%[s]+, r1
+        mov.l   @%[s]+, r2
+        mov.l   @%[s]+, r3
+        mov.l   r0, @(48, %[d])
+        mov.l   r1, @(52, %[d])
+        mov.l   r2, @(56, %[d])
+        mov.l   r3, @(60, %[d])
+        add     #-64, %[s]
+    )"
+    : "=m" (*d)
+    : [s] "r" (s), [d] "r" (d), "m" (*s)
+    : "r0", "r1", "r2", "r3");
 }
 
 SHZ_DECLS_END

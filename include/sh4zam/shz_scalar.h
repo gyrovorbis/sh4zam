@@ -127,16 +127,16 @@ SHZ_FORCE_INLINE float shz_fast_invf(float x) {
 //! Takes two sets of 4D vectors as 4 floats and calculates their dot product using an approximation.
 SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
                                  float x2, float y2, float z2, float w2) {
-    register float rx1 asm("fr0") = x1;
-    register float ry1 asm("fr1") = y1;
-    register float rz1 asm("fr2") = z1;
-    register float rw1 asm("fr3") = w1;
-    register float rx2 asm("fr4") = x2;
-    register float ry2 asm("fr5") = y2;
-    register float rz2 asm("fr6") = z2;
-    register float rw2 asm("fr7") = w2;
+    register float rx1 asm("fr8")  = x1;
+    register float ry1 asm("fr9")  = y1;
+    register float rz1 asm("fr10") = z1;
+    register float rw1 asm("fr11") = w1;
+    register float rx2 asm("fr12") = x2;
+    register float ry2 asm("fr13") = y2;
+    register float rz2 asm("fr14") = z2;
+    register float rw2 asm("fr15") = w2;
 
-    asm("fipr fv0, fv4"
+    asm("fipr fv8, fv12"
         : "+f" (rw2)
         : "f" (rx1), "f" (ry1), "f" (rz1), "f" (rw1),
           "f" (rx2), "f" (ry2), "f" (rz2));
@@ -146,12 +146,12 @@ SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
 
 //! Takes a 4D vector as 4 floats and calculates its squared magnitude using a fast approximation.
 SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) {
-    register float rx asm("fr0") = x;
-    register float ry asm("fr1") = y;
-    register float rz asm("fr2") = z;
-    register float rw asm("fr3") = w;
+    register float rx asm("fr8")  = x;
+    register float ry asm("fr9")  = y;
+    register float rz asm("fr10") = z;
+    register float rw asm("fr11") = w;
 
-    asm("fipr fv0, fv0"
+    asm("fipr fv8, fv8"
         : "+f" (rw)
         : "f" (rx), "f" (ry), "f" (rz));
 

@@ -13,6 +13,7 @@ typedef struct shz_quat {
 } shz_quat_t;
 
 SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
+    shz_quat_t r;
     /*
         // reorder the coefficients so that q1 stays in constant order {x,y,z,w}
         // q2 then needs to be rotated after each inner product
@@ -56,8 +57,8 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
         t1x = -q2z;
         t1y = q2w;
         t1z = q2x;
-        __atomic_thread_fence(1);
-        r->x = t1w;   // get previous result
+        SHZ_MEMORY_BARRIER_HARD();
+        r.x = t1w;   // get previous result
         t1w = q2y;
         __asm__ ("\n"
             "	fipr	fv4,fv0\n"
@@ -71,8 +72,8 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
         t1x = q2y;
         t1y = -q2x;
         t1z = q2w;
-        __atomic_thread_fence(1);
-        r->y = t1w;   // get previous result
+        SHZ_MEMORY_BARRIER_HARD();
+        r.y = t1w;   // get previous result
         t1w = q2z;
         __asm__ ("\n"
             "	fipr	fv4,fv0\n"
@@ -81,7 +82,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
               "f" (t1x), "f" (t1y), "f" (t1z)
         );
         //z = t1w;
-        __atomic_thread_fence(1);
+        SHZ_MEMORY_BARRIER_HARD();
 
         // w = -(q1.x * q2.x) - (q1.y * q2.y) - (q1.z * q2.z) + (q1.w * q2.w);
         q2x = -q2x;
@@ -94,10 +95,12 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
               "f" (q2x), "f" (q2y), "f" (q2z)
         );
 
-        __atomic_thread_fence(1);
-        r->z = t1w;
-        __atomic_thread_fence(1);
-        r->w = q2w;
+        SHZ_MEMORY_BARRIER_HARD();
+        r.z = t1w;
+        SHZ_MEMORY_BARRIER_HARD();
+        r.w = q2w;
+
+        return r;
 }
 
 SHZ_DECLS_END
