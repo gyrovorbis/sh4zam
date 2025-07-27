@@ -436,11 +436,11 @@ SHZ_DECLS_END
                  shz_vec3_t: shz_vec3_magnitude, \
                  shz_vec4_t: shz_vec4_magnitude)(vec)
 
-#   define shz_vec_inv_magnitude(vec) \
+#   define shz_vec_magnitude_inv(vec) \
         _Generic((vec), \
-                 shz_vec2_t: shz_vec2_inv_magnitude, \
-                 shz_vec3_t: shz_vec3_inv_magnitude, \
-                 shz_vec4_t: shz_vec4_inv_magnitude)(vec)
+                 shz_vec2_t: shz_vec2_magnitude_inv, \
+                 shz_vec3_t: shz_vec3_magnitude_inv, \
+                 shz_vec4_t: shz_vec4_magnitude_inv)(vec)
 
 #   define shz_vec_normalize(vec) \
         _Generic((vec), \
@@ -594,14 +594,14 @@ SHZ_DECLS_END
         else static_assert(false, "Incompatible type!");
     }
 
-    SHZ_FORCE_INLINE float shz_vec_inv_magnitude(auto vec) SHZ_NOEXCEPT {
+    SHZ_FORCE_INLINE float shz_vec_magnitude_inv(auto vec) SHZ_NOEXCEPT {
         using T = decltype(vec);
         if constexpr(std::convertible_to<T, shz_vec2_t>)
-            return shz_vec2_inv_magnitude(vec);
+            return shz_vec2_magnitude_inv(vec);
         else if constexpr(std::convertible_to<T, shz_vec3_t>)
-            return shz_vec3_inv_magnitude(vec);
+            return shz_vec3_magnitude_inv(vec);
         else if constexpr(std::convertible_to<T, shz_vec4_t>)
-            return shz_vec4_inv_magnitude(vec);
+            return shz_vec4_magnitude_inv(vec);
         else static_assert(false, "Incompatible type!");
     }
 

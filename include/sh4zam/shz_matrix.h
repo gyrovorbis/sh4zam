@@ -76,7 +76,6 @@ SHZ_INLINE shz_vec3_t shz_matrix3x3_trans_vec3(const shz_matrix_3x3_t *m, shz_ve
         : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
           "f" (fr8), "f" (fr9), "f" (fr10));
 
-
     __atomic_thread_fence(1);
 
     out.x = fr7;
@@ -194,6 +193,8 @@ SHZ_INLINE shz_vec3_t shz_matrix4x4_trans_vec3(const shz_matrix_4x4_t *m, shz_ve
 }
 
 SHZ_INLINE shz_vec4_t shz_matrix_4x4_trans_vec4(const shz_matrix_4x4_t *mat, shz_vec4_t in) {
+    shz_vec4_t result;
+#if 0
     SHZ_PREFETCH(mat);
 
     const shz_vec4_t *c[4] = {
@@ -245,7 +246,9 @@ SHZ_INLINE shz_vec4_t shz_matrix_4x4_trans_vec4(const shz_matrix_4x4_t *mat, shz
         frchg
     )"
     : [v] "+r" (&in),
-      [c0] "+r" (c[0]), [c1] "+r" (c[1]), [c2] "+r" (c[2]), [c3], "+r" (c[3]));
+      [c0] "+r" (c[0]), [c1] "+r" (c[1]), [c2] "+r" (c[2]), [c3] "+r" (c[3]));
+#endif
+    return result;
 }
 
 SHZ_DECLS_END

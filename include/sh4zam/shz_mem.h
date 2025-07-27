@@ -28,7 +28,7 @@ SHZ_DECLS_BEGIN
 SHZ_FORCE_INLINE void shz_dcache_alloc_line(void *src) {
     SHZ_ALIASING uint32_t *src32 = (SHZ_ALIASING uint32_t *)src;
 
-    asm volatile("movca.l r0, @%8"
+    asm volatile("movca.l r0, @%8\n"
      : "=m"(src32[0]),
        "=m"(src32[1]),
        "=m"(src32[2]),

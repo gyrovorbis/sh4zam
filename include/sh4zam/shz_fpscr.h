@@ -24,6 +24,8 @@
         asm volatile("fschg"); \
     } while(false)
 
+#define SHZ_FRCHG() asm volatile("frchg")
+
 SHZ_DECLS_BEGIN
 
 typedef union shz_fpscr {
@@ -57,8 +59,8 @@ typedef union shz_fpscr {
     uint32_t value;
 } shz_fpscr_t;
 
-static_assert(sizeof(shz_fpscr_t) == sizeof(uint32_t),
-              "Incorrect size for shz_fscr_t struct!")
+//static_assert(sizeof(shz_fpscr_t) == sizeof(uint32_t),
+//              "Incorrect size for shz_fscr_t struct!");
 
 SHZ_FORCE_INLINE shz_fpscr_t shz_fpscr_read(void) {
     return (shz_fpscr_t) {

@@ -18,36 +18,87 @@
 #define SHZ_XMTRX_H
 
 #include "shz_matrix.h"
+#include "shz_fpscr.h"
 
 /*! \defgroup xmtrx
  *  \brief    Matrix Stack
  *
  */
 
-#define shz_xmtrx_set_reg(reg, value) do {       \
-        const float tmp = (value);               \
-        asm volatile("flds %0, fpul\n\t"         \
-                     "frchg\n\t"                 \
-                     "fsts fpul, fr" #reg "\n\t" \
-                     "frchg\n\t"                 \
-                     :                           \
-                     : "f" (tmp)                 \
-                     : "fpul");                  \
-    } while(false)
-
-#define shz_xmtrx_get_reg(reg) ({               \
-        float val;                              \
-        asm volatile("frchg\n"                  \
-                     "flds fr" #reg ", fpul\n"  \
-                     "frchg\n"                  \
-                     "fsts fpul, %0\n"          \
-                     : "=f" (val)               \
-                     :                          \
-                     : "fpul");                 \
-        val;                                    \
-    })
-
 SHZ_DECLS_BEGIN
+
+
+typedef enum shz_xmtrx_reg {
+    SHZ_XMTRX_XF0,
+    SHZ_XMTRX_XF1,
+    SHZ_XMTRX_XF2,
+    SHZ_XMTRX_XF3,
+    SHZ_XMTRX_XF4,
+    SHZ_XMTRX_XF5,
+    SHZ_XMTRX_XF6,
+    SHZ_XMTRX_XF7,
+    SHZ_XMTRX_XF8,
+    SHZ_XMTRX_XF9,
+    SHZ_XMTRX_XF10,
+    SHZ_XMTRX_XF11,
+    SHZ_XMTRX_XF12,
+    SHZ_XMTRX_XF13,
+    SHZ_XMTRX_XF14,
+    SHZ_XMTRX_XF15
+} shz_xmtrx_reg_t;
+
+SHZ_INLINE float shz_xmtrx_read_reg(shz_xmtrx_reg_t xf) {
+    float value;
+
+    SHZ_FRCHG();
+    switch(xf) {
+    case SHZ_XMTRX_XF0:  asm volatile("flds fr0,  fpul"); break;
+    case SHZ_XMTRX_XF1:  asm volatile("flds fr1,  fpul"); break;
+    case SHZ_XMTRX_XF2:  asm volatile("flds fr2,  fpul"); break;
+    case SHZ_XMTRX_XF3:  asm volatile("flds fr3,  fpul"); break;
+    case SHZ_XMTRX_XF4:  asm volatile("flds fr4,  fpul"); break;
+    case SHZ_XMTRX_XF5:  asm volatile("flds fr5,  fpul"); break;
+    case SHZ_XMTRX_XF6:  asm volatile("flds fr6,  fpul"); break;
+    case SHZ_XMTRX_XF7:  asm volatile("flds fr7,  fpul"); break;
+    case SHZ_XMTRX_XF8:  asm volatile("flds fr8,  fpul"); break;
+    case SHZ_XMTRX_XF9:  asm volatile("flds fr9,  fpul"); break;
+    case SHZ_XMTRX_XF10: asm volatile("flds fr10, fpul"); break;
+    case SHZ_XMTRX_XF11: asm volatile("flds fr11, fpul"); break;
+    case SHZ_XMTRX_XF12: asm volatile("flds fr12, fpul"); break;
+    case SHZ_XMTRX_XF13: asm volatile("flds fr13, fpul"); break;
+    case SHZ_XMTRX_XF14: asm volatile("flds fr14, fpul"); break;
+    case SHZ_XMTRX_XF15: asm volatile("flds fr15, fpul"); break;
+    }
+    SHZ_FRCHG();
+
+    asm volatile("fsts fpul, %0\n" : "=f" (value) : : "fpul");
+    return value;
+}
+
+SHZ_INLINE void shz_xmtrx_write_reg(shz_xmtrx_reg_t xf, float value) {
+    asm volatile("flds %0, fpul\n" : : "f" (value) : "fpul");
+
+    SHZ_FRCHG();
+    switch(xf) {
+    case SHZ_XMTRX_XF0:  asm volatile("fsts fpul, fr0");  break;
+    case SHZ_XMTRX_XF1:  asm volatile("fsts fpul, fr1");  break;
+    case SHZ_XMTRX_XF2:  asm volatile("fsts fpul, fr2");  break;
+    case SHZ_XMTRX_XF3:  asm volatile("fsts fpul, fr3");  break;
+    case SHZ_XMTRX_XF4:  asm volatile("fsts fpul, fr4");  break;
+    case SHZ_XMTRX_XF5:  asm volatile("fsts fpul, fr5");  break;
+    case SHZ_XMTRX_XF6:  asm volatile("fsts fpul, fr6");  break;
+    case SHZ_XMTRX_XF7:  asm volatile("fsts fpul, fr7");  break;
+    case SHZ_XMTRX_XF8:  asm volatile("fsts fpul, fr8");  break;
+    case SHZ_XMTRX_XF9:  asm volatile("fsts fpul, fr9");  break;
+    case SHZ_XMTRX_XF10: asm volatile("fsts fpul, fr10"); break;
+    case SHZ_XMTRX_XF11: asm volatile("fsts fpul, fr11"); break;
+    case SHZ_XMTRX_XF12: asm volatile("fsts fpul, fr12"); break;
+    case SHZ_XMTRX_XF13: asm volatile("fsts fpul, fr13"); break;
+    case SHZ_XMTRX_XF14: asm volatile("fsts fpul, fr14"); break;
+    case SHZ_XMTRX_XF15: asm volatile("fsts fpul, fr15"); break;
+    }
+    SHZ_FRCHG();
+}
 
 SHZ_INLINE void shz_xmtrx_load_4x4(const shz_matrix_4x4_t *matrix) {
     asm volatile(R"(
@@ -95,42 +146,6 @@ SHZ_INLINE void shz_xmtrx_load_4x4_unaligned(const float matrix[16]) {
     )"
     : [mtx] "+r" (matrix)
     :  "m" (*matrix));
-}
-
-SHZ_INLINE void shz_xmtrx_load_4x4_rows(const shz_vec4_t *r1,
-                                        const shz_vec4_t *r2,
-                                        const shz_vec4_t *r3,
-                                        const shz_vec4_t *r4) {
-    asm volatile (R"(
-        frchg
-
-        pref    @%1
-        fmov.s  @%0+, fr0
-        fmov.s  @%0+, fr4
-        fmov.s  @%0+, fr8
-        fmov.s  @%0,  fr12
-
-        pref    @%2
-        fmov.s  @%1+, fr1
-        fmov.s  @%1+, fr5
-        fmov.s  @%1+, fr9
-        fmov.s  @%1,  fr13
-
-        pref    @%3
-        fmov.s  @%2+, fr2
-        fmov.s  @%2+, fr6
-        fmov.s  @%2+, fr10
-        fmov.s  @%2,  fr14
-
-        fmov.s  @%3+, fr3
-        fmov.s  @%3+, fr7
-        fmov.s  @%3+, fr11
-        fmov.s  @%3,  fr15
-
-        frchg
-    )"
-    : "+&r" (r1), "+&r" (r2), "+&r" (r3), "+&r" (r4)
-    : "m" (*r1), "m" (*r2), "m" (*r3), "m" (*r4));
 }
 
 SHZ_INLINE void shz_xmtrx_load_4x4_cols(const shz_vec4_t *c1,
@@ -346,41 +361,6 @@ SHZ_INLINE void shz_xmtrx_load_3x4(const shz_matrix_3x4_t *matrix) {
         frchg
     )"
     : [mat] "+r" (matrix));
-}
-
-SHZ_INLINE void shz_xmtrx_load_4x4_rows(const shz_vec4_t *r1,
-                                        const shz_vec4_t *r2,
-                                        const shz_vec4_t *r3,
-                                        const shz_vec4_t *r4) {
-    asm volatile (R"(
-        frchg
-
-        pref    @%1
-        fmov.s  @%0+, fr0
-        fmov.s  @%0+, fr4
-        fmov.s  @%0+, fr8
-        fmov.s  @%0, fr12
-
-        pref    @%2
-        fmov.s  @%1+, fr1
-        fmov.s  @%1+, fr5
-        fmov.s  @%1+, fr9
-        fmov.s  @%1, fr13
-
-        pref    @%3
-        fmov.s  @%2+, fr2
-        fmov.s  @%2+, fr6
-        fmov.s  @%2+, fr10
-        fmov.s  @%2, fr14
-
-        fmov.s  @%3+, fr3
-        fmov.s  @%3+, fr7
-        fmov.s  @%3+, fr11
-        fmov.s  @%3, fr15
-
-        frchg
-    )"
-    : "+&r" (r1), "+&r" (r2), "+&r" (r3), "+&r" (r4));
 }
 
 inline static void shz_xmtrx_load_3x4_cols(const shz_vec4_t* c1,
@@ -899,15 +879,13 @@ SHZ_INLINE void shz_xmtrx_init_symmetric_skew(float x, float y, float z) {
         frchg
     )"
     :
-    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z));
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z),
+      "m" (x), "m" (y), "m" (z));
 }
 
 void shz_xmtrx_set_frustum(float left, float right, float bottom, float top, float near, float far);
 void shz_xmtrx_set_orthographic(float left, float right, float bottom, float top);
 void shz_xmtrx_set_perspective(float fovy, float aspect, float znear, float zfar);
-#if 0
-
-#endif
 
 SHZ_INLINE void shz_xmtrx_apply_4x4(const shz_matrix_4x4_t *matrix) {
     asm volatile(R"(
@@ -1106,7 +1084,7 @@ void shz_xmtrx_apply_2x2(const shz_matrix_2x2_t *matrix) {
         fmov    dr2, dr6
 
         fmov.d  @%[mtx]+, dr0
-        fmov.d  @[mtx]+, dr4
+        fmov.d  @%[mtx]+, dr4
 
         ftrv    xmtrx, fv0
         ftrv    xmtrx, fv4

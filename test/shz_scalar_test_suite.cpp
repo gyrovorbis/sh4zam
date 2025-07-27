@@ -4,26 +4,11 @@
 #include <print>
 #include <array>
 
-#include <kos.h>
-
 #define GBL_SELF_TYPE shz_scalar_test_suite
 
-GBL_TEST_FIXTURE {
-    uint64_t ns_start;
-    int      irq_state;   
-};
-
-GBL_TEST_INIT()
-    pFixture->irq_state = irq_disable();
-    pFixture->ns_start  = perf_cntr_timer_ns();
-GBL_TEST_CASE_END
-
-GBL_TEST_FINAL()
-    uint64_t ns_end = perf_cntr_timer_ns();
-    std::println("Test suite took {}ns!", 
-                 ns_end - pFixture->ns_start);
-    irq_restore(pFixture->irq_state);
-GBL_TEST_CASE_END
+GBL_TEST_FIXTURE_NONE
+GBL_TEST_INIT_NONE
+GBL_TEST_FINAL_NONE
 
 GBL_TEST_CASE(min)
     GBL_TEST_VERIFY((shz::min(-3.0f, 12.0f)) == -3.0f);

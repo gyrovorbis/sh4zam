@@ -1,7 +1,23 @@
+/*! \file
+    \brief Routines for operating upon quaternions.
+    \ingroup quat
+    \todo
+    - to and from axis/angle
+    - to and from matrix
+
+    \author Falco Girgis
+    \author Oleg Endo
+*/
+
 #ifndef SHZ_QUAT_H
 #define SHZ_QUAT_H
 
 #include "shz_intrin.h"
+
+/*! \defgroup quat Quaternions
+    \brief         Routines for quaternion math.
+@{
+*/
 
 SHZ_DECLS_BEGIN
 
@@ -102,6 +118,8 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
 
         return r;
 }
+
+//! @}
 
 SHZ_DECLS_END
 

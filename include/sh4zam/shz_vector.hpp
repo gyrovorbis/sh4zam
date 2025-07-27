@@ -11,6 +11,7 @@
 #define SHZ_VECTOR_HPP
 
 #include <compare>
+#include <concepts>
 
 #include "shz_vector.h"
 #include "shz_scalar.hpp"
@@ -39,46 +40,61 @@ struct vecN: C {
         return std::forward<decltype(self)>(self).e[index];
     }
 
-    //friend constexpr auto operator<=>(vecN<CRTP, C, R> self, const C &rhs) noexcept {
-     //   return static_cast<const C &>(self) <=> rhs;
-    //}
-
-    //friend constexpr bool operator<=>(const C& self, const C &rhs) noexcept {
-     //   return self == rhs;
-   // }
-
-    SHZ_FORCE_INLINE CppType &operator+=(CppType other) noexcept {
-        *this = *this + other;
-        return *this;
+    friend constexpr auto operator<=>(CppType lhs, CppType rhs) noexcept {
+        return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(),
+                                                      rhs.begin(), rhs.end());
     }
 
-    SHZ_FORCE_INLINE CppType &operator-=(CppType other) noexcept {
-        *this = *this - other;
-        return *this;
+    friend constexpr auto operator==(CppType lhs, CppType rhs) noexcept {
+        return std::equal(lhs.begin(), lhs.end(),
+                          rhs.begin(), rhs.end());
     }
 
-    SHZ_FORCE_INLINE CppType &operator*=(CppType other) noexcept {
-        *this = *this * other;
-        return *this;
+    friend constexpr auto operator<(CppType lhs, CppType rhs) noexcept {
+        return std::lexicographical_compare(lhs.begin(), lhs.end(),
+                                            rhs.begin(), rhs.end());
     }
 
-    SHZ_FORCE_INLINE CppType &operator/=(CppType other) noexcept {
-        *this = *this / other;
-        return *this;
+    SHZ_FORCE_INLINE CppType &operator+=(this CppType &self, CppType other) noexcept {
+        self = self + other;
+        return self;
     }
 
-    SHZ_FORCE_INLINE CppType &operator*=(float other) noexcept {
-        *this = *this * other;
-        return *this;
+    SHZ_FORCE_INLINE CppType &operator-=(this CppType &self, CppType other) noexcept {
+        self = self - other;
+        return self;
     }
 
-    SHZ_FORCE_INLINE CppType &operator/=(float other) noexcept {
-        *this = *this / other;
-        return *this;
+    SHZ_FORCE_INLINE CppType &operator*=(this CppType &self, CppType other) noexcept {
+        self = self * other;
+        return self;
     }
 
-    SHZ_FORCE_INLINE float dot(CppType other) const noexcept {
-        return shz_vec_dot(*this, other);
+    SHZ_FORCE_INLINE CppType &operator/=(this CppType &self, CppType other) noexcept {
+        self = self / other;
+        return self;
+    }
+
+    SHZ_FORCE_INLINE CppType &operator*=(this CppType &self, float other) noexcept {
+        self = self * other;
+        return self;
+    }
+
+    SHZ_FORCE_INLINE CppType &operator/=(this CppType &self, float other) noexcept {
+        self = self / other;
+        return self;
+    }
+
+    SHZ_FORCE_INLINE auto begin(this auto &&self) {
+        return &self[0];
+    }
+
+    SHZ_FORCE_INLINE auto end(this auto &&self) {
+        return &self[Rows];
+    }
+
+    SHZ_FORCE_INLINE float dot(this const CppType &self, CppType other) noexcept {
+        return shz_vec_dot(self, other);
     }
 
     SHZ_FORCE_INLINE float magnitude() const noexcept {
@@ -189,9 +205,10 @@ SHZ_FORCE_INLINE CRTP operator/(float lhs, vecN<CRTP, C, R> rhs) noexcept {
  */
 struct vec2: vecN<vec2, shz_vec2_t, 2> {
     vec2() = default;
+    using vecN::vecN;
 
-    SHZ_FORCE_INLINE vec2(shz_vec2_t other) noexcept:
-        vecN(other) {}
+    //SHZ_FORCE_INLINE vec2(shz_vec2_t other) noexcept:
+    //    vecN(other) {}
 
     SHZ_FORCE_INLINE vec2(float v) noexcept:
         vecN({ v, v }) {}

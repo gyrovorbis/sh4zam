@@ -42,8 +42,8 @@ SHZ_DECLS_BEGIN
  *  \sa shz_sincosf(), shz_sincosf_deg()
  */
 typedef struct shz_sincos {
-    float sin;  //!< sin() approximation of the angle
-    float cos;  //!< cos() approximation of the angle
+    float sin;  //!< sinf() approximation for the angle
+    float cos;  //!< cosf() approximation for the angle
 } shz_sincos_t;
 
 //! Returns sinf()/cosf() pairs for the given unsigned 16-bit angle in radians.
