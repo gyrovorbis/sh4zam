@@ -80,7 +80,7 @@ GBL_TEST_CASE(vec2AddEquals)
     vec += shz::vec2 { -4.0f, -6.0f };
 
     GBL_TEST_VERIFY(vec.x == 0.0f);
-    GBL_TEST_VERIFY(vec.y == -1.0f);
+    GBL_TEST_VERIFY(vec.y == -3.0f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2SubEquals)
@@ -119,7 +119,7 @@ GBL_TEST_CASE(vec2MultEqualsScalar)
     vec *= -4.0f;
     vec *= 2.0f;
 
-    GBL_TEST_VERIFY(vec.x == 8.0f);
+    GBL_TEST_VERIFY(vec.x == -8.0f);
     GBL_TEST_VERIFY(vec.y == 16.0f);
 GBL_TEST_CASE_END
 
@@ -147,21 +147,18 @@ GBL_TEST_CASE(vec2Dot)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Magnitude)
-    GBL_TEST_VERIFY((shz::vec2{1.0f, 1.0f}.magnitude() == 1.0f));
-    GBL_TEST_VERIFY(shz::vec2(2.0f, 3.0f).magnitude() == 3.60555127546f);
+    GBL_TEST_ERROR((shz::vec2{1.0f, 1.0f}.magnitude()), sqrtf(2.0f), 0.0001f, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR((shz::vec2(2.0f, 3.0f).magnitude()), 3.60555127546f, 0.0001f, GBL_TEST_ERROR_FUZZY);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2MagnitudeSqr)
-    GBL_TEST_VERIFY((shz::vec2{1.0f, 1.0f}.magnitude_sqr() == 1.0f));
+    GBL_TEST_VERIFY((shz::vec2{1.0f, 1.0f}.magnitude_sqr() == 2.0f));
     GBL_TEST_VERIFY((shz::vec2(2.0f, 3.0f).magnitude_sqr() == 13.0f));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2MagnitudeInv)
-    GBL_TEST_VERIFY((shz::vec2{1.0f, 1.0f}.magnitude_inv() == 1.0f));
-    GBL_TEST_VERIFY(
-        gblFloatEquals(
-            shz::vec2(2.0f, 3.0f).magnitude_inv(),
-            0.27735009811f));
+    GBL_TEST_ERROR((shz::vec2{1.0f, 1.0f}.magnitude_inv()), 1.0f / sqrtf(2.0f), 0.0001f, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz::vec2(2.0f, 3.0f).magnitude_inv(), 1.0f / sqrtf(13.0f), 0.0001f, GBL_TEST_ERROR_FUZZY);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Direction)

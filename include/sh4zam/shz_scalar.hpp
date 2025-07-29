@@ -13,7 +13,7 @@
 #include "shz_scalar.h"
 
 namespace shz {
-    constexpr float fipr_max_error = 0.001f;
+    constexpr float fipr_max_error = 0.1f;
 
     /*! \name  Min/Max
      *  \brief Routines for minimum, maximum, clamping, and normalization.

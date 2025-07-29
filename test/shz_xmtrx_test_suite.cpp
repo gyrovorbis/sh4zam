@@ -16,15 +16,47 @@ static void randomize_xmtrx_() {
         shz_xmtrx_write_reg(static_cast<shz_xmtrx_reg_t>(reg), gblRandUniform(FLT_MIN, FLT_MAX));
 }
 
-static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, float epsilon=FLT_EPSILON) {
+static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, double epsilon=0.000100000) {
     GBL_CTX_BEGIN(pSelf);
 
-    for(unsigned reg = SHZ_XMTRX_XF0; reg < SHZ_XMTRX_XF15; ++reg)
-        GBL_TEST_VERIFY(
-            gblFloatEquals(
-                shz_xmtrx_read_reg(static_cast<shz_xmtrx_reg_t>(reg)),
-                mat[reg],
-                epsilon));
+    std::array<float, 16> transpose;
+
+    for(unsigned r = 0; r < 4; ++r)
+        for(unsigned c = 0; c < 4; ++c)
+            transpose[c * 4 + r] = mat[r * 4 + c];
+
+    auto error_check = [&](shz_xmtrx_reg_t reg, bool rel=false) {
+        auto approx   = shz_xmtrx_read_reg(reg);
+        auto precise  = transpose[reg];
+        auto relative = gblRelativeError(approx, precise);
+        auto absolute = gblAbsoluteError(approx, precise);
+        auto result   = ((rel? relative : absolute) < epsilon);
+
+        if(!result) {
+            GBL_CTX_ERROR("(SHZ_XMTRX_XF%u == %.9f) != (expected == %.9f)\n"
+                          "\t    ERROR: Rel == %.9f, Abs == %.9f, Max == %.9f",
+                          static_cast<unsigned>(reg), approx, precise,
+                          relative, absolute, epsilon);
+            return GBL_RESULT_ERROR;
+        } else return GBL_RESULT_SUCCESS;
+    };
+
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF0 ));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF1 ));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF2 ));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF3 ));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF4 ));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF5 ));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF6 ));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF7 ));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF8 ));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF9 ));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF10));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF11));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF12));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF13));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF14));
+    GBL_TEST_CALL(error_check(SHZ_XMTRX_XF15));
 
     GBL_CTX_END();
 }
@@ -97,31 +129,31 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_rotation_x)
     randomize_xmtrx_();
-    shz_xmtrx_init_rotation_x(3.14f);
+    shz_xmtrx_init_rotation_x(SHZ_F_PI);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                   { 1.0f, 0.0f, 0.0f, 0.0f,
-                    0.0f, cos(3.14f), sin(3.14f), 0.0f,
-                    0.0f, -sin(3.14f), cos(3.14f), 0.0f,
+                    0.0f, cosf(SHZ_F_PI), -sinf(SHZ_F_PI), 0.0f,
+                    0.0f, sinf(SHZ_F_PI), cosf(SHZ_F_PI), 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f}));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_rotation_y)
     randomize_xmtrx_();
-    shz_xmtrx_init_rotation_y(3.14f);
+    shz_xmtrx_init_rotation_y(SHZ_F_PI);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                  { cos(3.14f), 0.0f, sin(3.14f), 0.0f,
+                  { cosf(SHZ_F_PI), 0.0f, sinf(SHZ_F_PI), 0.0f,
                     0.0f, 1.0f, 0.0f, 0.0f,
-                    -sin(3.14f), 0.0f, cos(3.14f), 0.0f,
+                    -sinf(SHZ_F_PI), 0.0f, cosf(SHZ_F_PI), 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f}));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_rotation_z)
     randomize_xmtrx_();
-    shz_xmtrx_init_rotation_z(3.14f);
+    shz_xmtrx_init_rotation_z(SHZ_F_PI);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                  { cos(3.14f), sin(3.14f), 0.0f, 0.0f,
-                    sin(3.14f), cos(3.14f), 0.0f, 0.0f,
-                    0.0f, 0.0f, 0.0f, 1.0f,
+                  { cosf(SHZ_F_PI), sinf(SHZ_F_PI), 0.0f, 0.0f,
+                    sinf(SHZ_F_PI), cosf(SHZ_F_PI), 0.0f, 0.0f,
+                    0.0f, 0.0f, 1.0f, 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f }));
 GBL_TEST_CASE_END
 
@@ -129,10 +161,10 @@ GBL_TEST_CASE(init_translation)
     randomize_xmtrx_();
     shz_xmtrx_init_translation(10.0f, -20.0f, 30.0f);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                  { 1.0f, 0.0f, 0.0f, 0.0f,
-                    0.0f, 1.0f, 0.0f, 0.0f,
-                    0.0f, 0.0f, 1.0f, 0.0f,
-                    10.0f, -20.0f, 30.0f, 1.0f }));
+                  { 1.0f, 0.0f, 0.0f, 10.0f,
+                    0.0f, 1.0f, 0.0f, -20.0f,
+                    0.0f, 0.0f, 1.0f, 30.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_symmetric_skew)

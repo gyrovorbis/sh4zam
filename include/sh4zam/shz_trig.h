@@ -23,7 +23,9 @@
 //! Multiplicative factor for passing the FSCA instruction angles in radians
 #define SHZ_FSCA_RAD_FACTOR     10430.37835f
 //! Multiplicative factor for passing the FSCA instrution angles in degrees
-#define SHZ_FSCA_DEG_FACTOR     SHZ_DEG_TO_RAD(SHZ_FSCA_RAD_FACTOR)
+#define SHZ_FSCA_DEG_FACTOR     182.04444443f
+//! Maximum FP error for FSCA instruction
+#define SHZ_FSCA_ERROR_MAX      4.76837158e-7
 
 //! Converts the given angle in degrees to radians
 #define SHZ_DEG_TO_RAD(deg)     ((deg) * SHZ_F_PI / 180.0f)
@@ -48,24 +50,54 @@ typedef struct shz_sincos {
 
 //! Returns sinf()/cosf() pairs for the given unsigned 16-bit angle in radians.
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16(uint16_t radians16) {
-    register float rsin asm("fr0");
-    register float rcos asm("fr1");
+    register float rsin asm("fr8");
+    register float rcos asm("fr9");
 
-    asm("fsca fpul, dr0"
+    asm volatile(R"(
+            lds  %2, fpul
+            fsca fpul, dr8
+        )"
         : "=f" (rsin), "=f" (rcos)
-        : "y" (radians16));
+        : "r" (radians16)
+        : "fpul");
 
     return (shz_sincos_t){ rsin, rcos };
 }
 
 //! Returns sinf()/cosf() pairs for the given floating-point angle in radians.
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) {
-    return shz_sincosu16(radians * SHZ_FSCA_RAD_FACTOR);
+    register float rsin asm("fr8");
+    register float rcos asm("fr9");
+
+    radians *= SHZ_FSCA_RAD_FACTOR;
+
+    asm volatile(R"(
+            ftrc  %2, fpul
+            fsca  fpul, dr8
+        )"
+        : "=f" (rsin), "=f" (rcos)
+        : "f" (radians)
+        : "fpul");
+
+    return (shz_sincos_t){ rsin, rcos };
 }
 
 //! Returns sinf/cosf() pairs for the given floating-point angle in degrees.
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) {
-    return shz_sincosu16(degrees * SHZ_FSCA_DEG_FACTOR);
+    register float rsin asm("fr8");
+    register float rcos asm("fr9");
+
+    degrees *= SHZ_FSCA_DEG_FACTOR;
+
+    asm volatile(R"(
+            ftrc  %2, fpul
+            fsca  fpul, dr8
+        )"
+        : "=&f" (rsin), "=&f" (rcos)
+        : "f" (degrees)
+        : "fpul");
+
+    return (shz_sincos_t){ rsin, rcos };
 }
 
 //! Returns tanf() from the given pre-computed \p sincos pair.

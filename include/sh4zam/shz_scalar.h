@@ -89,7 +89,7 @@ SHZ_FORCE_INLINE float shz_sqrtf(float x) {
 
 //! Calculates 1.0f/sqrtf( \p x ), using a fast approximation.
 SHZ_FORCE_INLINE float shz_inverse_sqrtf(float x) {
-    asm("fsrra %0" : "+f" (x));
+    asm volatile("fsrra %0" : "+f" (x));
     return x;
 }
 

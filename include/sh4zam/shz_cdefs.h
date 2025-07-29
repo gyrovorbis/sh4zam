@@ -51,6 +51,8 @@
 #define SHZ_ICACHE_ALIGNED       __attribute__((aligned(32)))
 //! Forces GCC to inline the given function.
 #define SHZ_FORCE_INLINE         __attribute__((always_inline)) SHZ_INLINE
+//! Prevents GCC from inlining the given function.
+#define SHZ_NO_INLINE            __attribute__((noinline))
 //! Forces GCC to inline all calls to other functions made within the tagged function.
 #define SHZ_FLATTEN              __attribute__((flatten))
 //! Tells GCC not to introduce any extra padding for the given type.
