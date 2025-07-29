@@ -1,8 +1,6 @@
 #include "shz_test.h"
 #include "sh4zam/shz_trig.hpp"
 #include <gimbal/algorithms/gimbal_random.h>
-#include <gimbal/core/gimbal_logger.h>
-#include <print>
 #include <cmath>
 
 #define GBL_SELF_TYPE   shz_trig_test_suite

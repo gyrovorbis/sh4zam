@@ -28,6 +28,7 @@
 
 SHZ_DECLS_BEGIN
 
+#if 0
 typedef union shz_fpscr {
     struct {
         struct {
@@ -58,6 +59,7 @@ typedef union shz_fpscr {
     };
     uint32_t value;
 } shz_fpscr_t;
+#endif
 
 //static_assert(sizeof(shz_fpscr_t) == sizeof(uint32_t),
 //              "Incorrect size for shz_fscr_t struct!");

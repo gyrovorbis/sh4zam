@@ -27,7 +27,6 @@
 
 SHZ_DECLS_BEGIN
 
-
 typedef enum shz_xmtrx_reg {
     SHZ_XMTRX_XF0,
     SHZ_XMTRX_XF1,

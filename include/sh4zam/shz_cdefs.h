@@ -69,6 +69,10 @@
 #define SHZ_PREFETCH(a)          __builtin_prefetch(a)
 //! Tells GCC to issue a prefetch, using inline ASM so that it cannot be reordered
 #define SHZ_PREFETCH_VOLATILE(a) asm volatile("pref @%0" : : "r" (a))
+//! Put this before a function definition to tell GCC to use fast math optimizations on a specific function.
+#define SHZ_FAST_MATH           __attribute__((optimize("fast-math")))
+//! Put this before a function definition to tell GCC to NOT use fast math optimizations on a specific function.
+#define SHZ_NO_FAST_MATH        __attribute__((optimize("no-fast-math")))
 
 #ifndef __cplusplus
     //! Dummy define provided for C++ compatibility
@@ -99,6 +103,15 @@
 #endif
 //! @}
 //! \endcond
+
+typedef SHZ_ALIASING int16_t  shz_alias_int16_t
+typedef SHZ_ALIASING uint16_t shz_alias_uint16_t
+typedef SHZ_ALIASING int32_t  shz_alias_int32_t
+typedef SHZ_ALIASING uint32_t shz_alias_uint32_t
+typedef SHZ_ALIAsing float    shz_alias_float_t
+typedef SHZ_ALIASING int64_t  shz_alias_int64_t
+typedef SHZ_ALIASING uint64_t shz_alias_uint64_t
+typedef SHZ_ALIASING double   shz_alias_double_t
 
 //! Namespace containing the C++23 interface of the SH4ZAM API.
 namespace shz {
