@@ -2,6 +2,7 @@
 #include "sh4zam/shz_xmtrx.hpp"
 
 #include <gimbal/gimbal_algorithms.h>
+#include <print>
 
 #define GBL_SELF_TYPE shz_xmtrx_test_suite
 
@@ -193,6 +194,39 @@ GBL_TEST_CASE(load_4x4_unaligned)
                   transpose(array)));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(apply_rotation_x)
+    randomize_xmtrx_();
+    shz_xmtrx_init_identity();
+    shz_xmtrx_apply_rotation_x(F_PI);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                 { 1.0f,       0.0f,        0.0f, 0.0f,
+                   0.0f, cosf(F_PI), -sinf(F_PI), 0.0f,
+                   0.0f, sinf(F_PI),  cosf(F_PI), 0.0f,
+                   0.0f,       0.0f,        0.0f, 1.0f }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_rotation_y)
+    randomize_xmtrx_();
+    shz_xmtrx_init_identity();
+    shz_xmtrx_apply_rotation_y(F_PI);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                 { cosf(F_PI), 0.0f,  sinf(F_PI), 0.0f,
+                         0.0f, 1.0f,        0.0f, 0.0f,
+                         0.0f, 0.0f,  cosf(F_PI), 0.0f,
+                  -sinf(F_PI), 0.0f,        0.0f, 1.0f }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_rotation_z)
+    randomize_xmtrx_();
+    shz_xmtrx_init_identity();
+    shz_xmtrx_apply_rotation_z(F_PI);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                 { cosf(F_PI), -sinf(F_PI), 0.0f, 0.0f,
+                   sinf(F_PI),  cosf(F_PI), 0.0f, 0.0f,
+                         0.0f,        0.0f, 1.0f, 0.0f,
+                         0.0f,        0.0f, 0.0f, 1.0f }));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(register_accessors,
                   init_identity,
                   init_diagonal,
@@ -203,4 +237,7 @@ GBL_TEST_REGISTER(register_accessors,
                   init_translation,
                   init_symmetric_skew,
                   load_4x4,
-                  load_4x4_unaligned)
+                  load_4x4_unaligned,
+                  apply_rotation_x,
+                  apply_rotation_y,
+                  apply_rotation_z)

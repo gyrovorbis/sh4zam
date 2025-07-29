@@ -59,7 +59,6 @@ typedef union shz_fpscr {
     };
     uint32_t value;
 } shz_fpscr_t;
-#endif
 
 //static_assert(sizeof(shz_fpscr_t) == sizeof(uint32_t),
 //              "Incorrect size for shz_fscr_t struct!");
@@ -73,6 +72,7 @@ SHZ_FORCE_INLINE shz_fpscr_t shz_fpscr_read(void) {
 SHZ_FORCE_INLINE void shz_fpscr_write(shz_fpscr_t new_value) {
     __builtin_sh_set_fpscr(new_value.value);
 }
+#endif
 
 SHZ_DECLS_END
 

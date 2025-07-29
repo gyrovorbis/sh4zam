@@ -104,14 +104,14 @@
 //! @}
 //! \endcond
 
-typedef SHZ_ALIASING int16_t  shz_alias_int16_t
-typedef SHZ_ALIASING uint16_t shz_alias_uint16_t
-typedef SHZ_ALIASING int32_t  shz_alias_int32_t
-typedef SHZ_ALIASING uint32_t shz_alias_uint32_t
-typedef SHZ_ALIAsing float    shz_alias_float_t
-typedef SHZ_ALIASING int64_t  shz_alias_int64_t
-typedef SHZ_ALIASING uint64_t shz_alias_uint64_t
-typedef SHZ_ALIASING double   shz_alias_double_t
+typedef SHZ_ALIASING int16_t  shz_alias_int16_t;
+typedef SHZ_ALIASING uint16_t shz_alias_uint16_t;
+typedef SHZ_ALIASING int32_t  shz_alias_int32_t;
+typedef SHZ_ALIASING uint32_t shz_alias_uint32_t;
+typedef SHZ_ALIASING float    shz_alias_float_t;
+typedef SHZ_ALIASING int64_t  shz_alias_int64_t;
+typedef SHZ_ALIASING uint64_t shz_alias_uint64_t;
+typedef SHZ_ALIASING double   shz_alias_double_t;
 
 //! Namespace containing the C++23 interface of the SH4ZAM API.
 namespace shz {
