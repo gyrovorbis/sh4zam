@@ -183,6 +183,42 @@ SHZ_INLINE void shz_xmtrx_load_4x4_cols(const shz_vec4_t *c1,
     : "m" (*c1), "m" (*c2), "m" (*c3), "m" (*c4));
 }
 
+SHZ_INLINE void shz_xmtrx_load_4x4_rows(const shz_vec4_t *r1,
+                                        const shz_vec4_t *r2,
+                                        const shz_vec4_t *r3,
+                                        const shz_vec4_t *r4) {
+    asm volatile (R"(
+        frchg
+
+        pref    @%1
+        fmov.s  @%0+, fr0
+        fmov.s  @%0+, fr4
+        fmov.s  @%0+, fr8
+        fmov.s  @%0,  fr12
+
+        pref    @%2
+        fmov.s  @%1+, fr1
+        fmov.s  @%1+, fr5
+        fmov.s  @%1+, fr9
+        fmov.s  @%1,  fr13
+
+        pref    @%3
+        fmov.s  @%2+, fr2
+        fmov.s  @%2+, fr6
+        fmov.s  @%2+, fr10
+        fmov.s  @%2,  fr14
+
+        fmov.s  @%3+, fr3
+        fmov.s  @%3+, fr7
+        fmov.s  @%3+, fr11
+        fmov.s  @%3,  fr15
+
+        frchg
+    )"
+    : "+&r" (r1), "+&r" (r2), "+&r" (r3), "+&r" (r4)
+    : "m" (*r1), "m" (*r2), "m" (*r3), "m" (*r4));
+}
+
 SHZ_INLINE void shz_xmtrx_load_4x4_transpose(const shz_matrix_4x4_t *matrix) {
     asm volatile(R"(
         frchg
@@ -333,7 +369,7 @@ SHZ_INLINE void shz_xmtrx_load_4x4_apply_store(shz_matrix_4x4_t *out,
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_load_3x4(const shz_matrix_3x4_t *matrix) {
+SHZ_INLINE void shz_xmtrx_load_4x3(const shz_matrix_4x3_t *matrix) {
     asm volatile(R"(
         frchg
 
@@ -362,7 +398,7 @@ SHZ_INLINE void shz_xmtrx_load_3x4(const shz_matrix_3x4_t *matrix) {
     : [mat] "+r" (matrix));
 }
 
-inline static void shz_xmtrx_load_3x4_cols(const shz_vec4_t* c1,
+SHZ_INLINE void shz_xmtrx_load_3x4_cols(const shz_vec4_t* c1,
                                            const shz_vec4_t* c2,
                                            const shz_vec4_t* c3) {
     asm volatile(R"(
@@ -1269,9 +1305,15 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) {
 }
 
 SHZ_INLINE void shz_xmtrx_init_rotation(float roll, float pitch, float yaw) {
+#if 0
     shz_xmtrx_init_rotation_x(roll);
     shz_xmtrx_apply_rotation_y(pitch);
     shz_xmtrx_apply_rotation_z(yaw);
+#else
+    shz_xmtrx_init_rotation_z(yaw);
+    shz_xmtrx_apply_rotation_y(pitch);
+    shz_xmtrx_apply_rotation_x(roll);
+#endif
 }
 
 SHZ_INLINE void shz_xmtrx_apply_rotation(float roll, float pitch, float yaw) {

@@ -338,6 +338,72 @@ SHZ_INLINE void *shz_memcpy2(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT sr
     return dst;
 }
 
+SHZ_FORCE_INLINE void shz_memcpy2_16(void* restrict dst, const void* restrict src) {
+    asm volatile(R"(
+        mov.w   @%[s]+, r0
+        mov.w   @%[s]+, r1
+        mov.w   @%[s]+, r2
+        mov.w   @%[s]+, r3
+        mov.w   @%[s]+, r4
+        mov.w   @%[s]+, r5
+        mov.w   @%[s]+, r6
+        mov.w   @%[s]+, r7
+        add     #16, %[d]
+        mov.w   r7, @-%[d]
+        mov.w   r6, @-%[d]
+        mov.w   r5, @-%[d]
+        mov.w   r4, @-%[d]
+        mov.w   r3, @-%[d]
+        mov.w   r2, @-%[d]
+        mov.w   r1, @-%[d]
+        mov.w   r0, @-%[d]
+        mov.w   @%[s]+, r0
+        mov.w   @%[s]+, r1
+        mov.w   @%[s]+, r2
+        mov.w   @%[s]+, r3
+        mov.w   @%[s]+, r4
+        mov.w   @%[s]+, r5
+        mov.w   @%[s]+, r6
+        mov.w   @%[s]+, r7
+        add     #32, %[d]
+        mov.w   r7, @-%[d]
+        mov.w   r6, @-%[d]
+        mov.w   r5, @-%[d]
+        mov.w   r4, @-%[d]
+        mov.w   r3, @-%[d]
+        mov.w   r2, @-%[d]
+        mov.w   r1, @-%[d]
+        mov.w   r0, @-%[d]
+    )"
+    : [d] "+r"(dst), [s] "+r"(src), "=m" (*((shz_alias_uint16_t (*)[16])dst))
+    : "m" (*((shz_alias_uint16_t (*)[16])src))
+    : "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7");
+}
+
+SHZ_FORCE_INLINE void shz_memset2_16(void* dst, uint16_t value) {
+    asm volatile(R"(
+        add     #32 %0
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+        mov.w   %2, @-%1
+    )"
+    : "=m" (*((shz_alias_uint16_t (*)[16])dst))
+    : "r" (dst), "r" (value));
+}
+
 SHZ_INLINE void *shz_memcpy4(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT src, size_t bytes) {
     const shz_alias_uint32_t *s = (const shz_alias_uint32_t *)src;
           shz_alias_uint32_t *d = (      shz_alias_uint32_t *)dest;

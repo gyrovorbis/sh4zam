@@ -22,7 +22,7 @@ typedef union shz_matrix_3x3 {
     };
 } shz_matrix_3x3_t;
 
-typedef union shz_matrix_3x4 {
+typedef union shz_matrix_4x3 {
     float      elem[12];
     float      elem2D[3][4];
     shz_vec3_t col[4];
@@ -31,6 +31,17 @@ typedef union shz_matrix_3x4 {
         shz_vec3_t up;
         shz_vec3_t forward;
         shz_vec3_t pos;
+    };
+} shz_matrix_4x3_t;
+
+typedef union shz_matrix_3x4 {
+    float      elem[12];
+    float      elem2D[4][3];
+    shz_vec4_t col[3];
+    struct {
+        shz_vec4_t left;
+        shz_vec4_t up;
+        shz_vec4_t forward;
     };
 } shz_matrix_3x4_t;
 

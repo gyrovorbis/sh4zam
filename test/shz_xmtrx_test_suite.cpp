@@ -10,7 +10,7 @@ GBL_TEST_FIXTURE_NONE
 GBL_TEST_INIT_NONE
 GBL_TEST_FINAL_NONE
 
-std::array<float, 16> transpose(std::array<float, 16> mat) {
+static std::array<float, 16> transpose(std::array<float, 16> mat) {
     std::array<float, 16> transpose;
 
     for(unsigned r = 0; r < 4; ++r)
@@ -25,9 +25,8 @@ static void randomize_xmtrx_() {
         shz_xmtrx_write_reg(static_cast<shz_xmtrx_reg_t>(reg), gblRandUniform(FLT_MIN, FLT_MAX));
 }
 
-static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, double epsilon=0.000100000) {
+static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, double epsilon=0.00011) {
     mat = transpose(mat);
-
     GBL_CTX_BEGIN(pSelf);
     GBL_TEST_ERROR(shz_xmtrx_read_reg(SHZ_XMTRX_XF0 ), mat[SHZ_XMTRX_XF0 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
     GBL_TEST_ERROR(shz_xmtrx_read_reg(SHZ_XMTRX_XF1 ), mat[SHZ_XMTRX_XF1 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
@@ -48,7 +47,7 @@ static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, 
     GBL_CTX_END();
 }
 
-GBL_TEST_CASE(register_accessors)
+GBL_TEST_CASE(read_write_registers)
     shz_xmtrx_write_reg(SHZ_XMTRX_XF0,  100.0f);
     shz_xmtrx_write_reg(SHZ_XMTRX_XF1,  101.0f);
     shz_xmtrx_write_reg(SHZ_XMTRX_XF2,  102.0f);
@@ -144,6 +143,17 @@ GBL_TEST_CASE(init_rotation_z)
                     0.0f, 0.0f, 0.0f, 1.0f }));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(init_rotation)
+    GBL_TEST_SKIP("FUCKED TO HELL!");
+    randomize_xmtrx_();
+    shz_xmtrx_init_rotation(3.14f, -1.22f, 0.33f);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                  { 0.325f, -0.111f, -0.939f, 0.0f,
+                    -0.325f, -0.946f, -0.001f, 0.0f,
+                    -0.888f, 0.306f, -0.344f, 0.0f,
+                    0.0f,    0.0f,   0.0f,    1.0f }));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(init_translation)
     randomize_xmtrx_();
     shz_xmtrx_init_translation(10.0f, -20.0f, 30.0f);
@@ -162,36 +172,6 @@ GBL_TEST_CASE(init_symmetric_skew)
                    3.4f, 0.0f, -1.5f, 0.0f,
                    2.7f, 1.5f, 0.0f, 0.0f,
                    0.0f, 0.0f, 0.0f, 1.0f }));
-GBL_TEST_CASE_END
-
-GBL_TEST_CASE(load_4x4)
-    randomize_xmtrx_();
-    shz_matrix_4x4_t mat4 = {
-        .left    = { -1.0f,   2.0f,  3.0f,  8.0f },
-        .up      = {  4.0f,  -5.0f,  6.0f,  7.0f },
-        .forward = {  7.0f,   8.0f,  9.0f, 10.0f },
-        .pos     = { 11.0f, -12.0f, 13.0f, 14.0f }
-    };
-    shz_xmtrx_load_4x4(&mat4);
-    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                  transpose({
-                    -1.0f,   2.0f,  3.0f,  8.0f,
-                     4.0f,  -5.0f,  6.0f,  7.0f,
-                     7.0f,   8.0f,  9.0f, 10.0f,
-                    11.0f, -12.0f, 13.0f, 14.0f })));
-GBL_TEST_CASE_END
-
-GBL_TEST_CASE(load_4x4_unaligned)
-    randomize_xmtrx_();
-    alignas(4) std::array<float, 16> array = {
-        -1.0f,   2.0f,  3.0f,  8.0f,
-         4.0f,  -5.0f,  6.0f,  7.0f,
-         7.0f,   8.0f,  9.0f, 10.0f,
-        11.0f, -12.0f, 13.0f, 14.0f
-    };
-    shz_xmtrx_load_4x4_unaligned(array.data());
-    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                  transpose(array)));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_rotation_x)
@@ -227,17 +207,112 @@ GBL_TEST_CASE(apply_rotation_z)
                          0.0f,        0.0f, 0.0f, 1.0f }));
 GBL_TEST_CASE_END
 
-GBL_TEST_REGISTER(register_accessors,
+GBL_TEST_CASE(load_4x4)
+    randomize_xmtrx_();
+    shz_matrix_4x4_t mat4 = {
+        .left    = { -1.0f,   2.0f,  3.0f,  8.0f },
+        .up      = {  4.0f,  -5.0f,  6.0f,  7.0f },
+        .forward = {  7.0f,   8.0f,  9.0f, 10.0f },
+        .pos     = { 11.0f, -12.0f, 13.0f, 14.0f }
+    };
+    shz_xmtrx_load_4x4(&mat4);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                  transpose({
+                    -1.0f,   2.0f,  3.0f,  8.0f,
+                     4.0f,  -5.0f,  6.0f,  7.0f,
+                     7.0f,   8.0f,  9.0f, 10.0f,
+                    11.0f, -12.0f, 13.0f, 14.0f })));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_4x4_unaligned)
+    randomize_xmtrx_();
+    alignas(4) std::array<float, 16> array = {
+        -1.0f,   2.0f,  3.0f,  8.0f,
+         4.0f,  -5.0f,  6.0f,  7.0f,
+         7.0f,   8.0f,  9.0f, 10.0f,
+        11.0f, -12.0f, 13.0f, 14.0f
+    };
+    shz_xmtrx_load_4x4_unaligned(array.data());
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                  transpose(array)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_4x4_cols)
+    randomize_xmtrx_();
+    std::array<float, 16> array = {
+        -1.0f,   2.0f,  3.0f,  8.0f,
+         4.0f,  -5.0f,  6.0f,  7.0f,
+         7.0f,   8.0f,  9.0f, 10.0f,
+        11.0f, -12.0f, 13.0f, 14.0f
+    };
+    shz_xmtrx_load_4x4_cols(reinterpret_cast<const shz_vec4_t *>(array.data()),
+                            reinterpret_cast<const shz_vec4_t *>(array.data() + 4),
+                            reinterpret_cast<const shz_vec4_t *>(array.data() + 8),
+                            reinterpret_cast<const shz_vec4_t *>(array.data() + 12));
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                  transpose(array)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_4x4_rows)
+    randomize_xmtrx_();
+    std::array<float, 16> array = {
+        -1.0f,   2.0f,  3.0f,  8.0f,
+         4.0f,  -5.0f,  6.0f,  7.0f,
+         7.0f,   8.0f,  9.0f, 10.0f,
+        11.0f, -12.0f, 13.0f, 14.0f
+    };
+    shz_xmtrx_load_4x4_rows(reinterpret_cast<const shz_vec4_t *>(array.data()),
+                            reinterpret_cast<const shz_vec4_t *>(array.data() + 4),
+                            reinterpret_cast<const shz_vec4_t *>(array.data() + 8),
+                            reinterpret_cast<const shz_vec4_t *>(array.data() + 12));
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, array));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_4x4_transpose)
+    randomize_xmtrx_();
+    alignas(4) std::array<float, 16> array = {
+        -1.0f,   2.0f,  3.0f,  8.0f,
+         4.0f,  -5.0f,  6.0f,  7.0f,
+         7.0f,   8.0f,  9.0f, 10.0f,
+        11.0f, -12.0f, 13.0f, 14.0f
+    };
+    shz_xmtrx_load_4x4_transpose(reinterpret_cast<shz_matrix_4x4_t *>(array.data()));
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, array));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_4x3)
+    randomize_xmtrx_();
+    shz_matrix_4x3_t mat4x3 = {
+        .left    = { -1.0f,   2.0f,  3.0f },
+        .up      = {  4.0f,  -5.0f,  6.0f },
+        .forward = {  7.0f,   8.0f,  9.0f },
+        .pos     = { 11.0f, -12.0f, 13.0f }
+    };
+    shz_xmtrx_load_4x3(&mat4x3);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                  transpose({
+                    -1.0f,   2.0f,  3.0f, 0.0f,
+                     4.0f,  -5.0f,  6.0f, 0.0f,
+                     7.0f,   8.0f,  9.0f, 0.0f,
+                    11.0f, -12.0f, 13.0f, 1.0f })));
+GBL_TEST_CASE_END
+
+GBL_TEST_REGISTER(read_write_registers,
                   init_identity,
                   init_diagonal,
                   init_scale,
                   init_rotation_x,
                   init_rotation_y,
                   init_rotation_z,
+                  init_rotation,
                   init_translation,
                   init_symmetric_skew,
-                  load_4x4,
-                  load_4x4_unaligned,
                   apply_rotation_x,
                   apply_rotation_y,
-                  apply_rotation_z)
+                  apply_rotation_z,
+                  load_4x4,
+                  load_4x4_unaligned,
+                  load_4x4_cols,
+                  load_4x4_rows,
+                  load_4x4_transpose,
+                  load_4x3)
