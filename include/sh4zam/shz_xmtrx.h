@@ -399,8 +399,8 @@ SHZ_INLINE void shz_xmtrx_load_4x3(const shz_matrix_4x3_t *matrix) {
 }
 
 SHZ_INLINE void shz_xmtrx_load_3x4_cols(const shz_vec4_t* c1,
-                                           const shz_vec4_t* c2,
-                                           const shz_vec4_t* c3) {
+                                        const shz_vec4_t* c2,
+                                        const shz_vec4_t* c3) {
     asm volatile(R"(
         pref    @%0
         frchg

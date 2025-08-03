@@ -12,7 +12,7 @@
 #ifndef SHZ_QUAT_H
 #define SHZ_QUAT_H
 
-#include "shz_intrin.h"
+#include "shz_vector.h"
 
 /*! \defgroup quat Quaternions
     \brief         Routines for quaternion math.
@@ -21,6 +21,7 @@
 
 SHZ_DECLS_BEGIN
 
+// consider force aligning
 typedef struct shz_quat {
     float x;
     float y;
@@ -28,7 +29,50 @@ typedef struct shz_quat {
     float w;
 } shz_quat_t;
 
-SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
+SHZ_FORCE_INLINE float shz_quat_dot(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
+    return shz_dot8f(q1.x, q1.y, q1.z, q1.w,
+                     q2.x, q2.y, q2.z, q2.w);
+}
+
+SHZ_FORCE_INLINE float      shz_quat_angle_between     (shz_quat_t q1, shz_quat_t q2)             SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE shz_quat_t shz_quat_init              (float x, float y, float z, float w)       SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE shz_quat_t shz_quat_identity          (void) SHZ_NOEXCEPT {
+    return shz_quat_init(0.0f, 0.0f, 0.0f, 1.0f);
+}
+SHZ_FORCE_INLINE shz_quat_t shz_quat_from_angle_axis   (float radians, shz_vec3_t axis)           SHZ_NOEXCEPT;
+
+SHZ_FORCE_INLINE shz_quat_t shz_quat_from_euler_angles (float xangle, float yangle, float zanble) SHZ_NOEXCEPT {
+    shz_sincos_t scx = shz_sincosf(xangle * 0.5f);
+    shz_sincos_t scy = shz_sincosf(yangle * 0.5f);
+    shz_sincos_t scz = shz_sincosf(zangle * 0.5f);
+
+    return shz_quat_init(
+        ((scy.cos * scx.cos) * scz.sin) - ((scy.sin * scx.sin) * scz.cos),
+        ((scx.sin * scy.cos) * scz.cos) + ((scy.sin * scx.cos) * scz.sin),
+        ((scy.sin * scx.cos) * scz.cos) - ((scx.sin * scy.cos) * scz.sin),
+        ((scy.cos * scx.cos) * scz.cos) + ((scy.sin * scx.sin) * scz.sin)
+    );
+}
+
+SHZ_FORCE_INLINE shz_quat_t shz_quat_from_rotated_axis (shz_vec3_t from_dir, shz_vec3_t to_dir)         SHZ_NOEXCPET;
+SHZ_FORCE_INLINE shz_quat_t shz_quat_from_look_axes    (shz_vec3_t forward_dir, shz_vec3_t upwards_dir) SHZ_NOEXCEPT;
+// shz_quat_rotate_towards()
+SHZ_FORCE_INLINE bool       shz_quat_equals(shz_quat_t q, shz_quat_t v) SHZ_NOEXCEPT {
+    float dot = shz_quat_dot(q, v);
+    return (dot >= 0.999f && dot <= 1.001f);
+}
+SHZ_FORCE_INLINE shz_quat_t shz_quat_inverse(shz_quat_t quat) SHZ_NOEXCEPT {
+    return shz_quat_init(-quat.x, -quat.y, -quat.z, quat.w);
+}
+
+SHZ_FORCE_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE shz_quat_t shz_quat_slerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT;
+
+SHZ_FORCE_INLINE void shz_quat_angle_axis(shz_quat_t q, float *angle, shz_vec3_t *axis) SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE void shz_quat_euler_angles(shz_quat_t q, float *x, float *y, float *z) SHZ_NOEXCEPT;)
+//SHZ_FORCE_INLINE shz_quat_t shz_quat_normalized(shz_quat_t q);
+
+SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
     shz_quat_t r;
     /*
         // reorder the coefficients so that q1 stays in constant order {x,y,z,w}
@@ -39,30 +83,29 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
         w = -(q1.x * q2.x) - (q1.y * q2.y) - (q1.z * q2.z) + (q1.w * q2.w);
     */
         // keep q1 in fv4
-        register float q1x __asm__ ("fr4") = (q1.x);
-        register float q1y __asm__ ("fr5") = (q1.y);
-        register float q1z __asm__ ("fr6") = (q1.z);
-        register float q1w __asm__ ("fr7") = (q1.w);
+        register float q1x asm("fr4") = (q1.x);
+        register float q1y asm("fr5") = (q1.y);
+        register float q1z asm("fr6") = (q1.z);
+        register float q1w asm("fr7") = (q1.w);
 
         // load q2 into fv8, use it to get the shuffled reorder into fv0
-        register float q2x __asm__ ("fr8")  = (q2.x);
-        register float q2y __asm__ ("fr9")  = (q2.y);
-        register float q2z __asm__ ("fr10") = (q2.z);
-        register float q2w __asm__ ("fr11") = (q2.w);
+        register float q2x asm("fr8")  = (q2.x);
+        register float q2y asm("fr9")  = (q2.y);
+        register float q2z asm("fr10") = (q2.z);
+        register float q2w asm("fr11") = (q2.w);
 
         // temporary operand / result in fv0
-        register float t1x __asm__ ("fr0");
-        register float t1y __asm__ ("fr1");
-        register float t1z __asm__ ("fr2");
-        register float t1w __asm__ ("fr3");
+        register float t1x asm("fr0");
+        register float t1y asm("fr1");
+        register float t1z asm("fr2");
+        register float t1w asm("fr3");
 
         // x =  (q1.x * q2.w) + (q1.y * q2.z) - (q1.z * q2.y) + (q1.w * q2.x);
         t1x = q2w;
         t1y = q2z;
         t1z = -q2y;
         t1w = q2w;
-        __asm__ ("\n"
-            " fipr	fv4,fv0\n"
+        asm("fipr	fv4,fv0\n"
             : "+f" (t1w)
             : "f" (q1x), "f" (q1y), "f" (q1z), "f" (q1w),
               "f" (t1x), "f" (t1y), "f" (t1z)
@@ -76,8 +119,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
         SHZ_MEMORY_BARRIER_HARD();
         r.x = t1w;   // get previous result
         t1w = q2y;
-        __asm__ ("\n"
-            "	fipr	fv4,fv0\n"
+        asm("fipr	fv4,fv0\n"
             : "+f" (t1w)
             : "f" (q1x), "f" (q1y), "f" (q1z), "f" (q1w),
               "f" (t1x), "f" (t1y), "f" (t1z)
@@ -91,8 +133,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
         SHZ_MEMORY_BARRIER_HARD();
         r.y = t1w;   // get previous result
         t1w = q2z;
-        __asm__ ("\n"
-            "	fipr	fv4,fv0\n"
+        asm("fipr	fv4,fv0\n"
             : "+f" (t1w)
             : "f" (q1x), "f" (q1y), "f" (q1z), "f" (q1w),
               "f" (t1x), "f" (t1y), "f" (t1z)
@@ -104,8 +145,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) {
         q2x = -q2x;
         q2y = -q2y;
         q2z = -q2z;
-        __asm__ ("\n"
-            "	fipr	fv4,fv8\n"
+        asm("fipr	fv4,fv8\n"
             : "+f" (q2w)
             : "f" (q1x), "f" (q1y), "f" (q1z), "f" (q1w),
               "f" (q2x), "f" (q2y), "f" (q2z)
