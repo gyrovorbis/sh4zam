@@ -10,7 +10,7 @@
 #ifndef SHZ_TRIG_H
 #define SHZ_TRIG_H
 
-#include "shz_cdefs.h"
+#include "shz_scalar.h"
 
 /** \defgroup trig Trigonometry
  *  \brief         Trig functions and utilities.
@@ -133,6 +133,35 @@ SHZ_FORCE_INLINE float shz_tanf(float radians) {
 //! One-off routine for returning only tanf() from an angle in degrees.
 SHZ_FORCE_INLINE float shz_tanf_deg(float degrees) {
     return shz_sincos_tanf(shz_sincosf_deg(degrees));
+}
+
+SHZ_FORCE_INLINE float shz_atanf_unit(float x) SHZ_NOEXCEPT {
+    const float n1 = 0.97239411f;
+    const float n2 = -0.19194795f;
+
+    return shz_fmacf(n2, x * x, n1) * x;
+}
+
+SHZ_INLINE float shz_atanf_q1(float x) SHZ_NOEXCEPT {
+    return (SHZ_F_PI * 0.5f) - shz_atanf_unit(shz_inverse_posf(x));
+}
+
+SHZ_INLINE float shz_atanf(float x) SHZ_NOEXCEPT {
+    if(x > 1.0f)
+	    return shz_atanf_q1(x);
+    else if(x < -1.0f)
+        return -shz_atanf_q1(x);
+    else
+        return shz_atanf_unit(x);
+}
+
+
+SHZ_INLINE float shz_asinf(float x) SHZ_NOEXCEPT {
+    return shz_atanf(x * shz_inverse_sqrtf(1.0f - (x * x)));
+}
+
+SHZ_INLINE float shz_acosf(float x) SHZ_NOEXCEPT {
+    return (SHZ_F_PI * 0.5f) - shz_asinf(x);
 }
 
 SHZ_DECLS_END

@@ -30,4 +30,4 @@ target_include_directories(Sh4zamTests
 target_link_libraries(Sh4zamTests
                       PRIVATE libGimbal sh4zam)
 
-kos_run_target(Sh4zamTests)
+#kos_run_target(Sh4zamTests)

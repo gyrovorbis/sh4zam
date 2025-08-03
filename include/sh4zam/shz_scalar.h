@@ -7,6 +7,7 @@
  * 
  *  \author Falco Girgis
  *  \author Paul Cercueil
+ *  \author UnknownShadow
  *
  *  \todo
  *      - set/check FP precision mode
@@ -64,7 +65,15 @@ SHZ_FORCE_INLINE float shz_ceilf(float x) {
  */
 //! Returns \p a * \p b + \p c, performing an FP multiply + accumulate operation.
 SHZ_FORCE_INLINE float shz_fmacf(float a, float b, float c) {
+#if 0 /* Trust the compiler. */
     return a * b + c;
+#else /* NO WAY! */
+    asm volatile ("fmac fr0, %[b], %[c]\n"
+    : [c] "+&f" (c)
+    : "w" (a), [b] "f" (b));
+
+  return c;
+#endif
 }
 
 //! Returns a value that is linearly interpolated between \p a and \p b by the given ratio, \p t.
@@ -158,6 +167,35 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) {
     return rw;
 }
 //! @}
+
+// https://github.com/appleseedhq/appleseed/blob/master/src/appleseed/foundation/math/fastmath.h
+SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT {
+    // Underflow of exponential is common practice in numerical routines, so handle it here.
+    const float clipp = p < -126.0f ? -126.0f : p;
+    const union { uint32_t i; float f; } v =
+    {
+        (uint32_t) ((1 << 23) * (clipp + 126.94269504f))
+    };
+
+    return v.f;
+}
+
+SHZ_FORCE_INLINE float shz_log2f(float x) SHZ_NOEXCEPT {
+    assert(x >= 0.0f);
+
+    const union { float f; uint32_t i; } vx = { x };
+    const float y = (float) (vx.i) * 1.1920928955078125e-7f;
+
+    return y - 126.94269504f;
+}
+
+SHZ_FORCE_INLINE float shz_powf(float x, float p) SHZ_NOEXCEPT {
+    return shz_pow2f(p * shz_log2f(x));
+}
+
+SHZ_FORCE_INLINE float shz_expf(float p) SHZ_NOEXCEPT {
+    return shz_pow2f(1.442695040f * p);
+}
 
 SHZ_DECLS_END
 

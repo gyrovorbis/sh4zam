@@ -109,7 +109,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
             : "+f" (t1w)
             : "f" (q1x), "f" (q1y), "f" (q1z), "f" (q1w),
               "f" (t1x), "f" (t1y), "f" (t1z)
-    );
+        );
         // x = t1w;  try to avoid the stall by not reading the fipr result immediately
 
         // y = -(q1.x * q2.z) + (q1.y * q2.w) + (q1.z * q2.x) + (q1.w * q2.y);
