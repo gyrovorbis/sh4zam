@@ -25,6 +25,71 @@
 
 SHZ_DECLS_BEGIN
 
+SHZ_INLINE uint16_t shz_ipv4_checksum(const void *data, size_t bytes, uint16_t partial) SHZ_NOEXCEPT {
+
+    uint32_t sum = start;
+    size_t i = bytes;
+    uintptr_t end = (uintptr_t)data + bytes;
+
+    /* Make sure we don't do any unaligned memory accesses */
+    if(((uint32_t)data) & 0x01) {
+        const uint8_t *ptr = data;
+
+        while((size_t)(&ptr[2]) <= end) {
+            sum += ptr[0] | ((ptr[1]) << 8);
+            ptr += 2;
+        }
+    }
+    else {
+        const alias_uint16_t *ptr = (const alias_uint16_t *)data;
+        while((size_t)(&ptr[1]) <= end) {
+            sum += *ptr++;
+        }
+    }
+
+    i &= 0x1;
+
+    /* Handle the last byte, if we have an odd byte count */
+    if(i)
+        sum += data[bytes - 1];
+
+    /* Take care of any carry bits */
+    while(sum >> 16)
+        sum = (sum >> 16) + (sum & 0xFFFF);
+
+    return (uint16_t)~sum;
+}
+
+SHZ_INLINE float shz_macw(const uint16_t *a, const uint16_t *b, size_t count, float initial_value) SHZ_NOEXCEPT {
+
+}
+
+SHZ_FORCE_INLINE bool shz_cmp_str(uint32_t a, uint32_t b) SHZ_NOEXCEPT {
+    bool t;
+
+    asm volatile(R"(
+        cmp/str %[a], %[b]
+        movt    %[t]
+    )"
+    : [t] "=r" (t)
+    : [a] "r" (a), [b] "r" (b)
+    : "t");
+
+    return t;
+}
+
+//swap.b, swap.w
+
+SHZ_FORCE_INLINE uint32_t shz_xtrct(uint32_t a, uint32_t b) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        xtrct %[a], %[b]
+    )"
+    : [b] "+&r" (b)
+    : [a] "r" (a));
+
+    return b;
+}
+
 SHZ_FORCE_INLINE void shz_dcache_alloc_line(void *src) {
     shz_alias_uint32_t *src32 = (shz_alias_uint32_t *)src;
 

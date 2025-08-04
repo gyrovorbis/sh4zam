@@ -918,6 +918,113 @@ SHZ_INLINE void shz_xmtrx_init_symmetric_skew(float x, float y, float z) {
       "m" (x), "m" (y), "m" (z));
 }
 
+SHZ_INLINE void shz_xmtrx_apply_symmetric_skew(float x, float y, float z) {
+    asm volatile(R"(
+        fldi0   fr0
+        fmov.s  @%[z], fr1
+        fmov.s  @%[y], fr2
+        fneg    fr2
+        fldi0   fr3
+        ftrv    xmtrx, fv0
+
+        fmov    fr1, fr4
+        fneg    fr4
+        fldi0   fr5
+        fmov.s  @%[x], fr6
+        fldi0   fr7
+        ftrv    xmtrx, fv4
+
+        fmov    fr2, fr8
+        fneg    fr8
+        fmov    fr6, fr9
+        fneg    fr9
+        fldi0   fr10
+        fldi0   fr11
+        ftrv    xmtrx, fv8
+
+        fschg
+        fmov.d  xd12, dr12
+        fmov.d  xd14, dr14
+        fschg
+
+        frchg
+    )"
+    :
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z),
+      "m" (x), "m" (y), "m" (z));
+}
+
+SHZ_INLINE void shz_xmtrx_add_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        fschg
+        fmov.d  xd12, dr0
+        fmov.d  xd14, dr2
+        fschg
+
+        frchg
+        fmov.s  fr12, @%[x]
+        fmov.s  fr13, @%[y]
+        fmov.s  fr14, @%[z]
+
+        fadd    fr14, fr1
+        fsub    fr13, fr2
+        fsub    fr14, fr4
+        fadd    fr12, fr6
+        fadd    fr13, fr8
+        fsub    fr12, fr9
+        frchg
+
+        fschg
+        fmov.d dr0, xd12
+        fmov.d dr2, xd14
+        fschg
+    )"
+    :
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z),
+      "m" (x), "m" (y), "m" (z)
+    : "fr0", "fr1", "fr2", "fr3", "fr4");
+}
+
+SHZ_INLINE void shz_xmtrx_add_diagonal(float x, float y, float z, float w) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        fschg
+        fmov.d  xd12, dr0
+        fmov.d  xd8, dr2
+        fschg
+
+        frchg
+        fmov.s  fr12, @%[x]
+        fmov.s  fr13, @%[y]
+        fmov.s  fr8, @%[z]
+        fmov.s  fr9, @%[w]
+
+        fadd    fr12, fr0
+        fadd    fr13, fr5
+        fadd    fr8, fr10
+        fadd    fr9, fr15
+        frchg
+
+        fschg
+        fmov.d dr0, xd12
+        fmov.d dr2, xd8
+        fschg
+    )"
+    :
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z), [w] "r" (&w),
+      "m" (x), "m" (y), "m" (z), "m" (w)
+    : "fr0", "fr1", "fr2", "fr3", "fr4");
+}
+
+SHZ_INLINE void shz_xmtrx_apply_rotation_axis(shz_vec3_t axis, float angle) SHZ_NOEXCEPT {
+    shz_sincos_t sincos = shz_sincosf(angle);
+    shz_vec3_t skew_scaled1 = shz_vec3_scale(axis, 1.0f - shz_cosf(angle));
+    shz_xmtrx_apply_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
+    shz_xmtrx_apply_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
+    shz_vec3_t skew_scaled2 = shz_vec3_scale(axis, sincos.sin);
+    shz_xmtrx_apply_symmetric_skew(skew_scaled2.x, skew_scaled2.y, skew_scaled2.z);
+    shz_xmtrx_add_diagonal(sincos.cos, sincos.cos, sincos.cos, 0.0f);
+}
+
 void shz_xmtrx_set_frustum(float left, float right, float bottom, float top, float near, float far);
 void shz_xmtrx_set_orthographic(float left, float right, float bottom, float top);
 void shz_xmtrx_set_perspective(float fovy, float aspect, float znear, float zfar);

@@ -189,6 +189,10 @@ SHZ_FORCE_INLINE float shz_log2f(float x) SHZ_NOEXCEPT {
     return y - 126.94269504f;
 }
 
+SHZ_FORCE_INLINE float shz_logf(const float x) SHZ_NOEXCEPT {
+    return 0.69314718f * shz_log2f(x);
+}
+
 SHZ_FORCE_INLINE float shz_powf(float x, float p) SHZ_NOEXCEPT {
     return shz_pow2f(p * shz_log2f(x));
 }

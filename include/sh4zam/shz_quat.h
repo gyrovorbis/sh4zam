@@ -23,10 +23,10 @@ SHZ_DECLS_BEGIN
 
 // consider force aligning
 typedef struct shz_quat {
+    float w;
     float x;
     float y;
     float z;
-    float w;
 } shz_quat_t;
 
 SHZ_FORCE_INLINE float shz_quat_dot(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
@@ -35,7 +35,19 @@ SHZ_FORCE_INLINE float shz_quat_dot(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float      shz_quat_angle_between     (shz_quat_t q1, shz_quat_t q2)             SHZ_NOEXCEPT;
-SHZ_FORCE_INLINE shz_quat_t shz_quat_init              (float x, float y, float z, float w)       SHZ_NOEXCEPT;
+
+SHZ_FORCE_INLINE shz_quat_t shz_quat_init(float w, float x, float y, float z) SHZ_NOEXCEPT {
+    return (shz_quat_t) { .w = w, .x = x, .y = y, .z = z };
+}
+
+SHZ_FORCE_INLINE shz_quat_t shz_quat_add(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT {
+    return shz_quat_init(q.w + p.w, q.x + p.x, q.y + p.y, q.z + p.z);
+}
+
+SHZ_FORCE_INLINE shz_quat_t shz_quat_scale(shz_quat_t q, float f) SHZ_NOEXCEPT {
+    return shz_quat_init(q.w * f, q.x * f, q.y * f, q.z * f);
+}
+
 SHZ_FORCE_INLINE shz_quat_t shz_quat_identity          (void) SHZ_NOEXCEPT {
     return shz_quat_init(0.0f, 0.0f, 0.0f, 1.0f);
 }
@@ -65,8 +77,44 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_inverse(shz_quat_t quat) SHZ_NOEXCEPT {
     return shz_quat_init(-quat.x, -quat.y, -quat.z, quat.w);
 }
 
-SHZ_FORCE_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT;
-SHZ_FORCE_INLINE shz_quat_t shz_quat_slerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT;
+SHZ_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT {
+	if(shz_quat_dot(a, b) < 0.0f) {
+        return shz_quat_init(t * (b.w + a.w) - a.w,
+                             t * (b.x + a.x) - a.x,
+                             t * (b.y + a.y) - a.y,
+                             t * (b.z + a.z) - a.z);
+	} else {
+        return shz_quat_init(t * (b.w - a.w) + a.w,
+                             t * (b.x - a.x) + a.x,
+                             t * (b.y - a.y) + a.y,
+                             t * (b.z - a.z) + a.z);
+    }
+}
+
+#define SHZ_QUAT_SLERP_PHI_EPSILON 0.00001f
+
+SHZ_FORCE_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NOEXCEPT {
+	shz_quat_t q1 = q;
+
+	float c = shz_quat_dot(q1, p);
+    if(c < 0.0f) {
+		c = -c;
+		q1 = shz_quat_inverse(q1);
+	}
+
+    float phi = shz_acosf(c);
+    // Check for a minimum epsilon, below which we do no interpolation.
+	if(phi > SHZ_QUAT_SLERP_PHI_EPSILON) {
+        /* The output of acosf() is in the range of [0 : PI],
+           giving us a sine that is guaranteed to be a positive value. */
+		float s = shz_inverse_posf(shz_sinf(phi));
+        /* Add the two vectors, which have been scaled by their respective ratios. */
+		return shz_quat_add(shz_quat_scale(q1, shz_sinf((1.0f - t) * phi) * s),
+		                    shz_quat_scale(p,  shz_sinf(t * phi) * s));
+	}
+
+	return q1;
+}
 
 SHZ_FORCE_INLINE void shz_quat_angle_axis(shz_quat_t q, float *angle, shz_vec3_t *axis) SHZ_NOEXCEPT;
 SHZ_FORCE_INLINE void shz_quat_euler_angles(shz_quat_t q, float *x, float *y, float *z) SHZ_NOEXCEPT;)
