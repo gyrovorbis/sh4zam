@@ -1,0 +1,19 @@
+CMAKE_BUILD_DIR := build
+
+$(CMAKE_BUILD_DIR)/Makefile: CMakeLists.txt
+	kos-cmake -S $(<D) -DSHZ_ENABLE_TESTS=on -B $(@D)
+
+.PHONY: $(CMAKE_BUILD_DIR)/libsh4zam.a
+$(CMAKE_BUILD_DIR)/libsh4zam.a: $(CMAKE_BUILD_DIR)/Makefile
+	$(MAKE) -C $(@D) sh4zam
+
+all: .PHONY
+
+clean:
+	-rm -rf $(CMAKE_BUILD_DIR)
+
+docs:
+	-rm -rf doc/html
+	-rm -rf doc/latex
+	cd doc && doxygen
+	open doc/html/index.html

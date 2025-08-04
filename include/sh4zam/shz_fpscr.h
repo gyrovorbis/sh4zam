@@ -12,8 +12,8 @@
 
 #include "shz_cdefs.h"
 
-/*! \defgroup fpscr Floating Point Status and Control
-    \brief          Floating point environment manipulation.
+/*! \defgroup fpscr FPU Environment
+    \brief          Floating-point environment manipulation.
 @{ 
 */
 

@@ -155,7 +155,6 @@ SHZ_INLINE float shz_atanf(float x) SHZ_NOEXCEPT {
         return shz_atanf_unit(x);
 }
 
-
 SHZ_INLINE float shz_asinf(float x) SHZ_NOEXCEPT {
     return shz_atanf(x * shz_inverse_sqrtf(1.0f - (x * x)));
 }

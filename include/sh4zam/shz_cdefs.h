@@ -113,24 +113,6 @@ typedef SHZ_ALIASING int64_t  shz_alias_int64_t;
 typedef SHZ_ALIASING uint64_t shz_alias_uint64_t;
 typedef SHZ_ALIASING double   shz_alias_double_t;
 
-//! Namespace containing the C++23 interface of the SH4ZAM API.
-namespace shz {
-    //! Utility class template used give a derived class compatibility with a value type.
-    template<typename P>
-    class primitive_compatible {
-    protected:
-        P value_; //<! Encapsulated inner value of the requested type.
-    public:
-        //! Allows construction from an existing compatible value or its default value.
-        SHZ_FORCE_INLINE primitive_compatible(P value={}) noexcept:
-            value_(std::move(value)) {}
-        //!Allows a derived class to convert to a value of the given type.
-        SHZ_FORCE_INLINE operator P() const noexcept { return value_; }
-        //! Allows a derived class to be assigned to an existing value of the given type.
-        SHZ_FORCE_INLINE P operator=(P rhs) noexcept { value_ = std::move(rhs); }
-    };
-}
-
 //! \cond
 #define SHZ_STRINGIFY_(a)       #a
 //! \endcond

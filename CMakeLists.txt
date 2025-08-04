@@ -54,8 +54,8 @@ target_include_directories(sh4zam
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
 
-install(TARGETS sh4zam
-        INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+#install(TARGETS sh4zam
+#        INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sh4zam")
 
 option(SHZ_ENABLE_TESTS "Enable SH4ZAM Unit Tests" OFF)
 
