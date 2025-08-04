@@ -1255,7 +1255,7 @@ SHZ_INLINE void shz_xmtrx_apply_4x4_unaligned(const float matrix[16]) {
       "fr7", "fr8", "fr9", "fr10", "fr11", "fr12");
 }
 
-void shz_xmtrx_apply_2x2(const shz_matrix_2x2_t *matrix) {
+SHZ_INLINE void shz_xmtrx_apply_2x2(const shz_matrix_2x2_t *matrix) {
     asm volatile(R"(
         pref    @%[mtx]
         fschg

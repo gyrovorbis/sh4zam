@@ -13,7 +13,7 @@
 <hr>
 
 # Overview
-`Sh4zam` is a hand-optimized, general-purpose math and linear algebra library for harnessing the floating-point power of the SH4 processor in the Sega Dreamcast. It originally began as a collection of inline assembly routines developed specifically to accelerate the math in the Grand Theft Auto 3 and Vice City DC ports. These routines, along with many others from various contributors, have been separated and combined into a single standalone library, which can be leveraged to bring gainz to the Dreamcast community at large.
+`Sh4zam` is a hand-optimized, general-purpose math and linear algebra library for harnessing the floating-point power of the SH4 processor in the Sega Dreamcast. It originally began as a collection of inline assembly routines developed specifically to accelerate the math in the Grand Theft Auto 3 and Vice City DC ports. These routines, along with many others from various contributors, have been separated and combined into a single standalone library, which can be leveraged to bring gainz to the Dreamcast and SuperH communities at large.
 
 NOTE: <i>This repo is still undergoing rapid changes as we pull in these routines from various places, get them exposed via both C and C++ APIs, and get them unit tested. The majority of the content has now been tested and verified in shipping games; however, not everything has been fully tested, as we are not yet to version 1.0.</i>
 
@@ -39,9 +39,9 @@ NOTE: <i>This repo is still undergoing rapid changes as we pull in these routine
 # Examples
 
 ## C23
-For C code, include the header files with the `.h` extensions or `sh4zam/sh4zam.h` to include everything.
+For C code, include the header files with the `.h` extensions or `sh4zam/shz_sh4zam.h` to include everything.
 
-    #include <sh4zam/sh4zam.h>
+    #include <sh4zam/shz_sh4zam.h>
 
     int main(int argc, const char *argv[]) {
         shz_vec4_t vec1 = shz_vec4_init(2.0f, 3.0f, 4.0f, 1.0f);
@@ -61,9 +61,9 @@ For C code, include the header files with the `.h` extensions or `sh4zam/sh4zam.
 NOTE: <i>Where applicable, the C API also includes a variety of type-generic routines which will automatically resolve to calling the proper functions based on argument type. for example, `shz_vec_dot()` will automatically forward to the proper routine based on the type of vectors passed to it.</i>
 
 ## C++23
-For C++ code, include the header files with the `.hpp` extensions or `sh4zam/sh4zam.hpp` to include everything.
+For C++ code, include the header files with the `.hpp` extensions or `sh4zam/shz_sh4zam.hpp` to include everything.
 
-    #include <sh4zam/sh4zam.hpp>
+    #include <sh4zam/shz_sh4zam.hpp>
 
     int main(int argc, const char* argv[]) {
         shz::vec4 vec1(2.0f, 3.0f, 4.0f, 1.0f);

@@ -24,10 +24,10 @@
  */
 
 SHZ_DECLS_BEGIN
-
+#if 0
 SHZ_INLINE uint16_t shz_ipv4_checksum(const void *data, size_t bytes, uint16_t partial) SHZ_NOEXCEPT {
 
-    uint32_t sum = start;
+    uint32_t sum = partial;
     size_t i = bytes;
     uintptr_t end = (uintptr_t)data + bytes;
 
@@ -41,7 +41,7 @@ SHZ_INLINE uint16_t shz_ipv4_checksum(const void *data, size_t bytes, uint16_t p
         }
     }
     else {
-        const alias_uint16_t *ptr = (const alias_uint16_t *)data;
+        const shz_alias_uint16_t *ptr = (const shz_alias_uint16_t *)data;
         while((size_t)(&ptr[1]) <= end) {
             sum += *ptr++;
         }
@@ -51,7 +51,7 @@ SHZ_INLINE uint16_t shz_ipv4_checksum(const void *data, size_t bytes, uint16_t p
 
     /* Handle the last byte, if we have an odd byte count */
     if(i)
-        sum += data[bytes - 1];
+        sum += ((uint8_t *)data)[bytes - 1];
 
     /* Take care of any carry bits */
     while(sum >> 16)
@@ -61,7 +61,7 @@ SHZ_INLINE uint16_t shz_ipv4_checksum(const void *data, size_t bytes, uint16_t p
 }
 
 SHZ_INLINE float shz_macw(const uint16_t *a, const uint16_t *b, size_t count, float initial_value) SHZ_NOEXCEPT {
-
+    return 0.0f;
 }
 
 SHZ_FORCE_INLINE bool shz_cmp_str(uint32_t a, uint32_t b) SHZ_NOEXCEPT {
@@ -110,11 +110,11 @@ SHZ_INLINE void *shz_memcpy2(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT sr
     const shz_alias_uint16_t *s = (const shz_alias_uint16_t *)src;
           shz_alias_uint16_t *d = (      shz_alias_uint16_t *)dst;
 
-    count >>= 1;
+    bytes >>= 1;
 
-    assert(count);
+    assert(bytes);
 
-    size_t blocks = count >> 3; // Block size of 16 bytes
+    size_t blocks = bytes >> 3; // Block size of 16 bytes
 
     if(blocks) {
         do {
@@ -134,8 +134,8 @@ SHZ_INLINE void *shz_memcpy2(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT sr
         count &= 0xf;
     }
 
-    while(SHZ_LIKELY(count--))
-        d[count] = s[count];
+    while(SHZ_LIKELY(bytes--))
+        d[bytes] = s[bytes];
 
     return dst;
 }
@@ -498,5 +498,7 @@ SHZ_INLINE void *shz_memcpy4(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT sr
 }
 
 SHZ_DECLS_END
+
+#endif
 
 #endif

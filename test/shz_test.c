@@ -1,4 +1,5 @@
 #include "shz_test.h"
+#include <sh4zam/shz_sh4zam.h>
 
 int main(int argc, const char* argv[]) {
     GblTestScenario *scenario = GblTestScenario_create("SH4ZAM");
