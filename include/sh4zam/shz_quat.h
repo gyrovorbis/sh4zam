@@ -96,22 +96,22 @@ SHZ_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOE
 SHZ_FORCE_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NOEXCEPT {
 	shz_quat_t q1 = q;
 
-	float c = shz_quat_dot(q1, p);
+    float c = shz_quat_dot(q1, p);
     if(c < 0.0f) {
-		c = -c;
-		q1 = shz_quat_inverse(q1);
-	}
+        c = -c;
+        q1 = shz_quat_inverse(q1);
+    }
 
     float phi = shz_acosf(c);
     // Check for a minimum epsilon, below which we do no interpolation.
-	if(phi > SHZ_QUAT_SLERP_PHI_EPSILON) {
+    if(phi > SHZ_QUAT_SLERP_PHI_EPSILON) {
         /* The output of acosf() is in the range of [0 : PI],
            giving us a sine that is guaranteed to be a positive value. */
-		float s = shz_inverse_posf(shz_sinf(phi));
+        float s = shz_inverse_posf(shz_sinf(phi));
         /* Add the two vectors, which have been scaled by their respective ratios. */
-		return shz_quat_add(shz_quat_scale(q1, shz_sinf((1.0f - t) * phi) * s),
-		                    shz_quat_scale(p,  shz_sinf(t * phi) * s));
-	}
+        return shz_quat_add(shz_quat_scale(q1, shz_sinf((1.0f - t) * phi) * s),
+                            shz_quat_scale(p,  shz_sinf(t * phi) * s));
+    }
 
 	return q1;
 }
