@@ -420,7 +420,7 @@ SHZ_DECLS_END
         _Generic((vec), \
                  shz_vec2_t: shz_vec2_mul, \
                  shz_vec3_t: shz_vec3_mul, \
-                 shz_vec4_t: shz_vec4_mul)(vec, vec2)
+                 shz_vec4_t: shz_vec4_mul)(vec1, vec2)
 
 #   define shz_vec_div(vec1, vec2) \
         _Generic((vec), \
