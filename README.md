@@ -133,3 +133,4 @@ Special thanks to the following individuals who have either directly or indirect
 - Ian Michael
 - HailToDodongo
 - Jesse Stojan
+- Jamie Hyland
