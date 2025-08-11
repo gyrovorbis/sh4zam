@@ -101,11 +101,37 @@ SHZ_FORCE_INLINE void shz_dcache_alloc_line(void *src) {
      : "r" (src32));
 }
 
+SHZ_FORCE_INLINE void* shz_memcpy1(void* SHZ_RESTRICT dst,
+                                   const void* SHZ_RESTRICT src,
+                                   size_t bytes) {
+    void *ret = dst;
+    uint32_t scratch;
+
+    SHZ_PREFETCH(src);
+
+    if(bytes) {
+        asm volatile(R"(
+        1:
+            mov.b   @%[src]+, %[tmp]
+            dt      %[cnt]
+            mov.b   %[tmp], @%[dst]
+            bf/s    1b;
+            add     #1, %[dst]
+        )"
+        : [src] "+&r" (src), [dst] "+&r" (dst),
+          [cnt] "+&r" (bytes), [tmp] "=r" (scratch)
+        : "m" (*((uint8_t (*)[])src))
+        : "t", "memory");
+    }
+
+    return ret;
+}
+
 SHZ_INLINE void* shz_memcpy2(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT src, size_t bytes) {
     const shz_alias_uint16_t *s = (const shz_alias_uint16_t *)src;
           shz_alias_uint16_t *d = (      shz_alias_uint16_t *)dst;
 
-    assert(!(bytes % 2));
+    assert(!(bytes % 2) && !(dst & 1) && !(src & 1));
 
     bytes >>= 1;
 
@@ -369,7 +395,6 @@ SHZ_INLINE void shz_memswap32_1(void *SHZ_RESTRICT p1, void *SHZ_RESTRICT p2) {
     SHZ_FSCHG(false);
 }
 
-
 SHZ_INLINE void *shz_sq_memcpy32(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT src, size_t bytes) {
     void *ret = dst;
 
@@ -518,6 +543,50 @@ SHZ_INLINE void* shz_memcpy128(void* SHZ_RESTRICT dst,
         SHZ_FSCHG(true);
         shz_memcpy128_(dst, src, bytes);
         SHZ_FSCHG(false);
+    }
+
+    return dst;
+}
+
+SHZ_INLINE void* shz_memcpy(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) {
+    const uint8_t *s = (const uint8_t *)src;
+          uint8_t *d =       (uint8_t *)dst;
+    size_t copied;
+
+    if(SHZ_UNLIKELY(!bytes))
+        return dst;
+    else if(SHZ_LIKELY(bytes < 64)) {
+        shz_memcpy1(d, s, bytes);
+    } else {
+        if((uintptr_t)d & 0x1f) {
+            copied = (((uintptr_t)d + 31) & ~0x1f) - (uintptr_t)d;
+            shz_memcpy1(d, s, copied);
+
+            bytes -= copied;
+            d     += copied;
+            s     += copied;
+        }
+
+        if(SHZ_LIKELY(bytes >= 32)) {
+            copied = 0;
+
+            if(!(((uintptr_t)s) & 0x7)) {
+                copied = bytes - (bytes & ~7);
+                shz_memcpy8(d, s, copied);
+            } else if(!(((uintptr_t)s) & 0x3)) {
+                copied = bytes - (bytes & ~3);
+                shz_memcpy4(d, s, copied);
+            } else if(!(((uintptr_t)s) & 0x1)) {
+                copied = bytes - (bytes & ~1);
+                shz_memcpy2(d, s, copied);
+            }
+
+            bytes -= copied;
+            d     += copied;
+            s     += copied;
+        }
+
+        shz_memcpy1(d, s, bytes);
     }
 
     return dst;
