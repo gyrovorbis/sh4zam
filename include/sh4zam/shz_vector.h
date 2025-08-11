@@ -329,7 +329,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cross(shz_vec3_t vec1, shz_vec3_t vec2) SHZ
     return shz_vec3_init(
         vec1.y * vec2.z - vec1.z * vec2.y,
         vec1.z * vec2.x - vec1.x * vec2.z,
-        vec1.x * vec2.y - vec1.y * vec1.x
+        vec1.x * vec2.y - vec1.y * vec2.x
     );
 }
 
