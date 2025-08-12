@@ -5,6 +5,7 @@
  *  API built around copying, assigning, and working with memory.
  * 
  *  \author Falco Girgis
+ *  \author Paul Cercuei
  * 
  *  \todo
  *      - memset2()
@@ -76,13 +77,7 @@ SHZ_FORCE_INLINE bool shz_cmp_str(uint32_t a, uint32_t b) {
 }
 
 SHZ_FORCE_INLINE uint32_t shz_xtrct(uint32_t a, uint32_t b) {
-    asm volatile(R"(
-        xtrct %[a], %[b]
-    )"
-    : [b] "+&r" (b)
-    : [a] "r" (a));
-
-    return b;
+    return (b << 16) | (a >> 16);
 }
 
 SHZ_FORCE_INLINE void shz_dcache_alloc_line(void *src) {
