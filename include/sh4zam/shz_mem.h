@@ -261,8 +261,8 @@ SHZ_INLINE void *shz_memcpy4(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT sr
 }
 
 SHZ_INLINE void shz_memcpy4_16(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src) {
-    const shz_alias_uint32_t (*d)[16] = (const shz_alias_uint32_t (*)[16])dst;
-          shz_alias_uint32_t (*s)[16] = (      shz_alias_uint32_t (*)[16])src;
+    const shz_alias_uint32_t (*s)[16] = (const shz_alias_uint32_t (*)[16])src;
+          shz_alias_uint32_t (*d)[16] = (      shz_alias_uint32_t (*)[16])dst;
 
     asm(R"(
         mov.l   @%[s]+, r0
