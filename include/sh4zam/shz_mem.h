@@ -2,7 +2,7 @@
  *  \brief   Memory API 
  *  \ingroup memory
  *
- *  API built around copying and assigning memory.
+ *  API built around copying, assigning, and working with memory.
  * 
  *  \author Falco Girgis
  * 
@@ -89,7 +89,7 @@ SHZ_FORCE_INLINE void shz_dcache_alloc_line(void *src) {
     shz_alias_uint32_t *src32 = (shz_alias_uint32_t *)src;
 
     asm volatile(
-        "movca.l r0, @%8"
+       "movca.l r0, @%8"
      : "=m" (src32[0]),
        "=m" (src32[1]),
        "=m" (src32[2]),
@@ -331,7 +331,9 @@ SHZ_FORCE_INLINE void shz_memcpy32_load_(const uint64_t* SHZ_RESTRICT* src) {
     : "m" (src[0]), "m" (src[1]), "m" (src[2]), "m" (src[3]));
 }
 
-SHZ_INLINE void* shz_memcpy32(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) {
+SHZ_INLINE void* shz_memcpy32(void* SHZ_RESTRICT dst,
+                              const void* SHZ_RESTRICT src,
+                              size_t bytes) {
           shz_alias_uint64_t* d = (      shz_alias_uint64_t *)dst;
     const shz_alias_uint64_t* s = (const shz_alias_uint64_t *)src;
 
@@ -395,7 +397,9 @@ SHZ_INLINE void shz_memswap32_1(void *SHZ_RESTRICT p1, void *SHZ_RESTRICT p2) {
     SHZ_FSCHG(false);
 }
 
-SHZ_INLINE void *shz_sq_memcpy32(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT src, size_t bytes) {
+SHZ_INLINE void *shz_sq_memcpy32(void *SHZ_RESTRICT dst,
+                                const void *SHZ_RESTRICT src,
+                                size_t bytes) {
     void *ret = dst;
 
     assert(!(bytes % 32) && !(dst & 7) && !(src & 7));
@@ -548,9 +552,11 @@ SHZ_INLINE void* shz_memcpy128(void* SHZ_RESTRICT dst,
     return dst;
 }
 
-SHZ_INLINE void* shz_memcpy(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) {
+SHZ_INLINE void* shz_memcpy(void* SHZ_RESTRICT dst,
+                            const void* SHZ_RESTRICT src,
+                            size_t bytes) {
     const uint8_t *s = (const uint8_t *)src;
-          uint8_t *d =       (uint8_t *)dst;
+          uint8_t *d = (      uint8_t *)dst;
     size_t copied;
 
     if(SHZ_UNLIKELY(!bytes))

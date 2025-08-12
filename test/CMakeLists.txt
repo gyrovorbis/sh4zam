@@ -30,4 +30,7 @@ target_include_directories(Sh4zamTests
 target_link_libraries(Sh4zamTests
                       PRIVATE libGimbal sh4zam)
 
-#kos_run_target(Sh4zamTests run_sh4zam_tests)
+if(PLATFORM_DREAMCAST)
+    include(kallistios REQUIRED)
+    kos_run_target(Sh4zamTests run-sh4zam-tests)
+endif()
