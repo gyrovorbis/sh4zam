@@ -90,12 +90,12 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) {
     degrees *= SHZ_FSCA_DEG_FACTOR;
 
     asm volatile(R"(
-            ftrc  %2, fpul
-            fsca  fpul, dr8
-        )"
-        : "=&f" (rsin), "=&f" (rcos)
-        : "f" (degrees)
-        : "fpul");
+        ftrc  %2, fpul
+        fsca  fpul, dr8
+    )"
+    : "=&f" (rsin), "=&f" (rcos)
+    : "f" (degrees)
+    : "fpul");
 
     return (shz_sincos_t){ rsin, rcos };
 }

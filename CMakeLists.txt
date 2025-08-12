@@ -35,7 +35,10 @@ set(SHZ_INCLUDES
     include/sh4zam/shz_matrix.h
     include/sh4zam/shz_matrix.hpp
     include/sh4zam/shz_quat.h
-    include/sh4zam/shz_mem.h)
+    include/sh4zam/shz_mem.h
+    include/sh4zam/shz_fpscr.h
+    include/sh4zam/shz_sh4zam.h
+    include/sh4zam/shz_sh4zam.hpp)
 
 add_library(sh4zam STATIC ${SHZ_SOURCES})
 

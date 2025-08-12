@@ -28,40 +28,40 @@
 
 SHZ_DECLS_BEGIN
 
-#if 0
 typedef union shz_fpscr {
-    struct {
-        struct {
-            bool    : 10;
-            bool fr :  1;   //< FP register bank
-            bool sz :  1;   //< Transfer size mode
-            bool pr :  1;   //< Precision mode
-            bool dn :  1;   //< Denormalization mode (0 => Denormals; 1 => Zero)
-        };
-        struct {
-            bool e  :  1;   //< FPU Error
-            bool v  :  1;   //< Invalid Operation
-            bool z  :  1;   //< Division-by-zero
-            bool o  :  1;   //< Overflow
-            bool u  :  1;   //< Underflow
-            bool i  :  1;   //< Inexact result
-        } cause;            //< FPU Exception cause field
-        struct {
-            bool v  :  1;   //< Invalid Operation
-            bool z  :  1;   //< Division-by-zero
-            bool o  :  1;   //< Overflow
-            bool u  :  1;   //< Underflow
-            bool i  :  1;   //< Inexact result
-        } enable,           //< FPU Exception enable field
-          flag;             //< FPU Exception flag field
-        bool        :  1;
-        bool     rm :  1;   //< Rounding Mode (0 => Nearest; 1 => Zero)
+    struct {            //< Bitfield representation of flags
+        uint32_t          : 10; //< Padding
+        uint32_t fr       :  1; //< FP register bank
+        uint32_t sz       :  1; //< Transfer size mode
+        uint32_t pr       :  1; //< Precision mode
+        uint32_t dn       :  1; //< Denormalization mode (0 => Denormals; 1 => Zero)
+        // FPU Exception cause fields
+        uint32_t cause_e  :  1; //< FPU Error
+        uint32_t cause_v  :  1; //< Invalid Operation
+        uint32_t cause_z  :  1; //< Division-by-zero
+        uint32_t cause_o  :  1; //< Overflow
+        uint32_t cause_u  :  1; //< Underflow
+        uint32_t cause_i  :  1; //< Inexact result
+        // FPU Exception enable fields
+        uint32_t enable_v :  1; //< Invalid Operation
+        uint32_t enable_z :  1; //< Division-by-zero
+        uint32_t enable_o :  1; //< Overflow
+        uint32_t enable_u :  1; //< Underflow
+        uint32_t enable_i :  1; //< Inexact result
+        // FPU Exception flag fields
+        uint32_t flag_v   :  1; //< Invalid Operation
+        uint32_t flag_z   :  1; //< Division-by-zero
+        uint32_t flag_o   :  1; //< Overflow
+        uint32_t flag_u   :  1; //< Underflow
+        uint32_t flag_i   :  1; //< Inexact result
+        uint32_t          :  1; //< Padding
+        uint32_t rm       :  1; //< Rounding Mode (0 => Nearest; 1 => Zero)
     };
-    uint32_t value;
+    uint32_t value;     //< Raw 32-bit uint representation of all fields
 } shz_fpscr_t;
 
-//static_assert(sizeof(shz_fpscr_t) == sizeof(uint32_t),
-//              "Incorrect size for shz_fscr_t struct!");
+static_assert(sizeof(shz_fpscr_t) == sizeof(uint32_t),
+              "Incorrect size for shz_fpscr_t struct!");
 
 SHZ_FORCE_INLINE shz_fpscr_t shz_fpscr_read(void) {
     return (shz_fpscr_t) {
@@ -72,7 +72,6 @@ SHZ_FORCE_INLINE shz_fpscr_t shz_fpscr_read(void) {
 SHZ_FORCE_INLINE void shz_fpscr_write(shz_fpscr_t new_value) {
     __builtin_sh_set_fpscr(new_value.value);
 }
-#endif
 
 SHZ_DECLS_END
 

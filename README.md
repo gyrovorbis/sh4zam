@@ -112,7 +112,7 @@ Target      | Description
 `install`   | Installs library as a KOS addon
 `uninstall` | Uninstalls library from KOS addons
 `docs`      | Builds Doxygen documentation
-`update`    | Updates Git repo and reinstalls if changed
+`update`    | Updates git repo to latest
 
 # Contributors
 

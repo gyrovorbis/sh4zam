@@ -10,7 +10,7 @@ $(CMAKE_BUILD_DIR)/libsh4zam.a: $(CMAKE_BUILD_DIR)/Makefile
 $(CMAKE_BUILD_DIR)/test/Sh4zamTests.elf: $(CMAKE_BUILD_DIR)/Makefile
 	$(MAKE) -C $(@D) Sh4zamTests
 
-all: lib
+all: lib tests
 
 lib: $(CMAKE_BUILD_DIR)/libsh4zam.a
 
