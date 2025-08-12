@@ -5,7 +5,6 @@
  *  API built around copying, assigning, and working with memory.
  * 
  *  \author Falco Girgis
- *  \author Paul Cercuei
  * 
  *  \todo
  *      - memset2()
@@ -76,6 +75,7 @@ SHZ_FORCE_INLINE bool shz_cmp_str(uint32_t a, uint32_t b) {
     return t;
 }
 
+//! Thanks to Paul Cercueil for the C pattern!
 SHZ_FORCE_INLINE uint32_t shz_xtrct(uint32_t a, uint32_t b) {
     return (b << 16) | (a >> 16);
 }
