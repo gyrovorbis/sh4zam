@@ -155,7 +155,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
         t1x = q2w;
         t1y = q2z;
         t1z = -q2y;
-        t1w = q2w;
+        t1w = q2x;
         asm("fipr	fv4,fv0\n"
             : "+f" (t1w)
             : "f" (q1x), "f" (q1y), "f" (q1z), "f" (q1w),
