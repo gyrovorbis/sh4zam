@@ -15,6 +15,7 @@
 #define SHZ_CDEFS_H
 
 #include <stdint.h>
+#include <assert.h>
 
 /*! \name   Utilities
  *  \brief  Miscellaneous function-like macros
