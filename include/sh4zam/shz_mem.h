@@ -34,7 +34,7 @@ SHZ_INLINE uint16_t shz_ipv4_checksum(const void* data, size_t bytes, uint16_t p
 
     /* Make sure we don't do any unaligned memory accesses */
     if(((uint32_t)data) & 0x01) {
-        const uint8_t *ptr = data;
+        const uint8_t *ptr = (const uint8_t *)data;
 
         while((size_t)(&ptr[2]) <= end) {
             sum += ptr[0] | ((ptr[1]) << 8);
@@ -126,7 +126,7 @@ SHZ_INLINE void* shz_memcpy2(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT sr
     const shz_alias_uint16_t *s = (const shz_alias_uint16_t *)src;
           shz_alias_uint16_t *d = (      shz_alias_uint16_t *)dst;
 
-    assert(!(bytes % 2) && !(dst & 1) && !(src & 1));
+    assert(!(bytes % 2) && !((uintptr_t)dst & 1) && !((uintptr_t)src & 1));
 
     bytes >>= 1;
 
@@ -226,7 +226,7 @@ SHZ_INLINE void *shz_memcpy4(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT sr
     const shz_alias_uint32_t *s = (const shz_alias_uint32_t *)src;
           shz_alias_uint32_t *d = (      shz_alias_uint32_t *)dst;
 
-    assert(!(bytes % 4) && !(dst & 3) && !(src & 3));
+    assert(!(bytes % 4) && !((uintptr_t)dst & 3) && !((uintptr_t)src & 3));
 
     bytes >>= 2;
     size_t blocks = bytes >> 5; // Block size of 32 bytes
@@ -332,7 +332,7 @@ SHZ_INLINE void* shz_memcpy32(void* SHZ_RESTRICT dst,
           shz_alias_uint64_t* d = (      shz_alias_uint64_t *)dst;
     const shz_alias_uint64_t* s = (const shz_alias_uint64_t *)src;
 
-    assert(!(bytes % 32) && !(dst & 31) && !(src & 31));
+    assert(!(bytes % 32) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 31));
 
     size_t cnt = (bytes >> 5);
 
@@ -397,7 +397,7 @@ SHZ_INLINE void *shz_sq_memcpy32(void *SHZ_RESTRICT dst,
                                 size_t bytes) {
     void *ret = dst;
 
-    assert(!(bytes % 32) && !(dst & 7) && !(src & 7));
+    assert(!(bytes % 32) && !((uintptr_t)dst & 7) && !((uintptr_t)src & 7));
 
     bytes >>= 5;
 
@@ -433,7 +433,7 @@ SHZ_INLINE void *shz_sq_memcpy32_1(void *SHZ_RESTRICT dst, const void *SHZ_RESTR
     const shz_alias_uint32_t* s = (const shz_alias_uint32_t *)src;
           shz_alias_uint32_t* d = (      shz_alias_uint32_t *)dst;
 
-    assert(!(s & 7) && !(d & 7));
+    assert(!((uintptr_t)s & 7) && !((uintptr_t)d & 7));
 
     SHZ_FSCHG(true);
 
@@ -506,7 +506,7 @@ SHZ_INLINE void* shz_memcpy64(void* SHZ_RESTRICT dst,
     const shz_alias_uint64_t* s = (const shz_alias_uint64_t *)src;
           shz_alias_uint64_t* d = (      shz_alias_uint64_t *)dst;
 
-    assert(!(bytes % 64) && !(dst & 31) && !(src & 7));
+    assert(!(bytes % 64) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
 
     SHZ_FSCHG(true);
 
@@ -536,7 +536,7 @@ SHZ_INLINE void* shz_memcpy64(void* SHZ_RESTRICT dst,
 SHZ_INLINE void* shz_memcpy128(void* SHZ_RESTRICT dst,
                                const void* SHZ_RESTRICT src,
                                size_t bytes) {
-    assert(!(bytes % 128) && !(dst & 31) && !(src & 7));
+    assert(!(bytes % 128) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
 
     if(bytes & ~0x7f) {
         SHZ_FSCHG(true);
