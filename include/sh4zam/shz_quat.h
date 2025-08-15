@@ -13,6 +13,7 @@
 #define SHZ_QUAT_H
 
 #include "shz_vector.h"
+#include "shz_mem.h"
 
 /*! \defgroup quat Quaternions
     \brief         Routines for quaternion math.
@@ -51,7 +52,7 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_scale(shz_quat_t q, float f) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_identity(void) SHZ_NOEXCEPT {
-    return shz_quat_init(0.0f, 0.0f, 0.0f, 1.0f);
+    return shz_quat_init(1.0f, 0.0f, 0.0f, 0.0f);
 }
 
 //SHZ_FORCE_INLINE shz_quat_t shz_quat_from_angle_axis(float radians, shz_vec3_t axis)           SHZ_NOEXCEPT;
