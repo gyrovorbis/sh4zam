@@ -79,7 +79,7 @@ SHZ_FORCE_INLINE bool shz_quat_equals(shz_quat_t q, shz_quat_t v) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_inverse(shz_quat_t quat) SHZ_NOEXCEPT {
-    return shz_quat_init(-quat.x, -quat.y, -quat.z, quat.w);
+    return shz_quat_init(quat.w, -quat.x, -quat.y, -quat.z);
 }
 
 SHZ_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT {
