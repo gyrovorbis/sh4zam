@@ -13,6 +13,7 @@
 #define SHZ_QUAT_H
 
 #include "shz_vector.h"
+#include "shz_mem.h"
 
 /*! \defgroup quat Quaternions
     \brief         Routines for quaternion math.
@@ -51,7 +52,7 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_scale(shz_quat_t q, float f) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_identity(void) SHZ_NOEXCEPT {
-    return shz_quat_init(0.0f, 0.0f, 0.0f, 1.0f);
+    return shz_quat_init(1.0f, 0.0f, 0.0f, 0.0f);
 }
 
 //SHZ_FORCE_INLINE shz_quat_t shz_quat_from_angle_axis(float radians, shz_vec3_t axis)           SHZ_NOEXCEPT;
@@ -79,7 +80,7 @@ SHZ_FORCE_INLINE bool shz_quat_equals(shz_quat_t q, shz_quat_t v) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_inverse(shz_quat_t quat) SHZ_NOEXCEPT {
-    return shz_quat_init(-quat.x, -quat.y, -quat.z, quat.w);
+    return shz_quat_init(quat.w, -quat.x, -quat.y, -quat.z);
 }
 
 SHZ_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT {
@@ -155,7 +156,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
         t1x = q2w;
         t1y = q2z;
         t1z = -q2y;
-        t1w = q2w;
+        t1w = q2x;
         asm("fipr	fv4,fv0\n"
             : "+f" (t1w)
             : "f" (q1x), "f" (q1y), "f" (q1z), "f" (q1w),
