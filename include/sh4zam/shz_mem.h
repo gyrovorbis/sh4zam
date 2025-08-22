@@ -360,8 +360,8 @@ SHZ_INLINE void* shz_memcpy32(void* SHZ_RESTRICT dst,
 }
 
 SHZ_INLINE void shz_memswap32_1(void *SHZ_RESTRICT p1, void *SHZ_RESTRICT p2) {
-    const shz_alias_uint32_t (*a)[8] = (const shz_alias_uint32_t (*)[8])p1;
-          shz_alias_uint32_t (*b)[8] = (      shz_alias_uint32_t (*)[8])p2;
+    shz_alias_uint32_t (*a)[8] = (shz_alias_uint32_t (*)[8])p1;
+    shz_alias_uint32_t (*b)[8] = (shz_alias_uint32_t (*)[8])p2;
 
     SHZ_PREFETCH(b);
     SHZ_FSCHG(true);
@@ -387,7 +387,7 @@ SHZ_INLINE void shz_memswap32_1(void *SHZ_RESTRICT p1, void *SHZ_RESTRICT p2) {
         fmov.d  xd2, @-%[b]
         fmov.d  xd0, @-%[b]
     )"
-    : [a] "+r" (a), [b] "+r" (b), "=&m" (*a), "=&m" (*b));
+    : [a] "+r" (a), [b] "+r" (b), "=m" (*a), "=m" (*b));
 
     SHZ_FSCHG(false);
 }
