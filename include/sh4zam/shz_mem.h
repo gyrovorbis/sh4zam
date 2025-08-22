@@ -387,7 +387,7 @@ SHZ_INLINE void shz_memswap32_1(void *SHZ_RESTRICT p1, void *SHZ_RESTRICT p2) {
         fmov.d  xd2, @-%[b]
         fmov.d  xd0, @-%[b]
     )"
-    : [a] "+r" (a), [b] "+r" (b), "=m" (*a), "=m" (*b));
+    : [a] "+r" (a), [b] "+r" (b), "+m" (*a), "+m" (*b));
 
     SHZ_FSCHG(false);
 }
