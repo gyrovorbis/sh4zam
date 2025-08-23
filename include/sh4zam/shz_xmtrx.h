@@ -119,6 +119,29 @@ SHZ_INLINE void shz_xmtrx_load_4x4(const shz_matrix_4x4_t *matrix) {
     : "m" (*matrix));
 }
 
+SHZ_INLINE void shz_xmtrx_load_4x4_wxyz(const shz_matrix_4x4_t *matrix) {
+    asm volatile(R"(
+        pref    @%[mtx]
+        fschg
+
+        add     #48, %[mtx]
+        fmov.d  @%[mtx]+, xd0
+        fmov.d  @%[mtx]+, xd2
+        add     #-64 %[mtx]
+
+        fmov.d  @%[mtx]+, xd4
+        fmov.d  @%[mtx]+, xd6
+        fmov.d  @%[mtx]+, xd8
+        fmov.d  @%[mtx]+, xd10
+        fmov.d  @%[mtx]+, xd12
+        fmov.d  @%[mtx]+, xd14
+
+        fschg
+    )"
+    : [mtx] "+r" (matrix)
+    : "m" (*matrix));
+}
+
 SHZ_INLINE void shz_xmtrx_load_4x4_unaligned(const float matrix[16]) {
     asm volatile(R"(
         frchg

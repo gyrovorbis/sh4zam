@@ -1,0 +1,81 @@
+
+/*! \page  tips Tips and Tricks
+	\brief      Optimization hints for getting the most out of the SH4 and SH4ZAM.
+
+[TOC]
+
+# Compiler Optimizations
+Before we even begin discussing how to make the most out of this library, it is *imperative* that you
+know how to get the most out of the SH GCC toolchain to get your regular C and C++ code as fast as possible.
+
+Only a total newb would leave free, universal gainz on the table before jumping directly into hand-optimizing
+critical code, as its possible your bottleneck may not even exist with the proper flags.
+
+Flag(s)             |Description
+--------------------|-----------
+-ffast-math         |1
+-mfsca              |2
+-mfsrra             |3
+-O[n]               |4
+-flto               |5
+-fipa-pta           |6
+-fomit-frame-pointer|7
+-m4-single(-only)   |8
+-fno-pic/-fno-pie   |9
+
+## Mixing O3 and Os
+While it may seem obvious that your entire project should be compiled at the highest optimization level for
+maximum performance (`-O3`), real-world projects can rarely afford such a luxury due to this bloating the code
+segment size and wasting space. For this reason, I typically opt to use `-Os` for entire codebase as the default
+optimization level, favoring small code size, but then, I create an explicit list of "hot path" files within the
+build which need to get the `-O3` treatment. Good candidates for this kind of treatment are typically translation
+units involving rendering, collision, and physics.
+
+By using `-Os` globally as our default with a statetic list of hand-picked translation units to get the `-O3`
+treatment, our GTA3 and Vice City ports were able to achieve within 1FPS of the performance from compiling
+everything with `-O3` while simultaneously saving nearly a megabyte of RAM on code size!
+
+# General SH4 Topics
+- Copying Memory
+- Store Queues
+- Prefetching
+- Performance counters
+- Compiler Explorer
+
+
+# FPU
+## FSCHG
+## FSCA
+## FSRRA
+
+### Fast Division
+
+When you know the denominator will always be positive, and some precision loss is acceptable,
+multiply the numerator by `shz_fast_invf(denominator)`. When the denominator is not guaranteed
+to be positive, use `shz_fast_invf(denominator)`. This trick is most commonly leveraged for
+perspective division during T&L.
+
+## Dot Product
+### FIPR Register Pinning
+### FIPR Pipelining
+## Vector/Matrix Transforms
+### FTRV Patterns
+### Faster Perspective Division
+The `FTRV` instruction for transforming a vector by a matrix produces each component of the resulting
+vector, going from X to W, one cycle after another, like so:
+
+Component|Cycle
+---------|-----
+X        |4
+Y        |5
+Z        |6
+W        |7
+
+Unfortunately, T&L typically necessitates dividing each component by the W, which means its result is
+needed first, despite it coming last.
+
+You can use ::shz_xmtrx_load_4x4_wxyz() to load a 4x4 matrix with the W column coming first, allowing you to
+use its result first, on cycle 4, rather than having to wait until cycle 7.
+
+*/
+
