@@ -1038,16 +1038,6 @@ SHZ_INLINE void shz_xmtrx_add_diagonal(float x, float y, float z, float w) SHZ_N
     : "fr0", "fr1", "fr2", "fr3", "fr4");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_rotation_axis(shz_vec3_t axis, float angle) SHZ_NOEXCEPT {
-    shz_sincos_t sincos = shz_sincosf(angle);
-    shz_vec3_t skew_scaled1 = shz_vec3_scale(axis, 1.0f - shz_cosf(angle));
-    shz_xmtrx_apply_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
-    shz_xmtrx_apply_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
-    shz_vec3_t skew_scaled2 = shz_vec3_scale(axis, sincos.sin);
-    shz_xmtrx_apply_symmetric_skew(skew_scaled2.x, skew_scaled2.y, skew_scaled2.z);
-    shz_xmtrx_add_diagonal(sincos.cos, sincos.cos, sincos.cos, 0.0f);
-}
-
 void shz_xmtrx_set_frustum(float left, float right, float bottom, float top, float near, float far);
 void shz_xmtrx_set_orthographic(float left, float right, float bottom, float top);
 void shz_xmtrx_set_perspective(float fovy, float aspect, float znear, float zfar);
@@ -1472,23 +1462,62 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) {
     : "f" (z)
     : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
 }
-
-SHZ_INLINE void shz_xmtrx_init_rotation(float roll, float pitch, float yaw) {
-#if 0
-    shz_xmtrx_init_rotation_x(roll);
-    shz_xmtrx_apply_rotation_y(pitch);
-    shz_xmtrx_apply_rotation_z(yaw);
-#else
-    shz_xmtrx_init_rotation_z(yaw);
-    shz_xmtrx_apply_rotation_y(pitch);
-    shz_xmtrx_apply_rotation_x(roll);
-#endif
+/* Tait-Bryan angles, (extrinsic rotation notation) */
+SHZ_INLINE void shz_xmtrx_init_rotation_xyz(float xAngle, float yAngle, float zAngle) {
+    shz_xmtrx_init_rotation_x(xAngle);
+    shz_xmtrx_apply_rotation_y(yAngle);
+    shz_xmtrx_apply_rotation_z(zAngle);
 }
 
-SHZ_INLINE void shz_xmtrx_apply_rotation(float roll, float pitch, float yaw) {
-    shz_xmtrx_apply_rotation_x(roll);
-    shz_xmtrx_apply_rotation_y(pitch);
-    shz_xmtrx_apply_rotation_z(yaw);
+// Same as yaw, pitch, roll
+SHZ_INLINE void shz_xmtrx_init_rotation_zyx(float zAngle, float yAngle, float xAngle) {
+    shz_xmtrx_init_rotation_z(zAngle);
+    shz_xmtrx_apply_rotation_y(yAngle);
+    shz_xmtrx_apply_rotation_x(xAngle);
+}
+
+SHZ_INLINE void shz_xmtrx_init_rotation_yxz(float yAngle, float xAngle, float zAngle) {
+    shz_xmtrx_init_rotation_y(yAngle);
+    shz_xmtrx_apply_rotation_x(xAngle);
+    shz_xmtrx_apply_rotation_z(zAngle);
+}
+
+SHZ_INLINE void shz_xmtrx_apply_rotation_xyz(float xAngle, float yAngle, float zAngle) {
+    shz_xmtrx_apply_rotation_x(xAngle);
+    shz_xmtrx_apply_rotation_y(yAngle);
+    shz_xmtrx_apply_rotation_z(zAngle);
+}
+
+SHZ_INLINE void shz_xmtrx_apply_rotation_zyx(float zAngle, float yAngle, float xAngle) {
+    shz_xmtrx_apply_rotation_z(zAngle);
+    shz_xmtrx_apply_rotation_y(yAngle);
+    shz_xmtrx_apply_rotation_x(xAngle);
+}
+
+SHZ_INLINE void shz_xmtrx_apply_rotation_yxz(float yAngle, float xAngle, float zAngle) {
+    shz_xmtrx_apply_rotation_y(yAngle);
+    shz_xmtrx_apply_rotation_x(xAngle);
+    shz_xmtrx_apply_rotation_z(zAngle);
+}
+
+SHZ_INLINE void shz_xmtrx_init_rotation(shz_vec3_t axis, float angle) {
+    shz_sincos_t sincos = shz_sincosf(angle);
+    shz_vec3_t skew_scaled1 = shz_vec3_scale(axis, 1.0f - shz_cosf(angle));
+    shz_xmtrx_init_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
+    shz_xmtrx_apply_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
+    shz_vec3_t skew_scaled2 = shz_vec3_scale(axis, sincos.sin);
+    shz_xmtrx_apply_symmetric_skew(skew_scaled2.x, skew_scaled2.y, skew_scaled2.z);
+    shz_xmtrx_add_diagonal(sincos.cos, sincos.cos, sincos.cos, 0.0f);
+}
+
+SHZ_INLINE void shz_xmtrx_apply_rotation(shz_vec3_t axis, float angle) {
+    shz_sincos_t sincos = shz_sincosf(angle);
+    shz_vec3_t skew_scaled1 = shz_vec3_scale(axis, 1.0f - shz_cosf(angle));
+    shz_xmtrx_apply_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
+    shz_xmtrx_apply_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
+    shz_vec3_t skew_scaled2 = shz_vec3_scale(axis, sincos.sin);
+    shz_xmtrx_apply_symmetric_skew(skew_scaled2.x, skew_scaled2.y, skew_scaled2.z);
+    shz_xmtrx_add_diagonal(sincos.cos, sincos.cos, sincos.cos, 0.0f);
 }
 
 void shz_xmtrx_outer_product_2x2(shz_vec2_t col, shz_vec2_t row);

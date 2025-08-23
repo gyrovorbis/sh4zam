@@ -146,7 +146,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(init_rotation)
     GBL_TEST_SKIP("FUCKED TO HELL!");
     randomize_xmtrx_();
-    shz_xmtrx_init_rotation(3.14f, -1.22f, 0.33f);
+    shz_xmtrx_init_rotation_xyz(3.14f, -1.22f, 0.33f);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                   { 0.325f, -0.111f, -0.939f, 0.0f,
                     -0.325f, -0.946f, -0.001f, 0.0f,
