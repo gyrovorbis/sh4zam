@@ -129,6 +129,18 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_inverse(shz_quat_t quat) SHZ_NOEXCEPT {
     return shz_quat_scale(shz_quat_conjugate(quat), shz_quat_magnitude_inv(quat));
 }
 
+SHZ_INLINE shz_quat_t shz_quat_from_vec3(shz_vec3_t v1, shz_vec3_t v2) SHZ_NOEXCEPT {
+	shz_vec3_t a = shz_vec3_cross(v1, v2);
+	shz_quat_t q = shz_quat_init(
+		shz_inverse_posf(shz_inverse_sqrtf(shz_vec3_magnitude_sqr(v1) * shz_vec3_magnitude_sqr(v2))),
+		a.x,
+		a.y,
+		a.z
+	);
+
+	return shz_quat_normalize(q);
+}
+
 SHZ_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT {
 	if(shz_quat_dot(a, b) < 0.0f) {
         return shz_quat_init(t * (b.w + a.w) - a.w,
@@ -255,6 +267,15 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
         r.w = q2w;
 
         return r;
+}
+
+SHZ_INLINE shz_vec3_t shz_quat_transform_vec3(shz_quat_t q, shz_vec3_t v) SHZ_NOEXCEPT {
+    shz_vec3_t a   = shz_vec3_init(q.x, q.y, q.z);
+	shz_vec3_t uv  = shz_vec3_cross(a, v);
+	shz_vec3_t uuv = shz_vec3_cross(a, uv);
+	shz_vec3_t tr  = shz_vec3_scale(shz_vec3_add(shz_vec3_scale(uv, q.w), uuv), 2.0f);
+
+	return shz_vec3_add(v, tr);
 }
 
 //! @}

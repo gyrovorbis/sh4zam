@@ -20,7 +20,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
 set(SHZ_SOURCES
-    source/shz_mem.s)
+    source/shz_mem.s
+    source/shz_xmtrx.c)
 
 set(SHZ_INCLUDES
     include/sh4zam/shz_cdefs.h

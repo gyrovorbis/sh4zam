@@ -7,10 +7,8 @@
  *      - Miscellaneous utilities
  *
  *  \author Falco Girgis
- * 
- *  \todo
- *      - run-time version function
  */
+
 #ifndef SHZ_CDEFS_H
 #define SHZ_CDEFS_H
 
@@ -105,14 +103,28 @@
 //! @}
 //! \endcond
 
+/*! \name  Aliasing Types
+ *  \brief Types which may break C/C++'s strict aliasing rules
+ *  @{
+ */
+//!
+//! int16_t type whose value may be aliased as another type.
 typedef SHZ_ALIASING int16_t  shz_alias_int16_t;
+//! uint16_t type whose value may be aliased as another type.
 typedef SHZ_ALIASING uint16_t shz_alias_uint16_t;
+//! int32_t type whose value may be aliased as another type.
 typedef SHZ_ALIASING int32_t  shz_alias_int32_t;
+//! uint32_t type whose value may be aliased as another type.
 typedef SHZ_ALIASING uint32_t shz_alias_uint32_t;
+//! float type whose value may be aliased as another type.
 typedef SHZ_ALIASING float    shz_alias_float_t;
+//! int64_t type whose value may be aliased as another type.
 typedef SHZ_ALIASING int64_t  shz_alias_int64_t;
+//! uint64_t type whose value may be aliased as another type.
 typedef SHZ_ALIASING uint64_t shz_alias_uint64_t;
+//! double type whose value may be aliased as another type.
 typedef SHZ_ALIASING double   shz_alias_double_t;
+//! @}
 
 //! \cond
 #define SHZ_STRINGIFY_(a)       #a

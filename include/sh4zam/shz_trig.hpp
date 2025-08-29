@@ -57,6 +57,10 @@ namespace shz {
     constexpr auto cosf_deg    = shz_cosf_deg;
     constexpr auto tanf        = shz_tanf;
     constexpr auto tanf_deg    = shz_tanf_deg;
+    constexpr auto atanf_unit  = shz_atanf_unit;
+    constexpr auto atanf       = shz_atanf;
+    constexpr auto asinf       = shz_asinf;
+    constexpr auto acosf       = shz_acosf;
 }
 
 #endif

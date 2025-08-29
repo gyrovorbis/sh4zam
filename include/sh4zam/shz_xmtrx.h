@@ -1,5 +1,5 @@
 /*! \file
- *  \brief   Matrix Stack API.
+ *  \brief   Active Matrix API.
  *  \ingroup xmtrx
  *
  *  This file provides an API built around manipulating and performing
@@ -9,16 +9,16 @@
  *  \author Falco Girgis
  *
  *  \todo
- *      - Stack operations
  *      - Fourier transforms
  *      - Arbitrarily-sized matrix routines
+ *      - Outer products
  *
  */
 #ifndef SHZ_XMTRX_H
 #define SHZ_XMTRX_H
 
-#include "shz_matrix.h"
 #include "shz_fpscr.h"
+#include "shz_vector.h"
 
 /*! \defgroup xmtrx
  *  \brief    Matrix Stack
@@ -26,6 +26,23 @@
  */
 
 SHZ_DECLS_BEGIN
+
+/*! \cond Forward Declarations */
+union SHZ_ALIGNAS(8) shz_mat2x2;
+typedef union shz_mat2x2 shz_mat2x2_t;
+
+union mat3x3;
+typedef union shz_mat3x3 shz_mat3x3_t;
+
+union shz_mat4x3;
+typedef union shz_mat4x3 shz_mat4x3_t;
+
+union shz_mat3x4;
+typedef union shz_mat3x4 shz_mat3x4_t;
+
+union SHZ_ALIGNAS(8) shz_mat4x4;
+typedef union shz_mat4x4 shz_mat4x4_t;
+/*! \endcond */
 
 typedef enum shz_xmtrx_reg {
     SHZ_XMTRX_XF0,
@@ -46,7 +63,7 @@ typedef enum shz_xmtrx_reg {
     SHZ_XMTRX_XF15
 } shz_xmtrx_reg_t;
 
-SHZ_INLINE float shz_xmtrx_read_reg(shz_xmtrx_reg_t xf) {
+SHZ_INLINE float shz_xmtrx_read_reg(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT {
     float value;
 
     SHZ_FRCHG();
@@ -74,7 +91,7 @@ SHZ_INLINE float shz_xmtrx_read_reg(shz_xmtrx_reg_t xf) {
     return value;
 }
 
-SHZ_INLINE void shz_xmtrx_write_reg(shz_xmtrx_reg_t xf, float value) {
+SHZ_INLINE void shz_xmtrx_write_reg(shz_xmtrx_reg_t xf, float value) SHZ_NOEXCEPT {
     asm volatile("flds %0, fpul\n" : : "f" (value) : "fpul");
 
     SHZ_FRCHG();
@@ -99,7 +116,7 @@ SHZ_INLINE void shz_xmtrx_write_reg(shz_xmtrx_reg_t xf, float value) {
     SHZ_FRCHG();
 }
 
-SHZ_INLINE void shz_xmtrx_load_4x4(const shz_matrix_4x4_t *matrix) {
+SHZ_INLINE void shz_xmtrx_load_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         fschg
         fmov.d  @%[mtx], xd0
@@ -119,7 +136,7 @@ SHZ_INLINE void shz_xmtrx_load_4x4(const shz_matrix_4x4_t *matrix) {
     : "m" (*matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_load_4x4_wxyz(const shz_matrix_4x4_t *matrix) {
+SHZ_INLINE void shz_xmtrx_load_4x4_wxyz(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         pref    @%[mtx]
         fschg
@@ -142,7 +159,7 @@ SHZ_INLINE void shz_xmtrx_load_4x4_wxyz(const shz_matrix_4x4_t *matrix) {
     : "m" (*matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_load_4x4_unaligned(const float matrix[16]) {
+SHZ_INLINE void shz_xmtrx_load_4x4_unaligned(const float matrix[16]) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         fmov.s  @%[mtx]+, fr0
@@ -170,10 +187,10 @@ SHZ_INLINE void shz_xmtrx_load_4x4_unaligned(const float matrix[16]) {
     :  "m" (*matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_load_4x4_cols(const shz_vec4_t *c1,
-                                        const shz_vec4_t *c2,
-                                        const shz_vec4_t *c3,
-                                        const shz_vec4_t *c4) {
+SHZ_INLINE void shz_xmtrx_load_4x4_cols(const shz_vec4_t* c1,
+                                        const shz_vec4_t* c2,
+                                        const shz_vec4_t* c3,
+                                        const shz_vec4_t* c4) SHZ_NOEXCEPT {
     asm volatile (R"(
         frchg
 
@@ -206,10 +223,10 @@ SHZ_INLINE void shz_xmtrx_load_4x4_cols(const shz_vec4_t *c1,
     : "m" (*c1), "m" (*c2), "m" (*c3), "m" (*c4));
 }
 
-SHZ_INLINE void shz_xmtrx_load_4x4_rows(const shz_vec4_t *r1,
-                                        const shz_vec4_t *r2,
-                                        const shz_vec4_t *r3,
-                                        const shz_vec4_t *r4) {
+SHZ_INLINE void shz_xmtrx_load_4x4_rows(const shz_vec4_t* r1,
+                                        const shz_vec4_t* r2,
+                                        const shz_vec4_t* r3,
+                                        const shz_vec4_t* r4) SHZ_NOEXCEPT {
     asm volatile (R"(
         frchg
 
@@ -242,7 +259,7 @@ SHZ_INLINE void shz_xmtrx_load_4x4_rows(const shz_vec4_t *r1,
     : "m" (*r1), "m" (*r2), "m" (*r3), "m" (*r4));
 }
 
-SHZ_INLINE void shz_xmtrx_load_4x4_transpose(const shz_matrix_4x4_t *matrix) {
+SHZ_INLINE void shz_xmtrx_load_4x4_transpose(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
 
@@ -277,9 +294,8 @@ SHZ_INLINE void shz_xmtrx_load_4x4_transpose(const shz_matrix_4x4_t *matrix) {
     : "m" (*matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_load_4x4_apply(const shz_matrix_4x4_t *matrix1,
-                                         const shz_matrix_4x4_t *matrix2)
-{
+SHZ_INLINE void shz_xmtrx_load_4x4_apply(const shz_mat4x4_t* matrix1,
+                                         const shz_mat4x4_t* matrix2) SHZ_NOEXCEPT {
     unsigned int prefetch_scratch;
 
     asm volatile (R"(
@@ -326,10 +342,9 @@ SHZ_INLINE void shz_xmtrx_load_4x4_apply(const shz_matrix_4x4_t *matrix1,
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_load_4x4_apply_store(shz_matrix_4x4_t *out,
-                                               const shz_matrix_4x4_t *matrix1,
-                                               const shz_matrix_4x4_t *matrix2)
-{
+SHZ_INLINE void shz_xmtrx_load_4x4_apply_store(shz_mat4x4_t* out,
+                                               const shz_mat4x4_t* matrix1,
+                                               const shz_mat4x4_t* matrix2) SHZ_NOEXCEPT {
     unsigned int prefetch_scratch;
 
     asm volatile (R"(
@@ -392,7 +407,7 @@ SHZ_INLINE void shz_xmtrx_load_4x4_apply_store(shz_matrix_4x4_t *out,
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_load_4x3(const shz_matrix_4x3_t *matrix) {
+SHZ_INLINE void shz_xmtrx_load_4x3(const shz_mat4x3_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
 
@@ -423,7 +438,7 @@ SHZ_INLINE void shz_xmtrx_load_4x3(const shz_matrix_4x3_t *matrix) {
 
 SHZ_INLINE void shz_xmtrx_load_3x4_cols(const shz_vec4_t* c1,
                                         const shz_vec4_t* c2,
-                                        const shz_vec4_t* c3) {
+                                        const shz_vec4_t* c3) SHZ_NOEXCEPT {
     asm volatile(R"(
         pref    @%0
         frchg
@@ -456,9 +471,9 @@ SHZ_INLINE void shz_xmtrx_load_3x4_cols(const shz_vec4_t* c1,
     : "m" (*c1), "m" (*c2), "m" (*c3));
 }
 
-SHZ_INLINE void shz_xmtrx_load_3x4_rows(const shz_vec4_t *r1,
-                                        const shz_vec4_t *r2,
-                                        const shz_vec4_t *r3) {
+SHZ_INLINE void shz_xmtrx_load_3x4_rows(const shz_vec4_t* r1,
+                                        const shz_vec4_t* r2,
+                                        const shz_vec4_t* r3) SHZ_NOEXCEPT {
     asm volatile(R"(
         pref    @%0
         frchg
@@ -492,7 +507,7 @@ SHZ_INLINE void shz_xmtrx_load_3x4_rows(const shz_vec4_t *r1,
     : "m" (*r1), "m" (*r2), "m" (*r3));
 }
 
-SHZ_INLINE void shz_xmtrx_load_3x3(const shz_matrix_3x3_t *matrix) {
+SHZ_INLINE void shz_xmtrx_load_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
 
@@ -521,7 +536,7 @@ SHZ_INLINE void shz_xmtrx_load_3x3(const shz_matrix_3x3_t *matrix) {
     : "m" (*matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_load_3x3_transpose(const float *matrix) {
+SHZ_INLINE void shz_xmtrx_load_3x3_transpose(const float* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
 
@@ -552,7 +567,7 @@ SHZ_INLINE void shz_xmtrx_load_3x3_transpose(const float *matrix) {
       "m" (matrix[6]), "m" (matrix[7]), "m" (matrix[8]));
 }
 
-SHZ_INLINE void shz_xmtrx_load_2x2(const shz_matrix_2x2_t *matrix) {
+SHZ_INLINE void shz_xmtrx_load_2x2(const shz_mat2x2_t* matrix) SHZ_NOEXCEPT  {
     asm volatile(R"(
         pref    @%[mat]
         frchg
@@ -579,7 +594,7 @@ SHZ_INLINE void shz_xmtrx_load_2x2(const shz_matrix_2x2_t *matrix) {
     : [mat] "+r" (matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_store_4x4(shz_matrix_4x4_t *matrix) {
+SHZ_INLINE void shz_xmtrx_store_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         fschg
         add     #64, %[mtx]
@@ -599,7 +614,7 @@ SHZ_INLINE void shz_xmtrx_store_4x4(shz_matrix_4x4_t *matrix) {
     : [mtx] "+&r" (matrix), "=m" (*matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_store_4x4_unaligned(float matrix[16]) {
+SHZ_INLINE void shz_xmtrx_store_4x4_unaligned(float matrix[16]) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         add     #64, %[mtx]
@@ -628,7 +643,7 @@ SHZ_INLINE void shz_xmtrx_store_4x4_unaligned(float matrix[16]) {
     : [mtx] "r" (matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_store_4x4_transpose(shz_matrix_4x4_t *matrix) {
+SHZ_INLINE void shz_xmtrx_store_4x4_transpose(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         add     #64-8, %[mtx]
@@ -656,7 +671,7 @@ SHZ_INLINE void shz_xmtrx_store_4x4_transpose(shz_matrix_4x4_t *matrix) {
     : [mtx] "+&r" (matrix), "=m" (*matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_store_3x4(shz_matrix_3x4_t *matrix) {
+SHZ_INLINE void shz_xmtrx_store_3x4(shz_mat3x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         add     #48, %[mtx]
@@ -682,7 +697,7 @@ SHZ_INLINE void shz_xmtrx_store_3x4(shz_matrix_3x4_t *matrix) {
     : [mtx] "+&r" (matrix), "=m" (*matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_store_3x3(shz_matrix_3x3_t *matrix) {
+SHZ_INLINE void shz_xmtrx_store_3x3(shz_mat3x3_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         add     #36, %[mtx]
@@ -705,7 +720,7 @@ SHZ_INLINE void shz_xmtrx_store_3x3(shz_matrix_3x3_t *matrix) {
     : [mtx] "r" (matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_store_3x3_transpose(shz_matrix_3x3_t *matrix) {
+SHZ_INLINE void shz_xmtrx_store_3x3_transpose(shz_mat3x3_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         add     #36, %[mtx]
@@ -728,7 +743,7 @@ SHZ_INLINE void shz_xmtrx_store_3x3_transpose(shz_matrix_3x3_t *matrix) {
     : [mtx] "r" (matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_store_2x2(shz_matrix_2x2_t *matrix) {
+SHZ_INLINE void shz_xmtrx_store_2x2(shz_mat2x2_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         pref    @%[mtx]
         frchg
@@ -744,7 +759,7 @@ SHZ_INLINE void shz_xmtrx_store_2x2(shz_matrix_2x2_t *matrix) {
     : [mtx] "+&r" (matrix), "=m" (*matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_init_identity(void) {
+SHZ_INLINE void shz_xmtrx_init_identity(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         fldi1   fr0
@@ -765,7 +780,7 @@ SHZ_INLINE void shz_xmtrx_init_identity(void) {
     )");
 }
 
-SHZ_INLINE void shz_xmtrx_init_diagonal(float x, float y, float z, float w) {
+SHZ_INLINE void shz_xmtrx_init_diagonal(float x, float y, float z, float w) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         fldi0   fr1
@@ -790,11 +805,11 @@ SHZ_INLINE void shz_xmtrx_init_diagonal(float x, float y, float z, float w) {
       "m" (x), "m" (y), "m" (z), "m" (w));
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_init_scale(float x, float y, float z) {
+SHZ_FORCE_INLINE void shz_xmtrx_init_scale(float x, float y, float z) SHZ_NOEXCEPT {
     shz_xmtrx_init_diagonal(x, y, z, 1.0f);
 }
 
-SHZ_INLINE void shz_xmtrx_init_rotation_x(float x) {
+SHZ_INLINE void shz_xmtrx_init_rotation_x(float x) SHZ_NOEXCEPT {
     x *= SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    %0, fpul
@@ -824,7 +839,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation_x(float x) {
     : "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_init_rotation_y(float y) {
+SHZ_INLINE void shz_xmtrx_init_rotation_y(float y) SHZ_NOEXCEPT {
     y *= SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    %0, fpul
@@ -854,7 +869,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation_y(float y) {
     : "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_init_rotation_z(float z) {
+SHZ_INLINE void shz_xmtrx_init_rotation_z(float z) SHZ_NOEXCEPT {
     z *= SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    %0, fpul
@@ -881,7 +896,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation_z(float z) {
     : "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_init_translation(float x, float y, float z) {
+SHZ_INLINE void shz_xmtrx_init_translation(float x, float y, float z) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         fldi1   fr0
@@ -907,7 +922,7 @@ SHZ_INLINE void shz_xmtrx_init_translation(float x, float y, float z) {
       "m" (x), "m" (y), "m" (z));
 }
 
-SHZ_INLINE void shz_xmtrx_init_symmetric_skew(float x, float y, float z) {
+SHZ_INLINE void shz_xmtrx_init_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
 
@@ -941,7 +956,7 @@ SHZ_INLINE void shz_xmtrx_init_symmetric_skew(float x, float y, float z) {
       "m" (x), "m" (y), "m" (z));
 }
 
-SHZ_INLINE void shz_xmtrx_apply_symmetric_skew(float x, float y, float z) {
+SHZ_INLINE void shz_xmtrx_apply_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT {
     asm volatile(R"(
         fldi0   fr0
         fmov.s  @%[z], fr1
@@ -1038,11 +1053,13 @@ SHZ_INLINE void shz_xmtrx_add_diagonal(float x, float y, float z, float w) SHZ_N
     : "fr0", "fr1", "fr2", "fr3", "fr4");
 }
 
+/*** COMING SOON ****
 void shz_xmtrx_set_frustum(float left, float right, float bottom, float top, float near, float far);
 void shz_xmtrx_set_orthographic(float left, float right, float bottom, float top);
 void shz_xmtrx_set_perspective(float fovy, float aspect, float znear, float zfar);
+********************/
 
-SHZ_INLINE void shz_xmtrx_apply_4x4(const shz_matrix_4x4_t *matrix) {
+SHZ_INLINE void shz_xmtrx_apply_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         mov     r15, r0
         pref    @%[mtx]
@@ -1089,7 +1106,7 @@ SHZ_INLINE void shz_xmtrx_apply_4x4(const shz_matrix_4x4_t *matrix) {
       "fr7", "fr8", "fr9", "fr10", "fr11", "fr12");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_3x4(const shz_matrix_3x4_t *matrix) {
+SHZ_INLINE void shz_xmtrx_apply_3x4(const shz_mat3x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         pref    @%[mtx]
         fldi0   fr3
@@ -1131,7 +1148,7 @@ SHZ_INLINE void shz_xmtrx_apply_3x4(const shz_matrix_3x4_t *matrix) {
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_3x3(const shz_matrix_3x3_t *matrix) {
+SHZ_INLINE void shz_xmtrx_apply_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         fmov.s  @%[mtx]+, fr0
         add     #32, %[mtx]
@@ -1170,7 +1187,7 @@ SHZ_INLINE void shz_xmtrx_apply_3x3(const shz_matrix_3x3_t *matrix) {
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_3x3_transpose(const shz_matrix_3x3_t *matrix) {
+SHZ_INLINE void shz_xmtrx_apply_3x3_transpose(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         fmov.s  @%[mtx]+, fr0
         add     #32, %[mtx]
@@ -1209,7 +1226,7 @@ SHZ_INLINE void shz_xmtrx_apply_3x3_transpose(const shz_matrix_3x3_t *matrix) {
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_4x4_unaligned(const float matrix[16]) {
+SHZ_INLINE void shz_xmtrx_apply_4x4_unaligned(const float matrix[16]) SHZ_NOEXCEPT {
     asm volatile(R"(
         mov     r15, r0
         pref    @%[mtx]
@@ -1268,7 +1285,7 @@ SHZ_INLINE void shz_xmtrx_apply_4x4_unaligned(const float matrix[16]) {
       "fr7", "fr8", "fr9", "fr10", "fr11", "fr12");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_2x2(const shz_matrix_2x2_t *matrix) {
+SHZ_INLINE void shz_xmtrx_apply_2x2(const shz_mat2x2_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         pref    @%[mtx]
         fschg
@@ -1295,7 +1312,7 @@ SHZ_INLINE void shz_xmtrx_apply_2x2(const shz_matrix_2x2_t *matrix) {
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7");
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_set_translation(float x, float y, float z) {
+SHZ_FORCE_INLINE void shz_xmtrx_set_translation(float x, float y, float z) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
 
@@ -1311,7 +1328,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_set_translation(float x, float y, float z) {
     );
 }
 
-SHZ_INLINE void shz_xmtrx_apply_translation(float x, float y, float z) {
+SHZ_INLINE void shz_xmtrx_apply_translation(float x, float y, float z) SHZ_NOEXCEPT {
     asm volatile(R"(
         fschg
         fmov    xd0, dr4
@@ -1339,7 +1356,7 @@ SHZ_INLINE void shz_xmtrx_apply_translation(float x, float y, float z) {
     : "fr4", "fr5", "fr6", "fr7");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_scale(float x, float y, float z) {
+SHZ_INLINE void shz_xmtrx_apply_scale(float x, float y, float z) SHZ_NOEXCEPT  {
         asm volatile(R"(
         fschg
         fmov    xd12, dr4
@@ -1375,7 +1392,7 @@ SHZ_INLINE void shz_xmtrx_apply_scale(float x, float y, float z) {
     : "fr4", "fr5", "fr6", "fr7");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_rotation_x(float x) {
+SHZ_INLINE void shz_xmtrx_apply_rotation_x(float x) SHZ_NOEXCEPT {
     x *= SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    %0, fpul
@@ -1405,7 +1422,7 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_x(float x) {
     : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) {
+SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) SHZ_NOEXCEPT {
     y *= SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    %0, fpul
@@ -1435,7 +1452,7 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) {
     : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) {
+SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) SHZ_NOEXCEPT {
     z *= SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    %0, fpul
@@ -1462,45 +1479,46 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) {
     : "f" (z)
     : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
 }
+
 /* Tait-Bryan angles, (extrinsic rotation notation) */
-SHZ_INLINE void shz_xmtrx_init_rotation_xyz(float xAngle, float yAngle, float zAngle) {
+SHZ_INLINE void shz_xmtrx_init_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT {
     shz_xmtrx_init_rotation_x(xAngle);
     shz_xmtrx_apply_rotation_y(yAngle);
     shz_xmtrx_apply_rotation_z(zAngle);
 }
 
 // Same as yaw, pitch, roll
-SHZ_INLINE void shz_xmtrx_init_rotation_zyx(float zAngle, float yAngle, float xAngle) {
+SHZ_INLINE void shz_xmtrx_init_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT {
     shz_xmtrx_init_rotation_z(zAngle);
     shz_xmtrx_apply_rotation_y(yAngle);
     shz_xmtrx_apply_rotation_x(xAngle);
 }
 
-SHZ_INLINE void shz_xmtrx_init_rotation_yxz(float yAngle, float xAngle, float zAngle) {
+SHZ_INLINE void shz_xmtrx_init_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT {
     shz_xmtrx_init_rotation_y(yAngle);
     shz_xmtrx_apply_rotation_x(xAngle);
     shz_xmtrx_apply_rotation_z(zAngle);
 }
 
-SHZ_INLINE void shz_xmtrx_apply_rotation_xyz(float xAngle, float yAngle, float zAngle) {
+SHZ_INLINE void shz_xmtrx_apply_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT {
     shz_xmtrx_apply_rotation_x(xAngle);
     shz_xmtrx_apply_rotation_y(yAngle);
     shz_xmtrx_apply_rotation_z(zAngle);
 }
 
-SHZ_INLINE void shz_xmtrx_apply_rotation_zyx(float zAngle, float yAngle, float xAngle) {
+SHZ_INLINE void shz_xmtrx_apply_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT {
     shz_xmtrx_apply_rotation_z(zAngle);
     shz_xmtrx_apply_rotation_y(yAngle);
     shz_xmtrx_apply_rotation_x(xAngle);
 }
 
-SHZ_INLINE void shz_xmtrx_apply_rotation_yxz(float yAngle, float xAngle, float zAngle) {
+SHZ_INLINE void shz_xmtrx_apply_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT {
     shz_xmtrx_apply_rotation_y(yAngle);
     shz_xmtrx_apply_rotation_x(xAngle);
     shz_xmtrx_apply_rotation_z(zAngle);
 }
 
-SHZ_INLINE void shz_xmtrx_init_rotation(shz_vec3_t axis, float angle) {
+SHZ_INLINE void shz_xmtrx_init_rotation(shz_vec3_t axis, float angle) SHZ_NOEXCEPT {
     shz_sincos_t sincos = shz_sincosf(angle);
     shz_vec3_t skew_scaled1 = shz_vec3_scale(axis, 1.0f - shz_cosf(angle));
     shz_xmtrx_init_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
@@ -1510,7 +1528,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation(shz_vec3_t axis, float angle) {
     shz_xmtrx_add_diagonal(sincos.cos, sincos.cos, sincos.cos, 0.0f);
 }
 
-SHZ_INLINE void shz_xmtrx_apply_rotation(shz_vec3_t axis, float angle) {
+SHZ_INLINE void shz_xmtrx_apply_rotation(shz_vec3_t axis, float angle) SHZ_NOEXCEPT {
     shz_sincos_t sincos = shz_sincosf(angle);
     shz_vec3_t skew_scaled1 = shz_vec3_scale(axis, 1.0f - shz_cosf(angle));
     shz_xmtrx_apply_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
@@ -1520,16 +1538,12 @@ SHZ_INLINE void shz_xmtrx_apply_rotation(shz_vec3_t axis, float angle) {
     shz_xmtrx_add_diagonal(sincos.cos, sincos.cos, sincos.cos, 0.0f);
 }
 
-void shz_xmtrx_outer_product_2x2(shz_vec2_t col, shz_vec2_t row);
-void shz_xmtrx_outer_product_3x3(shz_vec3_t col, shz_vec3_t row);
-void shz_xmtrx_outer_product_3x4(shz_vec4_t col, shz_vec3_t row);
-void shz_xmtrx_outer_product_4x4(shz_vec4_t col, shz_vec4_t row);
-
-void shz_xmtrx_invert(void);
+/**** COMING SOON ****
 void shz_xmtrx_invert_full(void);
 float shz_xmtrx_determinant(void);
+**********************/
 
-SHZ_INLINE void shz_xmtrx_transpose(void) {
+SHZ_INLINE void shz_xmtrx_transpose(void) SHZ_NOEXCEPT {
     asm volatile (R"(
         frchg
 
@@ -1564,7 +1578,7 @@ SHZ_INLINE void shz_xmtrx_transpose(void) {
     : "fpul");
 }
 
-SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_trans_vec4(shz_vec4_t vec) {
+SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4(shz_vec4_t vec) SHZ_NOEXCEPT {
     register float rx asm("fr8")  = vec.x;
     register float ry asm("fr9")  = vec.y;
     register float rz asm("fr10") = vec.z;
@@ -1573,15 +1587,15 @@ SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_trans_vec4(shz_vec4_t vec) {
     asm volatile("ftrv xmtrx, fv8"
                  : "+f" (rx), "+f" (ry), "+f" (rz), "+f" (rw));
 
-    return (shz_vec4_t) { .x = rx, .y = ry, .z = rz, .w = rw };
+    return shz_vec4_init(rx, ry, rz, rw);
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_trans_vec3(shz_vec3_t vec) {
-    return shz_xmtrx_trans_vec4((shz_vec4_t) { .vec3 = vec }).vec3;
+SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_vec3(shz_vec3_t vec) SHZ_NOEXCEPT {
+    return shz_xmtrx_transform_vec4((shz_vec4_t) { .vec3 = vec }).vec3;
 }
 
-SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_trans_vec2(shz_vec2_t vec) {
-    return shz_xmtrx_trans_vec3((shz_vec3_t) { .vec2 = vec }).vec2;
+SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_vec2(shz_vec2_t vec) SHZ_NOEXCEPT {
+    return shz_xmtrx_transform_vec3((shz_vec3_t) { .vec2 = vec }).vec2;
 }
 
 SHZ_DECLS_END

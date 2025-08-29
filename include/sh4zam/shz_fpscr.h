@@ -7,6 +7,7 @@
 
     \author Falco Girgis 
 */
+
 #ifndef SHZ_FPSCR_H
 #define SHZ_FPSCR_H
 
@@ -17,17 +18,26 @@
 @{ 
 */
 
+//! Initial value of the floating-point status control register
 #define SHZ_FPSCR_INITIAL_VALUE 0x00040001
 
+//! Swaps the active FP register bank
+#define SHZ_FRCHG() asm volatile("frchg")
+
+//! Swaps FMOV size mode (asserting that the previous mode was configured as expected).
 #define SHZ_FSCHG(pairwise_mode) do { \
-        assert(shz_fpscr_read().sz == !(pairwise_mode)); \
+        assert(shz_fpscr_read().sz == !(pairwise_mode) && \
+               shz_fpscr_read().pr == !(pairwise_mode));  \
         asm volatile("fschg"); \
     } while(false)
 
-#define SHZ_FRCHG() asm volatile("frchg")
+//! Debug build check that the FPU is configured in single-precision mode.
+#define SHZ_SINGLE_PRECISION_GUARD() \
+    assert(!shz_fpscr_read().sz && !shz_fpscr_read().pr)
 
 SHZ_DECLS_BEGIN
 
+//! Represents the value of the floating-point statuc control register
 typedef union shz_fpscr {
     struct {            //< Bitfield representation of flags
         uint32_t          : 10; //< Padding
@@ -63,13 +73,15 @@ typedef union shz_fpscr {
 static_assert(sizeof(shz_fpscr_t) == sizeof(uint32_t),
               "Incorrect size for shz_fpscr_t struct!");
 
-SHZ_FORCE_INLINE shz_fpscr_t shz_fpscr_read(void) {
+//! Returns the current value of the floating-point status control register
+SHZ_FORCE_INLINE shz_fpscr_t shz_fpscr_read(void) SHZ_NOEXCEPT {
     return (shz_fpscr_t) {
         .value = __builtin_sh_get_fpscr()
     };
 }
 
-SHZ_FORCE_INLINE void shz_fpscr_write(shz_fpscr_t new_value) {
+//! Sets the current value of the floating-point satus control register to the given value
+SHZ_FORCE_INLINE void shz_fpscr_write(shz_fpscr_t new_value) SHZ_NOEXCEPT {
     __builtin_sh_set_fpscr(new_value.value);
 }
 

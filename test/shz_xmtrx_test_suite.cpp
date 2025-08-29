@@ -1,5 +1,6 @@
 #include "shz_test.h"
 #include "sh4zam/shz_xmtrx.hpp"
+#include "sh4zam/shz_matrix.h"
 
 #include <gimbal/gimbal_algorithms.h>
 #include <print>
@@ -209,7 +210,7 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_4x4)
     randomize_xmtrx_();
-    shz_matrix_4x4_t mat4 = {
+    shz_mat4x4_t mat4 = {
         .left    = { -1.0f,   2.0f,  3.0f,  8.0f },
         .up      = {  4.0f,  -5.0f,  6.0f,  7.0f },
         .forward = {  7.0f,   8.0f,  9.0f, 10.0f },
@@ -276,13 +277,13 @@ GBL_TEST_CASE(load_4x4_transpose)
          7.0f,   8.0f,  9.0f, 10.0f,
         11.0f, -12.0f, 13.0f, 14.0f
     };
-    shz_xmtrx_load_4x4_transpose(reinterpret_cast<shz_matrix_4x4_t *>(array.data()));
+    shz_xmtrx_load_4x4_transpose(reinterpret_cast<shz_mat4x4_t *>(array.data()));
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, array));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_4x3)
     randomize_xmtrx_();
-    shz_matrix_4x3_t mat4x3 = {
+    shz_mat4x3_t mat4x3 = {
         .left    = { -1.0f,   2.0f,  3.0f },
         .up      = {  4.0f,  -5.0f,  6.0f },
         .forward = {  7.0f,   8.0f,  9.0f },

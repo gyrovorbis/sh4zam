@@ -7,7 +7,7 @@
 #include "shz_scalar.hpp"
 #include "shz_trig.hpp"
 #include "shz_vector.hpp"
-#include "shz_quat.h"
+#include "shz_quat.hpp"
 #include "shz_matrix.hpp"
 #include "shz_xmtrx.hpp"
 

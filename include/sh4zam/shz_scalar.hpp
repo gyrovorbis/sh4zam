@@ -91,6 +91,17 @@ namespace shz {
     //! C++ alias for shz_mag_sqr4f().
     constexpr auto mag_sqr4f = shz_mag_sqr4f;
     //! @}
+
+    /*! \name  Miscellaneous
+     *  \brief Routines for accelerating various FP functions.
+     *  @{
+    */
+    constexpr auto pow2f = shz_pow2f;
+    constexpr auto log2f = shz_log2f;
+    constexpr auto logf  = shz_logf;
+    constexpr auto powf  = shz_powf;
+    constexpr auto expf  = shz_expf;
+
 }
 
 #endif
