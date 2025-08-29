@@ -102,7 +102,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) {
 
 //! Returns tanf() from the given pre-computed \p sincos pair.
 SHZ_FORCE_INLINE float shz_sincos_tanf(shz_sincos_t sincos) {
-    return sincos.sin / sincos.cos;
+    return shz_divf(sincos.sin, sincos.cos);
 }
 
 //! One-off routine for returning only sinf() from an angle in radians.
@@ -143,7 +143,7 @@ SHZ_FORCE_INLINE float shz_atanf_unit(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE float shz_atanf_q1(float x) SHZ_NOEXCEPT {
-    return (SHZ_F_PI * 0.5f) - shz_atanf_unit(shz_inverse_posf(x));
+    return (SHZ_F_PI * 0.5f) - shz_atanf_unit(shz_invf_fsrra(x));
 }
 
 SHZ_INLINE float shz_atanf(float x) SHZ_NOEXCEPT {
@@ -156,7 +156,7 @@ SHZ_INLINE float shz_atanf(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE float shz_asinf(float x) SHZ_NOEXCEPT {
-    return shz_atanf(x * shz_inverse_sqrtf(1.0f - (x * x)));
+    return shz_atanf(x * shz_inv_sqrtf(1.0f - (x * x)));
 }
 
 SHZ_INLINE float shz_acosf(float x) SHZ_NOEXCEPT {

@@ -182,12 +182,12 @@ SHZ_FORCE_INLINE CRTP operator*(float lhs, vecN<CRTP, C, R> rhs) noexcept {
 
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE CRTP operator/(vecN<CRTP, C, R> lhs, float rhs) noexcept {
-    return shz_vec_scale(lhs, shz::fast_invf(rhs));
+    return shz_vec_scale(lhs, shz::invf(rhs));
 }
 
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE CRTP operator/(float lhs, vecN<CRTP, C, R> rhs) noexcept {
-    return shz_vec_scale(rhs, shz::fast_invf(lhs));
+    return shz_vec_scale(rhs, shz::invf(lhs));
 }
 
 /*! 2D Vector type

@@ -12,6 +12,7 @@
  *      - memset32()
  *      - shz_macw()
  */
+
 #ifndef SHZ_MEM_H
 #define SHZ_MEM_H
 
@@ -22,46 +23,19 @@
  *  \brief    Routines for managing memory
  */
 
+//! Creates a software memory barrier beyond which any loads or stores may not be reordered
 #define SHZ_MEMORY_BARRIER_SOFT()   asm volatile("" : : : "memory")
+//! Creates a hardware memory barrier beyond which any loads or stores may not be reordered
 #define SHZ_MEMORY_BARRIER_HARD()   __sync_synchronize()
 
 SHZ_DECLS_BEGIN
 
-SHZ_INLINE uint16_t shz_ipv4_checksum(const void* data, size_t bytes, uint16_t partial) {
-    uint32_t sum = partial;
-    size_t i = bytes;
-    uintptr_t end = (uintptr_t)data + bytes;
-
-    /* Make sure we don't do any unaligned memory accesses */
-    if(((uint32_t)data) & 0x01) {
-        const uint8_t *ptr = (const uint8_t *)data;
-
-        while((size_t)(&ptr[2]) <= end) {
-            sum += ptr[0] | ((ptr[1]) << 8);
-            ptr += 2;
-        }
-    }
-    else {
-        const shz_alias_uint16_t *ptr = (const shz_alias_uint16_t *)data;
-        while((size_t)(&ptr[1]) <= end) {
-            sum += *ptr++;
-        }
-    }
-
-    i &= 0x1;
-
-    /* Handle the last byte, if we have an odd byte count */
-    if(i)
-        sum += ((uint8_t *)data)[bytes - 1];
-
-    /* Take care of any carry bits */
-    while(sum >> 16)
-        sum = (sum >> 16) + (sum & 0xFFFF);
-
-    return (uint16_t)~sum;
+//! Thanks to Paul Cercueil for the C pattern!
+SHZ_FORCE_INLINE uint32_t shz_xtrct(uint32_t a, uint32_t b) SHZ_NOEXCEPT {
+    return (b << 16) | (a >> 16);
 }
 
-SHZ_FORCE_INLINE bool shz_cmp_str(uint32_t a, uint32_t b) {
+SHZ_FORCE_INLINE bool shz_cmp_str(uint32_t a, uint32_t b) SHZ_NOEXCEPT {
     bool t;
 
     asm volatile(R"(
@@ -75,12 +49,7 @@ SHZ_FORCE_INLINE bool shz_cmp_str(uint32_t a, uint32_t b) {
     return t;
 }
 
-//! Thanks to Paul Cercueil for the C pattern!
-SHZ_FORCE_INLINE uint32_t shz_xtrct(uint32_t a, uint32_t b) {
-    return (b << 16) | (a >> 16);
-}
-
-SHZ_FORCE_INLINE void shz_dcache_alloc_line(void *src) {
+SHZ_FORCE_INLINE void shz_dcache_alloc_line(void* src) SHZ_NOEXCEPT {
     shz_alias_uint32_t *src32 = (shz_alias_uint32_t *)src;
 
     asm volatile(
@@ -96,9 +65,9 @@ SHZ_FORCE_INLINE void shz_dcache_alloc_line(void *src) {
      : "r" (src32));
 }
 
-SHZ_FORCE_INLINE void* shz_memcpy1(void* SHZ_RESTRICT dst,
+SHZ_FORCE_INLINE void* shz_memcpy1(void*       SHZ_RESTRICT dst,
                                    const void* SHZ_RESTRICT src,
-                                   size_t bytes) {
+                                   size_t                   bytes) SHZ_NOEXCEPT {
     void *ret = dst;
     uint32_t scratch;
 
@@ -122,9 +91,11 @@ SHZ_FORCE_INLINE void* shz_memcpy1(void* SHZ_RESTRICT dst,
     return ret;
 }
 
-SHZ_INLINE void* shz_memcpy2(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT src, size_t bytes) {
-    const shz_alias_uint16_t *s = (const shz_alias_uint16_t *)src;
-          shz_alias_uint16_t *d = (      shz_alias_uint16_t *)dst;
+SHZ_INLINE void* shz_memcpy2(void*       SHZ_RESTRICT dst,
+                             const void* SHZ_RESTRICT src,
+                             size_t                   bytes) SHZ_NOEXCEPT {
+    const shz_alias_uint16_t* s = (const shz_alias_uint16_t*)src;
+          shz_alias_uint16_t* d = (      shz_alias_uint16_t*)dst;
 
     assert(!(bytes % 2) && !((uintptr_t)dst & 1) && !((uintptr_t)src & 1));
 
@@ -156,7 +127,10 @@ SHZ_INLINE void* shz_memcpy2(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT sr
     return dst;
 }
 
-SHZ_INLINE void shz_memcpy2_16(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src) {
+SHZ_INLINE void shz_memcpy2_16(void*       SHZ_RESTRICT dst,
+                               const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
+    assert(!((uintptr_t)dst & 0x1) && !((uintptr_t)src & 0x1));
+
     asm volatile(R"(
         mov.w   @%[s]+, r0
         mov.w   @%[s]+, r1
@@ -198,7 +172,9 @@ SHZ_INLINE void shz_memcpy2_16(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT 
     : "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7");
 }
 
-SHZ_INLINE void shz_memset2_16(void* dst, uint16_t value) {
+SHZ_INLINE void shz_memset2_16(void* dst, uint16_t value) SHZ_NOEXCEPT {
+    assert(!(dst & 0x1));
+
     asm volatile(R"(
         add     #32 %0
         mov.w   %2, @-%1
@@ -222,9 +198,11 @@ SHZ_INLINE void shz_memset2_16(void* dst, uint16_t value) {
     : "r" (dst), "r" (value));
 }
 
-SHZ_INLINE void *shz_memcpy4(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT src, size_t bytes) {
-    const shz_alias_uint32_t *s = (const shz_alias_uint32_t *)src;
-          shz_alias_uint32_t *d = (      shz_alias_uint32_t *)dst;
+SHZ_INLINE void* shz_memcpy4(void*       SHZ_RESTRICT dst,
+                             const void* SHZ_RESTRICT src,
+                             size_t                   bytes) SHZ_NOEXCEPT {
+    const shz_alias_uint32_t* s = (const shz_alias_uint32_t*)src;
+          shz_alias_uint32_t* d = (      shz_alias_uint32_t*)dst;
 
     assert(!(bytes % 4) && !((uintptr_t)dst & 3) && !((uintptr_t)src & 3));
 
@@ -255,9 +233,12 @@ SHZ_INLINE void *shz_memcpy4(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT sr
     return dst;
 }
 
-SHZ_INLINE void shz_memcpy4_16(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src) {
+SHZ_INLINE void shz_memcpy4_16(      void* SHZ_RESTRICT dst,
+                               const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
     const shz_alias_uint32_t (*s)[16] = (const shz_alias_uint32_t (*)[16])src;
           shz_alias_uint32_t (*d)[16] = (      shz_alias_uint32_t (*)[16])dst;
+
+    assert(!((uintptr_t)s & 0x3) && !((uintptr_t)d & 0x3));
 
     asm(R"(
         mov.l   @%[s]+, r0
@@ -299,11 +280,19 @@ SHZ_INLINE void shz_memcpy4_16(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT 
     : "r0", "r1", "r2", "r3");
 }
 
-extern void* shz_memcpy8(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT src, size_t bytes);
-extern void* shz_memset8(void *dst, uint64_t value, size_t bytes);
-extern void* shz_memcpy128_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes);
+extern void* shz_memcpy8(      void* SHZ_RESTRICT dst,
+                         const void *SHZ_RESTRICT src,
+                         size_t                   bytes) SHZ_NOEXCEPT;
 
-SHZ_FORCE_INLINE void shz_memcpy32_store_(uint64_t* SHZ_RESTRICT* dst) {
+extern void* shz_memset8(void*    dst,
+                         uint64_t value,
+                         size_t   bytes) SHZ_NOEXCEPT;
+
+extern void* shz_memcpy128_(      void* SHZ_RESTRICT dst,
+                            const void* SHZ_RESTRICT src,
+                            size_t                   bytes) SHZ_NOEXCEPT;
+
+SHZ_FORCE_INLINE void shz_memcpy32_store_(uint64_t* SHZ_RESTRICT* dst) SHZ_NOEXCEPT {
     asm volatile(R"(
         add       #32, %[dst]
         fmov.d    dr10, @-%[dst]
@@ -315,7 +304,7 @@ SHZ_FORCE_INLINE void shz_memcpy32_store_(uint64_t* SHZ_RESTRICT* dst) {
     : [dst] "r" (*dst));
 }
 
-SHZ_FORCE_INLINE void shz_memcpy32_load_(const uint64_t* SHZ_RESTRICT* src) {
+SHZ_FORCE_INLINE void shz_memcpy32_load_(const uint64_t* SHZ_RESTRICT* src) SHZ_NOEXCEPT {
     asm volatile(R"(
         fmov.d    @%[src]+, dr4
         fmov.d    @%[src]+, dr6
@@ -326,11 +315,11 @@ SHZ_FORCE_INLINE void shz_memcpy32_load_(const uint64_t* SHZ_RESTRICT* src) {
     : "m" (src[0]), "m" (src[1]), "m" (src[2]), "m" (src[3]));
 }
 
-SHZ_INLINE void* shz_memcpy32(void* SHZ_RESTRICT dst,
+SHZ_INLINE void* shz_memcpy32(      void* SHZ_RESTRICT dst,
                               const void* SHZ_RESTRICT src,
-                              size_t bytes) {
-          shz_alias_uint64_t* d = (      shz_alias_uint64_t *)dst;
-    const shz_alias_uint64_t* s = (const shz_alias_uint64_t *)src;
+                              size_t                   bytes) SHZ_NOEXCEPT {
+          shz_alias_uint64_t* d = (      shz_alias_uint64_t*)dst;
+    const shz_alias_uint64_t* s = (const shz_alias_uint64_t*)src;
 
     assert(!(bytes % 32) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 31));
 
@@ -359,9 +348,12 @@ SHZ_INLINE void* shz_memcpy32(void* SHZ_RESTRICT dst,
     return dst;
 }
 
-SHZ_INLINE void shz_memswap32_1(void *SHZ_RESTRICT p1, void *SHZ_RESTRICT p2) {
+SHZ_INLINE void shz_memswap32_1(void* SHZ_RESTRICT p1,
+                                void* SHZ_RESTRICT p2) SHZ_NOEXCEPT {
     shz_alias_uint32_t (*a)[8] = (shz_alias_uint32_t (*)[8])p1;
     shz_alias_uint32_t (*b)[8] = (shz_alias_uint32_t (*)[8])p2;
+
+    assert(!((uintptr_t)p1 & 31) && ((uintptr_t)p2 & 31));
 
     SHZ_PREFETCH(b);
     SHZ_FSCHG(true);
@@ -392,10 +384,10 @@ SHZ_INLINE void shz_memswap32_1(void *SHZ_RESTRICT p1, void *SHZ_RESTRICT p2) {
     SHZ_FSCHG(false);
 }
 
-SHZ_INLINE void *shz_sq_memcpy32(void *SHZ_RESTRICT dst,
-                                const void *SHZ_RESTRICT src,
-                                size_t bytes) {
-    void *ret = dst;
+SHZ_INLINE void* shz_sq_memcpy32(     void* SHZ_RESTRICT dst,
+                                const void* SHZ_RESTRICT src,
+                                size_t                   bytes) SHZ_NOEXCEPT {
+    void* ret = dst;
 
     assert(!(bytes % 32) && !((uintptr_t)dst & 7) && !((uintptr_t)src & 7));
 
@@ -429,9 +421,10 @@ SHZ_INLINE void *shz_sq_memcpy32(void *SHZ_RESTRICT dst,
     return ret;
 }
 
-SHZ_INLINE void *shz_sq_memcpy32_1(void *SHZ_RESTRICT dst, const void *SHZ_RESTRICT src) {
-    const shz_alias_uint32_t* s = (const shz_alias_uint32_t *)src;
-          shz_alias_uint32_t* d = (      shz_alias_uint32_t *)dst;
+SHZ_INLINE void* shz_sq_memcpy32_1(      void* SHZ_RESTRICT dst,
+                                   const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
+    const shz_alias_uint32_t* s = (const shz_alias_uint32_t*)src;
+          shz_alias_uint32_t* d = (      shz_alias_uint32_t*)dst;
 
     assert(!((uintptr_t)s & 7) && !((uintptr_t)d & 7));
 
@@ -459,7 +452,7 @@ SHZ_INLINE void *shz_sq_memcpy32_1(void *SHZ_RESTRICT dst, const void *SHZ_RESTR
 
     return dst;
 }
-SHZ_FORCE_INLINE void shz_memcpy64_load_(const uint64_t *SHZ_RESTRICT *src) {
+SHZ_FORCE_INLINE void shz_memcpy64_load_(const uint64_t* SHZ_RESTRICT* src) SHZ_NOEXCEPT {
     asm volatile(R"(
         fmov.d    @%[src]+, dr0
         fmov.d    @%[src]+, dr2
@@ -475,7 +468,7 @@ SHZ_FORCE_INLINE void shz_memcpy64_load_(const uint64_t *SHZ_RESTRICT *src) {
       "m" ((*src)[4]), "m" ((*src)[5]), "m" ((*src)[6]), "m" ((*src)[7]));
 }
 
-SHZ_FORCE_INLINE void shz_memcpy64_store_(uint64_t *SHZ_RESTRICT *dst) {
+SHZ_FORCE_INLINE void shz_memcpy64_store_(uint64_t* SHZ_RESTRICT* dst) SHZ_NOEXCEPT {
     asm volatile(R"(
         add       #32, %[dst]
         movca.l   r0, @%[dst]
@@ -500,11 +493,11 @@ SHZ_FORCE_INLINE void shz_memcpy64_store_(uint64_t *SHZ_RESTRICT *dst) {
       "=m" ((*dst)[4]), "=m" ((*dst)[5]), "=m" ((*dst)[6]), "=m" ((*dst)[7]));
 }
 
-SHZ_INLINE void* shz_memcpy64(void* SHZ_RESTRICT dst,
+SHZ_INLINE void* shz_memcpy64(      void* SHZ_RESTRICT dst,
                               const void* SHZ_RESTRICT src,
-                              size_t bytes) {
-    const shz_alias_uint64_t* s = (const shz_alias_uint64_t *)src;
-          shz_alias_uint64_t* d = (      shz_alias_uint64_t *)dst;
+                              size_t                   bytes) SHZ_NOEXCEPT {
+    const shz_alias_uint64_t* s = (const shz_alias_uint64_t*)src;
+          shz_alias_uint64_t* d = (      shz_alias_uint64_t*)dst;
 
     assert(!(bytes % 64) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
 
@@ -533,9 +526,9 @@ SHZ_INLINE void* shz_memcpy64(void* SHZ_RESTRICT dst,
     return dst;
 }
 
-SHZ_INLINE void* shz_memcpy128(void* SHZ_RESTRICT dst,
+SHZ_INLINE void* shz_memcpy128(      void* SHZ_RESTRICT dst,
                                const void* SHZ_RESTRICT src,
-                               size_t bytes) {
+                               size_t                   bytes) SHZ_NOEXCEPT {
     assert(!(bytes % 128) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
 
     if(bytes & ~0x7f) {
@@ -547,9 +540,9 @@ SHZ_INLINE void* shz_memcpy128(void* SHZ_RESTRICT dst,
     return dst;
 }
 
-SHZ_INLINE void* shz_memcpy(void* SHZ_RESTRICT dst,
+SHZ_INLINE void* shz_memcpy(      void* SHZ_RESTRICT dst,
                             const void* SHZ_RESTRICT src,
-                            size_t bytes) {
+                            size_t                   bytes) SHZ_NOEXCEPT {
     const uint8_t *s = (const uint8_t *)src;
           uint8_t *d = (      uint8_t *)dst;
     size_t copied;
@@ -562,7 +555,6 @@ SHZ_INLINE void* shz_memcpy(void* SHZ_RESTRICT dst,
         if((uintptr_t)d & 0x1f) {
             copied = (((uintptr_t)d + 31) & ~0x1f) - (uintptr_t)d;
             shz_memcpy1(d, s, copied);
-
             bytes -= copied;
             d     += copied;
             s     += copied;

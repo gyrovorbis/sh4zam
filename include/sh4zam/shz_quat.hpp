@@ -50,7 +50,7 @@ namespace shz {
 
         SHZ_FORCE_INLINE static quat slerp(quat q, quat p, float t) noexcept {
             return shz_quat_slerp(q, p, t);
-        }
+        }//SHZ_FORCE_INLINE shz_quat_t shz_quat_from_rotated_axis (shz_vec3_t from_dir, shz_vec3_t to_dir)
 
         bool operator==(quat rhs) const noexcept {
             return shz_quat_equals(*this, rhs);
@@ -107,7 +107,6 @@ namespace shz {
         SHZ_FORCE_INLINE quat mult(quat rhs) const noexcept {
             return shz_quat_mult(*this, rhs);
         }
-
     };
 }
 

@@ -72,14 +72,20 @@ namespace shz {
      *  \brief Routines built around fast reciprocal square root.
      *  @{
      */
-    //! C++ alias for shz_inverse_sqrtf().
-    constexpr auto inverse_sqrtf = shz_inverse_sqrtf;
-    //! C++ alias for shz_posf().
-    constexpr auto inverse_posf  = shz_inverse_posf;
-    //! C++ alias for shz_div_posf().
-    constexpr auto div_posf      = shz_div_posf;
-    //! C++ alias for shz_fast_invf().
-    constexpr auto fast_invf     = shz_fast_invf;
+    //! C++ alias for shz_sqrtf().
+    constexpr auto sqrtf       = shz_sqrtf;
+    //! C++ alias for shz_sqrtf_fsrra().
+    constexpr auto sqrtf_fsrra = shz_sqrtf_fsrra;
+    //! C++ alias for shz_inv_sqrtf().
+    constexpr auto inv_sqrtf   = shz_inv_sqrtf;
+    //! C++ alias for shz_invf().
+    constexpr auto invf        = shz_invf;
+    //! C++ alias for shz_invf_fsrra().
+    constexpr auto invf_fsrra  = shz_invf_fsrra;
+    //! C++ alias for shz_divf().
+    constexpr auto divf        = shz_divf;
+    //! C++ alias for shz_divf_fsrra().
+    constexpr auto divf_fsrra  = shz_divf_fsrra;
     //! @}
 
     /*! \name  FIPR
@@ -96,12 +102,17 @@ namespace shz {
      *  \brief Routines for accelerating various FP functions.
      *  @{
     */
+    //! C++ alias for shz_pow2f().
     constexpr auto pow2f = shz_pow2f;
+    //! C++ alias for shz_log2f().
     constexpr auto log2f = shz_log2f;
+    //! C++ alias for shz_logf().
     constexpr auto logf  = shz_logf;
+    //! C++ alias for shz_powf().
     constexpr auto powf  = shz_powf;
+    // C++ alias for shz_expf()
     constexpr auto expf  = shz_expf;
-
+    //! @}
 }
 
 #endif

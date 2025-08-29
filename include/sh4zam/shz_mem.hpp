@@ -1,11 +1,18 @@
+/*! \file
+ *  \brief   C++ Memory API
+ *  \ingroup memory
+ *
+ *  C++ wrapper API for copying, assigning, and working with memory.
+ *
+ *  \author Falco Girgis
+ */
+
 #ifndef SHZ_MEM_HPP
 #define SHZ_MEM_HPP
 
 #include "shz_mem.h"
 
 namespace shz {
-    constexpr auto ipv4_checksum     = shz_ipv4_checksum;
-
     constexpr auto cmp_str           = shz_cmp_str;
     constexpr auto xtrct             = shz_xtrct;
     constexpr auto dcache_alloc_line = shz_dcache_alloc_line;

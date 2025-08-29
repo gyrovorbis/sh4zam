@@ -63,7 +63,7 @@ SHZ_INLINE shz_quat_t shz_quat_from_axis_angle(shz_vec3_t axis, float angle) SHZ
 
 SHZ_INLINE void shz_quat_to_axis_angle(shz_quat_t q, shz_vec3_t* vec, float* angle) SHZ_NOEXCEPT {
     *angle = shz_acosf(q.w);
-    float invS = shz_inverse_posf(shz_sinf(*angle));
+    float invS = shz_invf_fsrra(shz_sinf(*angle));
     *vec = shz_vec3_init(q.x * invS, q.y * invS, q.z * invS);
 }
 
@@ -96,7 +96,7 @@ SHZ_FORCE_INLINE float shz_quat_magnitude(shz_quat_t quat) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_quat_magnitude_inv(shz_quat_t quat) SHZ_NOEXCEPT {
-    return shz_inverse_sqrtf(shz_quat_magnitude_sqr(quat));
+    return shz_inv_sqrtf(shz_quat_magnitude_sqr(quat));
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_normalize(shz_quat_t quat) SHZ_NOEXCEPT {
@@ -107,7 +107,7 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_normalize_safe(shz_quat_t quat) SHZ_NOEXCEP
     float mag = shz_quat_magnitude_sqr(quat);
 
     return (mag != 0.0f)?
-        shz_quat_scale(quat, shz_inverse_sqrtf(mag)) :
+        shz_quat_scale(quat, shz_inv_sqrtf(mag)) :
         shz_quat_identity();
 }
 
@@ -132,7 +132,7 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_inverse(shz_quat_t quat) SHZ_NOEXCEPT {
 SHZ_INLINE shz_quat_t shz_quat_from_vec3(shz_vec3_t v1, shz_vec3_t v2) SHZ_NOEXCEPT {
 	shz_vec3_t a = shz_vec3_cross(v1, v2);
 	shz_quat_t q = shz_quat_init(
-		shz_inverse_posf(shz_inverse_sqrtf(shz_vec3_magnitude_sqr(v1) * shz_vec3_magnitude_sqr(v2))),
+		shz_sqrtf_fsrra(shz_vec3_magnitude_sqr(v1) * shz_vec3_magnitude_sqr(v2)),
 		a.x,
 		a.y,
 		a.z
@@ -169,7 +169,7 @@ SHZ_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NO
     if(phi > SHZ_QUAT_SLERP_PHI_EPSILON) {
         /* The output of acosf() is in the range of [0 : PI],
            giving us a sine that is guaranteed to be a positive value. */
-        float s = shz_inverse_posf(shz_sinf(phi));
+        float s = shz_invf_fsrra(shz_sinf(phi));
         /* Add the two vectors, which have been scaled by their respective ratios. */
         return shz_quat_add(shz_quat_scale(q1, shz_sinf((1.0f - t) * phi) * s),
                             shz_quat_scale(p,  shz_sinf(t * phi) * s));

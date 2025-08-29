@@ -76,9 +76,9 @@ GBL_TEST_CASE(barycentric_lerpf)
 
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(inverse_sqrtf)
+GBL_TEST_CASE(inv_sqrtf)
    auto test = [&](float value) {
-        return gblFloatEquals(shz::inverse_sqrtf(value),
+        return gblFloatEquals(shz::inv_sqrtf(value),
                               1.0f / sqrtf(value),
                               0.01f);
     
@@ -95,9 +95,9 @@ GBL_TEST_CASE(inverse_sqrtf)
    GBL_TEST_VERIFY(test(-33333.33f));
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(inverse_posf)
+GBL_TEST_CASE(invf_fsrra)
     auto test = [&](float value) {
-        return gblFloatEquals(shz::inverse_posf(value),
+        return gblFloatEquals(shz::invf_fsrra(value),
                               1.0f / sqrtf(value * value),
                               0.01f);
    };
@@ -113,9 +113,9 @@ GBL_TEST_CASE(inverse_posf)
    //GBL_TEST_VERIFY(test(-33333.33f));
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(div_posf)
+GBL_TEST_CASE(divf_fsrra)
     auto test = [&](float num, float denom) {
-        return gblFloatEquals(shz::div_posf(num, denom),
+        return gblFloatEquals(shz::divf_fsrra(num, denom),
                               num / sqrtf(denom * denom),
                               0.001f);
    };
@@ -131,9 +131,9 @@ GBL_TEST_CASE(div_posf)
    //GBL_TEST_VERIFY(test(-33333.33f, 0.0001f));
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(fast_invf)
+GBL_TEST_CASE(invf)
     auto test = [&](float value) {
-        return gblFloatEquals(shz::fast_invf(value),
+        return gblFloatEquals(shz::invf(value),
                               1.0f / value,
                               0.001f);
    };
@@ -188,9 +188,9 @@ GBL_TEST_REGISTER(min,
                   fmacf,
                   lerpf,
                   barycentric_lerpf,
-                  inverse_sqrtf,
-                  inverse_posf,
-                  div_posf,
-                  fast_invf,
+                  inv_sqrtf,
+                  invf_fsrra,
+                  divf_fsrra,
+                  invf,
                   dot8f,
                   mag_sqr4f)
