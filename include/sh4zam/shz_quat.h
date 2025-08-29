@@ -76,7 +76,7 @@ SHZ_INLINE void shz_quat_to_angles_xyz(shz_quat_t q, float* xAngle, float* yAngl
 // shz_quat_rotate_towards()
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_identity(void) SHZ_NOEXCEPT {
-    return shz_quat_init(0.0f, 0.0f, 0.0f, 1.0f);
+    return shz_quat_init(1.0f, 0.0f, 0.0f, 0.0f);
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_add(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT {
