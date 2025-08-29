@@ -312,62 +312,81 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_trans_vec3(const shz_mat4x4_t *m, shz_vec3_t v)
 }
 
 SHZ_INLINE shz_vec4_t shz_mat4x4_trans_vec4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {
-    shz_vec4_t result;
-#if 0 // WIP
     SHZ_PREFETCH(mat);
 
-    const shz_vec4_t *c[4] = {
+    shz_vec4_t* v = &in;
+    const shz_vec4_t* c[4] = {
         &mat->col[0], &mat->col[1], &mat->col[2], &mat->col[3]
     };
 
     asm volatile(R"(
-        frchg
+        ; Load input vector into FV12
+        fmov.s  @%[v]+, fr12
+        fmov.s  @%[v]+, fr13
+        fmov.s  @%[v]+, fr14
+        fmov.s  @%[v]+, fr15
 
-        .irp    reg, 12, 13, 14, 15
-            fmov.s  @%[v]+, fr\reg
-        .endr
-
+        ; Prefetch the second half of the matrix
         pref    @%[c2]
 
-        .irp    reg, 0, 1, 2, 3
-            fmov.s  @%[c\reg]+, fr\reg
-        .endr
+        ; Load first column int FV0
+        fmov.s  @%[c0]+, fr0
+        fmov.s  @%[c1]+, fr1
+        fmov.s  @%[c2]+, fr2
+        fmov.s  @%[c3]+, fr3
+        ; Start loading next column
+        fmov.s  @%[c0]+, fr14   ; Vector instructions need 3 cycles between
+        fmov.s  @%[c1]+, fr15   ; loading arguments and using them.
 
+        ; Calculate output vector's X component
         fipr    fv12, fv0
 
-        fmov.s  @%[c0]+, fr4
-        fmov.s  @%[c1]+, fr5
+        ; Finish loading second column vector
         fmov.s  @%[c2]+, fr6
-        fmov.s  @%[c2]+, fr7
-
-        fipr    fv12, fv4
-
+        fmov.s  @%[c3]+, fr7
+        ; Begin loading third column vector
         fmov.s  @%[c0]+, fr8
         fmov.s  @%[c1]+, fr9
+
+        ; Calculate output vector's Y componennt
+        fipr    fv12, fv4
+
+        ; Finish loading third column vector
         fmov.s  @%[c2]+, fr10
+        add     #-16, %[v]      ; Point v back to the beginning of the input vector
         fmov.s  @%[c2]+, fr11
+        fmov.s  fr3, @%[v]      ; Store output vector X compoonent
+        ; Start loading fourth column vector
+        fmov.s  @%[c0]+, fr0
 
+        ; Calculate output vector's Z component
         fipr    fv12, fv8
-        fmov.s  fr3, @%[v]
 
-        .irp    reg, 0, 1, 2, 3
-            fmov.s  @%[c\reg]+, fr\reg
-        .endr
+        ; Finish loading the fourth column vector
+        fmov.s  @%[c1]+, fr1
+        fmov.s  @%[c2]+, fr2
+        fmov.s  @%[c3]+, fr3
+        add     #4, @%[v]       ; Advance output vector pointer
+        fmov.s  fr7, @%[v]      ; Store output vector Y component
 
-        fipr    fv12, fv0
-        add     #4, @%[v]
-        fmov.s  fr7, @%[v]
-        add     #4, %[v]
+        ; Calculate output vector's W component
+        fipr    fv12, fv0       ; FUCKING STALL - 4th column vector is still loading (3 cycle delay)
+
+        ; Store output vector's Z component
+        add     #4, %[v]        ; Advance output vector pointer
         fmov.s  fr11, @%[v]
-        add     #4, %[v]
-        fmov.s  fr3, @%[v]
-
-        frchg
+        
+        ; Store output vector's W component
+        add     #4, %[v]        ; Advance output vector pointer
+        fmov.s  fr3, @%[v]      ; FUCKING STALL - previous FIPR still in pipeline!
     )"
-    : [v] "+r" (&in),
-      [c0] "+r" (c[0]), [c1] "+r" (c[1]), [c2] "+r" (c[2]), [c3] "+r" (c[3]));
-#endif
-    return result;
+    : [v] "+r" (v),
+      [c0] "+r" (c[0]), [c1] "+r" (c[1]), [c2] "+r" (c[2]), [c3] "+r" (c[3])
+    :
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+
+    return in;
 }
 
 SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {

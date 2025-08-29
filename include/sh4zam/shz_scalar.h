@@ -89,13 +89,18 @@ SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u,
 //! @}
 
 /*! \name  FSRRA
- *  \brief Routines built around fast reciprocal square root.
+ *  \brief Routines built around fast reciprocal square root instruction.
  *  @{
  */
 //! Calculates 1.0f/sqrtf( \p x ), using a fast approximation.
 SHZ_FORCE_INLINE float shz_inv_sqrtf(float x) SHZ_NOEXCEPT {
     asm volatile("fsrra %0" : "+f" (x));
     return x;
+}
+
+//! Returns the faster approximate square root of the given value, \p x.
+SHZ_FORCE_INLINE float shz_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
+    return shz_inv_sqrtf(x) * x;
 }
 
 //! Takes the inverse of \p p using a very fast approximation, returning a positive result.
@@ -107,11 +112,6 @@ SHZ_FORCE_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT {
 SHZ_FAST_MATH SHZ_FORCE_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT {
     // Call the compiler built-in explicitly in case -fno-builtin is used.
     return __builtin_sqrtf(x);
-}
-
-//! Returns the faster approximate square root of the given value, \p x.
-SHZ_FORCE_INLINE float shz_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
-    return shz_inv_sqrtf(x) * x;
 }
 
 //! Takes the inverse of \p p using a slighty faster approximation than doing a full division.

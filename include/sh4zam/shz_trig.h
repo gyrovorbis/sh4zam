@@ -6,6 +6,14 @@
  * 
  *  \author Falco Girgis
  *  \author Paul Cercueil
+ *
+ *  \copyright MIT License
+ *
+ *  \todo
+ *      - shz_atan2f()
+ *      - shz_secf()
+ *      - shz_cosecf()
+ *      - shz_cotanf()
  */
 #ifndef SHZ_TRIG_H
 #define SHZ_TRIG_H

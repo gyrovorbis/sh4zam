@@ -9,20 +9,22 @@
  *  \author Falco Girgis
  *
  *  \todo
- *      - Fourier transforms
- *      - Arbitrarily-sized matrix routines
- *      - Outer products
- *
+ *      - shz_xmtrx_xxx_fft()
+ *      - shz_xmtrx_xxx_outer_product()
+ *      - shz_xmtrx_invert()
+ *      - shz_xmtrx_position()
+ *      - shz_xmtrx_size()
+ *      - shz_xmtrx_angles()
  */
 #ifndef SHZ_XMTRX_H
 #define SHZ_XMTRX_H
 
 #include "shz_fpscr.h"
 #include "shz_vector.h"
+#include "shz_quat.h"
 
 /*! \defgroup xmtrx
- *  \brief    Matrix Stack
- *
+ *  \brief    Active Matrix
  */
 
 SHZ_DECLS_BEGIN
@@ -1538,10 +1540,9 @@ SHZ_INLINE void shz_xmtrx_apply_rotation(shz_vec3_t axis, float angle) SHZ_NOEXC
     shz_xmtrx_add_diagonal(sincos.cos, sincos.cos, sincos.cos, 0.0f);
 }
 
-/**** COMING SOON ****
-void shz_xmtrx_invert_full(void);
-float shz_xmtrx_determinant(void);
-**********************/
+void shz_xmtrx_apply_rotation_quat(shz_quat_t quat) SHZ_NOEXCEPT;
+shz_quat_t shz_xmtrx_to_quat(void) SHZ_NOEXCEPT;
+float shz_xmtrx_determinant(void) SHZ_NOEXCEPT;
 
 SHZ_INLINE void shz_xmtrx_transpose(void) SHZ_NOEXCEPT {
     asm volatile (R"(
