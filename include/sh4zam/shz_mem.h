@@ -173,7 +173,7 @@ SHZ_INLINE void shz_memcpy2_16(void*       SHZ_RESTRICT dst,
 }
 
 SHZ_INLINE void shz_memset2_16(void* dst, uint16_t value) SHZ_NOEXCEPT {
-    assert(!(dst & 0x1));
+    assert(!((uintptr_t)dst & 0x1));
 
     asm volatile(R"(
         add     #32 %0
