@@ -6,9 +6,6 @@
  *  calculations using the SH4's "current" 4x4 matrix, which is held within
  *  a secondary back-bank of 16 single-precision floating-point registers.
  *
- *  \author Falco Girgis
- *  \author Twada
- *
  *  \todo
  *      - shz_xmtrx_xxx_fft()
  *      - shz_xmtrx_xxx_outer_product()
@@ -17,7 +14,9 @@
  *      - shz_xmtrx_size()
  *      - shz_xmtrx_angles()
  *
- *  \author    Falco Girgis
+ *  \author Falco Girgis
+ *  \author Twada
+ *
  *  \copyright MIT License
  */
 
