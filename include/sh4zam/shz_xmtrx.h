@@ -7,6 +7,7 @@
  *  a secondary back-bank of 16 single-precision floating-point registers.
  *
  *  \author Falco Girgis
+ *  \author Twada
  *
  *  \todo
  *      - shz_xmtrx_xxx_fft()
@@ -1654,12 +1655,7 @@ SHZ_INLINE void shz_xmtrx_transpose(void) SHZ_NOEXCEPT {
     : "fpul");
 }
 
-<<<<<<< HEAD
 SHZ_INLINE void shz_xmtrx_apply_lookat(float *position_3f, float *target_3f, float *up_3f) SHZ_NOEXCEPT {
-=======
-SHZ_INLINE void shz_xmtrx_lookat(float *position_3f, float *target_3f, float *up_3f) SHZ_NOEXCEPT {
->>>>>>> e4a6170b8439e4f23452d5dc66408049bf77fff2
-
 	asm volatile(
 		"fmov.s @%[t]+, fr8\n\t"
 		"fmov.s @%[t]+, fr9\n\t"
