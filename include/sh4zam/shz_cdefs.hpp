@@ -1,7 +1,7 @@
 #ifndef SHZ_CDEFS_HPP
 #define SHZ_CDEFS_HPP
 
-#include "shz_cdefs.hpp"
+#include "shz_cdefs.h"
 
 //! Namespace enclosing the SH4ZAM C++ API.
 namespace shz {
