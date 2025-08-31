@@ -21,8 +21,10 @@ add_executable(Sh4zamTests
     shz_scalar_test_suite.cpp
     shz_trig_test_suite.cpp
     shz_vector_test_suite.cpp
+    shz_quat_test_suite.cpp
     shz_xmtrx_test_suite.cpp
-    shz_quat_test_suite.cpp)
+    shz_matrix_test_suite.cpp
+    shz_mem_test_suite.cpp)
 
 target_include_directories(Sh4zamTests
     PRIVATE ..)

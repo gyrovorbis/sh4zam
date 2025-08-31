@@ -5,41 +5,43 @@
  *  This file provides a collection of general-purpose math routines for
  *  individual scalar values in C++23.
  *
- *  \author Falco Girgis
+ *  \author    Falco Girgis
+ *  \copyright MIT License
  */
+
 #ifndef SHZ_SCALAR_HPP
 #define SHZ_SCALAR_HPP
 
 #include "shz_scalar.h"
 
 namespace shz {
-    constexpr float fipr_max_error = 0.1f;
+    constexpr float fipr_max_error = 0.1f; // Not accurate yet. lol.
 
     /*! \name  Min/Max
      *  \brief Routines for minimum, maximum, clamping, and normalization.
      *  @{
      */
     //! Returns the minimum of the two given values.
-    SHZ_FORCE_INLINE constexpr auto min(auto &&a, auto &&b) noexcept {
+    SHZ_FORCE_INLINE constexpr auto min(auto&& a, auto&& b) noexcept {
         return SHZ_MIN(std::forward<decltype(a)>(a),
                        std::forward<decltype(b)>(b));
     }
 
     //! Returns the maximum of the two given values.
-    SHZ_FORCE_INLINE constexpr auto max(auto &&a, auto &&b) noexcept {
+    SHZ_FORCE_INLINE constexpr auto max(auto&& a, auto&& b) noexcept {
         return SHZ_MAX(std::forward<decltype(a)>(a),
                        std::forward<decltype(b)>(b));
     }
 
     //! Clamps \p v between \p min and \p max.
-    SHZ_FORCE_INLINE constexpr auto clamp(auto &&v, auto &&min, auto &&max) noexcept {
+    SHZ_FORCE_INLINE constexpr auto clamp(auto&& v, auto&& min, auto&& max) noexcept {
         return SHZ_CLAMP(std::forward<decltype(v)>(v),
                          std::forward<decltype(min)>(min),
                          std::forward<decltype(max)>(max));
     }
 
     //! Clamps \p v within \p min and \p max then normalizes it between 0.0f and 1.0f
-    SHZ_FORCE_INLINE constexpr auto norm(auto &&v, auto &&min, auto &&max) noexcept {
+    SHZ_FORCE_INLINE constexpr auto norm(auto&& v, auto&& min, auto&& max) noexcept {
         return SHZ_NORM(std::forward<decltype(v)>(v),
                         std::forward<decltype(min)>(min),
                         std::forward<decltype(max)>(max));

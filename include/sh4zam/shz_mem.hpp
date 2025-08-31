@@ -4,7 +4,8 @@
  *
  *  C++ wrapper API for copying, assigning, and working with memory.
  *
- *  \author Falco Girgis
+ *  \author    Falco Girgis
+ *  \copyright MIT License
  */
 
 #ifndef SHZ_MEM_HPP

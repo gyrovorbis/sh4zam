@@ -3,17 +3,17 @@
  *  \ingroup trig
  *
  *  This file provides an API offering fast versions of trigonometry functions.
- * 
- *  \author Falco Girgis
- *  \author Paul Cercueil
- *
- *  \copyright MIT License
  *
  *  \todo
  *      - shz_atan2f()
  *      - shz_secf()
  *      - shz_cosecf()
  *      - shz_cotanf()
+ *
+ *  \author Falco Girgis
+ *  \author Paul Cercueil
+ *
+ *  \copyright MIT License
  */
 #ifndef SHZ_TRIG_H
 #define SHZ_TRIG_H
@@ -22,8 +22,6 @@
 
 /** \defgroup trig Trigonometry
  *  \brief         Trig functions and utilities.
- *  \todo          FILL ME IN
- *  \todo          Find fast approximations of arc trig functions
  */
 
 //! Single-precision floating-point PI approximation (do not use M_PI!)

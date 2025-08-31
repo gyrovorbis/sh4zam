@@ -3,9 +3,14 @@
     \ingroup fpscr
     
     This file provides a collection of low-level routines for modifying
-    and querying the SH4's floating point environment. 
+    and querying the SH4's floating point environment.
 
-    \author Falco Girgis 
+    \todo
+        - shz_fschg_scoped()
+        - shz_frchg_scoped()
+
+    \author    Falco Girgis
+    \copyright MIT License
 */
 
 #ifndef SHZ_FPSCR_H
@@ -19,7 +24,7 @@
 */
 
 //! Initial value of the floating-point status control register
-#define SHZ_FPSCR_INITIAL_VALUE 0x00040001
+#define SHZ_FPSCR_VALUE_DEFAULT 0x00040001
 
 //! Swaps the active FP register bank
 #define SHZ_FRCHG() asm volatile("frchg")

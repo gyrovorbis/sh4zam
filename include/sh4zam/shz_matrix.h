@@ -1,3 +1,24 @@
+/*! \file
+    \brief   API for operating on MxN matrices within memory.
+    \ingroup matrices
+
+    This file provides a collection of routines for manipulating
+    MxN matrices which are stored within memory, rather than in
+    the XMTRX FP register back-bank.
+
+    Some of these routines are simply loading into the back-bank
+    and are performing work there, temporarily. Some of them have
+    implementations which have specific optimizations for when the
+    matrices are NOT within such registers, which are faster than
+    having to go through XMTRX and clobbering the back-bank.
+
+    \todo
+
+    \author    Falco Girgis
+    \copyright MIT License
+*/
+
+
 #ifndef SHZ_MATRIX_H
 #define SHZ_MATRIX_H
 
@@ -7,111 +28,67 @@
 
 SHZ_DECLS_BEGIN
 
-typedef SHZ_ALIGNAS(8) union shz_mat2x2 {
-    float       elem[4];
-    float       elem2D[2][2];
-    shz_vec2_t  col[2];
+typedef SHZ_ALIGNAS(8) struct shz_mat2x2 {
+    union {
+        float       elem[4];
+        float       elem2D[2][2];
+        shz_vec2_t  col[2];
+    };
 } shz_mat2x2_t;
 
-typedef union shz_mat3x3 {
-    float      elem[9];
-    float      elem2D[3][3];
-    shz_vec3_t col[3];
-    struct {
-        shz_vec3_t left;
-        shz_vec3_t up;
-        shz_vec3_t forward;
+typedef struct shz_mat3x3 {
+    union {
+        float      elem[9];
+        float      elem2D[3][3];
+        shz_vec3_t col[3];
+        struct {
+            shz_vec3_t left;
+            shz_vec3_t up;
+            shz_vec3_t forward;
+        };
     };
 } shz_mat3x3_t;
 
-typedef union shz_mat4x3 {
-    float      elem[12];
-    float      elem2D[3][4];
-    shz_vec3_t col[4];
-    struct {
-        shz_vec3_t left;
-        shz_vec3_t up;
-        shz_vec3_t forward;
-        shz_vec3_t pos;
+typedef struct shz_mat4x3 {
+    union {
+        float      elem[12];
+        float      elem2D[3][4];
+        shz_vec3_t col[4];
+        struct {
+            shz_vec3_t left;
+            shz_vec3_t up;
+            shz_vec3_t forward;
+            shz_vec3_t pos;
+        };
     };
 } shz_mat4x3_t;
 
-typedef union shz_mat3x4 {
-    float      elem[12];
-    float      elem2D[4][3];
-    shz_vec4_t col[3];
-    struct {
-        shz_vec4_t left;
-        shz_vec4_t up;
-        shz_vec4_t forward;
+typedef struct shz_mat3x4 {
+    union {
+        float      elem[12];
+        float      elem2D[4][3];
+        shz_vec4_t col[3];
+        struct {
+            shz_vec4_t left;
+            shz_vec4_t up;
+            shz_vec4_t forward;
+        };
     };
 } shz_mat3x4_t;
 
-typedef SHZ_ALIGNAS(8) union shz_mat4x4 {
-    float      elem[16];
-    float      elem2D[4][4];
-    shz_vec4_t col[4];
-    struct {
-        shz_vec4_t left;
-        shz_vec4_t up;
-        shz_vec4_t forward;
-        shz_vec4_t pos;
+typedef SHZ_ALIGNAS(8) struct shz_mat4x4 {
+    union {
+        float      elem[16];
+        float      elem2D[4][4];
+        shz_vec4_t col[4];
+        struct {
+            shz_vec4_t left;
+            shz_vec4_t up;
+            shz_vec4_t forward;
+            shz_vec4_t pos;
+        };
     };
 } shz_mat4x4_t;
-
-SHZ_INLINE shz_vec3_t shz_matrix3x3_trans_vec3(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT {
-    shz_vec3_t out;
-
-    register float fr0 asm("fr0") = v.x;
-    register float fr1 asm("fr1") = v.y;
-    register float fr2 asm("fr2") = v.z;
-    register float fr3 asm("fr3") = 0.0f;
-
-    register float fr4 asm("fr4") = m->elem2D[0][0];
-    register float fr5 asm("fr5") = m->elem2D[0][1];
-    register float fr6 asm("fr6") = m->elem2D[0][2];
-    register float fr7 asm("fr7") = 0.0f;
-
-    asm volatile("fipr fv0, fv4"
-        : "+f" (fr7)
-        : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
-          "f" (fr4), "f" (fr5), "f" (fr6));
-
-    __atomic_thread_fence(1);
-
-    register float fr8  asm("fr8")  = m->elem2D[1][0];
-    register float fr9  asm("fr9")  = m->elem2D[1][1];
-    register float fr10 asm("fr10") = m->elem2D[1][2];
-    register float fr11 asm("fr11") = 0.0f;
-
-    asm volatile("fipr fv0, fv8"
-        : "+f" (fr11)
-        : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
-          "f" (fr8), "f" (fr9), "f" (fr10));
-
-    __atomic_thread_fence(1);
-
-    out.x = fr7;
-
-    __atomic_thread_fence(1);
-
-    fr4 = m->elem2D[2][0];
-    fr5 = m->elem2D[2][1];
-    fr6 = m->elem2D[2][2];
-    fr7 = 0.0f;
-
-    asm volatile("fipr fv0, fv4"
-        : "+f" (fr7)
-        : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
-          "f" (fr4), "f" (fr5), "f" (fr6));
-
-    __atomic_thread_fence(1);
-
-    out.y = fr11;
-    out.z = fr7;
-
-    return out;
-}
 
 SHZ_INLINE void shz_mat4x4_init_identity(shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     shz_xmtrx_init_identity();
@@ -488,8 +465,8 @@ SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 		- shz_dot8f(m[1][0], -m[1][1], m[1][2], 0.0f, s2, s4, s5, 0.0f)
 	);
 
-	return m[0][0] * coeff.e[0] + m[0][1] * coeff.e[1] +
-		   m[0][2] * coeff.e[2] + m[0][3] * coeff.e[3];
+    return shz_dot8f(m[0][0],    m[0][1],    m[0][2],    m[0][3],
+                     coeff.e[0], coeff.e[1], coeff.e[2], coeff.e[3]);
 }
 
 /***** COMING SOON! ******
@@ -511,6 +488,60 @@ SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat);
 SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* in, shz_mat4x4_t* out);
 SHZ_INLINE void shz_mat4x4_init_rotation_quat(shz_quat_t q);
 **************************/
+
+SHZ_INLINE shz_vec3_t shz_matrix3x3_trans_vec3(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT {
+    shz_vec3_t out;
+
+    register float fr0 asm("fr0") = v.x;
+    register float fr1 asm("fr1") = v.y;
+    register float fr2 asm("fr2") = v.z;
+    register float fr3 asm("fr3") = 0.0f;
+
+    register float fr4 asm("fr4") = m->elem2D[0][0];
+    register float fr5 asm("fr5") = m->elem2D[0][1];
+    register float fr6 asm("fr6") = m->elem2D[0][2];
+    register float fr7 asm("fr7") = 0.0f;
+
+    asm volatile("fipr fv0, fv4"
+        : "+f" (fr7)
+        : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
+          "f" (fr4), "f" (fr5), "f" (fr6));
+
+    __atomic_thread_fence(1);
+
+    register float fr8  asm("fr8")  = m->elem2D[1][0];
+    register float fr9  asm("fr9")  = m->elem2D[1][1];
+    register float fr10 asm("fr10") = m->elem2D[1][2];
+    register float fr11 asm("fr11") = 0.0f;
+
+    asm volatile("fipr fv0, fv8"
+        : "+f" (fr11)
+        : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
+          "f" (fr8), "f" (fr9), "f" (fr10));
+
+    __atomic_thread_fence(1);
+
+    out.x = fr7;
+
+    __atomic_thread_fence(1);
+
+    fr4 = m->elem2D[2][0];
+    fr5 = m->elem2D[2][1];
+    fr6 = m->elem2D[2][2];
+    fr7 = 0.0f;
+
+    asm volatile("fipr fv0, fv4"
+        : "+f" (fr7)
+        : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
+          "f" (fr4), "f" (fr5), "f" (fr6));
+
+    __atomic_thread_fence(1);
+
+    out.y = fr11;
+    out.z = fr7;
+
+    return out;
+}
 
 SHZ_DECLS_END
 

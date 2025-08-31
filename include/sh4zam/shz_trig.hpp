@@ -7,7 +7,8 @@
  *  This file provides an API offering fast versions of trigonometry functions
  *  for C++23.
  *
- *  \author Falco Girgis
+ *  \author    Falco Girgis
+ *  \copyright MIT License
  */
 #include <tuple>
 #include <utility>
