@@ -5,7 +5,8 @@
  *  This file provides types and mathematical functions for representing and
  *  operating on vectors within C++.
  *
- *  \author Falco Girgis
+ *  \author    Falco Girgis
+ *  \copyright MIT License
  */
 #ifndef SHZ_VECTOR_HPP
 #define SHZ_VECTOR_HPP
@@ -36,7 +37,7 @@ struct vecN: C {
         return shz_vec_lerp(start, end, t);
     }
 
-    SHZ_FORCE_INLINE auto &&operator[](this auto &&self, size_t index) {
+    SHZ_FORCE_INLINE auto &&operator[](this auto&& self, size_t index) {
         return std::forward<decltype(self)>(self).e[index];
     }
 
@@ -85,15 +86,15 @@ struct vecN: C {
         return self;
     }
 
-    SHZ_FORCE_INLINE auto begin(this auto &&self) {
+    SHZ_FORCE_INLINE auto begin(this auto&& self) noexcept {
         return &self[0];
     }
 
-    SHZ_FORCE_INLINE auto end(this auto &&self) {
+    SHZ_FORCE_INLINE auto end(this auto&& self) noexcept {
         return &self[Rows];
     }
 
-    SHZ_FORCE_INLINE float dot(this const CppType &self, CppType other) noexcept {
+    SHZ_FORCE_INLINE float dot(this const CppType& self, CppType other) noexcept {
         return shz_vec_dot(self, other);
     }
 

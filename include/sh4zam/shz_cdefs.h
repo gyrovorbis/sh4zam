@@ -6,7 +6,8 @@
  *      - Compiler attributes
  *      - Miscellaneous utilities
  *
- *  \author Falco Girgis
+ *  \author    Falco Girgis
+ *  \copyright MIT License
  */
 
 #ifndef SHZ_CDEFS_H
@@ -107,7 +108,6 @@
  *  \brief Types which may break C/C++'s strict aliasing rules
  *  @{
  */
-//!
 //! int16_t type whose value may be aliased as another type.
 typedef SHZ_ALIASING int16_t  shz_alias_int16_t;
 //! uint16_t type whose value may be aliased as another type.

@@ -4,13 +4,14 @@
  *
  *  This file provides a collection of general-purpose math routines for
  *  individual scalar values.
- * 
- *  \author Falco Girgis
- *  \author Paul Cercueil
  *
  *  \todo
  *      - ceilf()/floorf() use rounding modes?
  *      - ASM vs compiler builtins for FSRRA, FMAC.
+ *
+ *  \author    Falco Girgis
+ *  \author    Paul Cercueil
+ *  \copyright MIT License
  */
 #ifndef SHZ_SCALAR_H
 #define SHZ_SCALAR_H
@@ -131,7 +132,7 @@ SHZ_FORCE_INLINE float shz_invf(float x) SHZ_NOEXCEPT {
 
 //! Divides \p num by \p denom using a slightly faster approximation.
 SHZ_FORCE_INLINE float shz_divf(float num, float denom) SHZ_NOEXCEPT {
-    if(__builtin_constant_p(num) && __builtin_constant_p(denom))
+    if(__builtin_constant_p(denom))
         return num / denom;
     else
         return num * shz_invf(denom);
@@ -139,7 +140,7 @@ SHZ_FORCE_INLINE float shz_divf(float num, float denom) SHZ_NOEXCEPT {
 
 //! Divides \p num by \p denom using a very fast approximation, returning a positive result.
 SHZ_FORCE_INLINE float shz_divf_fsrra(float num, float denom) SHZ_NOEXCEPT {
-    if(__builtin_constant_p(num) && __builtin_constant_p(denom))
+    if(__builtin_constant_p(denom))
         return num / denom;
     else
         return num * shz_invf_fsrra(denom);

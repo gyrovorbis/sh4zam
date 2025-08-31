@@ -2,7 +2,8 @@
 !  \brief   ASM implementation of select memcpyN() routines. 
 !  \ingroup memory
 !
-!  \author Falco Girgis
+!  \author    Falco Girgis
+!  \copyright MIT License
 !!
 
 .text

@@ -5,9 +5,7 @@
  *  This file provides an API built around manipulating and performing
  *  calculations using the SH4's "current" 4x4 matrix, which is held within
  *  a secondary back-bank of 16 single-precision floating-point registers.
- *
- *  \author Falco Girgis
- *
+  *
  *  \todo
  *      - shz_xmtrx_xxx_fft()
  *      - shz_xmtrx_xxx_outer_product()
@@ -15,7 +13,11 @@
  *      - shz_xmtrx_position()
  *      - shz_xmtrx_size()
  *      - shz_xmtrx_angles()
+ *
+ *  \author    Falco Girgis
+ *  \copyright MIT License
  */
+
 #ifndef SHZ_XMTRX_H
 #define SHZ_XMTRX_H
 
@@ -30,20 +32,20 @@
 SHZ_DECLS_BEGIN
 
 /*! \cond Forward Declarations */
-union SHZ_ALIGNAS(8) shz_mat2x2;
-typedef union shz_mat2x2 shz_mat2x2_t;
+struct SHZ_ALIGNAS(8) shz_mat2x2;
+typedef struct shz_mat2x2 shz_mat2x2_t;
 
-union mat3x3;
-typedef union shz_mat3x3 shz_mat3x3_t;
+struct mat3x3;
+typedef struct shz_mat3x3 shz_mat3x3_t;
 
-union shz_mat4x3;
-typedef union shz_mat4x3 shz_mat4x3_t;
+struct shz_mat4x3;
+typedef struct shz_mat4x3 shz_mat4x3_t;
 
-union shz_mat3x4;
-typedef union shz_mat3x4 shz_mat3x4_t;
+struct shz_mat3x4;
+typedef struct shz_mat3x4 shz_mat3x4_t;
 
-union SHZ_ALIGNAS(8) shz_mat4x4;
-typedef union shz_mat4x4 shz_mat4x4_t;
+struct SHZ_ALIGNAS(8) shz_mat4x4;
+typedef struct shz_mat4x4 shz_mat4x4_t;
 /*! \endcond */
 
 typedef enum shz_xmtrx_reg {

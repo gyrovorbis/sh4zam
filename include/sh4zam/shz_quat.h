@@ -5,15 +5,14 @@
     - to and from axis/angle
     - to and from matrix
 
-    \author Falco Girgis
-    \author Oleg Endo
-
-    \copyright MIT License
-
     \todo
         - shz_quat_rotate_towards()
         - shz_quat_to_angles_xyz()
         - shz_quat_angle_between()
+
+    \author    Falco Girgis
+    \author    Oleg Endo
+    \copyright MIT License
 */
 
 #ifndef SHZ_QUAT_H
@@ -32,10 +31,15 @@
 SHZ_DECLS_BEGIN
 
 typedef struct shz_quat {
-    float w;
-    float x;
-    float y;
-    float z;
+    union {
+        struct {
+            float w;
+            float x;
+            float y;
+            float z;
+        };
+        float e[4];
+    };
 } shz_quat_t;
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_init(float w, float x, float y, float z) SHZ_NOEXCEPT {
@@ -122,11 +126,6 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_normalize_safe(shz_quat_t quat) SHZ_NOEXCEP
 SHZ_FORCE_INLINE float shz_quat_dot(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
     return shz_dot8f(q1.x, q1.y, q1.z, q1.w,
                      q2.x, q2.y, q2.z, q2.w);
-}
-
-SHZ_FORCE_INLINE bool shz_quat_equals(shz_quat_t q, shz_quat_t v) SHZ_NOEXCEPT {
-    float dot = shz_quat_dot(q, v);
-    return (dot >= 0.999f && dot <= 1.001f);
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_conjugate(shz_quat_t quat) SHZ_NOEXCEPT {

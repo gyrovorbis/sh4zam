@@ -3,14 +3,15 @@
  *  \ingroup memory
  *
  *  API built around copying, assigning, and working with memory.
- * 
- *  \author Falco Girgis
- * 
+ *
  *  \todo
  *      - memset2()
  *      - memset4()
  *      - memset32()
  *      - shz_macw()
+ *
+ * \author    Falco Girgis
+ * \copyright MIT License
  */
 
 #ifndef SHZ_MEM_H

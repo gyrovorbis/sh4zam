@@ -6,21 +6,23 @@
  *  calculations using the SH4's "current" 4x4 matrix, which is held within
  *  a secondary back-bank of 16 single-precision floating-point registers.
  *
- *  \author Falco Girgis
- *
  *  \todo
  *      - Fourier transforms
  *      - Arbitrarily-sized matrix routines
  *      - Outer products
  *
+ *  \author    Falco Girgis
+ *  \copyright MIT License
  */
+
 #ifndef SHZ_XMTRX_HPP
 #define SHZ_XMTRX_HPP
 
+#include <array>
+
 #include "shz_xmtrx.h"
 #include "shz_vector.hpp"
-
-#include <array>
+#include "shz_quat.hpp"
 
 namespace shz {
 
@@ -228,6 +230,14 @@ namespace shz {
 
         SHZ_FORCE_INLINE static void apply_rotation(shz_vec3_t axis, float angle) noexcept {
             shz_xmtrx_init_rotation(axis, angle);
+        }
+
+        SHZ_FORCE_INLINE static float determinant() noexcept {
+            return shz_xmtrx_determinant();
+        }
+
+        SHZ_FORCE_INLINE static quat to_quat() noexcept {
+            return shz_xmtrx_to_quat();
         }
 
         //SHZ_FORCE_INLINE static void invert_orthonormal() noexcept {

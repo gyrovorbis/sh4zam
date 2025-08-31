@@ -7,6 +7,8 @@
  *
  *  \author Falco Girgis
  *  \author Paul Cercueil
+ *
+ *  \copyright MIT License
  */
 #ifndef SHZ_VECTOR_H
 #define SHZ_VECTOR_H
