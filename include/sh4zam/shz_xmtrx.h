@@ -1509,7 +1509,7 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_axis(float angle, float x, float y, flo
 
 		"fmov	fr4, fr8\n\t"
 		"fmul	fr0, fr8\n\t"
-		"fmov	fr6, fr9\n\t"
+		"fmov	fr5, fr9\n\t"
 		"fmul	fr8, fr9\n\t"	/* xy(1-cos) */
 		"fmul	fr6, fr8\n\t"	/* xz(1-cos) */
 		"fmov	fr6, fr10\n\t"
@@ -1654,7 +1654,7 @@ SHZ_INLINE void shz_xmtrx_transpose(void) SHZ_NOEXCEPT {
     : "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_lookat(float *position_3f, float *target_3f, float *up_3f) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_apply_lookat(float *position_3f, float *target_3f, float *up_3f) SHZ_NOEXCEPT {
 
 	asm volatile(
 		"fmov.s @%[t]+, fr8\n\t"
