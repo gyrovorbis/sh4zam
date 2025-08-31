@@ -5,7 +5,10 @@
  *  This file provides an API built around manipulating and performing
  *  calculations using the SH4's "current" 4x4 matrix, which is held within
  *  a secondary back-bank of 16 single-precision floating-point registers.
-  *
+ *
+ *  \author Falco Girgis
+ *  \author Twada
+ *
  *  \todo
  *      - shz_xmtrx_xxx_fft()
  *      - shz_xmtrx_xxx_outer_product()
@@ -1484,6 +1487,81 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) SHZ_NOEXCEPT {
     : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
 }
 
+SHZ_INLINE void shz_xmtrx_apply_rotation_axis(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+    register float _x asm("fr4") = x;
+    register float _y asm("fr5") = y;
+    register float _z asm("fr6") = z;
+    register float _a asm("fr7") = angle * SHZ_FSCA_RAD_FACTOR;
+	
+	asm volatile(
+		"ftrc	fr7, fpul\n\t"
+		"fsca	fpul, dr2\n\t"
+		"fldi1	fr0\n\t"
+		"fsub	fr3, fr0\n\t"	/* 1-cos */
+
+		"fldi0	fr7\n\t"
+		"fipr	fv4, fv4\n\t"
+		"fsrra	fr7\n\t"
+		"fmul	fr7, fr4\n\t"
+		"fmul	fr7, fr5\n\t"
+		"fmul	fr7, fr6\n\t"
+
+		"fmov	fr4, fr1\n\t"
+		"fmul	fr2, fr1\n\t"	/* xsin */
+		"fmov	fr5, fr7\n\t"
+		"fmul	fr2, fr7\n\t"	/* ysin */
+		"fmul	fr6, fr2\n\t"	/* zsin */
+
+		"fmov	fr4, fr8\n\t"
+		"fmul	fr0, fr8\n\t"
+		"fmov	fr5, fr9\n\t"
+		"fmul	fr8, fr9\n\t"	/* xy(1-cos) */
+		"fmul	fr6, fr8\n\t"	/* xz(1-cos) */
+		"fmov	fr6, fr10\n\t"
+		"fmul	fr0, fr6\n\t"
+		"fmul	fr6, fr10\n\t"
+		"fadd	fr3, fr10\n\t"	/* zz(1-cos)+cos */
+		"fmul	fr5, fr6\n\t"	/* yz(1-cos) */
+		"fmul	fr5, fr5\n\t"
+		"fmul	fr0, fr5\n\t"
+		"fadd	fr3, fr5\n\t"	/* yy(1-cos)+cos */
+		"fmul	fr4, fr0\n\t"
+		"fmul	fr4, fr0\n\t"
+		"fadd	fr3, fr0\n\t"	/* xx(1-cos)+cos */
+
+		"fmov	fr8, fr3\n\t"	/* xz(1-cos) */
+		"fmov	fr9, fr4\n\t"	/* xy(1-cos) */
+		"fadd	fr7, fr8\n\t"
+		"fmov	fr6, fr9\n\t"
+		"fsub	fr1, fr9\n\t"
+		"fldi0	fr11\n\t"
+		"ftrv	xmtrx, fv8\n\t"
+
+		"fadd	fr1, fr6\n\t"
+		"fmov	fr4, fr1\n\t"
+		"fsub	fr2, fr4\n\t"
+		"fsub	fr7, fr3\n\t"
+		"fldi0	fr7\n\t"
+		"ftrv	xmtrx, fv4\n\t"
+		
+		"fadd	fr2, fr1\n\t"
+		"fmov	fr3, fr2\n\t"
+		"fldi0	fr3\n\t"
+		"ftrv	xmtrx, fv0\n\t"
+
+		"fschg\n\t"
+		"fmov	dr10, xd10\n\t"
+		"fmov	dr8, xd8\n\t"
+		"fmov	dr6, xd6\n\t"
+		"fmov	dr4, xd4\n\t"
+		"fmov	dr2, xd2\n\t"
+		"fmov	dr0, xd0\n\t"
+		"fschg\n"
+		:
+		: "f"(_x), "f"(_y), "f"(_z), "f"(_a)
+		: "fpul", "fr0", "fr1", "fr2", "fr3", "fr8", "fr9", "fr10", "fr11");
+}
+
 /* Tait-Bryan angles, (extrinsic rotation notation) */
 SHZ_INLINE void shz_xmtrx_init_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT {
     shz_xmtrx_init_rotation_x(xAngle);
@@ -1579,6 +1657,119 @@ SHZ_INLINE void shz_xmtrx_transpose(void) SHZ_NOEXCEPT {
     :
     :
     : "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_apply_lookat(float *position_3f, float *target_3f, float *up_3f) SHZ_NOEXCEPT {
+	asm volatile(
+		"fmov.s @%[t]+, fr8\n\t"
+		"fmov.s @%[t]+, fr9\n\t"
+		"fmov.s	@%[t]+, fr10\n\t"
+
+		"fmov.s @%[p]+, fr12\n\t"
+		"fmov.s @%[p]+, fr13\n\t"
+		"fmov.s @%[p]+, fr14\n\t"
+		"fldi0	fr15\n\t"
+
+		/* z = position - target */
+        "fneg   fr8\n\t"
+		"fadd	fr12, fr8\n\t"
+        "fneg   fr9\n\t"
+		"fadd	fr13, fr9\n\t"
+        "fneg   fr10\n\t"
+		"fadd	fr14, fr10\n\t"
+		"fldi0	fr11\n\t"
+		"fipr	fv8, fv8\n\t"
+
+		"fmov.s @%[u]+, fr4\n\t"
+		"fmov.s @%[u]+, fr5\n\t"
+		"fmov.s @%[u]+, fr6\n\t"
+
+		"fsrra  fr11\n\t"
+		"fmul	fr11, fr8\n\t"
+		"fmul	fr11, fr9\n\t"
+		"fmul	fr11, fr10\n\t"
+		"fldi0	fr11\n\t"
+		"fipr	fv12, fv8\n\t"
+
+		/* x = cross(up, z) */
+		"fmov	fr6, fr15\n\t"
+		"fmul	fr9, fr15\n\t"
+		"fmov	fr5, fr0\n\t"
+		"fmul	fr10, fr0\n\t"
+		"fmov	fr4, fr3\n\t"
+		"fmul	fr10, fr3\n\t"
+		"fsub	fr15, fr0\n\t"
+		"fmov	fr6, fr1\n\t"
+		"fmul	fr8, fr1\n\t"
+		"fmov	fr4, fr2\n\t"
+		"fmul	fr9, fr2\n\t"
+		"fmov	fr5, fr15\n\t"
+		"fmul	fr8, fr15\n\t"
+		"fsub	fr3, fr1\n\t"
+		"fsub	fr15, fr2\n\t"
+		"fldi0	fr3\n\t"
+		"fldi0	fr15\n\t"
+		"fipr	fv0, fv0\n\t"
+
+		"fsrra  fr3\n\t"
+		"fmul	fr3, fr0\n\t"
+		"fmul	fr3, fr1\n\t"
+		"fmul	fr3, fr2\n\t"
+		"fldi0	fr3\n\t"
+		"fipr	fv12, fv0\n\t"
+
+		/* y = cross(z, x) */
+		"fmov	fr10, fr15\n\t"
+		"fmul	fr1, fr15\n\t"
+		"fmov	fr9, fr4\n\t"
+		"fmul	fr2, fr4\n\t"
+		"fmov	fr8, fr7\n\t"
+		"fmul	fr2, fr7\n\t"
+		"fsub	fr15, fr4\n\t"
+		"fmov	fr10, fr5\n\t"
+		"fmul	fr0, fr5\n\t"
+		"fmov	fr8, fr6\n\t"
+		"fmul	fr1, fr6\n\t"
+		"fmov	fr9, fr15\n\t"
+		"fmul	fr0, fr15\n\t"
+		"fsub	fr7, fr5\n\t"
+		"fsub	fr15, fr6\n\t"
+
+		"fldi0	fr7\n\t"
+		"fldi0	fr15\n\t"
+		"fipr	fv12, fv4\n\t"
+
+		"fneg	fr3\n\t"
+		"fneg	fr11\n\t"
+		"fneg	fr7\n\t"
+		"fmov	fr3, fr12\n\t"
+		"fmov	fr7, fr13\n\t"
+		"fmov	fr11, fr14\n\t"
+		"fldi1	fr15\n\t"
+		"ftrv	xmtrx, fv12\n\t"
+
+		"fmov	fr1, fr7\n\t"
+		"fmov	fr2, fr11\n\t"
+		"fmov	fr4, fr1\n\t"
+		"fmov	fr8, fr2\n\t"
+		"fldi0	fr3\n\t"
+		"ftrv	xmtrx, fv0\n\t"
+
+		"fmov	fr7, fr4\n\t"
+		"fmov	fr6, fr7\n\t"
+		"fmov	fr9, fr6\n\t"
+		"fmov	fr7, fr9\n\t"
+		"fldi0	fr7\n\t"
+		"ftrv	xmtrx, fv4\n\t"
+
+		"fmov	fr11, fr8\n\t"
+		"fldi0	fr11\n\t"
+		"ftrv	xmtrx, fv8\n\t"
+
+		"frchg\n"
+		: [p] "+&r"(position_3f), [t] "+&r"(target_3f), [u] "+&r"(up_3f)
+		:
+		: "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4(shz_vec4_t vec) SHZ_NOEXCEPT {
