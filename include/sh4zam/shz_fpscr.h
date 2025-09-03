@@ -45,32 +45,33 @@ SHZ_DECLS_BEGIN
 //! Represents the value of the floating-point statuc control register
 typedef union shz_fpscr {
     struct {            //< Bitfield representation of flags
-        uint32_t          : 10; //< Padding
-        uint32_t fr       :  1; //< FP register bank
-        uint32_t sz       :  1; //< Transfer size mode
-        uint32_t pr       :  1; //< Precision mode
-        uint32_t dn       :  1; //< Denormalization mode (0 => Denormals; 1 => Zero)
-        // FPU Exception cause fields
-        uint32_t cause_e  :  1; //< FPU Error
-        uint32_t cause_v  :  1; //< Invalid Operation
-        uint32_t cause_z  :  1; //< Division-by-zero
-        uint32_t cause_o  :  1; //< Overflow
-        uint32_t cause_u  :  1; //< Underflow
-        uint32_t cause_i  :  1; //< Inexact result
-        // FPU Exception enable fields
-        uint32_t enable_v :  1; //< Invalid Operation
-        uint32_t enable_z :  1; //< Division-by-zero
-        uint32_t enable_o :  1; //< Overflow
-        uint32_t enable_u :  1; //< Underflow
-        uint32_t enable_i :  1; //< Inexact result
+        uint32_t rm        : 1;  //< 0  Rounding mode
+        uint32_t           : 1;  //< 1  Padding
         // FPU Exception flag fields
-        uint32_t flag_v   :  1; //< Invalid Operation
-        uint32_t flag_z   :  1; //< Division-by-zero
-        uint32_t flag_o   :  1; //< Overflow
-        uint32_t flag_u   :  1; //< Underflow
-        uint32_t flag_i   :  1; //< Inexact result
-        uint32_t          :  1; //< Padding
-        uint32_t rm       :  1; //< Rounding Mode (0 => Nearest; 1 => Zero)
+        uint32_t flag_i    : 1;  //< 2  Inexact result
+        uint32_t flag_u    : 1;  //< 3  Underflow
+        uint32_t flag_o    : 1;  //< 4  Overflow
+        uint32_t flag_z    : 1;  //< 5  Division-by-zero
+        uint32_t flag_v    : 1;  //< 6  Invalid Operation
+        // FPU Exception enable fields
+        uint32_t enable_i  : 1;  //< 7  Inexact result
+        uint32_t enable_u  : 1;  //< 8  Underflow
+        uint32_t enable_o  : 1;  //< 9  Overflow
+        uint32_t enable_z  : 1;  //< 10 Division-by-zero
+        uint32_t enable_v  : 1;  //< 11 Invalid Operation
+        // FPU Exception cause fields
+        uint32_t cause_i   : 1;  //< 12 Inexact result
+        uint32_t cause_u   : 1;  //< 13 Underflow
+        uint32_t cause_o   : 1;  //< 14 Overflow
+        uint32_t cause_z   : 1;  //< 15 Division-by-zero
+        uint32_t cause_v   : 1;  //< 16 Invalid Operation
+        uint32_t cause_e   : 1;  //< 17 FPU Error
+        // Control bits
+        uint32_t dn        : 1;  //< 18 Denormalization mode (0 => Denormals; 1 => Zero)
+        uint32_t pr        : 1;  //< 19 Precision mode
+        uint32_t sz        : 1;  //< 20 Transfer size mode
+        uint32_t fr        : 1;  //< 21 FP register bank
+        uint32_t           : 10; //< Padding
     };
     uint32_t value;     //< Raw 32-bit uint representation of all fields
 } shz_fpscr_t;
