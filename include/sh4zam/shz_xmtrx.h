@@ -1783,7 +1783,7 @@ SHZ_INLINE void shz_xmtrx_apply_lookat(float *position_3f, float *target_3f, flo
 // 	0.0f      | 0.0f      | -1.0f     | 0.0f
 // ****************************************************************
 SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float near_z) SHZ_NOEXCEPT {
-    register float _f asm("fr4") = fov * 0.5 * SHZ_FSCA_RAD_FACTOR;
+    register float _f asm("fr4") = fov * 0.5f * SHZ_FSCA_RAD_FACTOR;
     register float _a asm("fr5") = aspect;
     register float _n asm("fr6") = near_z;
     asm volatile(
