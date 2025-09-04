@@ -1771,10 +1771,22 @@ SHZ_INLINE void shz_xmtrx_apply_lookat(float *position_3f, float *target_3f, flo
 		: "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
+
+// ****************************************************************
+// void shz_xmtrx_apply_perspective(float f, float a, float nz)
+// ****************************************************************
+//  fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
+// -----------+-----------+-----------+-----------
+// cot(f)/a   | 0.0f      | 0.0f      | 0.0f
+// 	0.0f      | cot(f)    | 0.0f      | 0.0f
+// 	0.0f      | 0.0f      | 0.0f      | nz
+// 	0.0f      | 0.0f      | -1.0f     | 0.0f
+// ****************************************************************
 SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float near_z) SHZ_NOEXCEPT {
-    fov *= 0.5f * SHZ_FSCA_RAD_FACTOR;
-    
-	asm volatile(
+    register float _f asm("fr4") = fov * 0.5 * SHZ_FSCA_RAD_FACTOR;
+    register float _a asm("fr5") = aspect;
+    register float _n asm("fr6") = near_z;
+    asm volatile(
 		"fmov	fr5, fr7\n\t"
 		"fmul	fr7, fr7\n\t"
         "fsrra  fr7\n\t"
@@ -1783,7 +1795,6 @@ SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float near_
 		"fsca   fpul, dr4\n\t"
 		"fdiv	fr4, fr5\n\t"
 
-        "fabs   fr6\n\t"
 		"fmov	xd8, dr8\n\t"
 		"fmul	fr6, fr8\n\t"
 		"fmov	xd10, dr10\n\t"
@@ -1824,14 +1835,23 @@ SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float near_
 
 		"fschg\n"
 		:
-		: "f"(fov), "f"(aspect), "f"(near_z)
+		: "f"(_f), "f"(_a), "f"(_n)
 		: "fpul", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
+// ****************************************************************
+// shz_xmtrx_apply_screen(float w, float h)
+// ****************************************************************
+//  fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
+// -----------+-----------+-----------+-----------
+//	w*0.5f    | 0.0f      | 0.0f      | w*0.5f
+// 	0.0f      | -h*0.5f   | 0.0f      | h*0.5f
+// 	0.0f      | 0.0f      | 1.0f      | 0.0f
+//  0.0f      | 0.0f      | 0.0f      | 1.0f
+// ****************************************************************
 SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT {
-    width *= 0.5f;
-	height *= 0.5f;
-
+	register float _w asm("fr4") = width * 0.5f;
+	register float _h asm("fr5") = height * 0.5f;
 	asm volatile(
 		"fldi0	fr6\n\t"
 		"fldi1	fr7\n\t"
@@ -1860,7 +1880,7 @@ SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT {
 		"fmov	dr10, xd6\n\t"
 		"fschg\n"
 		:
-		: "f"(width), "f"(height)
+		: "f"(_w), "f"(_h)
 		: "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
