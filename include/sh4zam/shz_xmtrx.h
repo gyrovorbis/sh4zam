@@ -1771,6 +1771,119 @@ SHZ_INLINE void shz_xmtrx_apply_lookat(float *position_3f, float *target_3f, flo
 		: "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
+
+// ****************************************************************
+// void shz_xmtrx_apply_perspective(float f, float a, float nz)
+// ****************************************************************
+//  fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
+// -----------+-----------+-----------+-----------
+// cot(f)/a   | 0.0f      | 0.0f      | 0.0f
+// 	0.0f      | cot(f)    | 0.0f      | 0.0f
+// 	0.0f      | 0.0f      | 0.0f      | nz
+// 	0.0f      | 0.0f      | -1.0f     | 0.0f
+// ****************************************************************
+SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float near_z) SHZ_NOEXCEPT {
+    register float _f asm("fr4") = fov * 0.5f * SHZ_FSCA_RAD_FACTOR;
+    register float _a asm("fr5") = aspect;
+    register float _n asm("fr6") = near_z;
+    asm volatile(
+		"fmov	fr5, fr7\n\t"
+		"fmul	fr7, fr7\n\t"
+        "fsrra  fr7\n\t"
+		"fschg\n\t"
+		"ftrc	fr4, fpul\n\t"
+		"fsca   fpul, dr4\n\t"
+		"fdiv	fr4, fr5\n\t"
+
+		"fmov	xd8, dr8\n\t"
+		"fmul	fr6, fr8\n\t"
+		"fmov	xd10, dr10\n\t"
+		"fmul	fr6, fr9\n\t"
+		"fmul	fr6, fr10\n\t"
+		"fmul	fr6, fr11\n\t"
+
+		"fmov	xd12, xd8\n\t"
+		"fmov	xd14, xd10\n\t"
+		"fmov	dr8, xd12\n\t"
+		"fmov	dr10, xd14\n\t"
+
+		"fmov	xd4, dr8\n\t"
+		"fmul	fr5, fr8\n\t"
+		"fmul	fr5, fr9\n\t"
+		"fmov	xd6, dr10\n\t"
+		"fmul	fr5, fr10\n\t"
+		"fmul	fr5, fr11\n\t"
+		"fmov	dr8, xd4\n\t"
+		"fmov	dr10, xd6\n\t"
+    
+		"fmov	xd0, dr8\n\t"
+        "fmul	fr7, fr5\n\t"
+		"fmov	xd2, dr10\n\t"
+		"fmul	fr5, fr8\n\t"
+		"fmul	fr5, fr9\n\t"
+		"fmul	fr5, fr10\n\t"
+		"fmul 	fr5, fr11\n\t"
+		"fmov	dr8, xd0\n\t"
+		"fmov	dr10, xd2\n\t"
+
+        "frchg\n\t"
+        "fneg   fr8\n\t"
+        "fneg   fr9\n\t"
+        "fneg   fr10\n\t"
+        "fneg   fr11\n\t"
+        "frchg\n\t"
+
+		"fschg\n"
+		:
+		: "f"(_f), "f"(_a), "f"(_n)
+		: "fpul", "fr7", "fr8", "fr9", "fr10", "fr11");
+}
+
+// ****************************************************************
+// shz_xmtrx_apply_screen(float w, float h)
+// ****************************************************************
+//  fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
+// -----------+-----------+-----------+-----------
+//	w*0.5f    | 0.0f      | 0.0f      | w*0.5f
+// 	0.0f      | -h*0.5f   | 0.0f      | h*0.5f
+// 	0.0f      | 0.0f      | 1.0f      | 0.0f
+//  0.0f      | 0.0f      | 0.0f      | 1.0f
+// ****************************************************************
+SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT {
+	register float _w asm("fr4") = width * 0.5f;
+	register float _h asm("fr5") = height * 0.5f;
+	asm volatile(
+		"fldi0	fr6\n\t"
+		"fldi1	fr7\n\t"
+		"fmov	fr4, fr8\n\t"
+		"fmov	fr5, fr9\n\t"
+		"ftrv	xmtrx, fv4\n\t"
+		"fschg\n\t"
+		"fneg	fr9\n\t"
+		"fmov	xd0, dr10\n\t"
+		"fmul	fr8, fr10\n\t"
+		"fmul	fr8, fr11\n\t"
+		"fmov	dr4, xd12\n\t"
+		"fmov	dr6, xd14\n\t"
+		"fmov	xd2, dr4\n\t"
+		"fmul	fr8, fr4\n\t"
+		"fmul	fr8, fr5\n\t"
+		"fmov	dr10, xd0\n\t"
+		"fmov	xd4, dr6\n\t"
+		"fmul	fr9, fr6\n\t"
+		"fmul	fr9, fr7\n\t"
+		"fmov	dr4, xd2\n\t"
+		"fmov	xd6, dr10\n\t"
+		"fmul	fr9, fr10\n\t"
+		"fmul	fr9, fr11\n\t"
+		"fmov	dr6, xd4\n\t"
+		"fmov	dr10, xd6\n\t"
+		"fschg\n"
+		:
+		: "f"(_w), "f"(_h)
+		: "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
+}
+
 SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4(shz_vec4_t vec) SHZ_NOEXCEPT {
     register float rx asm("fr8")  = vec.x;
     register float ry asm("fr9")  = vec.y;
