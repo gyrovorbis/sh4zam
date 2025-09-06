@@ -414,17 +414,17 @@ SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE void shz_mat4x4_set_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT {
-	m->elem2D[0][0] = 2.0f * (q.w * q.w + q.x * q.x) - 1.0f;
+	m->elem2D[0][0] = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
 	m->elem2D[1][0] = 2.0f * (q.x * q.y - q.w * q.z);
-	m->elem2D[2][0] = 2.0f * (q.x * q.z + q.x * q.y);
+	m->elem2D[2][0] = 2.0f * (q.x * q.z + q.y * q.w);
 
 	m->elem2D[0][1] = 2.0f * (q.x * q.y + q.w * q.z);
-	m->elem2D[1][1] = 2.0f * (q.w * q.w + q.y * q.w) - 1.0f;
-	m->elem2D[2][1] = 2.0f * (q.y * q.z - q.x * q.y);
+	m->elem2D[1][1] = 1.0f - 2.0f * (q.x * q.x + q.z * q.z);
+	m->elem2D[2][1] = 2.0f * (q.y * q.z - q.x * q.w);
 
-	m->elem2D[0][2] = 2.0f * (q.y * q.z - q.w * q.y);
+	m->elem2D[0][2] = 2.0f * (q.x * q.z - q.w * q.y);
 	m->elem2D[1][2] = 2.0f * (q.y * q.z + q.w * q.x);
-	m->elem2D[2][2] = 2.0f * (q.w * q.w + q.z * q.z) - 1.0f;
+	m->elem2D[2][2] = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
 }
 
 SHZ_INLINE void shz_mat4x4_init_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT {
