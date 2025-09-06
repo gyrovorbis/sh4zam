@@ -63,14 +63,13 @@ SHZ_INLINE shz_quat_t shz_quat_from_angles_xyz(float xangle, float yangle, float
     );
 }
 
-// Should this be normalizing?
 SHZ_INLINE shz_quat_t shz_quat_from_axis_angle(shz_vec3_t axis, float angle) SHZ_NOEXCEPT {
     shz_sincos_t half_alpha = shz_sincosf(angle * 0.5f);
 
     return shz_quat_init(half_alpha.cos,
-                         half_alpha.sin * shz_cosf(axis.x),
-                         half_alpha.sin * shz_cosf(axis.y),
-                         half_alpha.sin * shz_cosf(axis.z));
+                         half_alpha.sin * axis.x,
+                         half_alpha.sin * axis.y,
+                         half_alpha.sin * axis.z);
 }
 
 shz_quat_t shz_quat_from_look_axis(shz_vec3_t forward, shz_vec3_t up) SHZ_NOEXCEPT;
