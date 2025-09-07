@@ -584,9 +584,9 @@ SHZ_DECLS_END
         if constexpr(std::convertible_to<T, shz_vec2_t>)
             return shz_vec2_dot(vec1, vec2);
         else if constexpr(std::convertible_to<T, shz_vec3_t>)
-            return shz_vec3_scale(vec1, vec2);
+            return shz_vec3_dot(vec1, vec2);
         else if constexpr(std::convertible_to<T, shz_vec4_t>)
-            return shz_vec4_scale(vec1, vec2);
+            return shz_vec4_dot(vec1, vec2);
         else static_assert(false, "Incompatible type!");
     }
 
