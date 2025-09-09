@@ -406,9 +406,9 @@ SHZ_INLINE void shz_xmtrx_load_4x4_apply_store(shz_mat4x4_t* out,
 
         fschg
     )"
-    : [m1] "+&r" (matrix1), [m2] "+r" (matrix2), "=m" (*out),
+    : [m1] "+&r" (matrix1), [m2] "+r" (matrix2), [out] "+&r" (out), "=m" (*out),
       [prefscr] "=&r" (prefetch_scratch)
-    : [out] "r" (out), "m" (*matrix1), "m" (*matrix2)
+    : "m" (*matrix1), "m" (*matrix2)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
