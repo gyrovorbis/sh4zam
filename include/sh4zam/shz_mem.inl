@@ -276,6 +276,39 @@ SHZ_INLINE void* shz_sq_memcpy32(     void* SHZ_RESTRICT dst,
     return ret;
 }
 
+SHZ_INLINE void* shz_memcpy64(      void* SHZ_RESTRICT dst,
+                              const void* SHZ_RESTRICT src,
+                                   size_t              bytes) SHZ_NOEXCEPT {
+    const shz_alias_uint64_t* s = (const shz_alias_uint64_t*)src;
+          shz_alias_uint64_t* d = (      shz_alias_uint64_t*)dst;
+
+    assert(!(bytes % 64) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
+
+    SHZ_FSCHG(true);
+
+    size_t cnt = (bytes >> 6);
+
+    if(SHZ_LIKELY(cnt >= 4)) {
+        shz_memcpy128_(d, s, bytes);
+        size_t copied = bytes / 128 * 128;
+        cnt -= copied / 64;
+        d += copied / sizeof(uint64_t);
+        s += copied / sizeof(uint64_t);
+    }
+
+    while(SHZ_LIKELY(cnt--)) {
+        SHZ_PREFETCH(s + 4);
+        shz_memcpy64_load_(&s);
+        shz_memcpy64_store_(&d);
+        SHZ_PREFETCH(s);
+        d += 8;
+    }
+
+    SHZ_FSCHG(false);
+
+    return dst;
+}
+
 SHZ_INLINE void* shz_memcpy128(      void* SHZ_RESTRICT dst,
                                const void* SHZ_RESTRICT src,
                                    size_t               bytes) SHZ_NOEXCEPT {
