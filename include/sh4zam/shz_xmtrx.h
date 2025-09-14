@@ -31,6 +31,24 @@
 
 /*! \defgroup xmtrx
  *  \brief    Active Matrix
+
+    `XMTRX` is the name given to identify the 16 FP registers contained
+    within the back-bank of the SH4's FPU. These 16 registers combine
+    to represent the SH4's 4x4 "active matrix," which can be subsequently
+    transformed against using the `FTRV` instruction (shz_xmtrx_trans_vec4()).
+
+    For maximum FP performance on the SH4, strategic usage of `XMTRX` to batch
+    transform operations together without having reload FP registers, is key.
+
+    Typically, for one-off operations, the in-memory API for \ref matrix is
+    what should be used; however, when operations can be batched, using `XMTRX`
+    to hold your matrix within registers is going to give the best performance.
+
+    Examples of such scenarios are:
+        - Applying multiple operations to a source matrix before storing the result.
+        - Transforming batches of vectors against a single matrix.
+
+    \sa matrix
  */
 
 SHZ_DECLS_BEGIN
@@ -54,7 +72,6 @@ typedef enum shz_xmtrx_reg {
     SHZ_XMTRX_XF14, //!< FP register `xf14`.
     SHZ_XMTRX_XF15  //!< FP register `xf15`.
 } shz_xmtrx_reg_t;
-
 
 /*! \name  Accessors
     \brief Setting and retrieving individual XMTRX register values. 
@@ -98,20 +115,36 @@ SHZ_INLINE void shz_xmtrx_load_rows_4x4(const shz_vec4_t* r1,
 //! Loads XMTRX with the transpose of the given 4x4 matrix.
 SHZ_INLINE void shz_xmtrx_load_transpose_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
 
+//! Loads the given 4x3 matrix into XMTRX, initializing its remaining elements to identity.
 SHZ_INLINE void shz_xmtrx_load_4x3(const shz_mat4x3_t* matrix) SHZ_NOEXCEPT;
 
+/*! Loads the 3x4 matrix formed from the given 3 4D column vectors into XMTRX.
+
+    All remaining elements are initialized to identity matrix values.
+
+    \sa shz_xmtrx_load_rows_3x4()
+*/
 SHZ_INLINE void shz_xmtrx_load_cols_3x4(const shz_vec4_t* c1,
                                         const shz_vec4_t* c2,
                                         const shz_vec4_t* c3) SHZ_NOEXCEPT;
 
+/*! Loads the 3x4 matrix formed from the given 3 4D row vectors into XMTRX.
+
+    All remaining elements are initialized to identity matrix values.
+
+    \sa shz_xmtrx_load_cols_3x4()
+*/
 SHZ_INLINE void shz_xmtrx_load_rows_3x4(const shz_vec4_t* r1,
                                         const shz_vec4_t* r2,
                                         const shz_vec4_t* r3) SHZ_NOEXCEPT;
 
+//! Loads the given 3x3 matrix into XMTRX, initalizing its remaining elements to identity.
 SHZ_INLINE void shz_xmtrx_load_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT;
 
+//! Loads the transpose of the given 3x3 matrix into XMTRX, initializing its remaining elements to identity.
 SHZ_INLINE void shz_xmtrx_load_transpose_3x3(const float* matrix) SHZ_NOEXCEPT;
 
+//! Loads the given 2x2 matrix into XMTRX, initializing its remaining elements to identity.
 SHZ_INLINE void shz_xmtrx_load_2x2(const shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
 
 //! @}
@@ -121,18 +154,25 @@ SHZ_INLINE void shz_xmtrx_load_2x2(const shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
     @{
 */
 
+//! Stores the current values held within XMTRX into the given 4x4 matrix.
 SHZ_INLINE void shz_xmtrx_store_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
 
+//! Stores the current valueas held within XMTRX into the given unaligned 16-float array.
 SHZ_INLINE void shz_xmtrx_store_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT;
 
+//! Stores the transpose of the current values held within XMTRX into the given 4x4 matrix.
 SHZ_INLINE void shz_xmtrx_store_transpose_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
 
+//! Stores the top-left 3x4 values currently held within XMTRX into the given matrix.
 SHZ_INLINE void shz_xmtrx_store_3x4(shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
 
+//! Stores the top-left 3x3 values currently held within XMTRX into the given matrix.
 SHZ_INLINE void shz_xmtrx_store_3x3(shz_mat3x3_t* matrix) SHZ_NOEXCEPT;
 
+//! Stores the transpose of the top-left 3x3 values currently held within XMTRX into the given matrix.
 SHZ_INLINE void shz_xmtrx_store_transpose_3x3(shz_mat3x3_t* matrix) SHZ_NOEXCEPT;
 
+//! Stores the top-left 2x2 values currently held within XMTRX into the given matrix.
 SHZ_INLINE void shz_xmtrx_store_2x2(shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
 
 //! @}
@@ -160,23 +200,41 @@ SHZ_INLINE void shz_xmtrx_init_rotation_y(float y) SHZ_NOEXCEPT;
 //! Initializes XMTRX to be a 3D rotation matrix by \p z radians about the Z axis.
 SHZ_INLINE void shz_xmtrx_init_rotation_z(float z) SHZ_NOEXCEPT;
 
-/* Tait-Bryan angles, (extrinsic rotation notation) */
+/*! Initializes XMTRX to be a 3D X-Y-Z rotation matrix, with the corresponding angles given in radians.
 
+    \note
+    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
 
+    \sa shz_xmtrx_init_rotation_zyx(), shz_xmtrx_init_rotation_yxz()
+*/
 SHZ_INLINE void shz_xmtrx_init_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT;
 
-// Same as yaw, pitch, roll
+/*! Initializes XMTRX to be a 3D Z-Y-X rotation matrix, with the corresponding angles given in radians.
+
+    \note
+    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
+
+    \sa shz_xmtrx_init_rotation_xyz(), shz_xmtrx_init_rotation_yxz()
+*/
 SHZ_INLINE void shz_xmtrx_init_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
 
+/*! Initializes XMTRX to be a 3D Y-X-Z rotation matrix, with the corresponding angles given in radians.
+
+    \note
+    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
+
+    \sa shz_xmtrx_init_rotation_yxz(), shz_xmtrx_init_rotation_xyz()
+*/
 SHZ_INLINE void shz_xmtrx_init_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
 
+//! Initializes XMTRX to a 3D rotation matrix of \p angle radians about the given \p axis.
 SHZ_INLINE void shz_xmtrx_init_rotation(shz_vec3_t axis, float angle) SHZ_NOEXCEPT;
 
 //! Initializes XMTRX to be a diagonal matrix with the given diagonal values.
 SHZ_INLINE void shz_xmtrx_init_diagonal(float x, float y, float z, float w) SHZ_NOEXCEPT;
 
+//! Initializes XMTRX to be the 3D symmetric skew matrix formed from the given vector components.
 SHZ_INLINE void shz_xmtrx_init_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;
-
 
 //! @}
 
@@ -185,68 +243,108 @@ SHZ_INLINE void shz_xmtrx_init_symmetric_skew(float x, float y, float z) SHZ_NOE
     @{
 */
 
-SHZ_INLINE void shz_xmtrx_apply_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;
-
+//! Multiplies and accumulates the given 4x4 matrix onto XMTRX.
 SHZ_INLINE void shz_xmtrx_apply_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
 
+//! Multiplies and accumulates the given 3x4 matrix onto XMTRX, not modifying other elements.
 SHZ_INLINE void shz_xmtrx_apply_3x4(const shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
 
+//! Multiplies and accumulates the given 3x3 matrix onto XMTRX, not modifying other elements.
 SHZ_INLINE void shz_xmtrx_apply_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT;
 
+//! Multiplies and accumulateas the transpose of the given 3x3 matrix onto XMTRX, not modifying other elements.
 SHZ_INLINE void shz_xmtrx_apply_transpose_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT;
 
+//! Multiplies and accumulates the given 16-entry float array as a 4x4 matrix onto XMTRX.
 SHZ_INLINE void shz_xmtrx_apply_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT;
 
+//! Multiplies and accumulates the given 2x2 matrix onto XMTRX, not modifying other elements.
 SHZ_INLINE void shz_xmtrx_apply_2x2(const shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
 
+//! Adds the values of the given 3 components to the 3D translation components of XMTRX.
 SHZ_INLINE void shz_xmtrx_apply_translation(float x, float y, float z) SHZ_NOEXCEPT;
 
+//! Multiplies the values of the inner 3x3 matrix by the given 3D scaling terms.
 SHZ_INLINE void shz_xmtrx_apply_scale(float x, float y, float z) SHZ_NOEXCEPT;
 
+//! Transforms the values of the inner 3x3 matrix by a rotation matrix of \p x radians about the X axis.
 SHZ_INLINE void shz_xmtrx_apply_rotation_x(float x) SHZ_NOEXCEPT;
 
+//! Transforms the values of the inner 3x3 matrix by a rotation matrix of \p y radians about the Y axis.
 SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) SHZ_NOEXCEPT;
 
+//! Transforms the values of the inner 3x3 matrix by a rotation matrix of \p z radians about the Z axis.
 SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) SHZ_NOEXCEPT;
 
+//! Transforms the values of the inner 3x3 matrix by a rotation matrix of \p angle radians about the axis with the given components.
 SHZ_INLINE void shz_xmtrx_apply_rotation_axis(float angle, float x, float y, float z) SHZ_NOEXCEPT;
 
+//! Transforms the values of the inner 3x3 matrix by the rotation matrix represented by the given quaternion.
 void shz_xmtrx_apply_rotation_quat(shz_quat_t quat) SHZ_NOEXCEPT;
 
+/*! Multiplies and accumulates XMTRX by a 3D X-Y-Z rotation matrix, with the corresponding angles given in radians.
+
+    The transform is applied to the inner 3x3 values within XMTRX, preserving the translational components.
+
+    \note
+    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
+
+    \sa shz_xmtrx_apply_rotation_zyx(), shz_xmtrx_apply_rotation_yxz()
+*/
 SHZ_INLINE void shz_xmtrx_apply_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT;
 
+/*! Multiplies and accumulates XMTRX by a 3D Z-Y-X rotation matrix, with the corresponding angles given in radians.
+
+    The transform is applied to the inner 3x3 values within XMTRX, preserving the translational components.
+
+    \note
+    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
+
+    \sa shz_xmtrx_apply_rotation_xyz(), shz_xmtrx_apply_rotation_yxz()
+*/
 SHZ_INLINE void shz_xmtrx_apply_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
 
+/*! Multiplies and accumulates XMTRX by a 3D Y-X-Z rotation matrix, with the corresponding angles given in radians.
+
+    The transform is applied to the inner 3x3 values within XMTRX, preserving the translational components.
+
+    \note
+    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
+
+    \sa shz_xmtrx_apply_rotation_xyz(), shz_xmtrx_apply_rotation_zyx()
+*/
 SHZ_INLINE void shz_xmtrx_apply_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
 
+//! Multiplies and accumulates the 3D rotation matrix about the given axes with the given angle in radians onto XMTRX.
 SHZ_INLINE void shz_xmtrx_apply_rotation(shz_vec3_t axis, float angle) SHZ_NOEXCEPT;
 
+//! Applies the 3D "lookAt" matrix constructed with the given vector components onto XMTRX.
 SHZ_INLINE void shz_xmtrx_apply_lookat(float *position_3f, float *target_3f, float *up_3f) SHZ_NOEXCEPT;
 
-// ****************************************************************
-// void shz_xmtrx_apply_perspective(float f, float a, float nz)
-// ****************************************************************
-//  fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
-// -----------+-----------+-----------+-----------
-// cot(f)/a   | 0.0f      | 0.0f      | 0.0f
-// 	0.0f      | cot(f)    | 0.0f      | 0.0f
-// 	0.0f      | 0.0f      | 0.0f      | nz
-// 	0.0f      | 0.0f      | -1.0f     | 0.0f
-// ****************************************************************
+/*! Multiplies and accumulates the perspective matrix constructed from the given values onto XMTRX.
+
+     fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
+    -----------|-----------|-----------|-----------
+    cot(f)/a   | 0.0f      | 0.0f      | 0.0f
+     0.0f      | cot(f)    | 0.0f      | 0.0f
+     0.0f      | 0.0f      | 0.0f      | nz
+     0.0f      | 0.0f      | -1.0f     | 0.0f
+*/
 SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float near_z) SHZ_NOEXCEPT;
 
-// ****************************************************************
-// shz_xmtrx_apply_screen(float w, float h)
-// ****************************************************************
-//  fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
-// -----------+-----------+-----------+-----------
-//	w*0.5f    | 0.0f      | 0.0f      | w*0.5f
-// 	0.0f      | -h*0.5f   | 0.0f      | h*0.5f
-// 	0.0f      | 0.0f      | 1.0f      | 0.0f
-//  0.0f      | 0.0f      | 0.0f      | 1.0f
-// ****************************************************************
+/*! Multiplies and accumulates the viewport matrix created with the given components.
+
+     fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
+    -----------|-----------|-----------|-----------
+     w*0.5f    | 0.0f      | 0.0f      | w*0.5f
+     0.0f      | -h*0.5f   | 0.0f      | h*0.5f
+     0.0f      | 0.0f      | 1.0f      | 0.0f
+     0.0f      | 0.0f      | 0.0f      | 1.0f
+*/
 SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT;
 
+//! Multiplies and accumulates the 3D symmetric skew matrix with the given components onto XMTRX.
+SHZ_INLINE void shz_xmtrx_apply_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;
 //! @}
 
 /*! \name  Compound Operations

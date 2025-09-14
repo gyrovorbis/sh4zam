@@ -59,7 +59,7 @@ namespace shz {
         }
 
         SHZ_FORCE_INLINE static void load(const float cArray[16]) noexcept {
-            shz_xmtrx_load_4x4_unaligned(cArray);
+            shz_xmtrx_load_unaligned_4x4(cArray);
         }
 
         SHZ_FORCE_INLINE static void load(std::array<float, 16> array) noexcept {
@@ -67,11 +67,11 @@ namespace shz {
         }
 
         SHZ_FORCE_INLINE static void load_transpose(const shz_mat4x4_t& mat4) noexcept {
-            shz_xmtrx_load_4x4_transpose(&mat4);
+            shz_xmtrx_load_transpose_4x4(&mat4);
         }
 
         SHZ_FORCE_INLINE static void load_transpose(const float cArray[16]) noexcept {
-            shz_xmtrx_load_4x4_transpose(reinterpret_cast<const shz_mat4x4_t*>(cArray));
+            shz_xmtrx_load_transpose_4x4(reinterpret_cast<const shz_mat4x4_t*>(cArray));
         }
 
         SHZ_FORCE_INLINE static void load_transpose(std::array<float, 16> array) noexcept {
@@ -79,29 +79,29 @@ namespace shz {
         }
 
         SHZ_FORCE_INLINE static void load_wxyz(const shz_mat4x4_t& mat4) noexcept {
-            shz_xmtrx_load_4x4_wxyz(&mat4);
+            shz_xmtrx_load_wxyz_4x4(&mat4);
         }
 
         SHZ_FORCE_INLINE static void load_cols(const shz_vec4_t& c1,
                                                const shz_vec4_t& c2,
                                                const shz_vec4_t& c3,
                                                const shz_vec4_t& c4) noexcept {
-            shz_xmtrx_load_4x4_cols(&c1, &c2, &c3, &c4);
+            shz_xmtrx_load_cols_4x4(&c1, &c2, &c3, &c4);
         }
 
         SHZ_FORCE_INLINE static void load_rows(const shz_vec4_t& r1,
                                                const shz_vec4_t& r2,
                                                const shz_vec4_t& r3,
                                                const shz_vec4_t& r4) noexcept {
-            shz_xmtrx_load_4x4_rows(&r1, &r2, &r3, &r4);
+            shz_xmtrx_load_rows_4x4(&r1, &r2, &r3, &r4);
         }
 
         SHZ_FORCE_INLINE static void load_apply(const shz_mat4x4_t &mat1, const shz_mat4x4_t &mat2) {
-            shz_xmtrx_load_4x4_apply(&mat1, &mat2);
+            shz_xmtrx_load_apply_4x4(&mat1, &mat2);
         }
 
         SHZ_FORCE_INLINE static void load_apply_store(shz_mat4x4_t* dst, const shz_mat4x4_t &mat1, const shz_mat4x4_t &mat2) {
-            shz_xmtrx_load_4x4_apply_store(dst, &mat1, &mat2);
+            shz_xmtrx_load_apply_store_4x4(dst, &mat1, &mat2);
         }
 
         SHZ_FORCE_INLINE static void store(shz_mat4x4_t* mat) noexcept {
@@ -109,15 +109,15 @@ namespace shz {
         }
 
         SHZ_FORCE_INLINE static void store(float cArray[16]) noexcept {
-            shz_xmtrx_store_4x4_unaligned(cArray);
+            shz_xmtrx_store_unaligned_4x4(cArray);
         }
 
         SHZ_FORCE_INLINE static void store(std::array<float, 16> array) noexcept {
-            shz_xmtrx_store_4x4_unaligned(array.data());
+            shz_xmtrx_store_unaligned_4x4(array.data());
         }
 
         SHZ_FORCE_INLINE static void store_transpose(shz_mat4x4_t* mat) noexcept {
-            shz_xmtrx_store_4x4_transpose(mat);
+            shz_xmtrx_store_transpose_4x4(mat);
         }
 
         SHZ_FORCE_INLINE static void init_identity() noexcept {
@@ -169,11 +169,11 @@ namespace shz {
         }
 
         SHZ_FORCE_INLINE static void apply(const float cArray[16]) noexcept {
-            shz_xmtrx_apply_4x4_unaligned(cArray);
+            shz_xmtrx_apply_unaligned_4x4(cArray);
         }
 
         SHZ_FORCE_INLINE static void apply(const std::array<float, 16> array) noexcept {
-            shz_xmtrx_apply_4x4_unaligned(array.data());
+            shz_xmtrx_apply_unaligned_4x4(array.data());
         }
 
         SHZ_FORCE_INLINE static void set_translation(float x, float y, float z) noexcept {
