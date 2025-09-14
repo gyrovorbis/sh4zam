@@ -22,7 +22,7 @@
 #include "shz_cdefs.h"
 #include "shz_fpscr.h"
 
-/*! \defgroup memory
+/*! \defgroup memory Memory
     \brief    Routines for managing memory.
 
     This API provides the following types of memory routines:

@@ -18,9 +18,8 @@
 
 #include "shz_cdefs.h"
 
-/*! \defgroup fpscr FPU Environment
+/*! \defgroup fpscr FP Environment
     \brief          Floating-point environment manipulation.
-@{ 
 */
 
 //! Initial value of the floating-point status control register
@@ -92,7 +91,5 @@ SHZ_FORCE_INLINE void shz_fpscr_write(shz_fpscr_t new_value) SHZ_NOEXCEPT {
 }
 
 SHZ_DECLS_END
-
-// @}
 
 #endif

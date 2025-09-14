@@ -108,7 +108,8 @@ Target      | Description
 `clean`     | Cleans everything
 `lib`       | Builds just libsh4zam.a
 `tests`     | Builds unit test ELF
-`run`       | Builds and runs unit tests
+`run`       | Builds and runs unit tests using ${KOS_LOADER}
+`flycast`   | Builds and runs unit tests using Flycast emulator
 `install`   | Installs library as a KOS addon
 `uninstall` | Uninstalls library from KOS addons
 `docs`      | Builds Doxygen documentation

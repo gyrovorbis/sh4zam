@@ -29,8 +29,8 @@
 #include "shz_vector.h"
 #include "shz_quat.h"
 
-/*! \defgroup xmtrx
- *  \brief    Active Matrix
+/*! \defgroup xmtrx XMTRX
+    \brief    API for managing the SH4's "active matrix."
 
     `XMTRX` is the name given to identify the 16 FP registers contained
     within the back-bank of the SH4's FPU. These 16 registers combine
