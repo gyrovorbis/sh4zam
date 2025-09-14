@@ -126,6 +126,23 @@ typedef SHZ_ALIASING uint64_t shz_alias_uint64_t;
 typedef SHZ_ALIASING double   shz_alias_double_t;
 //! @}
 
+/*! \cond Forward Declarations */
+struct SHZ_ALIGNAS(8) shz_mat2x2;
+typedef struct shz_mat2x2 shz_mat2x2_t;
+
+struct mat3x3;
+typedef struct shz_mat3x3 shz_mat3x3_t;
+
+struct shz_mat4x3;
+typedef struct shz_mat4x3 shz_mat4x3_t;
+
+struct shz_mat3x4;
+typedef struct shz_mat3x4 shz_mat3x4_t;
+
+struct SHZ_ALIGNAS(8) shz_mat4x4;
+typedef struct shz_mat4x4 shz_mat4x4_t;
+/*! \endcond */
+
 //! \cond
 #define SHZ_STRINGIFY_(a)       #a
 //! \endcond
