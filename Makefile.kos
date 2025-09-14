@@ -19,6 +19,9 @@ tests: $(CMAKE_BUILD_DIR)/test/Sh4zamTests.elf
 run: tests
 	${KOS_LOADER} $(CMAKE_BUILD_DIR)/test/Sh4zamTests.elf
 
+flycast: tests
+	flycast $(CMAKE_BUILD_DIR)/test/Sh4zamTests.elf
+
 install: lib
 	$(MAKE) -C $(CMAKE_BUILD_DIR) install
 

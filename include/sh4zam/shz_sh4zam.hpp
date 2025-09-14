@@ -9,7 +9,6 @@
  *  \copyright MIT License
  */
 
-
 #ifndef SHZ_SH4ZAM_HPP
 #define SHZ_SH4ZAM_HPP
 

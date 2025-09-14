@@ -476,7 +476,7 @@ INLINE_SIMPLE_STRUCTS  = NO
 # types are typedef'ed and only the typedef is referenced, never the tag name.
 # The default value is: NO.
 
-TYPEDEF_HIDES_STRUCT   = NO
+TYPEDEF_HIDES_STRUCT   = YES
 
 # The size of the symbol lookup cache can be set using LOOKUP_CACHE_SIZE. This
 # cache is used to resolve symbols given their name and scope. Since this can be
@@ -1021,7 +1021,6 @@ FILE_PATTERNS          = *.c \
                          *.ixx \
                          *.ipp \
                          *.i++ \
-                         *.inl \
                          *.idl \
                          *.ddl \
                          *.odl \
@@ -1750,7 +1749,7 @@ GENERATE_ECLIPSEHELP   = NO
 # The default value is: org.doxygen.Project.
 # This tag requires that the tag GENERATE_ECLIPSEHELP is set to YES.
 
-ECLIPSE_DOC_ID         = org.doxygen.Project
+ECLIPSE_DOC_ID         = net.falcogirgis.SH4ZAM
 
 # If you want full control over the layout of the generated HTML pages it might
 # be necessary to disable the index and replace it with your own. The
