@@ -145,7 +145,7 @@ SHZ_FORCE_INLINE void* shz_memcpy1(      void* SHZ_RESTRICT dst,
     \warning
     \p dst and \p src buffers should not be overlapping.
 */
-SHZ_INLINE void* shz_memcpy2(void*       SHZ_RESTRICT dst,
+SHZ_INLINE void* shz_memcpy2(      void* SHZ_RESTRICT dst,
                              const void* SHZ_RESTRICT src,
                                   size_t              bytes) SHZ_NOEXCEPT;
 
@@ -160,7 +160,7 @@ SHZ_INLINE void* shz_memcpy2(void*       SHZ_RESTRICT dst,
     \warning
     \p dst and \p src buffers should not be overlapping.
 */
-SHZ_INLINE void* shz_memcpy4(void*       SHZ_RESTRICT dst,
+SHZ_INLINE void* shz_memcpy4(      void* SHZ_RESTRICT dst,
                              const void* SHZ_RESTRICT src,
                                   size_t              bytes) SHZ_NOEXCEPT;
 

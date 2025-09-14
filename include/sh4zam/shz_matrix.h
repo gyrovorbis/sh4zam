@@ -189,7 +189,7 @@ SHZ_INLINE void shz_mat4x4_init_translation(shz_mat4x4_t* mat, float x, float y,
 }
 
 SHZ_INLINE void shz_mat4x4_init_mult(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, const shz_mat4x4_t* rhs) SHZ_NOEXCEPT {
-    shz_xmtrx_load_4x4_apply_store(mat, lhs, rhs);
+    shz_xmtrx_load_apply_store_4x4(mat, lhs, rhs);
 }
 
 /*! Initializes the given matrix to be the symmetric skew of the given 3D vector components.
@@ -275,7 +275,7 @@ SHZ_INLINE void shz_mat4x4_set_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_
     \warning This routine clobbers XMTRX.
 */
 SHZ_INLINE void shz_mat4x4_apply(shz_mat4x4_t* dst, const shz_mat4x4_t* src) SHZ_NOEXCEPT {
-    shz_xmtrx_load_4x4_apply_store(dst, dst, src);
+    shz_xmtrx_load_apply_store_4x4(dst, dst, src);
 }
 
 /*! Multiplies and accumulates a rotation matrix by \p xAngle radians about the X-axis onto the given matrix.
@@ -673,7 +673,7 @@ SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     \warning This routine clobbers XMTRX.
 */
 SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* mat, shz_mat4x4_t* out) SHZ_NOEXCEPT {
-    shz_xmtrx_load_4x4_transpose(mat);
+    shz_xmtrx_load_transpose_4x4(mat);
     shz_xmtrx_store_4x4(out);
 }
 
