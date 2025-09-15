@@ -98,9 +98,9 @@ If you would like to also build and run the unit tests, include `-DSHZ_ENABLE_TE
 NOTE: <i>For KOS users, use `kos-cmake` instead of your system `cmake` command!</i>
 
 ## Make (KallistiOS)
-`Makefile.kos` has been included to provide a convenient way to install and use SH4ZAM within the standard [KallistiOS environment](https://github.com/KallistiOS/KallistiOS). See [The Wiki](https://dreamcast.wiki/Getting_Started_with_Dreamcast_development) for a guide on how to set up KallistiOS.
+A `Makefile` has been included to provide a convenient way to install and use SH4ZAM within the standard [KallistiOS environment](https://github.com/KallistiOS/KallistiOS). See [The Wiki](https://dreamcast.wiki/Getting_Started_with_Dreamcast_development) for a guide on how to set up KallistiOS.
 
-Simply run `make -f Makefile.kos <target>` from the root of the repo, optionally passing in one of the following targets:
+Simply run `make <target>` from the root of the repo, optionally passing in one of the following targets:
 
 Target      | Description
 ------------|------------

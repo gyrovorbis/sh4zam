@@ -26,6 +26,7 @@ set(SHZ_SOURCES
 
 set(SHZ_INCLUDES
     include/sh4zam/shz_cdefs.h
+    include/sh4zam/shz_cdefs.hpp
     include/sh4zam/shz_trig.h
     include/sh4zam/shz_trig.hpp
     include/sh4zam/shz_scalar.h
@@ -34,11 +35,18 @@ set(SHZ_INCLUDES
     include/sh4zam/shz_vector.hpp
     include/sh4zam/shz_xmtrx.h
     include/sh4zam/shz_xmtrx.hpp
+    include/sh4zam/shz_xmtrx.inl
     include/sh4zam/shz_matrix.h
     include/sh4zam/shz_matrix.hpp
+    include/sh4zam/shz_matrix.inl
     include/sh4zam/shz_quat.h
+    include/sh4zam/shz_quat.hpp
+    include/sh4zam/shz_quat.inl
     include/sh4zam/shz_mem.h
+    include/sh4zam/shz_mem.hpp
+    include/sh4zam/shz_mem.inl
     include/sh4zam/shz_fpscr.h
+    include/sh4zam/shz_fpscr.hpp
     include/sh4zam/shz_sh4zam.h
     include/sh4zam/shz_sh4zam.hpp)
 

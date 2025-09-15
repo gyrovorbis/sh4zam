@@ -1,3 +1,12 @@
+/*! \file
+ *  \brief C++ wrappers for preprocessor definitions and macro utilities.
+ *
+ *  This file contains the C++ API around the C preprocessor and macro API.
+ *
+ *  \author    Falco Girgis
+ *  \copyright MIT License
+ */
+
 #ifndef SHZ_CDEFS_HPP
 #define SHZ_CDEFS_HPP
 
@@ -5,10 +14,12 @@
 
 //! Namespace enclosing the SH4ZAM C++ API.
 namespace shz {
+
     /*! \name  Aliasing Types
      *  \brief Types which may break C/C++'s strict aliasing rules
      *  @{
      */
+
     //! int16_t type whose value may be aliased as another type.
     using alias_int16_t  = shz_alias_int16_t;
     //! uint16_t type whose value may be aliased as another type.
@@ -25,6 +36,7 @@ namespace shz {
     using alias_uint64_t = shz_alias_uint64_t;
     //! double type whose value may be aliased as another type.
     using alias_double_t = shz_alias_double_t;
+
     //! @}
 }
 
