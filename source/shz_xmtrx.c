@@ -1,3 +1,14 @@
+/*! \file
+    \brief Non-inlined XMTRX API implementations.
+    \ingroup quat
+
+    This file contains the non-inlined functions implementing the XMTRX C API.
+
+    \author Falco Girgis
+
+    \copyright MIT License
+*/
+
 #include "sh4zam/shz_xmtrx.h"
 #include "sh4zam/shz_matrix.h"
 

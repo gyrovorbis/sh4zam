@@ -29,6 +29,7 @@ set(SHZ_INCLUDES
     include/sh4zam/shz_cdefs.hpp
     include/sh4zam/shz_trig.h
     include/sh4zam/shz_trig.hpp
+    include/sh4zam/shz_trig.inl
     include/sh4zam/shz_scalar.h
     include/sh4zam/shz_scalar.hpp
     include/sh4zam/shz_scalar.inl

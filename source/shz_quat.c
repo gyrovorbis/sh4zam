@@ -1,3 +1,15 @@
+/*! \file
+    \brief Non-inlined Quaternion API implementations.
+    \ingroup quat
+
+    This file contains the non-inlined functions implementing the quaternion
+    C API.
+
+    \author Falco Girgis
+
+    \copyright MIT License
+*/
+
 #include "sh4zam/shz_quat.h"
 #include "sh4zam/shz_matrix.h"
 

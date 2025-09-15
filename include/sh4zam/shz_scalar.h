@@ -22,9 +22,11 @@
 #include "shz_fpscr.h"
 
 /*! \defgroup scalar Scalar
- *  \brief           Scalar functions and utilities.
- *  \todo            FILL ME IN
- */
+    \brief    Scalar functions and utilities.
+
+    This API is designed around performing various scalar operations, providing
+    alternatives for routines typically found within `<math.h>`.
+*/
 
 //! Returns the minimum of the two given values
 #define SHZ_MIN(a, b)           (((a) < (b))? (a) : (b))
@@ -109,6 +111,11 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) SHZ_NOE
 
 //! @}
 
+/*! \name  Transcendental
+    \brief Fast approximations for non-trig transcendental functions.
+    @{
+*/
+
 //! Fast approximation for raising 2 to a floating-point power.
 SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT;
 
@@ -123,6 +130,8 @@ SHZ_FORCE_INLINE float shz_powf(float x, float p) SHZ_NOEXCEPT;
 
 //! Fast approximation for C's expf().
 SHZ_FORCE_INLINE float shz_expf(float p) SHZ_NOEXCEPT;
+
+//! @}
 
 #include "shz_scalar.inl"
 

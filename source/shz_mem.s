@@ -2,6 +2,9 @@
 !  \brief   ASM implementation of select memcpyN() routines. 
 !  \ingroup memory
 !
+!  This file contains the out-of-line assembly implementations of assorted
+!  memcpy() and memset()-like routines.
+!
 !  \author    Falco Girgis
 !  \copyright MIT License
 !!
@@ -10,12 +13,6 @@
     .globl _shz_memcpy8
     .globl _shz_memset8
     .globl _shz_memcpy128_
-
-.macro DCACHE_ALLOC
-    ! Cache allocate + store on dst-32.
-    movca.l    r0, @r2
-    add        #-32, r2
-.endm
 
 !
 ! void *memcpy8(void *restrict dst, const void *restrict src, size_t bytes)
