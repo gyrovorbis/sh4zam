@@ -35,6 +35,7 @@ set(SHZ_INCLUDES
     include/sh4zam/shz_scalar.inl
     include/sh4zam/shz_vector.h
     include/sh4zam/shz_vector.hpp
+    include/sh4zam/shz_vector.inl
     include/sh4zam/shz_xmtrx.h
     include/sh4zam/shz_xmtrx.hpp
     include/sh4zam/shz_xmtrx.inl

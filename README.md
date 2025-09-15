@@ -19,6 +19,7 @@ NOTE: <i>This repo is still undergoing rapid changes as we pull in these routine
 
 # Features
 - Dual modern C23 and modern C++23 APIs
+- Clean header files, separating interface from implementation
 - No external dependencies (can be used with KallistiOS, SH Linux, etc)
 - Meticulously optimized for latest SH-GCC version 15.x
 - Rigorously unit tested and validated on physical HW
@@ -136,3 +137,4 @@ Special thanks to the following individuals who have either directly or indirect
 - Jesse Stojan
 - Jamie Hyland
 - Aleios
+- John Brooks

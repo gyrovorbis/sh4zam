@@ -104,19 +104,13 @@ typedef struct shz_vec4 {
 */
 
 //! Returns a 2D vector with the given \p x, and \p y coordinates.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_init(float x, float y) SHZ_NOEXCEPT {
-    return (shz_vec2_t) { .x = x, .y = y };
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_init(float x, float y) SHZ_NOEXCEPT;
 
 //! Returns a 3D vector with the given \p x, \p y, and \p z coordinates.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_init(float x, float y, float z) SHZ_NOEXCEPT {
-    return (shz_vec3_t) { .x = x, .y = y, .z = z };
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_init(float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Returns a 4D vector with the given \p x, \p y, \p z, and \p w coordinates.
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_init(float x, float y, float z, float w) SHZ_NOEXCEPT {
-    return (shz_vec4_t) { .x = x, .y = y, .z = z, .w = w };
-}
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_init(float x, float y, float z, float w) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -126,84 +120,49 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_init(float x, float y, float z, float w) SH
 */
 
 //! Returns a 2D vector whose components are the sums of the given vectors' components.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_add(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
-    return shz_vec2_init(vec1.x + vec2.x, vec1.y + vec2.y);
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_add(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 3D vector whose components are the sums of the given vectors' components.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_add(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT {
-    return shz_vec3_init(vec1.x + vec2.x, vec1.y + vec2.y, vec1.z + vec2.z);
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_add(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 4D vector whose components are the sums of the given vectors' components.
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_add(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT {
-    return shz_vec4_init(vec1.x + vec2.x, vec1.y + vec2.y, vec1.z + vec2.z, vec1.w + vec2.w);
-}
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_add(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 2D vector whose components are equal to the values of \p vec1 minus \p vec2.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_sub(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
-    return shz_vec2_init(vec1.x - vec2.x, vec1.y - vec2.y);
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_sub(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 3D vector whose components are equal to the values of \p vec1 minus \p vec2.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_sub(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT {
-    return shz_vec3_init(vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z);
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_sub(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 4D vector whose components are equal to the values of \p vec1 minus \p vec2.
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_sub(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT {
-    return shz_vec4_init(vec1.x - vec2.x, vec1.y - vec2.y, vec1.z - vec2.z, vec1.w - vec2.w);
-}
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_sub(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 2D vector whose component values are those of \p vec1 times \p vec2.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_mul(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
-    return shz_vec2_init(vec1.x * vec2.x, vec1.y * vec2.y);
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_mul(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 3D vector whose component values are those of \p vec1 times \p vec2.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_mul(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT {
-    return shz_vec3_init(vec1.x * vec2.x, vec1.y * vec2.y, vec1.z * vec2.z);
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_mul(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 4D vector whose component values are those of \p vec1 times \p vec2.
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_mul(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT {
-    return shz_vec4_init(vec1.x * vec2.x, vec1.y * vec2.y, vec1.z * vec2.z, vec1.w * vec2.w);
-}
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_mul(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 2D vector whose component values are those of \p vec1 divided by \p vec2.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_div(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
-    return shz_vec2_init(shz_divf(vec1.x, vec2.x), shz_divf(vec1.y, vec2.y));
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_div(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 3D vector whose component values are those of \p vec1 divided by \p vec2.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_div(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT {
-    return shz_vec3_init(shz_divf(vec1.x, shz_invf(vec2.x)),
-                         shz_divf(vec1.y, shz_invf(vec2.y)),
-                         shz_divf(vec1.z, shz_invf(vec2.z)));
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_div(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 4D vector whose component values are those of \p vec1 divided by \p vec2.
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_div(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT {
-    return shz_vec4_init(shz_divf(vec1.x, vec2.x),
-                         shz_divf(vec1.y, vec2.y),
-                         shz_divf(vec1.z, vec2.z),
-                         shz_divf(vec1.w, vec2.w));
-}
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_div(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 2D vector whose component values are those of the given vector multiplied by a factor.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_scale(shz_vec2_t vec, float factor) SHZ_NOEXCEPT {
-    return shz_vec2_init(vec.x * factor, vec.y * factor);
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_scale(shz_vec2_t vec, float factor) SHZ_NOEXCEPT;
 
 //! Returns a 3D vector whose component values are those of the given vector multiplied by a factor.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_scale(shz_vec3_t vec, float factor) SHZ_NOEXCEPT {
-    return shz_vec3_init(vec.x * factor, vec.y * factor, vec.z * factor);
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_scale(shz_vec3_t vec, float factor) SHZ_NOEXCEPT;
 
 //! Returns a 4D vector whose component values are those of the given vector multiplied by a factor.
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_scale(shz_vec4_t vec, float factor) SHZ_NOEXCEPT {
-    return shz_vec4_init(vec.x * factor, vec.y * factor, vec.z * factor, vec.w * factor);
-}
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_scale(shz_vec4_t vec, float factor) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -213,100 +172,58 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_scale(shz_vec4_t vec, float factor) SHZ_NOE
 */
 
 //! Returns the squared magnitude of the given 2D vector.
-SHZ_FORCE_INLINE float shz_vec2_magnitude_sqr(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return vec.x * vec.x + vec.y * vec.y;
-}
+SHZ_FORCE_INLINE float shz_vec2_magnitude_sqr(shz_vec2_t vec) SHZ_NOEXCEPT;
 
 //! Returns the squared magnitude of the given 4D vector.
-SHZ_FORCE_INLINE float shz_vec4_magnitude_sqr(shz_vec4_t vec) SHZ_NOEXCEPT {
-    return shz_mag_sqr4f(vec.x, vec.y, vec.z, vec.w);
-}
+SHZ_FORCE_INLINE float shz_vec4_magnitude_sqr(shz_vec4_t vec) SHZ_NOEXCEPT;
 
 //! Returns the squared magnitude of the given 3D vector.
-SHZ_FORCE_INLINE float shz_vec3_magnitude_sqr(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_mag_sqr4f(vec.x, vec.y, vec.z, 0.0f);
-}
+SHZ_FORCE_INLINE float shz_vec3_magnitude_sqr(shz_vec3_t vec) SHZ_NOEXCEPT;
 
 //! Returns the magnitude of the given 2D vector.
-SHZ_FORCE_INLINE float shz_vec2_magnitude(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return shz_sqrtf(shz_vec2_magnitude_sqr(vec));
-}
+SHZ_FORCE_INLINE float shz_vec2_magnitude(shz_vec2_t vec) SHZ_NOEXCEPT;
 
 //! Returns the magnitude of the given 3D vector.
-SHZ_FORCE_INLINE float shz_vec3_magnitude(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_sqrtf(shz_vec3_magnitude_sqr(vec));
-}
+SHZ_FORCE_INLINE float shz_vec3_magnitude(shz_vec3_t vec) SHZ_NOEXCEPT;
 
 //! Returns the magnitude of the given 4D vector.
-SHZ_FORCE_INLINE float shz_vec4_magnitude(shz_vec4_t vec) SHZ_NOEXCEPT {
-    return shz_sqrtf(shz_vec4_magnitude_sqr(vec));
-}
+SHZ_FORCE_INLINE float shz_vec4_magnitude(shz_vec4_t vec) SHZ_NOEXCEPT;
 
 //! Returns the inverse magnitude of the given 2D vector.
-SHZ_FORCE_INLINE float shz_vec2_magnitude_inv(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return shz_inv_sqrtf(shz_vec2_magnitude_sqr(vec));
-}
+SHZ_FORCE_INLINE float shz_vec2_magnitude_inv(shz_vec2_t vec) SHZ_NOEXCEPT;
 
 //! Returns the inverse magnitude of the given 3D vector.
-SHZ_FORCE_INLINE float shz_vec3_magnitude_inv(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_inv_sqrtf(shz_vec3_magnitude_sqr(vec));
-}
+SHZ_FORCE_INLINE float shz_vec3_magnitude_inv(shz_vec3_t vec) SHZ_NOEXCEPT;
 
 //! Returns the inverse magnitude of the given 4D vector.
-SHZ_FORCE_INLINE float shz_vec4_magnitude_inv(shz_vec4_t vec) SHZ_NOEXCEPT {
-    return shz_inv_sqrtf(shz_vec4_magnitude_sqr(vec));
-}
+SHZ_FORCE_INLINE float shz_vec4_magnitude_inv(shz_vec4_t vec) SHZ_NOEXCEPT;
 
 //! Returns a normalized unit vector from the given 2D vector.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_normalize(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return shz_vec2_scale(vec, shz_vec2_magnitude_inv(vec));
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_normalize(shz_vec2_t vec) SHZ_NOEXCEPT;
 
 //! Returns a normalized unit vector from the given 3D vector.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_normalize(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_vec3_scale(vec, shz_vec3_magnitude_inv(vec));
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_normalize(shz_vec3_t vec) SHZ_NOEXCEPT;
 
 //! Returns a normalized unit vector from the given 4D vector.
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_normalize(shz_vec4_t vec) SHZ_NOEXCEPT {
-    return shz_vec4_scale(vec, shz_vec4_magnitude_inv(vec));
-}
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_normalize(shz_vec4_t vec) SHZ_NOEXCEPT;
 
 /*! SAFELY returns a normalized unit vector from the given 2D vector.
 
     If the vector's magnitude is not `> 0.0f`, safely returns a zero vector.
 */
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_normalize_safe(shz_vec2_t vec) SHZ_NOEXCEPT {
-    float mag = shz_vec2_magnitude_sqr(vec);
-
-    return (mag > 0.0f)?
-        shz_vec2_scale(vec, shz_inv_sqrtf(mag)) :
-        shz_vec2_init(0.0f, 0.0f);
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_normalize_safe(shz_vec2_t vec) SHZ_NOEXCEPT;
 
 /*! SAFELY returns a normalized unit vector from the given 3D vector.
 
     If the vector's magnitude is not `> 0.0f`, safely returns a zero vector.
 */
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_normalize_safe(shz_vec3_t vec) SHZ_NOEXCEPT {
-    float mag = shz_vec3_magnitude_sqr(vec);
-
-    return (mag > 0.0f)?
-        shz_vec3_scale(vec, shz_inv_sqrtf(mag)) :
-        shz_vec3_init(0.0f, 0.0f, 0.0f);
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_normalize_safe(shz_vec3_t vec) SHZ_NOEXCEPT;
 
 /*! SAFELY returns a normalized unit vector from the given 4D vector.
 
     If the vector's magnitude is not `> 0.0f`, safely returns a zero vector.
 */
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_normalize_safe(shz_vec4_t vec) SHZ_NOEXCEPT {
-    float mag = shz_vec4_magnitude_sqr(vec);
-
-    return (mag > 0.0f)?
-        shz_vec4_scale(vec, shz_inv_sqrtf(mag)) :
-        shz_vec4_init(0.0f, 0.0f, 0.0f, 0.0f);
-}
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_normalize_safe(shz_vec4_t vec) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -316,92 +233,48 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_normalize_safe(shz_vec4_t vec) SHZ_NOEXCEPT
 */
 
 //! Returns the dot product between the two given 2D vectors.
-SHZ_FORCE_INLINE float shz_vec2_dot(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
-    return vec1.x * vec2.x + vec1.y * vec2.y;
-}
+SHZ_FORCE_INLINE float shz_vec2_dot(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT;
 
 //! Returns the dot product between the two given 4D vectors.
-SHZ_FORCE_INLINE float shz_vec4_dot(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT {
-    return shz_dot8f(vec1.x, vec1.y, vec1.z, vec1.w,
-                     vec2.x, vec2.y, vec2.z, vec2.w);
-}
+SHZ_FORCE_INLINE float shz_vec4_dot(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
 
 //! Returns the dot product between the two given 3D vectors.
-SHZ_FORCE_INLINE float shz_vec3_dot(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT {
-    return shz_vec4_dot((shz_vec4_t){ .vec3 = vec1 }, (shz_vec4_t){ .vec3 = vec2 });
-}
+SHZ_FORCE_INLINE float shz_vec3_dot(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
 
 //! Returns the distance between the two given 2D vectors.
-SHZ_FORCE_INLINE float shz_vec2_distance(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
-    return shz_vec2_magnitude(shz_vec2_sub(vec1, vec2));
-}
+SHZ_FORCE_INLINE float shz_vec2_distance(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT;
 
 //! Returns the distance between the two given 3D vectors.
-SHZ_FORCE_INLINE float shz_vec3_distance(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT {
-    return shz_vec3_magnitude(shz_vec3_sub(vec1, vec2));
-}
+SHZ_FORCE_INLINE float shz_vec3_distance(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
 
 //! Returns the distance between the two given 4D vectors.
-SHZ_FORCE_INLINE float shz_vec4_distance(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT {
-    return shz_vec4_magnitude(shz_vec4_sub(vec1, vec2));
-}
+SHZ_FORCE_INLINE float shz_vec4_distance(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
 
 //! Returns the squared-distance between the two given 2D vectors.
-SHZ_FORCE_INLINE float shz_vec2_distance_sqr(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
-    return shz_vec2_magnitude_sqr(shz_vec2_sub(vec1, vec2));
-}
+SHZ_FORCE_INLINE float shz_vec2_distance_sqr(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT;
 
 //! Returns the squared-distance between the two given 3D vectors.
-SHZ_FORCE_INLINE float shz_vec3_distance_sqr(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT {
-    return shz_vec3_magnitude_sqr(shz_vec3_sub(vec1, vec2));
-}
-
+SHZ_FORCE_INLINE float shz_vec3_distance_sqr(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
 //! Returns the squared-distance between the two given 4D vectors.
-SHZ_FORCE_INLINE float shz_vec4_distance_sqr(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT {
-    return shz_vec4_magnitude_sqr(shz_vec4_sub(vec1, vec2));
-}
+SHZ_FORCE_INLINE float shz_vec4_distance_sqr(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
 
 //! Returns a 2D vector that is linearly interpolated from \p a to \p b by the given `0.0f-1.0f` factor, \p t.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_lerp(shz_vec2_t a, shz_vec2_t b, float t) SHZ_NOEXCEPT {
-    return shz_vec2_init(
-        shz_lerpf(a.x, b.x, t),
-        shz_lerpf(a.y, b.y, t)
-    );
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_lerp(shz_vec2_t a, shz_vec2_t b, float t) SHZ_NOEXCEPT;
 
 //! Returns a 3D vector that is linearly interpolated from \p a to \p b by the given `0.0f-1.0f` factor, \p t.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_lerp(shz_vec3_t a, shz_vec3_t b, float t) SHZ_NOEXCEPT {
-    return shz_vec3_init(
-        shz_lerpf(a.x, b.x, t),
-        shz_lerpf(a.y, b.y, t),
-        shz_lerpf(a.z, b.z, t)
-    );
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_lerp(shz_vec3_t a, shz_vec3_t b, float t) SHZ_NOEXCEPT;
 
 //! Returns a 4D vector that is linearly interpolated from \p a to \p b by the given `0.0f-1.0f` factor, \p t.
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_lerp(shz_vec4_t a, shz_vec4_t b, float t) SHZ_NOEXCEPT {
-    return shz_vec4_init(
-        shz_lerpf(a.x, b.x, t),
-        shz_lerpf(a.y, b.y, t),
-        shz_lerpf(a.z, b.z, t),
-        shz_lerpf(a.w, b.w, t)
-    );
-}
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_lerp(shz_vec4_t a, shz_vec4_t b, float t) SHZ_NOEXCEPT;
 
 //! Reflects the given 2D \p incidence vector against a surface with the given \p normal, returning the result.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_reflect(shz_vec2_t incidence, shz_vec2_t normal) SHZ_NOEXCEPT {
-    return shz_vec2_add(incidence, shz_vec2_scale(normal, shz_vec2_dot(normal, shz_vec2_scale(incidence, -2.0))));
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_reflect(shz_vec2_t incidence, shz_vec2_t normal) SHZ_NOEXCEPT;
 
 //! Reflects the given 3D \p incidence vector against a surface with the given \p normal, returning the result.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_reflect(shz_vec3_t incidence, shz_vec3_t normal) SHZ_NOEXCEPT {
-    return shz_vec3_add(incidence, shz_vec3_scale(normal, shz_vec3_dot(normal, shz_vec3_scale(incidence, -2.0))));
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_reflect(shz_vec3_t incidence, shz_vec3_t normal) SHZ_NOEXCEPT;
 
 //! Reflects the given 4D \p incidence vector against a surface with the given \p normal, returning the result.
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_reflect(shz_vec4_t incidence, shz_vec4_t normal) SHZ_NOEXCEPT {
-    return shz_vec4_add(incidence, shz_vec4_scale(normal, shz_vec4_dot(normal, shz_vec4_scale(incidence, -2.0))));
-}
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_reflect(shz_vec4_t incidence, shz_vec4_t normal) SHZ_NOEXCEPT;
 
 /*! Returns the cross product, as a scalar, between two 2D vectors.
 
@@ -410,60 +283,40 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_reflect(shz_vec4_t incidence, shz_vec4_t no
     interpretation here is that the result is the magnitude of the orthogonal vector
     created from the given two along the Z-axis.
 */
-SHZ_FORCE_INLINE float shz_vec2_cross(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
-    return vec1.x * vec2.y - vec1.y * vec2.x;
-}
+SHZ_FORCE_INLINE float shz_vec2_cross(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT;
 
 //! Returns the vector produced by taking the cross-product of the two given 3D vectors.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cross(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT {
-    return shz_vec3_init(
-        vec1.y * vec2.z - vec1.z * vec2.y,
-        vec1.z * vec2.x - vec1.x * vec2.z,
-        vec1.x * vec2.y - vec1.y * vec2.x
-    );
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cross(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
 
 //! Returns the resulting vector from projecting the given 2D vector along the given (unit) axis
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project(shz_vec2_t vec, shz_vec2_t onto) SHZ_NOEXCEPT {
-    return shz_vec2_scale(shz_vec2_normalize(vec), shz_vec2_dot(vec, onto));
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project(shz_vec2_t vec, shz_vec2_t onto) SHZ_NOEXCEPT;
 
 //! Returns the resulting vector from projecting the given 3D vector along the given (unit) axis
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_project(shz_vec3_t vec, shz_vec3_t onto) SHZ_NOEXCEPT {
-    return shz_vec3_scale(shz_vec3_normalize(vec), shz_vec3_dot(vec, onto));
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_project(shz_vec3_t vec, shz_vec3_t onto) SHZ_NOEXCEPT;
 
 //! Returns the resulting vector from projecting the given 4D vector along the given (unit) axis
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_project(shz_vec4_t vec, shz_vec4_t onto) SHZ_NOEXCEPT {
-    return shz_vec4_scale(shz_vec4_normalize(vec), shz_vec4_dot(vec, onto));
-}
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_project(shz_vec4_t vec, shz_vec4_t onto) SHZ_NOEXCEPT;
 
 /*! Returns the resulting vector from projecting the given 2D vector along the given (unit) axis
 
     \note
     This routine should safely return the zero vector when \p vec has a magnitude of 0.0f.
 */
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project_safe(shz_vec2_t vec, shz_vec2_t onto) SHZ_NOEXCEPT {
-    return shz_vec2_scale(shz_vec2_normalize_safe(vec), shz_vec2_dot(vec, onto));
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project_safe(shz_vec2_t vec, shz_vec2_t onto) SHZ_NOEXCEPT;
 
 /*! Returns the resulting vector from projecting the given 3D vector along the given (unit) axis
 
     \note
     This routine should safely return the zero vector when \p vec has a magnitude of 0.0f.
 */
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_project_safe(shz_vec3_t vec, shz_vec3_t onto) SHZ_NOEXCEPT {
-    return shz_vec3_scale(shz_vec3_normalize_safe(vec), shz_vec3_dot(vec, onto));
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_project_safe(shz_vec3_t vec, shz_vec3_t onto) SHZ_NOEXCEPT;
 
 /*! Returns the resulting vector from projecting the given 4D vector along the given (unit) axis
 
     \note
     This routine should safely return the zero vector when \p vec has a magnitude of 0.0f.
 */
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_project_safe(shz_vec4_t vec, shz_vec4_t onto) SHZ_NOEXCEPT  {
-    return shz_vec4_scale(shz_vec4_normalize_safe(vec), shz_vec4_dot(vec, onto));
-}
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_project_safe(shz_vec4_t vec, shz_vec4_t onto) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -473,58 +326,34 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_project_safe(shz_vec4_t vec, shz_vec4_t ont
 */
 
 //! Returns the angle formed between the given 2D vectors in radians.
-SHZ_FORCE_INLINE float shz_vec2_angle_between(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
-    return atan2f(shz_vec2_dot(vec1, vec2), shz_vec2_cross(vec1, vec2));
-}
+SHZ_FORCE_INLINE float shz_vec2_angle_between(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT;
 
 //! Returns the angle formed between the given 3D vectors in radians.
-SHZ_FORCE_INLINE float shz_vec3_angle_between(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT {
-    return atan2f(shz_vec3_dot(vec1, vec2), shz_vec3_magnitude(shz_vec3_cross(vec1, vec2)));
-}
+SHZ_FORCE_INLINE float shz_vec3_angle_between(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
 
 //! Returns the angle formed between the positive X axis and the given 2D vector, in radians.
-SHZ_FORCE_INLINE float shz_vec2_angle(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return atan2f(vec.y, vec.x);
-}
+SHZ_FORCE_INLINE float shz_vec2_angle(shz_vec2_t vec) SHZ_NOEXCEPT;
 
 //! Returns the angles formed between the positive X axis and the given 3D vector, in radians.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_angles(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_vec3_init(
-        atan2f(shz_vec2_magnitude(shz_vec2_init(vec.y, vec.z)), vec.x),
-        atan2f(shz_vec2_magnitude(shz_vec2_init(vec.z, vec.x)), vec.y),
-        atan2f(shz_vec2_magnitude(shz_vec2_init(vec.x, vec.y)), vec.z)
-    );
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_angles(shz_vec3_t vec) SHZ_NOEXCEPT;
 
 //! Returns the 2D unit vector representing a rotation from the positive X axis.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_sincos(shz_sincos_t sincos) SHZ_NOEXCEPT {
-    return shz_vec2_init(sincos.sin, sincos.cos);
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_sincos(shz_sincos_t sincos) SHZ_NOEXCEPT;
 
 //! Returns the 3D unit vector representing the given rotation angles relative to the positive X axis.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_sincos(shz_sincos_t azimuth, shz_sincos_t elevation) SHZ_NOEXCEPT {
-    return shz_vec3_init(azimuth.cos * elevation.cos, azimuth.sin * elevation.cos, elevation.sin);
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_sincos(shz_sincos_t azimuth, shz_sincos_t elevation) SHZ_NOEXCEPT;
 
 //! Returns the 2D unit vector representing a rotation from the positive X axis in radians.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_angle(float radians) SHZ_NOEXCEPT {
-    return shz_vec2_from_sincos(shz_sincosf(radians));
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_angle(float radians) SHZ_NOEXCEPT;
 
 //! Returns the 3D unit vector representing the given rotation angles relative to the positive X axis in radians.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles(float azimuth, float elevation) SHZ_NOEXCEPT {
-    return shz_vec3_from_sincos(shz_sincosf(azimuth), shz_sincosf(elevation));
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles(float azimuth, float elevation) SHZ_NOEXCEPT;
 
 //! Returns the 2D unit vector representing a rotation from the positive X axis in degrees.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_angle_deg(float degrees) SHZ_NOEXCEPT {
-    return shz_vec2_from_sincos(shz_sincosf_deg(degrees));
-}
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_angle_deg(float degrees) SHZ_NOEXCEPT;
 
 //! Returns the 3D unit vector representing the given rotation angles relative to the positive X axis in degrees.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles_deg(float azimuth, float elevation) SHZ_NOEXCEPT {
-    return shz_vec3_from_sincos(shz_sincosf_deg(azimuth), shz_sincosf_deg(elevation));
-}
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles_deg(float azimuth, float elevation) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -692,7 +521,7 @@ SHZ_DECLS_END
 
     //! C++ type-generic vector subtraction.
     template<typename T>
-    SHZ_FORCE_INLINE T shz_vec_sub(T vec1, T vec2) SHZ_NOEXCEPT  {
+    SHZ_FORCE_INLINE T shz_vec_sub(T vec1, T vec2) SHZ_NOEXCEPT {
         if constexpr(std::convertible_to<T, shz_vec2_t>)
             return shz_vec2_sub(vec1, vec2);
         else if constexpr(std::convertible_to<T, shz_vec3_t>)
@@ -728,7 +557,7 @@ SHZ_DECLS_END
 
     //! C++ type-generic uniform scaling of each vector component.
     template<typename T>
-    SHZ_FORCE_INLINE T shz_vec_scale(T vec, float factor) SHZ_NOEXCEPT  {
+    SHZ_FORCE_INLINE T shz_vec_scale(T vec, float factor) SHZ_NOEXCEPT {
         if constexpr(std::convertible_to<T, shz_vec2_t>)
             return shz_vec2_scale(vec, factor);
         else if constexpr(std::convertible_to<T, shz_vec3_t>)
@@ -788,7 +617,7 @@ SHZ_DECLS_END
 
     //! C++ type-generic vector normalization: returns normalized vector.
     template<typename T>
-    SHZ_FORCE_INLINE T shz_vec_normalize(T vec) noexcept {
+    SHZ_FORCE_INLINE T shz_vec_normalize(T vec) SHZ_NOEXCEPT {
         if constexpr(std::convertible_to<T, shz_vec2_t>)
             return shz_vec2_normalize(vec);
         else if constexpr(std::convertible_to<T, shz_vec3_t>)
@@ -912,6 +741,8 @@ SHZ_DECLS_END
         else static_assert(false, "Incompatible type!");
     }
 #endif
+
+#include "shz_vector.inl"
 
 //! @}
 
