@@ -193,7 +193,7 @@ namespace shz {
         }
 
         SHZ_FORCE_INLINE static void apply_rotation_y(float y) noexcept {
-            shz_xmtrx_apply_rotation_x(y);
+            shz_xmtrx_apply_rotation_y(y);
         }
 
         SHZ_FORCE_INLINE static void apply_rotation_z(float z) noexcept {
