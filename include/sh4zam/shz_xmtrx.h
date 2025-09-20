@@ -15,6 +15,9 @@
  *      - shz_xmtrx_angles()
  *      - shz_xmtrx_ortho()
  *      - shz_xmtrx_frustum()
+ *      - shz_xmtrx_store_transpose_unaligned_4x4()
+ *      - shz_xmtrx_load_apply_store_unaligned_4x4()
+ *      - shz_xmtrx_init_rotation_quat()
  *
  *  \author Falco Girgis
  *  \author Twada
@@ -79,10 +82,10 @@ typedef enum shz_xmtrx_reg {
 */
 
 //! Returns the floating-point value held within the given XMTRX register.
-SHZ_INLINE float shz_xmtrx_read_reg(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_xmtrx_read(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT;
 
 //! Sets the floating-point value held within the given XMTRX register to \p value.
-SHZ_INLINE void shz_xmtrx_write_reg(shz_xmtrx_reg_t xf, float value) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_write(shz_xmtrx_reg_t xf, float value) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -114,6 +117,9 @@ SHZ_INLINE void shz_xmtrx_load_rows_4x4(const shz_vec4_t* r1,
 
 //! Loads XMTRX with the transpose of the given 4x4 matrix.
 SHZ_INLINE void shz_xmtrx_load_transpose_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
+
+//! Loads XMTRX with the transpose of the 4x4 matrix created from the given unaligned array of 16 floats.
+SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT;
 
 //! Loads the given 4x3 matrix into XMTRX, initializing its remaining elements to identity.
 SHZ_INLINE void shz_xmtrx_load_4x3(const shz_mat4x3_t* matrix) SHZ_NOEXCEPT;
@@ -157,11 +163,14 @@ SHZ_INLINE void shz_xmtrx_load_2x2(const shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
 //! Stores the current values held within XMTRX into the given 4x4 matrix.
 SHZ_INLINE void shz_xmtrx_store_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
 
-//! Stores the current valueas held within XMTRX into the given unaligned 16-float array.
+//! Stores the current values held within XMTRX into the given unaligned 16-float array.
 SHZ_INLINE void shz_xmtrx_store_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT;
 
 //! Stores the transpose of the current values held within XMTRX into the given 4x4 matrix.
 SHZ_INLINE void shz_xmtrx_store_transpose_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
+
+//! Stores the transpose of the the current values held within XMTRX into the given 16-element float array.
+SHZ_FORCE_INLINE void shz_xmtrx_store_transpose_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT;
 
 //! Stores the top-left 3x4 values currently held within XMTRX into the given matrix.
 SHZ_INLINE void shz_xmtrx_store_3x4(shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
