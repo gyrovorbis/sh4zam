@@ -20,172 +20,219 @@
 
 namespace shz {
 
+/*! Common C++ base structure inherited by all vector types. 
+
+    This struct template serves as the base class for all
+    concrete vector types, providing:
+        - Common API routines
+        - Adaptor between C and C++ types
+        - Convenience overloaded operators and STL iterators.
+
+    \sa shz::vec2, shz::vec3, shz::vec4
+*/
 template<typename CRTP, typename C, size_t R>
 struct vecN: C {
-    using CppType  = CRTP;
-    using CType    = C;
+    using CppType  = CRTP;  //!< Cpp derived type
+    using CType    = C;     //!< C base type
 
-    static constexpr size_t Rows = R;
-    static constexpr size_t Cols = 1;
+    static constexpr size_t Rows = R;   //!< Number of rows
+    static constexpr size_t Cols = 1;   //!< Number of columns
 
+    //! Default constructor, does nothing.
     vecN() = default;
 
+    //! Converting constructor from existing C instance.
     SHZ_FORCE_INLINE vecN(CType other) noexcept:
         CType(other) {}
 
+    //! Returns the vector that is linearly interpolated between the two given vectors by the `0.0f-1.0f` factor, \p t.
     SHZ_FORCE_INLINE static CppType lerp(CppType start, CppType end, float t) noexcept {
         return shz_vec_lerp(start, end, t);
     }
 
+    //! Overloaded subscript operator -- allows for indexing vectors like an array.
     SHZ_FORCE_INLINE auto &&operator[](this auto&& self, size_t index) {
         return std::forward<decltype(self)>(self).e[index];
     }
 
+    //! Overloaded space-ship operator, for generic lexicographical comparison of vectors.
     friend constexpr auto operator<=>(CppType lhs, CppType rhs) noexcept {
         return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(),
                                                       rhs.begin(), rhs.end());
     }
 
+    //! Overloaded equality operator, for comparing vectors.
     friend constexpr auto operator==(CppType lhs, CppType rhs) noexcept {
         return std::equal(lhs.begin(), lhs.end(),
                           rhs.begin(), rhs.end());
     }
 
+    //! Overloaded "less-than" operator, for comparing vectors.
     friend constexpr auto operator<(CppType lhs, CppType rhs) noexcept {
         return std::lexicographical_compare(lhs.begin(), lhs.end(),
                                             rhs.begin(), rhs.end());
     }
 
+    //! Overloaded operator for adding and accumulating a vector onto another.
     SHZ_FORCE_INLINE CppType &operator+=(this CppType &self, CppType other) noexcept {
         self = self + other;
         return self;
     }
 
+    //! Overloaded subtraction assignment operator, subtracts a vector from the left-hand vector.
     SHZ_FORCE_INLINE CppType &operator-=(this CppType &self, CppType other) noexcept {
         self = self - other;
         return self;
     }
 
+    //! Overloaded multiplication assignment operator, multiplies and accumulates a vector onto the left-hand vector.
     SHZ_FORCE_INLINE CppType &operator*=(this CppType &self, CppType other) noexcept {
         self = self * other;
         return self;
     }
 
+    //! Overloaded division assignment operator, divides the left vector by the right, assigning the left to the result.
     SHZ_FORCE_INLINE CppType &operator/=(this CppType &self, CppType other) noexcept {
         self = self / other;
         return self;
     }
 
+    //! Overloaded multiplication assignment operator, multiplies and accumulates each vector component by the given scalar.
     SHZ_FORCE_INLINE CppType &operator*=(this CppType &self, float other) noexcept {
         self = self * other;
         return self;
     }
 
+    //! Overloaded division assignment operator, dividing and assigning each vector component by the given scalar value.
     SHZ_FORCE_INLINE CppType &operator/=(this CppType &self, float other) noexcept {
         self = self / other;
         return self;
     }
 
+    //! Returns an iterator to the beginning of the vector -- For STL support.
     SHZ_FORCE_INLINE auto begin(this auto&& self) noexcept {
         return &self[0];
     }
 
+    //! Returns an iterator to the end of the vector -- For STL support.
     SHZ_FORCE_INLINE auto end(this auto&& self) noexcept {
         return &self[Rows];
     }
 
+    //! Returns the dot produt of the given vector and another.
     SHZ_FORCE_INLINE float dot(this const CppType& self, CppType other) noexcept {
         return shz_vec_dot(self, other);
     }
 
+    //! Returns the magnitude of the given vector.
     SHZ_FORCE_INLINE float magnitude() const noexcept {
         return shz_vec_magnitude(*this);
     }
 
+    //! Returns the squared magnitude of the given vector.
     SHZ_FORCE_INLINE float magnitude_sqr() const noexcept {
         return shz_vec_magnitude_sqr(*this);
     }
 
+    //! Returns the inverse magnitude of the given vector.
     SHZ_FORCE_INLINE float magnitude_inv() const noexcept {
         return shz_vec_magnitude_inv(*this);
     }
 
+    //! Returns the direction vector resulting from normalizing the given vector.
     SHZ_FORCE_INLINE CppType direction() const noexcept {
         return shz_vec_normalize(*this);
     }
 
+    //! Normalizes the given vector.
     SHZ_FORCE_INLINE void normalize() noexcept {
         *this = shz_vec_normalize(*this);
     }
 
+    //! Returns the direction vector of a given vector, safely protecting against division-by-zero.
     SHZ_FORCE_INLINE CppType direction_safe() const noexcept {
         return shz_vec_normalize_safe(*this);
     }
 
+    //! Normalizes the given vector, safely protecting against division-by-zero.
     SHZ_FORCE_INLINE void normalize_safe() noexcept {
         *this = shz_vec_normalize_safe(*this);
     }
 
+    //! Returns the distance between the given vector and another.
     SHZ_FORCE_INLINE float distance(CppType other) const noexcept {
         return shz_vec_distance(*this, other);
     }
 
+    //! Returns the vector created from reflecting the given vector over the normal of a surface.
     SHZ_FORCE_INLINE CppType reflect(CppType normal) const noexcept {
         return shz_vec_reflect(*this, normal);
     }
 
+    //! Returns the vector created from projecting the given vector onto another.
     SHZ_FORCE_INLINE CppType project(CppType onto) const noexcept {
         return shz_vec_project(*this, onto);
     }
 
+    //! Returns the vector created from projecting the given vector onto another, safely protecting against division-by-zero.
     SHZ_FORCE_INLINE CppType project_safe(CppType onto) const noexcept {
         return shz_vec_project_safe(*this, onto);
     }
 
+    //! Returns the angle between the given vector and another, in radians.
     SHZ_FORCE_INLINE float angle_between(CppType other) const noexcept {
         return shz_vec_angle_between(*this, other);
     }
 
+    //! Returns the angle(s) created between the given vector axis and the +X axis, in radians.
     SHZ_FORCE_INLINE auto angles() const noexcept {
         return shz_vec_angles(*this);
     }
 };
 
+//! Overloaded addition operator, adding two vectors together and returning the result.
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE CRTP operator+(vecN<CRTP, C, R> lhs, vecN<CRTP, C, R> rhs) noexcept {
     return shz_vec_add(lhs, rhs);
 }
 
+//! Overloaded subtraction operator, subtracting one vector from another, returning the result.
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE CRTP operator-(vecN<CRTP, C, R> lhs, vecN<CRTP, C, R> rhs) noexcept {
     return shz_vec_sub(lhs, rhs);
 }
 
+//! Overloaded multiplication operator, performing element-wise multiplication between two vectors, returning the resultant vector.
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE CRTP operator*(vecN<CRTP, C, R> lhs, vecN<CRTP, C, R> rhs) noexcept {
     return shz_vec_mul(lhs, rhs);
 }
 
+//! Overloaded division operator, returning the resulting vector from component-wise dividing the elements of \p lhs by \p rhs.
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE CRTP operator/(vecN<CRTP, C, R> lhs, vecN<CRTP, C, R> rhs) noexcept {
     return shz_vec_div(lhs, rhs);
 }
 
+//! Overloaded multiplication operator for scaling a vector by a scalar and returning the resulting vector.
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE CRTP operator*(vecN<CRTP, C, R> lhs, float rhs) noexcept {
     return shz_vec_scale(lhs, rhs);
 }
 
+//! Reverse overloaded multiplication operator for scaling a vector by a scalar and returning the resulting vector.
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE CRTP operator*(float lhs, vecN<CRTP, C, R> rhs) noexcept {
     return shz_vec_scale(rhs, lhs);
 }
 
+//! Overloaded division operator for component-wise dividing each element of the given vector by the given scalar.
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE CRTP operator/(vecN<CRTP, C, R> lhs, float rhs) noexcept {
     return shz_vec_scale(lhs, shz::invf(rhs));
 }
 
+//! Reverse overloaded division operator for component-wise dividing each element of the given vector by the given scalar.
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE CRTP operator/(float lhs, vecN<CRTP, C, R> rhs) noexcept {
     return shz_vec_scale(rhs, shz::invf(lhs));
@@ -195,105 +242,142 @@ SHZ_FORCE_INLINE CRTP operator/(float lhs, vecN<CRTP, C, R> rhs) noexcept {
  *
  *  C++ structure for representing a 2-dimensional vector.
  *
- *  \sa vec3, vec4
- *  \todo
- *      - stringify
- *      - std::swap
- *      - swizzling
- *      - std::pair
- *      - iterators
- *      - conditional exceptions on safe stuff
+ *  \sa shz::vecN, shz_vec2_t, shz::vec3, shz::vec4
  */
 struct vec2: vecN<vec2, shz_vec2_t, 2> {
-    vec2() = default;
+    // Inherit parent constructors and operators.
     using vecN::vecN;
 
-    //SHZ_FORCE_INLINE vec2(shz_vec2_t other) noexcept:
-    //    vecN(other) {}
+    //! Default constructor: does nothing.
+    vec2() = default;
 
+    //! Single-value constructor: sets both components equal to \p v.
     SHZ_FORCE_INLINE vec2(float v) noexcept:
         vecN({ v, v }) {}
 
+    //! Constructs a vec2 with the given values as components.
     SHZ_FORCE_INLINE vec2(float x, float y) noexcept:
         vecN({ x, y }) {}
 
+    //! Constructs a vec2 from the given angle of rotation from the +X axis.
     SHZ_FORCE_INLINE vec2(sincos pair) noexcept:
         vecN(shz_vec2_from_sincos(pair)) {}
 
+    //! Constructs a vec2 from the given angle of rotation from the +X axis, in radians.
     SHZ_FORCE_INLINE static vec2 from_angle(float rads) noexcept {
         return shz_vec2_from_angle(rads);
     }
 
+    //! Constructs a vec2 from the given angle of rotation from the +X axis, in degrees.
     SHZ_FORCE_INLINE static vec2 from_angle_deg(float deg) noexcept {
         return shz_vec2_from_angle_deg(deg);
     }
 
+    //! C++ wrapper for shz_vec2_cross().
     SHZ_FORCE_INLINE float cross(vec2 other) const noexcept {
         return shz_vec2_cross(*this, other);
     }
 };
 
+/*! 3D Vector type
+ *
+ *  C++ structure for representing a 3-dimensional vector.
+ *
+ *  \sa shz::vecN, shz_vec2_t, shz::vec2, shz::vec4
+ */
 struct vec3: vecN<vec3, shz_vec3_t, 3> {
+    // Inherit parent constructors and operators.
+    using vecN::vecN;
+
+    //! Default constructor: does nothing
     vec3() = default;
 
+    //! C constructor: constructs a C++ vec3 from a C shz_vec3_t.
     SHZ_FORCE_INLINE vec3(shz_vec3_t other) noexcept:
         vecN(other) {}
 
+    //! Single-value constructor: initializes all components to \p v.
     SHZ_FORCE_INLINE vec3(float v) noexcept:
         vecN({ v, v, v }) {}
 
+    //! Value constructor: initializes each component to its given value.
     SHZ_FORCE_INLINE vec3(float x, float y, float z) noexcept:
         vecN({ x, y, z }) {}
 
+    //! Constructs a vec3 from a shz::vec2 and a scalar value for its z component.
     SHZ_FORCE_INLINE vec3(shz::vec2 xy, float z) noexcept:
         vecN({ xy.x, xy.y, z }) {}
 
+    //! Constructs a vec3 from a scalar as its x component and a shz::vec2 as its Y and Z components.
     SHZ_FORCE_INLINE vec3(float x, shz::vec2 yz) noexcept:
        vecN({ x, yz.x, yz.y }) {}
 
+    //! Returns a 3D vector which forms the given angles with the +X axis.
     SHZ_FORCE_INLINE vec3(sincos azimuth, sincos elevation) noexcept:
         vecN(shz_vec3_from_sincos(azimuth, elevation)) {}
 
+    //! Returns a 3D vector which forms the given angles with the +X axis, in radians.
     SHZ_FORCE_INLINE static vec3 from_angles(float azimuth_rads, float elevation_rads) noexcept {
         return shz_vec3_from_angles(azimuth_rads, elevation_rads);
     }
 
+    //! Returns a 3D vector which forms the given angles with the +X axis, in degrees.
     SHZ_FORCE_INLINE static vec3 from_angles_deg(float azimuth_deg, float elevation_deg) noexcept {
         return shz_vec3_from_angles_deg(azimuth_deg, elevation_deg);
     }
 
+    //! Returns a 3D vector which forms the given angles with the +X axis.
     SHZ_FORCE_INLINE vec3 cross(vec3 other) const noexcept {
         return shz_vec3_cross(*this, other);
     }
 };
 
+/*! 4D Vector type
+ *
+ *  C++ structure for representing a 4-dimensional vector.
+ *
+ *  \sa shz::vecN, shz_vec4_t, shz::vec2, shz::vec3
+ */
 struct vec4: vecN<vec4, shz_vec4_t, 4> {
+    // Inherit parent constructors and operators.
+    using vecN::vecN;
+
+    //! Default constructor: does nothing.
     vec4() = default;
 
+    //! C Constructor: initializes a C++ shz::vec4 from a C shz_vec4_t.
     SHZ_FORCE_INLINE vec4(shz_vec4_t other) noexcept:
         vecN(other) {}
 
+    //! Single-value constructor: initializes each element to the given value.
     SHZ_FORCE_INLINE vec4(float v) noexcept:
         vecN({ v, v, v, v }) {}
 
+    //! Value constructor: initializes each element to its corresponding parameter value.
     SHZ_FORCE_INLINE vec4(float x, float y, float z, float w) noexcept:
         vecN({ x, y, z, w }) {}
 
+    //! Constructs a 4D vector with a 2D vector providing the X and Y coordinates and scalars providing Z and W.
     SHZ_FORCE_INLINE vec4(shz::vec2 xy, float z, float w) noexcept:
         vecN({ xy.x, xy.y, z, w }) {}
 
+    //! Constructs a 4D vector with scalars providing X and W coordinates and a 2D vector providing Y and Z.
     SHZ_FORCE_INLINE vec4(float x, shz::vec2 yz, float w) noexcept:
         vecN({ x, yz.x, yz.y, w }) {}
 
+    //! Constructs a 4D vector with scalars providing X and Y coordinaets and a 2D vector providing Z and W.
     SHZ_FORCE_INLINE vec4(float x, float y, shz::vec2 zw) noexcept:
         vecN({ x, y, zw.x, zw.y }) {}
 
+    //! Constructs a 4D vector from the components provided by the given pair of 2D vectors.
     SHZ_FORCE_INLINE vec4(shz::vec2 xy, shz::vec2 zw) noexcept:
         vecN({ xy.x, xy.y, zw.x, zw.y }) {}
 
+    //! Constructs a 4D vector with the X, Y, and Z components given by a 3D vector and W given by a scalar.
     SHZ_FORCE_INLINE vec4(shz::vec3 xyz, float w) noexcept:
         vecN({ xyz.x, xyz.y, xyz.z, w }) {}
 
+    //! Constructs a 4D vector with the X component given by a scalar and the Y, Z, and W components given by a 3D vector.
     SHZ_FORCE_INLINE vec4(float x, shz::vec3 yzw) noexcept:
         vecN({ x, yzw.x, yzw.y, yzw.z }) {}
 };
