@@ -77,7 +77,7 @@ typedef enum shz_xmtrx_reg {
 } shz_xmtrx_reg_t;
 
 /*! \name  Accessors
-    \brief Setting and retrieving individual XMTRX register values. 
+    \brief Setting and retrieving individual XMTRX register values.
     @{
 */
 
@@ -90,7 +90,7 @@ SHZ_INLINE void shz_xmtrx_write(shz_xmtrx_reg_t xf, float value) SHZ_NOEXCEPT;
 //! @}
 
 /*! \name  Loading
-    \brief Routines for loading XMTRX contents from memory. 
+    \brief Routines for loading XMTRX contents from memory.
     @{
 */
 
@@ -156,7 +156,7 @@ SHZ_INLINE void shz_xmtrx_load_2x2(const shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
 //! @}
 
 /*! \name  Storing
-    \brief Routines for saving XMTRX contents to memory. 
+    \brief Routines for saving XMTRX contents to memory.
     @{
 */
 
@@ -357,7 +357,7 @@ SHZ_INLINE void shz_xmtrx_apply_symmetric_skew(float x, float y, float z) SHZ_NO
 //! @}
 
 /*! \name  Compound Operations
-    \brief Multiple operations combined into one pipelined transaction. 
+    \brief Multiple operations combined into one pipelined transaction.
     @{
 */
 
