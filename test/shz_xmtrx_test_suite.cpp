@@ -49,39 +49,39 @@ static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, 
 }
 
 GBL_TEST_CASE(read_write_registers)
-    shz::xmtrx::write(shz::xmtrx::reg::XF0,  100.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF1,  101.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF2,  102.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF3,  103.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF4,  104.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF5,  100.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF6,  101.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF7,  102.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF8,  103.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF9,  104.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF10, 110.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF11, 111.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF12, 112.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF13, 113.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF14, 114.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF15, 115.0f);
+    shz::xmtrx::write(shz::xmtrx::XF0,  100.0f);
+    shz::xmtrx::write(shz::xmtrx::XF1,  101.0f);
+    shz::xmtrx::write(shz::xmtrx::XF2,  102.0f);
+    shz::xmtrx::write(shz::xmtrx::XF3,  103.0f);
+    shz::xmtrx::write(shz::xmtrx::XF4,  104.0f);
+    shz::xmtrx::write(shz::xmtrx::XF5,  100.0f);
+    shz::xmtrx::write(shz::xmtrx::XF6,  101.0f);
+    shz::xmtrx::write(shz::xmtrx::XF7,  102.0f);
+    shz::xmtrx::write(shz::xmtrx::XF8,  103.0f);
+    shz::xmtrx::write(shz::xmtrx::XF9,  104.0f);
+    shz::xmtrx::write(shz::xmtrx::XF10, 110.0f);
+    shz::xmtrx::write(shz::xmtrx::XF11, 111.0f);
+    shz::xmtrx::write(shz::xmtrx::XF12, 112.0f);
+    shz::xmtrx::write(shz::xmtrx::XF13, 113.0f);
+    shz::xmtrx::write(shz::xmtrx::XF14, 114.0f);
+    shz::xmtrx::write(shz::xmtrx::XF15, 115.0f);
 
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF0 ) == 100.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF1 ) == 101.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF2 ) == 102.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF3 ) == 103.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF4 ) == 104.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF5 ) == 100.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF6 ) == 101.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF7 ) == 102.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF8 ) == 103.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF9 ) == 104.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF10) == 110.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF11) == 111.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF12) == 112.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF13) == 113.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF14) == 114.0f);
-    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::reg::XF15) == 115.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF0 ) == 100.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF1 ) == 101.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF2 ) == 102.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF3 ) == 103.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF4 ) == 104.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF5 ) == 100.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF6 ) == 101.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF7 ) == 102.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF8 ) == 103.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF9 ) == 104.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF10) == 110.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF11) == 111.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF12) == 112.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF13) == 113.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF14) == 114.0f);
+    GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF15) == 115.0f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_identity)

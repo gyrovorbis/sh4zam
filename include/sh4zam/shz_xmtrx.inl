@@ -11,7 +11,7 @@
  *  \copyright MIT License
  */
 
-SHZ_INLINE float shz_xmtrx_read_reg(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT {
+SHZ_INLINE float shz_xmtrx_read(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT {
     float value;
 
     SHZ_FRCHG();
@@ -39,7 +39,7 @@ SHZ_INLINE float shz_xmtrx_read_reg(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT {
     return value;
 }
 
-SHZ_INLINE void shz_xmtrx_write_reg(shz_xmtrx_reg_t xf, float value) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_write(shz_xmtrx_reg_t xf, float value) SHZ_NOEXCEPT {
     asm volatile("flds %0, fpul\n" : : "f" (value) : "fpul");
 
     SHZ_FRCHG();
@@ -240,6 +240,11 @@ SHZ_INLINE void shz_xmtrx_load_transpose_4x4(const shz_mat4x4_t* matrix) SHZ_NOE
     )"
     : [mtx] "+r" (matrix)
     : "m" (*matrix));
+}
+
+// Just straight up forward it, as shz_xmtrx_load_transpose_4x4() never required alignment anyway.
+SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
+    shz_xmtrx_load_transpose_4x4((const shz_mat4x4_t*)matrix);
 }
 
 SHZ_INLINE void shz_xmtrx_load_apply_4x4(const shz_mat4x4_t* matrix1,
@@ -617,6 +622,11 @@ SHZ_INLINE void shz_xmtrx_store_transpose_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT
         frchg
     )"
     : [mtx] "+&r" (matrix), "=m" (*matrix));
+}
+
+// Just forward it directly to shz_xmtrx_store_transpose_4x4(), which never even required over-alignment...
+SHZ_FORCE_INLINE void shz_xmtrx_store_transpose_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT {
+    shz_xmtrx_store_transpose_4x4((shz_mat4x4_t*)matrix);
 }
 
 SHZ_INLINE void shz_xmtrx_store_3x4(shz_mat3x4_t* matrix) SHZ_NOEXCEPT {
