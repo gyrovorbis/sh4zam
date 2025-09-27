@@ -1604,117 +1604,120 @@ SHZ_INLINE void shz_xmtrx_transpose(void) SHZ_NOEXCEPT {
     : "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_lookat(float *position_3f, float *target_3f, float *up_3f) SHZ_NOEXCEPT {
-	asm volatile(
-		"fmov.s @%[t]+, fr8\n\t"
-		"fmov.s @%[t]+, fr9\n\t"
-		"fmov.s	@%[t]+, fr10\n\t"
+SHZ_INLINE void shz_xmtrx_apply_lookat(const float* position_3f,
+                                       const float* target_3f,
+                                       const float* up_3f) SHZ_NOEXCEPT {
+	asm volatile(R"(
+        fmov.s  @%[t]+, fr8
+        fmov.s  @%[t]+, fr9
+        fmov.s  @%[t]+, fr10
 
-		"fmov.s @%[p]+, fr12\n\t"
-		"fmov.s @%[p]+, fr13\n\t"
-		"fmov.s @%[p]+, fr14\n\t"
-		"fldi0	fr15\n\t"
+        fmov.s  @%[p]+, fr12
+        fmov.s  @%[p]+, fr13
+        fmov.s  @%[p]+, fr14
+        fldi0   fr15
 
-		/* z = position - target */
-        "fneg   fr8\n\t"
-		"fadd	fr12, fr8\n\t"
-        "fneg   fr9\n\t"
-		"fadd	fr13, fr9\n\t"
-        "fneg   fr10\n\t"
-		"fadd	fr14, fr10\n\t"
-		"fldi0	fr11\n\t"
-		"fipr	fv8, fv8\n\t"
+        /* z = position - target */
+        fneg    fr8
+        fadd    fr12, fr8
+        fneg    fr9
+        fadd    fr13, fr9
+        fneg    fr10
+        fadd    fr14, fr10
+        fldi0   fr11
+        fipr    fv8, fv8
 
-		"fmov.s @%[u]+, fr4\n\t"
-		"fmov.s @%[u]+, fr5\n\t"
-		"fmov.s @%[u]+, fr6\n\t"
+        fmov.s  @%[u]+, fr4
+        fmov.s  @%[u]+, fr5
+        fmov.s  @%[u]+, fr6
 
-		"fsrra  fr11\n\t"
-		"fmul	fr11, fr8\n\t"
-		"fmul	fr11, fr9\n\t"
-		"fmul	fr11, fr10\n\t"
-		"fldi0	fr11\n\t"
-		"fipr	fv12, fv8\n\t"
+        fsrra   fr11
+        fmul    fr11, fr8
+        fmul    fr11, fr9
+        fmul    fr11, fr10
+        fldi0   fr11
+        fipr    fv12, fv8
 
-		/* x = cross(up, z) */
-		"fmov	fr6, fr15\n\t"
-		"fmul	fr9, fr15\n\t"
-		"fmov	fr5, fr0\n\t"
-		"fmul	fr10, fr0\n\t"
-		"fmov	fr4, fr3\n\t"
-		"fmul	fr10, fr3\n\t"
-		"fsub	fr15, fr0\n\t"
-		"fmov	fr6, fr1\n\t"
-		"fmul	fr8, fr1\n\t"
-		"fmov	fr4, fr2\n\t"
-		"fmul	fr9, fr2\n\t"
-		"fmov	fr5, fr15\n\t"
-		"fmul	fr8, fr15\n\t"
-		"fsub	fr3, fr1\n\t"
-		"fsub	fr15, fr2\n\t"
-		"fldi0	fr3\n\t"
-		"fldi0	fr15\n\t"
-		"fipr	fv0, fv0\n\t"
+        /* x = cross(up, z) */
+        fmov    fr6, fr15
+        fmul    fr9, fr15
+        fmov    fr5, fr0
+        fmul    fr10, fr0
+        fmov    fr4, fr3
+        fmul    fr10, fr3
+        fsub    fr15, fr0
+        fmov    fr6, fr1
+        fmul    fr8, fr1
+        fmov    fr4, fr2
+        fmul    fr9, fr2
+        fmov    fr5, fr15
+        fmul    fr8, fr15
+        fsub    fr3, fr1
+        fsub    fr15, fr2
+        fldi0   fr3
+        fldi0   fr15
+        fipr    fv0, fv0
 
-		"fsrra  fr3\n\t"
-		"fmul	fr3, fr0\n\t"
-		"fmul	fr3, fr1\n\t"
-		"fmul	fr3, fr2\n\t"
-		"fldi0	fr3\n\t"
-		"fipr	fv12, fv0\n\t"
+        fsrra   fr3
+        fmul    fr3, fr0
+        fmul    fr3, fr1
+        fmul    fr3, fr2
+        fldi0   fr3
+        fipr    fv12, fv0
 
-		/* y = cross(z, x) */
-		"fmov	fr10, fr15\n\t"
-		"fmul	fr1, fr15\n\t"
-		"fmov	fr9, fr4\n\t"
-		"fmul	fr2, fr4\n\t"
-		"fmov	fr8, fr7\n\t"
-		"fmul	fr2, fr7\n\t"
-		"fsub	fr15, fr4\n\t"
-		"fmov	fr10, fr5\n\t"
-		"fmul	fr0, fr5\n\t"
-		"fmov	fr8, fr6\n\t"
-		"fmul	fr1, fr6\n\t"
-		"fmov	fr9, fr15\n\t"
-		"fmul	fr0, fr15\n\t"
-		"fsub	fr7, fr5\n\t"
-		"fsub	fr15, fr6\n\t"
+        /* y = cross(z, x) */
+        fmov    fr10, fr15
+        fmul    fr1, fr15
+        fmov    fr9, fr4
+        fmul    fr2, fr4
+        fmov    fr8, fr7
+        fmul    fr2, fr7
+        fsub    fr15, fr4
+        fmov    fr10, fr5
+        fmul    fr0, fr5
+        fmov    fr8, fr6
+        fmul    fr1, fr6
+        fmov    fr9, fr15
+        fmul    fr0, fr15
+        fsub    fr7, fr5
+        fsub    fr15, fr6
 
-		"fldi0	fr7\n\t"
-		"fldi0	fr15\n\t"
-		"fipr	fv12, fv4\n\t"
+        fldi0   fr7
+        fldi0   fr15
+        fipr    fv12, fv4
 
-		"fneg	fr3\n\t"
-		"fneg	fr11\n\t"
-		"fneg	fr7\n\t"
-		"fmov	fr3, fr12\n\t"
-		"fmov	fr7, fr13\n\t"
-		"fmov	fr11, fr14\n\t"
-		"fldi1	fr15\n\t"
-		"ftrv	xmtrx, fv12\n\t"
+        fneg    fr3
+        fneg    fr11
+        fneg    fr7
+        fmov    fr3, fr12
+        fmov    fr7, fr13
+        fmov    fr11, fr14
+        fldi1   fr15
+        ftrv    xmtrx, fv12
 
-		"fmov	fr1, fr7\n\t"
-		"fmov	fr2, fr11\n\t"
-		"fmov	fr4, fr1\n\t"
-		"fmov	fr8, fr2\n\t"
-		"fldi0	fr3\n\t"
-		"ftrv	xmtrx, fv0\n\t"
+        fmov    fr1, fr7
+        fmov    fr2, fr1
+        fmov    fr4, fr1
+        fmov    fr8, fr2
+        fldi0   fr3
+        ftrv    xmtrx, fv0
 
-		"fmov	fr7, fr4\n\t"
-		"fmov	fr6, fr7\n\t"
-		"fmov	fr9, fr6\n\t"
-		"fmov	fr7, fr9\n\t"
-		"fldi0	fr7\n\t"
-		"ftrv	xmtrx, fv4\n\t"
+        fmov    fr7, fr4
+        fmov    fr6, fr7
+        fmov    fr9, fr6
+        fmov    fr7, fr9
+        fldi0   fr7
+        ftrv    xmtrx, fv4
 
-		"fmov	fr11, fr8\n\t"
-		"fldi0	fr11\n\t"
-		"ftrv	xmtrx, fv8\n\t"
+        fmov    fr11, fr8
+        fldi0   fr11
+        ftrv    xmtrx, fv8
 
-		"frchg\n"
-		: [p] "+&r"(position_3f), [t] "+&r"(target_3f), [u] "+&r"(up_3f)
-		:
-		: "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+        frchg
+    )"
+	: [p] "+&r"(position_3f), [t] "+&r"(target_3f), [u] "+&r"(up_3f)
+	:
+	: "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
 
@@ -1729,60 +1732,62 @@ SHZ_INLINE void shz_xmtrx_apply_lookat(float *position_3f, float *target_3f, flo
 // 	0.0f      | 0.0f      | -1.0f     | 0.0f
 // ****************************************************************
 SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float near_z) SHZ_NOEXCEPT {
-    register float _f asm("fr4") = fov * 0.5f * SHZ_FSCA_RAD_FACTOR;
-    register float _a asm("fr5") = aspect;
-    register float _n asm("fr6") = near_z;
-    asm volatile(
-		"fmov	fr5, fr7\n\t"
-		"fmul	fr7, fr7\n\t"
-        "fsrra  fr7\n\t"
-		"fschg\n\t"
-		"ftrc	fr4, fpul\n\t"
-		"fsca   fpul, dr4\n\t"
-		"fdiv	fr4, fr5\n\t"
+    register float f asm("fr4") = fov * 0.5f * SHZ_FSCA_RAD_FACTOR;
+    register float a asm("fr5") = aspect;
+    register float n asm("fr6") = near_z;
 
-		"fmov	xd8, dr8\n\t"
-		"fmul	fr6, fr8\n\t"
-		"fmov	xd10, dr10\n\t"
-		"fmul	fr6, fr9\n\t"
-		"fmul	fr6, fr10\n\t"
-		"fmul	fr6, fr11\n\t"
+    asm volatile(R"(
+        fmov    fr5, fr7
+        fmul    fr7, fr7
+        fsrra   fr7
+        fschg
+        ftrc    fr4, fpul
+        fsca    fpul, dr4
+        fdiv    fr4, fr5
 
-		"fmov	xd12, xd8\n\t"
-		"fmov	xd14, xd10\n\t"
-		"fmov	dr8, xd12\n\t"
-		"fmov	dr10, xd14\n\t"
+        fmov    xd8, dr8
+        fmul    fr6, fr8
+        fmov    xd10, dr10
+        fmul    fr6, fr9
+        fmul    fr6, fr10
+        fmul    fr6, fr11
 
-		"fmov	xd4, dr8\n\t"
-		"fmul	fr5, fr8\n\t"
-		"fmul	fr5, fr9\n\t"
-		"fmov	xd6, dr10\n\t"
-		"fmul	fr5, fr10\n\t"
-		"fmul	fr5, fr11\n\t"
-		"fmov	dr8, xd4\n\t"
-		"fmov	dr10, xd6\n\t"
-    
-		"fmov	xd0, dr8\n\t"
-        "fmul	fr7, fr5\n\t"
-		"fmov	xd2, dr10\n\t"
-		"fmul	fr5, fr8\n\t"
-		"fmul	fr5, fr9\n\t"
-		"fmul	fr5, fr10\n\t"
-		"fmul 	fr5, fr11\n\t"
-		"fmov	dr8, xd0\n\t"
-		"fmov	dr10, xd2\n\t"
+        fmov    xd12, xd8
+        fmov    xd14, xd10
+        fmov    dr8, xd12
+        fmov    dr10, xd14
 
-        "frchg\n\t"
-        "fneg   fr8\n\t"
-        "fneg   fr9\n\t"
-        "fneg   fr10\n\t"
-        "fneg   fr11\n\t"
-        "frchg\n\t"
+        fmov    xd4, dr8
+        fmul    fr5, fr8
+        fmul    fr5, fr9
+        fmov    xd6, dr10
+        fmul    fr5, fr10
+        fmul    fr5, fr11
+        fmov    dr8, xd4
+        fmov    dr10, xd6
 
-		"fschg\n"
-		:
-		: "f"(_f), "f"(_a), "f"(_n)
-		: "fpul", "fr7", "fr8", "fr9", "fr10", "fr11");
+        fmov    xd0, dr8
+        fmul    fr7, fr5
+        fmov    xd2, dr10
+        fmul    fr5, fr8
+        fmul    fr5, fr9
+        fmul    fr5, fr10
+        fmul    fr5, fr11
+        fmov    dr8, xd0
+        fmov    dr10, xd2
+
+        frchg
+        fneg    fr8
+        fneg    fr9
+        fneg    fr10
+        fneg    fr11
+        frchg
+
+        fschg
+    )"
+    :
+	: "f"(f), "f"(a), "f"(n)
+	: "fpul", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
 // ****************************************************************
@@ -1796,38 +1801,40 @@ SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float near_
 //  0.0f      | 0.0f      | 0.0f      | 1.0f
 // ****************************************************************
 SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT {
-	register float _w asm("fr4") = width * 0.5f;
-	register float _h asm("fr5") = height * 0.5f;
-	asm volatile(
-		"fldi0	fr6\n\t"
-		"fldi1	fr7\n\t"
-		"fmov	fr4, fr8\n\t"
-		"fmov	fr5, fr9\n\t"
-		"ftrv	xmtrx, fv4\n\t"
-		"fschg\n\t"
-		"fneg	fr9\n\t"
-		"fmov	xd0, dr10\n\t"
-		"fmul	fr8, fr10\n\t"
-		"fmul	fr8, fr11\n\t"
-		"fmov	dr4, xd12\n\t"
-		"fmov	dr6, xd14\n\t"
-		"fmov	xd2, dr4\n\t"
-		"fmul	fr8, fr4\n\t"
-		"fmul	fr8, fr5\n\t"
-		"fmov	dr10, xd0\n\t"
-		"fmov	xd4, dr6\n\t"
-		"fmul	fr9, fr6\n\t"
-		"fmul	fr9, fr7\n\t"
-		"fmov	dr4, xd2\n\t"
-		"fmov	xd6, dr10\n\t"
-		"fmul	fr9, fr10\n\t"
-		"fmul	fr9, fr11\n\t"
-		"fmov	dr6, xd4\n\t"
-		"fmov	dr10, xd6\n\t"
-		"fschg\n"
-		:
-		: "f"(_w), "f"(_h)
-		: "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
+	register float w asm("fr4") = width * 0.5f;
+	register float h asm("fr5") = height * 0.5f;
+
+	asm volatile(R"(
+        fldi0   fr6
+        fldi1   fr7
+        fmov    fr4, fr8
+        fmov    fr5, fr9
+        ftrv    xmtrx, fv4
+        fschg
+        fneg    fr9
+        fmov    xd0, dr10
+        fmul    fr8, fr10
+        fmul    fr8, fr11
+        fmov    dr4, xd12
+        fmov    dr6, xd14
+        fmov    xd2, dr4
+        fmul    fr8, fr4
+        fmul    fr8, fr5
+        fmov    dr10, xd0
+        fmov    xd4, dr6
+        fmul    fr9, fr6
+        fmul    fr9, fr7
+        fmov    dr4, xd2
+        fmov    xd6, dr10
+        fmul    fr9, fr10
+        fmul    fr9, fr11
+        fmov    dr6, xd4
+        fmov    dr10, xd6
+        fschg
+    )"
+	:
+	: "f"(w), "f"(h)
+	: "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4(shz_vec4_t vec) SHZ_NOEXCEPT {
