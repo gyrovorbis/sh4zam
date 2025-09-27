@@ -1433,78 +1433,79 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE void shz_xmtrx_apply_rotation_axis(float angle, float x, float y, float z) SHZ_NOEXCEPT {
-    register float _x asm("fr4") = x;
-    register float _y asm("fr5") = y;
-    register float _z asm("fr6") = z;
-    register float _a asm("fr7") = angle * SHZ_FSCA_RAD_FACTOR;
+    register float xx asm("fr4") = x;
+    register float yy asm("fr5") = y;
+    register float zz asm("fr6") = z;
+    register float aa asm("fr7") = angle * SHZ_FSCA_RAD_FACTOR;
 	
-	asm volatile(
-		"ftrc	fr7, fpul\n\t"
-		"fsca	fpul, dr2\n\t"
-		"fldi1	fr0\n\t"
-		"fsub	fr3, fr0\n\t"	/* 1-cos */
+    asm volatile(R"(
+        ftrc	fr7, fpul
+        fsca	fpul, dr2
+        fldi1	fr0
+        fsub	fr3, fr0	/* 1-cos */
 
-		"fldi0	fr7\n\t"
-		"fipr	fv4, fv4\n\t"
-		"fsrra	fr7\n\t"
-		"fmul	fr7, fr4\n\t"
-		"fmul	fr7, fr5\n\t"
-		"fmul	fr7, fr6\n\t"
+        fldi0	fr7
+        fipr	fv4, fv4
+        fsrra	fr7
+        fmul	fr7, fr4
+        fmul	fr7, fr5
+        fmul	fr7, fr6
 
-		"fmov	fr4, fr1\n\t"
-		"fmul	fr2, fr1\n\t"	/* xsin */
-		"fmov	fr5, fr7\n\t"
-		"fmul	fr2, fr7\n\t"	/* ysin */
-		"fmul	fr6, fr2\n\t"	/* zsin */
+        fmov	fr4, fr1
+        fmul	fr2, fr1	/* xsin */
+        fmov	fr5, fr7
+        fmul	fr2, fr7	/* ysin */
+        fmul	fr6, fr2	/* zsin */
 
-		"fmov	fr4, fr8\n\t"
-		"fmul	fr0, fr8\n\t"
-		"fmov	fr5, fr9\n\t"
-		"fmul	fr8, fr9\n\t"	/* xy(1-cos) */
-		"fmul	fr6, fr8\n\t"	/* xz(1-cos) */
-		"fmov	fr6, fr10\n\t"
-		"fmul	fr0, fr6\n\t"
-		"fmul	fr6, fr10\n\t"
-		"fadd	fr3, fr10\n\t"	/* zz(1-cos)+cos */
-		"fmul	fr5, fr6\n\t"	/* yz(1-cos) */
-		"fmul	fr5, fr5\n\t"
-		"fmul	fr0, fr5\n\t"
-		"fadd	fr3, fr5\n\t"	/* yy(1-cos)+cos */
-		"fmul	fr4, fr0\n\t"
-		"fmul	fr4, fr0\n\t"
-		"fadd	fr3, fr0\n\t"	/* xx(1-cos)+cos */
+        fmov	fr4, fr8
+        fmul	fr0, fr8
+        fmov	fr5, fr9
+        fmul	fr8, fr9	/* xy(1-cos) */
+        fmul	fr6, fr8	/* xz(1-cos) */
+        fmov	fr6, fr10
+        fmul	fr0, fr6
+        fmul	fr6, fr10
+        fadd	fr3, fr10	/* zz(1-cos)+cos */
+        fmul	fr5, fr6	/* yz(1-cos) */
+        fmul	fr5, fr5
+        fmul	fr0, fr5
+        fadd	fr3, fr5	/* yy(1-cos)+cos */
+        fmul	fr4, fr0
+        fmul	fr4, fr0
+        fadd	fr3, fr0	/* xx(1-cos)+cos */
 
-		"fmov	fr8, fr3\n\t"	/* xz(1-cos) */
-		"fmov	fr9, fr4\n\t"	/* xy(1-cos) */
-		"fadd	fr7, fr8\n\t"
-		"fmov	fr6, fr9\n\t"
-		"fsub	fr1, fr9\n\t"
-		"fldi0	fr11\n\t"
-		"ftrv	xmtrx, fv8\n\t"
+        fmov	fr8, fr3	/* xz(1-cos) */
+        fmov	fr9, fr4	/* xy(1-cos) */
+        fadd	fr7, fr8
+        fmov	fr6, fr9
+        fsub	fr1, fr9
+        fldi0	fr11
+        ftrv	xmtrx, fv8
 
-		"fadd	fr1, fr6\n\t"
-		"fmov	fr4, fr1\n\t"
-		"fsub	fr2, fr4\n\t"
-		"fsub	fr7, fr3\n\t"
-		"fldi0	fr7\n\t"
-		"ftrv	xmtrx, fv4\n\t"
-		
-		"fadd	fr2, fr1\n\t"
-		"fmov	fr3, fr2\n\t"
-		"fldi0	fr3\n\t"
-		"ftrv	xmtrx, fv0\n\t"
+        fadd	fr1, fr6
+        fmov	fr4, fr1
+        fsub	fr2, fr4
+        fsub	fr7, fr3
+        fldi0	fr7
+        ftrv	xmtrx, fv4
 
-		"fschg\n\t"
-		"fmov	dr10, xd10\n\t"
-		"fmov	dr8, xd8\n\t"
-		"fmov	dr6, xd6\n\t"
-		"fmov	dr4, xd4\n\t"
-		"fmov	dr2, xd2\n\t"
-		"fmov	dr0, xd0\n\t"
-		"fschg\n"
-		:
-		: "f"(_x), "f"(_y), "f"(_z), "f"(_a)
-		: "fpul", "fr0", "fr1", "fr2", "fr3", "fr8", "fr9", "fr10", "fr11");
+        fadd	fr2, fr1
+        fmov	fr3, fr2
+        fldi0	fr3
+        ftrv	xmtrx, fv0
+
+        fschg
+        fmov	dr10, xd10
+        fmov	dr8, xd8
+        fmov	dr6, xd6
+        fmov	dr4, xd4
+        fmov	dr2, xd2
+        fmov	dr0, xd0
+        fschg
+    )"
+    :
+    : "f"(xx), "f"(yy), "f"(zz), "f"(aa)
+    : "fpul", "fr0", "fr1", "fr2", "fr3", "fr8", "fr9", "fr10", "fr11");
 }
 
 /* Tait-Bryan angles, (extrinsic rotation notation) */
