@@ -159,9 +159,12 @@ struct vecN: C {
         *this = shz_vec_normalize_safe(*this);
     }
 
-    //! Returns the distance between the given vector and another.
-    SHZ_FORCE_INLINE float distance(CppType other) const noexcept {
-        return shz_vec_distance(*this, other);
+    SHZ_FORCE_INLINE float distance(this const CppType& self, const CppType& other) noexcept {
+        return shz_vec_distance(self, other);
+    }
+
+    SHZ_FORCE_INLINE float distance_sqr(this const CppType& self, const CppType& other) noexcept {
+        return shz_vec_distance_sqr(self, other);
     }
 
     //! Returns the vector created from reflecting the given vector over the normal of a surface.
