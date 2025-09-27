@@ -8,6 +8,7 @@
  *  \author    Falco Girgis
  *  \copyright MIT License
  */
+
 #ifndef SHZ_VECTOR_HPP
 #define SHZ_VECTOR_HPP
 

@@ -328,7 +328,7 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_yxz(float yAngle, float xAngle, float z
 SHZ_INLINE void shz_xmtrx_apply_rotation(shz_vec3_t axis, float angle) SHZ_NOEXCEPT;
 
 //! Applies the 3D "lookAt" matrix constructed with the given vector components onto XMTRX.
-SHZ_INLINE void shz_xmtrx_apply_lookat(float *position_3f, float *target_3f, float *up_3f) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_apply_lookat(const float* position_3f, const float* target_3f, const float* up_3f) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the perspective matrix constructed from the given values onto XMTRX.
 
