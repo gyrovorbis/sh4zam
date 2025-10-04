@@ -66,7 +66,7 @@ NOTE: <i>Where applicable, the C API also includes a variety of type-generic rou
 ## C++23
 For C++ code, include the header files with the `.hpp` extensions or `sh4zam/shz_sh4zam.hpp` to include everything.
 
-```c++
+```cxx
 #include <sh4zam/shz_sh4zam.hpp>
 
 int main(int argc, const char* argv[]) {
