@@ -42,42 +42,46 @@ NOTE: <i>This repo is still undergoing rapid changes as we pull in these routine
 ## C23
 For C code, include the header files with the `.h` extensions or `sh4zam/shz_sh4zam.h` to include everything.
 
-    #include <sh4zam/shz_sh4zam.h>
+```c
+#include <sh4zam/shz_sh4zam.h>
 
-    int main(int argc, const char *argv[]) {
-        shz_vec4_t vec1 = shz_vec4_init(2.0f, 3.0f, 4.0f, 1.0f);
-        shz_vec4_t vec2 = shz_vec4_normalize(shz_vec4_scale(vec1, shz_sinf(SHZ_F_PI)));
-        shz_mat4x4_t mat = {};
+int main(int argc, const char *argv[]) {
+    shz_vec4_t vec1 = shz_vec4_init(2.0f, 3.0f, 4.0f, 1.0f);
+    shz_vec4_t vec2 = shz_vec4_normalize(shz_vec4_scale(vec1, shz_sinf(SHZ_F_PI)));
+    shz_mat4x4_t mat = {};
 
-        shz_xmtrx_init_diagonal(vec2.x, vec2.y, vec2.z, vec2.w);
-        shz_xmtrx_apply_rotation_x(shz_vec4_dot(vec1, vec2));
-        shz_xmtrx_apply_translation(vec1.x, vec1.y, vec1.z);
-        shz_xmtrx_store_4x4(&mat);
+    shz_xmtrx_init_diagonal(vec2.x, vec2.y, vec2.z, vec2.w);
+    shz_xmtrx_apply_rotation_x(shz_vec4_dot(vec1, vec2));
+    shz_xmtrx_apply_translation(vec1.x, vec1.y, vec1.z);
+    shz_xmtrx_store_4x4(&mat);
 
-        shz_vec4_t vec3 = shz_xmtrx_transform_vec4(vec2);
+    shz_vec4_t vec3 = shz_xmtrx_transform_vec4(vec2);
 
-        return 0;
-    }
+    return 0;
+}
+```
 
 NOTE: <i>Where applicable, the C API also includes a variety of type-generic routines which will automatically resolve to calling the proper functions based on argument type. for example, `shz_vec_dot()` will automatically forward to the proper routine based on the type of vectors passed to it.</i>
 
 ## C++23
 For C++ code, include the header files with the `.hpp` extensions or `sh4zam/shz_sh4zam.hpp` to include everything.
 
-    #include <sh4zam/shz_sh4zam.hpp>
+```c++
+#include <sh4zam/shz_sh4zam.hpp>
 
-    int main(int argc, const char* argv[]) {
-        shz::vec4 vec1(2.0f, 3.0f, 4.0f, 1.0f);
-        shz::vec4 vec2 = shz::vec4(vec1 * shz::sinf(shz::pi_f)).direction();
-        shz::mat4x4 mat {};
+int main(int argc, const char* argv[]) {
+    shz::vec4 vec1(2.0f, 3.0f, 4.0f, 1.0f);
+    shz::vec4 vec2 = shz::vec4(vec1 * shz::sinf(shz::pi_f)).direction();
+    shz::mat4x4 mat {};
 
-        shz::xmtrx::init_diagonal(vec2.x,vec2.y, vec2.z, vec2.w);
-        shz::xmtrx::apply_rotation_x(vec1.dot(vec2));
-        shz::xmtrx::apply_translation(vec1.x, vec2.y, vec2.z);
-        shz::xmtrx::store(&mat);
+    shz::xmtrx::init_diagonal(vec2.x,vec2.y, vec2.z, vec2.w);
+    shz::xmtrx::apply_rotation_x(vec1.dot(vec2));
+    shz::xmtrx::apply_translation(vec1.x, vec2.y, vec2.z);
+    shz::xmtrx::store(&mat);
 
-        shz::vec4 vec3 = shz::xmtrx::transform(vec2);
-    }
+    shz::vec4 vec3 = shz::xmtrx::transform(vec2);
+}
+```
 
 NOTE: <i>C++ can still use the C API by design, and every C++ type is also compatible with its corresponding C types and C API, so you can mix and match.</i>
 
