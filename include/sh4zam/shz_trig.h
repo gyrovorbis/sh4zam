@@ -60,7 +60,7 @@ typedef struct shz_sincos {
 } shz_sincos_t;
 
 /*! \name  Sin/Cos Pairs
-    \brief Routines involving sinf() + cosf() pairs.
+    \brief Routines involving precomputed sine + cosine pairs.
     @{
 */
 
@@ -75,6 +75,15 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) SHZ_NOEXCEPT;
 
 //! Returns tanf() from the given pre-computed \p sincos pair.
 SHZ_FORCE_INLINE float shz_sincos_tanf(shz_sincos_t sincos) SHZ_NOEXCEPT;
+
+//! Returns the floating-point secant (1.0f / cosf(x)) from the given pre-computed \p sincos pair.
+SHZ_FORCE_INLINE float shz_sincos_secf(shz_sincos_t sincos) SHZ_NOEXCEPT;
+
+//! Returns the floating-point cosecant (1.0f / sinf(x)) from the given pre-computed \p sincos pair.
+SHZ_FORCE_INLINE float shz_sincos_cscf(shz_sincos_t sincos) SHZ_NOEXCEPT;
+
+//! Returns the floating-point cotangent (1.0f / tanf(x)) from the given pre-computed \p sincos pair.
+SHZ_FORCE_INLINE float shz_sincos_cotf(shz_sincos_t sincos) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -100,6 +109,24 @@ SHZ_FORCE_INLINE float shz_tanf(float radians) SHZ_NOEXCEPT;
 
 //! One-off routine for returning only tanf() from an angle in degrees.
 SHZ_FORCE_INLINE float shz_tanf_deg(float degrees) SHZ_NOEXCEPT;
+
+//! One-off routine for returning only secant (1 / cos(x)) from an angle in radians.
+SHZ_FORCE_INLINE float shz_secf(float radians) SHZ_NOEXCEPT;
+
+//! One-off routine for returning only secant (1 / cos(x)) from an angle in degrees.
+SHZ_FORCE_INLINE float shz_secf_deg(float degrees) SHZ_NOEXCEPT;
+
+//! One-off routine for returning only cosecant (1 / sin(x)) from an angle in radians.
+SHZ_FORCE_INLINE float shz_cscf(float radians) SHZ_NOEXCEPT;
+
+//! One-off routine for returning only cosecant (1 / sin(x)) from an angle in degrees.
+SHZ_FORCE_INLINE float shz_cscf_deg(float degrees) SHZ_NOEXCEPT;
+
+//! One-off routine for returning only cotangent (1 / tan(x)) from an angle in radians.
+SHZ_FORCE_INLINE float shz_cotf(float radians) SHZ_NOEXCEPT;
+
+//! One-off routine for returning only cotangent (1 / cot(x)) from an angle in degrees.
+SHZ_FORCE_INLINE float shz_cotf_deg(float degrees) SHZ_NOEXCEPT;
 
 //! @}
 

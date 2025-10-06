@@ -65,6 +65,18 @@ SHZ_FORCE_INLINE float shz_sincos_tanf(shz_sincos_t sincos) SHZ_NOEXCEPT {
     return shz_divf(sincos.sin, sincos.cos);
 }
 
+SHZ_FORCE_INLINE float shz_sincos_secf(shz_sincos_t sincos) SHZ_NOEXCEPT {
+    return shz_invf(sincos.cos);
+}
+
+SHZ_FORCE_INLINE float shz_sincos_cscf(shz_sincos_t sincos) SHZ_NOEXCEPT {
+    return shz_invf(sincos.sin);
+}
+
+SHZ_FORCE_INLINE float shz_sincos_cotf(shz_sincos_t sincos) SHZ_NOEXCEPT {
+    return shz_divf(sincos.cos, sincos.sin);
+}
+
 SHZ_FORCE_INLINE float shz_sinf(float radians) SHZ_NOEXCEPT {
     return shz_sincosf(radians).sin;
 }
@@ -87,6 +99,30 @@ SHZ_FORCE_INLINE float shz_tanf(float radians) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE float shz_tanf_deg(float degrees) SHZ_NOEXCEPT {
     return shz_sincos_tanf(shz_sincosf_deg(degrees));
+}
+
+SHZ_FORCE_INLINE float shz_secf(float radians) SHZ_NOEXCEPT {
+    return shz_sincos_secf(shz_sincosf(radians));
+}
+
+SHZ_FORCE_INLINE float shz_secf_deg(float degrees) SHZ_NOEXCEPT {
+    return shz_sincos_secf(shz_sincosf_deg(degrees));
+}
+
+SHZ_FORCE_INLINE float shz_cscf(float radians) SHZ_NOEXCEPT {
+    return shz_sincos_cscf(shz_sincosf(radians));
+}
+
+SHZ_FORCE_INLINE float shz_cscf_deg(float degrees) SHZ_NOEXCEPT {
+    return shz_sincos_cscf(shz_sincosf_deg(degrees));
+}
+
+SHZ_FORCE_INLINE float shz_cotf(float radians) SHZ_NOEXCEPT {
+    return shz_sincos_cotf(shz_sincosf(radians));
+}
+
+SHZ_FORCE_INLINE float shz_cotf_deg(float degrees) SHZ_NOEXCEPT {
+    return shz_sincos_cotf(shz_sincosf_deg(degrees));
 }
 
 SHZ_FORCE_INLINE float shz_atanf_unit(float x) SHZ_NOEXCEPT {
