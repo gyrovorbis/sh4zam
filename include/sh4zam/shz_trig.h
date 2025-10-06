@@ -150,6 +150,15 @@ SHZ_INLINE float shz_atanf_q1(float x) SHZ_NOEXCEPT;
 //! Fast arctangent approximation; equvalent to C's atanf().
 SHZ_INLINE float shz_atanf(float x) SHZ_NOEXCEPT;
 
+//! Fast arcsecant/inverse secant approximation, taking units in radians.
+SHZ_INLINE float shz_asecf(float x) SHZ_NOEXCEPT;
+
+//! Fast arccosecant/inverse cosecant approximation; taking units in radians.
+SHZ_INLINE float shz_acscf(float x) SHZ_NOEXCEPT;
+
+//! Fast arccotangent/inverse cotangent approximation; taking units in radians.
+SHZ_INLINE float shz_acotf(float x) SHZ_NOEXCEPT;
+
 //! @}
 
 #include "shz_trig.inl"

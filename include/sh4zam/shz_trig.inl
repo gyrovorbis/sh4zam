@@ -153,4 +153,16 @@ SHZ_INLINE float shz_acosf(float x) SHZ_NOEXCEPT {
     return (SHZ_F_PI * 0.5f) - shz_asinf(x);
 }
 
+SHZ_INLINE float shz_asecf(float x) SHZ_NOEXCEPT {
+    return shz_acosf(shz_invf(x));
+}
+
+SHZ_INLINE float shz_acscf(float x) SHZ_NOEXCEPT {
+    return shz_asinf(shz_invf(x));
+}
+
+SHZ_INLINE float shz_acotf(float x) SHZ_NOEXCEPT {
+    return shz_atanf(shz_invf(x));
+}
+
  //! \endcond
