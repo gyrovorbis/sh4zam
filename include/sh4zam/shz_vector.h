@@ -480,6 +480,13 @@ SHZ_DECLS_END
                  shz_vec3_t: shz_vec3_reflect, \
                  shz_vec4_t: shz_vec4_reflect)(incidence, normal)
 
+    //! C type-generic vector refraction.
+#   define shz_vec_refract(incidence, normal, eta) \
+        _Generic((incidence), \
+                 shz_vec2_t: shz_vec2_refract, \
+                 shz_vec3_t: shz_vec3_refract, \
+                 shz_vec4_t: shz_vec4_refract)(incidence, normal, eta)
+
     //! C type-generic vector cross-product.
 #   define shz_vec_cross(vec1, vec2) \
         _Generic((vec1), \
@@ -693,6 +700,18 @@ SHZ_DECLS_END
             return shz_vec3_reflect(incidence, normal);
         else if constexpr(std::convertible_to<T, shz_vec4_t>)
             return shz_vec4_reflect(incidence, normal);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! Type-generic refraction of a vector over the given surface normal returned.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_refract(T incidence, T normal, float eta) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_refract(incidence, normal, eta);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_refract(incidence, normal, eta);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_refract(incidence, normal, eta);
         else static_assert(false, "Incompatible type!");
     }
 
