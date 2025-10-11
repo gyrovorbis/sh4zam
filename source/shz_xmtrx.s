@@ -74,7 +74,7 @@ _shz_xmtrx_load_apply_store_unaligned_4x4:
     fmov.s  @r6+, fr2
     fmov.s  @r6+, fr3
     add     #32, r4
-    ftrv    xmtrx, fv8
+    ftrv    xmtrx, fv0
     fmov.s  fr4, @-r4
     fmov.s  fr5, @-r4
     fmov.s  fr6, @-r4
@@ -85,7 +85,7 @@ _shz_xmtrx_load_apply_store_unaligned_4x4:
     fmov.s  @r6+, fr6
     fmov.s  @r6+, fr7
     add     #32, r4
-    ftrv    xmtrx, fv12
+    ftrv    xmtrx, fv4
     fmov.s  fr0, @-r4
     fmov.s  fr1, @-r4
     fmov.s  fr2, @-r4
