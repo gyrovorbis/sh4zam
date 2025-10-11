@@ -1851,11 +1851,11 @@ SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4(shz_vec4_t vec) SHZ_NOEXCEP
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_vec3(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_xmtrx_transform_vec4((shz_vec4_t) { .vec3 = vec }).vec3;
+    return shz_xmtrx_transform_vec4((shz_vec4_t) { .xyz = vec }).xyz;
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_vec2(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return shz_xmtrx_transform_vec3((shz_vec3_t) { .vec2 = vec }).vec2;
+    return shz_xmtrx_transform_vec3((shz_vec3_t) { .xy = vec }).xy;
 }
 
 //! @}

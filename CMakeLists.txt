@@ -8,7 +8,7 @@ set(SHZ_VERSION ${SHZ_VERSION_MAJOR}.${SHZ_VERSION_MINOR}.${SHZ_VERSION_PATCH})
 project(sh4zam
         VERSION      ${SHZ_VERSION}
         DESCRIPTION  "Fast math library for the Sega Dreamcast's SH4 CPU"
-        HOMEPAGE_URL "sh4zam.elysianshadows.com"
+        HOMEPAGE_URL "sh4zam.falcogirgis.com"
         LANGUAGES    ASM C CXX)
 
 set(CMAKE_C_STANDARD 23)

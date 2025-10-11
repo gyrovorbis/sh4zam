@@ -28,23 +28,57 @@ SHZ_FORCE_INLINE float shz_ceilf(float x) SHZ_NOEXCEPT {
     return result;
 }
 
-SHZ_FAST_MATH SHZ_FORCE_INLINE float shz_fmacf(float a, float b, float c) SHZ_NOEXCEPT {
-#if 1 // Trust the compiler?
+SHZ_FORCE_INLINE float shz_copysignf(float x, float y) SHZ_NOEXCEPT {
+    x = fabsf(x);
+    return (y < 0.0f)? -x : x;
+}
+
+SHZ_FORCE_INLINE float shz_roundf(float x) SHZ_NOEXCEPT {
+    if(x > 0.0f) {
+        float xfloor = (float)(uint32_t)x;
+
+        if(x - xfloor >= 0.5f)
+            xfloor += 1.0f;
+
+        return xfloor;
+    } else if(x < 0.0f)
+        return -shz_roundf(-x);
+    else
+        return x;
+}
+
+SHZ_FORCE_INLINE float shz_fdimf(float x, float y) SHZ_NOEXCEPT {
+    return (x > y)? x - y : 0.0f;
+}
+
+SHZ_FORCE_INLINE float shz_hypotf(float x, float y) SHZ_NOEXCEPT {
+    return shz_sqrtf((x * x) + (y * y));
+}
+
+SHZ_FORCE_INLINE float shz_remainderf(float num, float denom) SHZ_NOEXCEPT {
+    return num - shz_roundf(shz_divf(num, denom)) * denom;
+}
+
+SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT {
+    return num - truncf(shz_divf(num, denom)) * denom;
+}
+
+SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEXCEPT {
+    *quot = shz_roundf(shz_divf(num, denom));
+    return num - *quot * denom;
+}
+
+// Compiler is smart enough to do the right thing regardless of flags.
+SHZ_FORCE_INLINE float shz_fmaf(float a, float b, float c) SHZ_NOEXCEPT {
     return a * b + c;
-#else // FUCK NO?
-    asm volatile ("fmac fr0, %[b], %[c]\n"
-    : [c] "+&f" (c)
-    : "w" (a), [b] "f" (b));
-  return c;
-#endif
 }
 
 SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) SHZ_NOEXCEPT {
-    return shz_fmacf(t, (b - a), a);
+    return shz_fmaf(t, (b - a), a);
 }
 
 SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u, float v) SHZ_NOEXCEPT {
-    return shz_fmacf(u, (b - a), shz_fmacf(v, (c - a), a));
+    return shz_fmaf(u, (b - a), shz_fmaf(v, (c - a), a));
 }
 
 SHZ_FORCE_INLINE float shz_inv_sqrtf(float x) SHZ_NOEXCEPT {
@@ -60,9 +94,11 @@ SHZ_FORCE_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT {
     return shz_inv_sqrtf(x * x);
 }
 
-SHZ_FAST_MATH SHZ_FORCE_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT {
-    // Call the compiler built-in explicitly in case -fno-builtin is used.
-    return __builtin_sqrtf(x);
+SHZ_FORCE_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return sqrtf(x);
+
+    return (x == 0.0f)? 0.0f : shz_sqrtf_fsrra(x);
 }
 
 SHZ_FORCE_INLINE float shz_invf(float x) SHZ_NOEXCEPT {

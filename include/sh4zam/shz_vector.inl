@@ -174,7 +174,7 @@ SHZ_FORCE_INLINE float shz_vec4_dot(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCE
 }
 
 SHZ_FORCE_INLINE float shz_vec3_dot(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT {
-    return shz_vec4_dot((shz_vec4_t){ .vec3 = vec1 }, (shz_vec4_t){ .vec3 = vec2 });
+    return shz_vec4_dot((shz_vec4_t){ .xyz = vec1 }, (shz_vec4_t){ .xyz = vec2 });
 }
 
 SHZ_FORCE_INLINE float shz_vec2_distance(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
@@ -235,6 +235,54 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_reflect(shz_vec3_t incidence, shz_vec3_t no
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_reflect(shz_vec4_t incidence, shz_vec4_t normal) SHZ_NOEXCEPT {
     return shz_vec4_add(incidence, shz_vec4_scale(normal, shz_vec4_dot(normal, shz_vec4_scale(incidence, -2.0))));
+}
+
+SHZ_INLINE shz_vec2_t shz_vec2_refract(shz_vec2_t incidence, shz_vec2_t normal, float eta) SHZ_NOEXCEPT {
+    const float dot = shz_vec2_dot(incidence, normal);
+    const float k   = 1.0f - eta * eta * (1.0f - dot * dot);
+
+    if(k < 0.0f)
+        return shz_vec2_init(0.0f, 0.0f);
+    else {
+        incidence = shz_vec2_scale(incidence, eta);
+
+        if(k == 0.0f)
+            return incidence;
+        else
+            return shz_vec2_sub(incidence, shz_vec2_scale(normal, eta * dot * shz_sqrtf_fsrra(k)));
+    }
+}
+
+SHZ_INLINE shz_vec3_t shz_vec3_refract(shz_vec3_t incidence, shz_vec3_t normal, float eta) SHZ_NOEXCEPT {
+    const float dot = shz_vec3_dot(incidence, normal);
+    const float k   = 1.0f - eta * eta * (1.0f - dot * dot);
+
+    if(k < 0.0f)
+        return shz_vec3_init(0.0f, 0.0f, 0.0f);
+    else {
+        incidence = shz_vec3_scale(incidence, eta);
+
+        if(k == 0.0f)
+            return incidence;
+        else
+            return shz_vec3_sub(incidence, shz_vec3_scale(normal, eta * dot * shz_sqrtf_fsrra(k)));
+    }
+}
+
+SHZ_INLINE shz_vec4_t shz_vec4_refract(shz_vec4_t incidence, shz_vec4_t normal, float eta) SHZ_NOEXCEPT {
+    const float dot = shz_vec4_dot(incidence, normal);
+    const float k   = 1.0f - eta * eta * (1.0f - dot * dot);
+
+    if(k < 0.0f)
+        return shz_vec4_init(0.0f, 0.0f, 0.0f, 0.0f);
+    else {
+        incidence = shz_vec4_scale(incidence, eta);
+
+        if(k == 0.0f)
+            return incidence;
+        else
+            return shz_vec4_sub(incidence, shz_vec4_scale(normal, eta * dot * shz_sqrtf_fsrra(k)));
+    }
 }
 
 SHZ_FORCE_INLINE float shz_vec2_cross(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {

@@ -59,9 +59,9 @@ GBL_TEST_CASE(ceilf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(fmacf)
-    GBL_TEST_VERIFY(shz::fmacf(1.0f,  2.0f,  3.0f) ==  5.0f);
-    GBL_TEST_VERIFY(shz::fmacf(0.0f,  1.0f,  4.0f) ==  4.0f);
-    GBL_TEST_VERIFY(shz::fmacf(3.0f, -1.0f, -5.0f) == -8.0f);
+    GBL_TEST_VERIFY(shz::fmaf(1.0f,  2.0f,  3.0f) ==  5.0f);
+    GBL_TEST_VERIFY(shz::fmaf(0.0f,  1.0f,  4.0f) ==  4.0f);
+    GBL_TEST_VERIFY(shz::fmaf(3.0f, -1.0f, -5.0f) == -8.0f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(lerpf)

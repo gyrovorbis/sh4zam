@@ -28,23 +28,35 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16(uint16_t radians16) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) SHZ_NOEXCEPT {
+#ifdef __FAST_MATH__
+    float rsin, rcos;
+
+    __builtin_sincosf(radians, &rsin, &rcos);
+
+#else
     register float rsin asm("fr8");
     register float rcos asm("fr9");
 
     radians *= SHZ_FSCA_RAD_FACTOR;
 
     asm volatile(R"(
-            ftrc  %2, fpul
-            fsca  fpul, dr8
-        )"
-        : "=f" (rsin), "=f" (rcos)
-        : "f" (radians)
-        : "fpul");
+        ftrc  %2, fpul
+        fsca  fpul, dr8
+    )"
+    : "=f" (rsin), "=f" (rcos)
+    : "f" (radians)
+    : "fpul");
+#endif
 
     return (shz_sincos_t){ rsin, rcos };
 }
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) SHZ_NOEXCEPT {
+#ifdef __FAST_MATH__
+    float rsin, rcos;
+
+    __builtin_sincosf(SHZ_DEG_TO_RAD(degrees), &rsin, &rcos);
+#else
     register float rsin asm("fr8");
     register float rcos asm("fr9");
 
@@ -57,6 +69,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) SHZ_NOEXCEPT {
     : "=&f" (rsin), "=&f" (rcos)
     : "f" (degrees)
     : "fpul");
+#endif
 
     return (shz_sincos_t){ rsin, rcos };
 }
@@ -129,7 +142,7 @@ SHZ_FORCE_INLINE float shz_atanf_unit(float x) SHZ_NOEXCEPT {
     const float n1 = 0.97239411f;
     const float n2 = -0.19194795f;
 
-    return shz_fmacf(n2, x * x, n1) * x;
+    return shz_fmaf(n2, x * x, n1) * x;
 }
 
 SHZ_INLINE float shz_atanf_q1(float x) SHZ_NOEXCEPT {

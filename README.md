@@ -1,13 +1,13 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <a href="https://github.com/gyrovorbis/sh4zam">
-    <img src="http://sh4zam.elysianshadows.com/logo.png" alt="SH4ZAM">
+    <img src="http://sh4zam.falcogirgis.com/logo.png" alt="SH4ZAM">
   </a>
   <h3 align="center"><strong>SH4ZAM!</strong></h3>
   <p align="center">
     Fast math library for the Sega Dreamcast's SH4 CPU
     <br />
-    <a href="http://sh4zam.elysianshadows.com"><strong>Explore the docs »</strong></a>
+    <a href="http://sh4zam.falcogirgis.com"><strong>Explore the docs »</strong></a>
   </p>
 </div>
 <hr>

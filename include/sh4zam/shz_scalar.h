@@ -3,16 +3,16 @@
  *  \ingroup scalar
  *
  *  This file provides a collection of general-purpose math routines for
- *  individual scalar values.
+ *  operating on floating-point scalar values.
  *
  *  \todo
- *      - ceilf()/floorf() use rounding modes?
- *      - ASM vs compiler builtins for FSRRA, FMAC.
+ *      - Use FP rounding modes for rounding functionality.
  *
  *  \author    Falco Girgis
  *  \author    Paul Cercueil
  *  \copyright MIT License
  */
+
 #ifndef SHZ_SCALAR_H
 #define SHZ_SCALAR_H
 
@@ -26,6 +26,11 @@
 
     This API is designed around performing various scalar operations, providing
     alternatives for routines typically found within `<math.h>`.
+
+    \warning
+    Unlike the standard C floating-point routines, these routines are often saving
+    cycles by not handling NaN and INF values as well as by not reporting rounding
+    and domain errors back to the user.
 */
 
 //! Returns the minimum of the two given values
@@ -40,25 +45,121 @@
 SHZ_DECLS_BEGIN
 
 /*! \name  Rounding
- *  \brief Routines for rounding floats.
+ *  \brief Routines for rounding and manipulating floats.
  *  @{
  */
 
-//! Returns the closest integral value to \p x, rounded down, as a float.
+/*! Replacement for the <math.h> routine, floorf().
+
+    Returns the closest integral value to \p x, rounded down, as a float.
+
+    \warning
+    This routine is only valid for for the range INT32_MIN <= \p x <= INT32_MAX.
+
+    \sa ceilf()
+*/
 SHZ_FORCE_INLINE float shz_floorf(float x) SHZ_NOEXCEPT;
 
-//! Returns the closest integral value to \p x, rounded up, as a float.
+/*! Replacement for the <math.h> routine, ceilf().
+
+    Returns the closest integral value to \p x, rounded up, as a float.
+
+    \warning
+    This routine only returns valid values for the input range
+    INT32_MIN <= \p x <= INT32_MAX.
+
+    \sa floorf()
+*/
 SHZ_FORCE_INLINE float shz_ceilf(float x) SHZ_NOEXCEPT;
+
+/*! Replacement for the <math.h> routine, roundf().
+
+    Returns the value of \p x rounded to the nearest integer, as a float.
+
+    \warning
+    This routine only returns valid values for the input range
+    -UINT32_MAX <= \p x <= UINT32_MAX.
+*/
+SHZ_FORCE_INLINE float shz_roundf(float x) SHZ_NOEXCEPT;
+
+/*! Replacement for the <math.h> routine, remainderf().
+
+    Returns the floating-point remainder of \p num divided by \p denom,
+    rounded to the nearest integer (as a float).
+
+    \warning
+    This routine does not gracefully handle dividing by zero.
+
+    \sa shz_fmodf(), shz_remquof()
+*/
+SHZ_FORCE_INLINE float shz_remainderf(float num, float denom) SHZ_NOEXCEPT;
+
+/*! Replacement for the <math.h> routine, fmodf().
+
+    Returns the floating-point remainder of \p num divided by \p denom,
+    rounded towards zero.
+
+    \warning
+    This routine does not gracefully handle dividing by zero.
+
+    \sa shz_remainderf()
+*/
+SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT;
+
+/*! (Sorta) Replacement for the <math.h> routine, remquof().
+
+    Returns the floating-point remainder of \p num divided by \p denom,
+    rounded to the nearest integer (as a float). \p quot is set equal to
+    the quotient which is used as part of the calculation.
+
+    \note
+    \p quot is returning as a `float` rather than an `int` as with standard C.
+    Simply cast to an `int` manually afterwards if that is the desired behavior.
+
+    \warning
+    This routine does not gracefully handle dividing by zero.
+
+    \sa shz_remainderf()
+*/
+SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEXCEPT;
 
 //! @}
 
-/*! \name  FMAC
- *  \brief Routines built around multiply + accumulate operations.
+/*! \name  Miscellaneous
+ *  \brief Assorted routines implementing other fp operations.
  *  @{
  */
 
-//! Returns \p a * \p b + \p c, performing an FP multiply + accumulate operation.
-SHZ_FAST_MATH SHZ_FORCE_INLINE float shz_fmacf(float a, float b, float c) SHZ_NOEXCEPT;
+/*! Replacement for the <math.h> routine, copysignf().
+
+    Returns the value of \p x with the sign of \p y.
+*/
+SHZ_FORCE_INLINE float shz_copysignf(float x, float y) SHZ_NOEXCEPT;
+
+/*! Replacement for the <math.h> routine, fmaf().
+
+    Returns \p a * \p b + \p c, performing an FP multiply + accumulate operation.
+*/
+SHZ_FORCE_INLINE float shz_fmaf(float a, float b, float c) SHZ_NOEXCEPT;
+
+/*! Replacement for the <math.h> routine, fdimf(),
+
+    Returns the positive difference between \p x and \p y or zero if
+    y >= x.
+
+    \warning
+    Unlike fdimf(), this routine does not handle INF and NAN values.
+*/
+SHZ_FORCE_INLINE float shz_fdimf(float x, float y) SHZ_NOEXCEPT;
+
+/*! Replacement for the <math.h> routine, hypotf().
+
+    Returns the hypoteneuse of the right triangle with the given legs.
+
+    \warning
+    Unlike hypotf(), this routine has no error or overflow handling.
+*/
+SHZ_FORCE_INLINE float shz_hypotf(float x, float y) SHZ_NOEXCEPT;
 
 //! Returns a value that is linearly interpolated between \p a and \p b by the given ratio, \p t.
 SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) SHZ_NOEXCEPT;
@@ -82,8 +183,8 @@ SHZ_FORCE_INLINE float shz_sqrtf_fsrra(float x) SHZ_NOEXCEPT;
 //! Takes the inverse of \p p using a very fast approximation, returning a positive result.
 SHZ_FORCE_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT;
 
-//! Calculates the square root of \p x using the `FSQRT` instruction.
-SHZ_FAST_MATH SHZ_FORCE_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT;
+//! Calculates the square root of \p x using a fast approximation.
+SHZ_FORCE_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT;
 
 //! Takes the inverse of \p p using a slighty faster approximation than doing a full division.
 SHZ_FORCE_INLINE float shz_invf(float x) SHZ_NOEXCEPT;

@@ -53,17 +53,31 @@ namespace shz {
      *  @{
      */
     //! C++ alias for shz_floorf().
-    constexpr auto floorf = shz_floorf;
+    constexpr auto floorf     = shz_floorf;
     //! C++ alias for shz_ceilf().
-    constexpr auto ceilf  = shz_ceilf;
+    constexpr auto ceilf      = shz_ceilf;
+    //! C++ alias for shz_roundf().
+    constexpr auto roundf     = shz_roundf;
+    //! C++ alias for shz_remainderf().
+    constexpr auto remainderf = shz_remainderf;
+    //! C++ alias for shz_fmodf().
+    constexpr auto fmodf      = shz_fmodf;
+    //! C++ alias for shz_remquof().
+    constexpr auto remquof    = shz_remquof;
     //! @}
 
     /*! \name  FMAC
      *  \brief Routines built around multiply + accumulate operations.
      *  @{
      */
+    //! C++ alias for shz_copysignf().
+    constexpr auto copysignf         = shz_copysignf;
     //! C++ alias for shz_fmacf().
-    constexpr auto fmacf             = shz_fmacf;
+    constexpr auto fmaf              = shz_fmaf;
+    //! C++ alias for shz_fdimf().
+    constexpr auto fdimf             = shz_fdimf;
+    //! C++ alias for shz_hypotf().
+    constexpr auto hypotf            = shz_hypotf;
     //! C++ alias for shz_lerpf().
     constexpr auto lerpf             = shz_lerpf;
     //! C++ alias for shz_barycentric_lerpf().

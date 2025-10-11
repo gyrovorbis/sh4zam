@@ -40,11 +40,11 @@ SHZ_DECLS_BEGIN
  */
 typedef struct shz_vec2 {
     union {
+        float e[2];  //!< <X, Y> coordinates as an array
         struct {
             float x; //!< X coordinate
             float y; //!< Y coordinate
         };
-        float e[2];  //!< <X, Y> coordinates as an array
     };
 } shz_vec2_t;
 
@@ -56,17 +56,17 @@ typedef struct shz_vec2 {
  */
 typedef struct shz_vec3 {
     union {
+        float e[3];              //!< <X, Y, Z> coordinates as an array
         struct {
             union {
                 struct {
                     float x;     //!< X coordinate
                     float y;     //!< Y coordinate
                 };
-                shz_vec2_t vec2; //!< Inner 2D vector containing <X, Y> coords
+                shz_vec2_t xy;   //!< Inner 2D vector containing <X, Y> coords
             };
             float z;             //!< Z coordinate
         };
-        float e[3];              //!< <X, Y, Z> coordinates as an array
     };
 } shz_vec3_t;
 
@@ -78,23 +78,22 @@ typedef struct shz_vec3 {
  */
 typedef struct shz_vec4 {
     union {
+        float e[4];                 //!< <X, Y, Z, W> coordinates as an array.
         struct {
             union {
                 struct {
-                    union {
-                        struct {
-                            float x;     //!< X coordinate
-                            float y;     //!< Y coordinate
-                        };
-                        shz_vec2_t vec2; //!< Inner 2D vector containing <X, Y> coords
-                    };
-                    float z;             //!< Z coordinate
+                    float x;        //!< X coordinate
+                    float y;        //!< Y coordinate
+                    float z;        //!< Z coordinate
                 };
-                shz_vec3_t vec3;         //!< Inner 3D vector containing <X, Y, Z> coords
+                shz_vec3_t xyz;     //!< <X, Y, Z> coordinates as a 3D vector
             };
-            float w;                     //!< W coordinate
+            float w;                //!< W coordinate
         };
-        float e[4];                      //!< <X, Y, Z, W> coordinates as an array
+        struct {
+            shz_vec2_t xy;          //!< <X, Y> coordinates as a 2D vector
+            shz_vec2_t zw;          //!< <Z, W> coordinates as a 2D vector
+        };
     };
 } shz_vec4_t;
 
@@ -276,6 +275,15 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_reflect(shz_vec3_t incidence, shz_vec3_t no
 
 //! Reflects the given 4D \p incidence vector against a surface with the given \p normal, returning the result.
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_reflect(shz_vec4_t incidence, shz_vec4_t normal) SHZ_NOEXCEPT;
+
+//! Refracts the given 2D \p incidence vector against a surface with the given \p normal using the given refraction index ratio, \p eta.
+SHZ_INLINE shz_vec2_t shz_vec2_refract(shz_vec2_t incidence, shz_vec2_t normal, float eta) SHZ_NOEXCEPT;
+
+//! Refracts the given 3D \p incidence vector against a surface with the given \p normal using the given refraction index ratio, \p eta.
+SHZ_INLINE shz_vec3_t shz_vec3_refract(shz_vec3_t incidence, shz_vec3_t normal, float eta) SHZ_NOEXCEPT;
+
+//! Refracts the given 4D \p incidence vector against a surface with the given \p normal using the given refraction index ratio, \p eta.
+SHZ_INLINE shz_vec4_t shz_vec4_refract(shz_vec4_t incidence, shz_vec4_t normal, float eta) SHZ_NOEXCEPT;
 
 /*! Returns the cross product, as a scalar, between two 2D vectors.
 
