@@ -399,6 +399,16 @@ struct xmtrx {
         shz_xmtrx_transpose();
     }
 
+    //! C++ wrapper around shz_xmtrx_negate().
+    SHZ_FORCE_INLINE static void negate() noexcept {
+        shz_xmtrx_negate();
+    }
+
+    //! C++ wrapper around shz_xmtrx_abs().
+    SHZ_FORCE_INLINE static void abs() noexcept {
+        shz_xmtrx_abs();
+    }
+
     //! C++ wrapper around shz_xmtrx_to_quat().
     SHZ_FORCE_INLINE static quat to_quat() noexcept {
         return shz_xmtrx_to_quat();

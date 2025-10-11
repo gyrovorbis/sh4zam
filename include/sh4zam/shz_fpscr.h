@@ -8,6 +8,7 @@
     \todo
         - shz_fschg_scoped()
         - shz_frchg_scoped()
+        - C++ bindings
 
     \author    Falco Girgis
     \copyright MIT License

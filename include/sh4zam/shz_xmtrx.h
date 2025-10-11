@@ -463,6 +463,12 @@ SHZ_INLINE void shz_xmtrx_add_diagonal(float x, float y, float z, float w) SHZ_N
 //! Transposes the elements within XMTRX, in-place.
 SHZ_INLINE void shz_xmtrx_transpose(void) SHZ_NOEXCEPT;
 
+//! Negates each element held within XMTRX.
+SHZ_INLINE void shz_xmtrx_negate(void) SHZ_NOEXCEPT;
+
+//! Takes the absolute value of each element held within XMTRX.
+SHZ_INLINE void shz_xmtrx_abs(void) SHZ_NOEXCEPT;
+
 //! Constructs a quaternion from the 3D rotation matrix within XMTRX.
 shz_quat_t shz_xmtrx_to_quat(void) SHZ_NOEXCEPT;
 

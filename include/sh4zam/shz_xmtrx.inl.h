@@ -1901,6 +1901,52 @@ SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT {
 	: "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
+SHZ_INLINE viod shz_xmtrx_negate(void) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        frchg
+        fneg    fr0
+        fneg    fr1
+        fneg    fr2
+        fneg    fr3
+        fneg    fr4
+        fneg    fr5
+        fneg    fr6
+        fneg    fr7
+        fneg    fr8
+        fneg    fr9
+        fneg    fr10
+        fneg    fr11
+        fneg    fr12
+        fneg    fr13
+        fneg    fr14
+        fneg    fr15
+        frchg
+    )");
+}
+
+SHZ_INLINE viod shz_xmtrx_abs(void) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        frchg
+        fabs    fr0
+        fabs    fr1
+        fabs    fr2
+        fabs    fr3
+        fabs    fr4
+        fabs    fr5
+        fabs    fr6
+        fabs    fr7
+        fabs    fr8
+        fabs    fr9
+        fabs    fr10
+        fabs    fr11
+        fabs    fr12
+        fabs    fr13
+        fabs    fr14
+        fabs    fr15
+        frchg
+    )");
+}
+
 SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4(shz_vec4_t vec) SHZ_NOEXCEPT {
     register float rx asm("fr8")  = vec.x;
     register float ry asm("fr9")  = vec.y;
