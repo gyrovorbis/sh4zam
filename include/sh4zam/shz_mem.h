@@ -22,6 +22,8 @@
 #include "shz_cdefs.h"
 #include "shz_fpscr.h"
 
+#include <stdbool.h>
+
 /*! \defgroup memory Memory
     \brief    Routines for managing memory.
 
