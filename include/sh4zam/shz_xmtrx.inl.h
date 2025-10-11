@@ -1901,7 +1901,7 @@ SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT {
 	: "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
-SHZ_INLINE viod shz_xmtrx_negate(void) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_negate(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         fneg    fr0
@@ -1924,7 +1924,7 @@ SHZ_INLINE viod shz_xmtrx_negate(void) SHZ_NOEXCEPT {
     )");
 }
 
-SHZ_INLINE viod shz_xmtrx_abs(void) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_abs(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         fabs    fr0
