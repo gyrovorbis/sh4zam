@@ -21,5 +21,6 @@
 #include "shz_quat.h"
 #include "shz_matrix.h"
 #include "shz_xmtrx.h"
+#include "shz_circle.h"
 
 #endif

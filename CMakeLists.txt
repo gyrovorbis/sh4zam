@@ -23,12 +23,14 @@ set(SHZ_SOURCES
     source/shz_circle.c
     source/shz_mem.s
     source/shz_xmtrx.c
+    source/shz_xmtrx.s
     source/shz_quat.c)
 
 set(SHZ_INCLUDES
     include/sh4zam/shz_cdefs.h
     include/sh4zam/shz_cdefs.hpp
     include/sh4zam/shz_circle.h
+    include/sh4zam/shz_circle.hpp
     include/sh4zam/shz_trig.h
     include/sh4zam/shz_trig.hpp
     include/sh4zam/shz_trig.inl.h

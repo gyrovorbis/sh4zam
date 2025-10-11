@@ -396,12 +396,20 @@ SHZ_INLINE void shz_xmtrx_load_apply_unaligned_4x4(const float matrix1[16],
     However, it has been optimized and pipelined for performing the loads,
     multiplies, and stores in parallel.
 
-    \sa shz_xmtrx_load_apply()
+    \sa shz_xmtrx_load_apply(), shz_xmtrx_load_apply_store_unaligned_4x4()
 */
 SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
                                                const shz_mat4x4_t* matrix1,
                                                const shz_mat4x4_t* matrix2) SHZ_NOEXCEPT;
 
+/*! Loads XMTRX with the result of applying unaligned \p matrix2 onto unaligned \p matrix1, storing the result.
+
+    This routine is equivalent to shz_xmtrx_load_apply_store_4x4(), except that the three
+    operand matrices do not require 8-byte alignment and can simply be 16-element
+    single-precision float arrays.
+
+    \sa shz_xmtrx_load_apply_store_4x4()
+*/
 void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
                                               const float matrix1[16],
                                               const float matrix2[16]) SHZ_NOEXCEPT;
