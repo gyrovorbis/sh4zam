@@ -295,6 +295,69 @@ SHZ_INLINE void shz_xmtrx_load_apply_4x4(const shz_mat4x4_t* matrix1,
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
+SHZ_INLINE void shz_xmtrx_load_apply_unaligned_4x4(const float matrix1[16],
+                                                   const float matrix2[16]) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        frchg
+
+        fmov.s  @%[m1]+, fr0
+        add     #32, %[m1]
+        pref    @%[m1]
+        add     #-(32-4), %[m1]
+        fmov.s  @%[m1]+, fr1
+        fmov.s  @%[m1]+, fr2
+        fmov.s  @%[m1]+, fr3
+        fmov.s  @%[m1]+, fr4
+        fmov.s  @%[m1]+, fr5
+        fmov.s  @%[m1]+, fr6
+        fmov.s  @%[m1]+, fr7
+
+        pref    @%[m2]
+        fmov.s  @%[m1]+, fr8
+        fmov.s  @%[m1]+, fr9
+        fmov.s  @%[m1]+, fr10
+        fmov.s  @%[m1]+, fr11
+        fmov.s  @%[m1]+, fr12
+        fmov.s  @%[m1]+, fr13
+        fmov.s  @%[m1]+, fr14
+        add     #32, %[m2]
+        fmov.s  @%[m1]+, fr15
+        pref    @%[m2]
+        frchg
+        add     #-32, %[m2]
+
+        fmov.s  @%[m2]+, fr0
+        fmov.s  @%[m2]+, fr1
+        fmov.s  @%[m2]+, fr2
+        fmov.s  @%[m2]+, fr3
+        fmov.s  @%[m2]+, fr4
+        fmov.s  @%[m2]+, fr5
+        ftrv    xmtrx, fv0
+
+        fmov.s  @%[m2]+, fr6
+        fmov.s  @%[m2]+, fr7
+        fmov.s  @%[m2]+, fr8
+        fmov.s  @%[m2]+, fr9
+        ftrv    xmtrx, fv4
+
+        fmov.s  @%[m2]+, fr10
+        fmov.s  @%[m2]+, fr11
+        fmov.s  @%[m2]+, fr12
+        fmov.s  @%[m2]+, fr13
+        ftrv    xmtrx, fv8
+
+        fmov.s  @%[m2]+, fr14
+        fmov.s  @%[m2]+, fr15
+        ftrv    xmtrx, fv12
+
+        frchg
+    )"
+    : [m1] "+&r" (matrix1), [m2] "+&r" (matrix2)
+    : "m" (*matrix1), "m" (*matrix2)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+}
+
 SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
                                                const shz_mat4x4_t* matrix1,
                                                const shz_mat4x4_t* matrix2) SHZ_NOEXCEPT {
