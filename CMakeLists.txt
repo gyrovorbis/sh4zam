@@ -31,25 +31,25 @@ set(SHZ_INCLUDES
     include/sh4zam/shz_circle.h
     include/sh4zam/shz_trig.h
     include/sh4zam/shz_trig.hpp
-    include/sh4zam/shz_trig.inl
+    include/sh4zam/shz_trig.inl.h
     include/sh4zam/shz_scalar.h
     include/sh4zam/shz_scalar.hpp
-    include/sh4zam/shz_scalar.inl
+    include/sh4zam/shz_scalar.inl.h
     include/sh4zam/shz_vector.h
     include/sh4zam/shz_vector.hpp
-    include/sh4zam/shz_vector.inl
+    include/sh4zam/shz_vector.inl.h
     include/sh4zam/shz_xmtrx.h
     include/sh4zam/shz_xmtrx.hpp
-    include/sh4zam/shz_xmtrx.inl
+    include/sh4zam/shz_xmtrx.inl.h
     include/sh4zam/shz_matrix.h
     include/sh4zam/shz_matrix.hpp
-    include/sh4zam/shz_matrix.inl
+    include/sh4zam/shz_matrix.inl.h
     include/sh4zam/shz_quat.h
     include/sh4zam/shz_quat.hpp
-    include/sh4zam/shz_quat.inl
+    include/sh4zam/shz_quat.inl.h
     include/sh4zam/shz_mem.h
     include/sh4zam/shz_mem.hpp
-    include/sh4zam/shz_mem.inl
+    include/sh4zam/shz_mem.inl.h
     include/sh4zam/shz_fpscr.h
     include/sh4zam/shz_sh4zam.h
     include/sh4zam/shz_sh4zam.hpp)

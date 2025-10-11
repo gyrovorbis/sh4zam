@@ -770,7 +770,7 @@ SHZ_DECLS_END
     }
 #endif
 
-#include "shz_vector.inl"
+#include "shz_vector.inl.h"
 
 //! @}
 

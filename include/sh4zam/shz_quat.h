@@ -168,7 +168,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT;
 */
 SHZ_INLINE shz_vec3_t shz_quat_transform_vec3(shz_quat_t q, shz_vec3_t v) SHZ_NOEXCEPT;
 
-#include "shz_quat.inl"
+#include "shz_quat.inl.h"
 
 SHZ_DECLS_END
 

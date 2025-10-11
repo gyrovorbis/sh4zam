@@ -234,7 +234,7 @@ SHZ_FORCE_INLINE float shz_expf(float p) SHZ_NOEXCEPT;
 
 //! @}
 
-#include "shz_scalar.inl"
+#include "shz_scalar.inl.h"
 
 SHZ_DECLS_END
 

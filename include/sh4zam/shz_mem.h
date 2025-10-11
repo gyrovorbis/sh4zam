@@ -334,7 +334,7 @@ SHZ_INLINE void* shz_sq_memcpy32_1(      void* SHZ_RESTRICT dst,
 
 //! @}
 
-#include "shz_mem.inl"
+#include "shz_mem.inl.h"
 
 SHZ_DECLS_END
 

@@ -402,6 +402,10 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
                                                const shz_mat4x4_t* matrix1,
                                                const shz_mat4x4_t* matrix2) SHZ_NOEXCEPT;
 
+void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
+                                              const float matrix1[16],
+                                              const float matrix2[16]) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Vector Transformations
@@ -459,7 +463,7 @@ float shz_xmtrx_determinant(void) SHZ_NOEXCEPT;
 
 //! @}
 
-#include "shz_xmtrx.inl"
+#include "shz_xmtrx.inl.h"
 
 SHZ_DECLS_END
 

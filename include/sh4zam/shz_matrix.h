@@ -380,7 +380,7 @@ SHZ_INLINE shz_vec3_t shz_matrix3x3_trans_vec3(const shz_mat3x3_t* m, shz_vec3_t
 
 //! \endcond
 
-#include "shz_matrix.inl"
+#include "shz_matrix.inl.h"
 
 SHZ_DECLS_END
 
