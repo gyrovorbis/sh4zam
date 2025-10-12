@@ -7,7 +7,7 @@
   <p align="center">
     Fast math library for the Sega Dreamcast's SH4 CPU
     <br />
-    <a href="http://sh4zam.falcogirgis.com"><strong>Explore the docs »</strong></a>
+    <a href="http://sh4zam.falcogirgis.net"><strong>Explore the docs »</strong></a>
   </p>
 </div>
 <hr>
