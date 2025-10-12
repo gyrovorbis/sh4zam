@@ -49,6 +49,8 @@ static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, 
 }
 
 GBL_TEST_CASE(read_write_registers)
+    randomize_xmtrx_();
+
     shz::xmtrx::write(shz::xmtrx::XF0,  100.0f);
     shz::xmtrx::write(shz::xmtrx::XF1,  101.0f);
     shz::xmtrx::write(shz::xmtrx::XF2,  102.0f);
@@ -85,6 +87,8 @@ GBL_TEST_CASE(read_write_registers)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(read_write_rows)
+    randomize_xmtrx_();
+
     shz::xmtrx::write_row(0, {  1.0f,  2.0f,  3.0f,  4.0f });
     shz::xmtrx::write_row(1, {  5.0f,  6.0f,  7.0f,  8.0f });
     shz::xmtrx::write_row(2, {  9.0f, 10.0f, 11.0f, 12.0f });
@@ -97,6 +101,8 @@ GBL_TEST_CASE(read_write_rows)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(read_write_cols)
+    randomize_xmtrx_();
+
     shz::xmtrx::write_col(0, {  1.0f,  2.0f,  3.0f,  4.0f });
     shz::xmtrx::write_col(1, {  5.0f,  6.0f,  7.0f,  8.0f });
     shz::xmtrx::write_col(2, {  9.0f, 10.0f, 11.0f, 12.0f });
