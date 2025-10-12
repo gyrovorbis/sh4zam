@@ -1259,15 +1259,15 @@ SHZ_INLINE void shz_xmtrx_init_outer_product(shz_vec4_t a, shz_vec4_t b) SHZ_NOE
         fschg
 
         fmov    fr2, fr1
+        fmov    fr6, fr4
         ftrv    xmtrx, fv0
 
-        fmov    fr6, fr4
+        fmov    fr8, fr11
         ftrv    xmtrx, fv4
 
-        fmov    fr8, fr11
+        fmov    fr12, fr14
         ftrv    xmtrx, fv8
 
-        fmov    fr12, fr14
         ftrv    xmtrx, fv12
 
         frchg
