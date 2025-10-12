@@ -1,5 +1,3 @@
-#ifndef SHZ_TRIG_HPP
-#define SHZ_TRIG_HPP
 /*! \file
  *  \brief   C++ trigonometry API.
  *  \ingroup trig
@@ -10,6 +8,9 @@
  *  \author    Falco Girgis
  *  \copyright MIT License
  */
+
+#ifndef SHZ_TRIG_HPP
+#define SHZ_TRIG_HPP
 
 #include <tuple>
 #include <utility>
@@ -101,29 +102,29 @@ namespace shz {
     */
 
     //! C++ wrapper around shz_sinf().
-    constexpr auto sinf        = shz_sinf;
+    constexpr auto sinf     = shz_sinf;
     //! C++ wrapper around shz_sinf_deg().
-    constexpr auto sinf_deg    = shz_sinf_deg;
+    constexpr auto sinf_deg = shz_sinf_deg;
     //! C++ wrapper around shz_cosf().
-    constexpr auto cosf        = shz_cosf;
+    constexpr auto cosf     = shz_cosf;
     //! C++ wrapper around shz_cosf_deg().
-    constexpr auto cosf_deg    = shz_cosf_deg;
+    constexpr auto cosf_deg = shz_cosf_deg;
     //! C++ wrapper around shz_tanf().
-    constexpr auto tanf        = shz_tanf;
+    constexpr auto tanf     = shz_tanf;
     //! C++ wrapper around shz_tanf_deg().
-    constexpr auto tanf_deg    = shz_tanf_deg;
+    constexpr auto tanf_deg = shz_tanf_deg;
     //! C++ wrapper around shz_secf().
-    constexpr auto secf        = shz_secf;
+    constexpr auto secf     = shz_secf;
     //! C++ wrapper around shz_secf_deg().
-    constexpr auto secf_deg    = shz_secf_deg;
+    constexpr auto secf_deg = shz_secf_deg;
     //! C++ wrapper around shz_cscf().
-    constexpr auto cscf        = shz_cscf;
+    constexpr auto cscf     = shz_cscf;
     //! C++ wrapper around shz_cscf_deg().
-    constexpr auto cscf_deg    = shz_cscf_deg;
+    constexpr auto cscf_deg = shz_cscf_deg;
     //! C++ wrapper around shz_cotf().
-    constexpr auto cotf        = shz_cotf;
+    constexpr auto cotf     = shz_cotf;
     //! C++ wrapper around shz_cotf_deg().
-    constexpr auto cotf_deg    = shz_cotf_deg;
+    constexpr auto cotf_deg = shz_cotf_deg;
 
     //! @}
 
@@ -133,21 +134,21 @@ namespace shz {
     */
 
     //! C++ wrapper around shz_atanf_unit().
-    constexpr auto atanf_unit  = shz_atanf_unit;
+    constexpr auto atanf_unit = shz_atanf_unit;
     //! C++ wrapper around shz_atanf_q1().
-    constexpr auto atanf_q1    = shz_atanf_q1;
+    constexpr auto atanf_q1   = shz_atanf_q1;
     //! C++ wrapper around shz_atanf().
-    constexpr auto atanf       = shz_atanf;
+    constexpr auto atanf      = shz_atanf;
     //! C++ wrapper around shz_asinf().
-    constexpr auto asinf       = shz_asinf;
+    constexpr auto asinf      = shz_asinf;
     //! C++ wrapper around shz_acosf().
-    constexpr auto acosf       = shz_acosf;
+    constexpr auto acosf      = shz_acosf;
     //! C++ wrapper around shz_asecf().
-    constexpr auto asecf       = shz_asecf;
+    constexpr auto asecf      = shz_asecf;
     //! C++ wrapper around shz_acscf().
-    constexpr auto acscf       = shz_acscf;
+    constexpr auto acscf      = shz_acscf;
     //! C++ wrapper around shz_acotf().
-    constexpr auto acotf       = shz_acotf;
+    constexpr auto acotf      = shz_acotf;
 
     //! @}
 }

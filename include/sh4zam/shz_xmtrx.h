@@ -257,6 +257,9 @@ SHZ_INLINE void shz_xmtrx_init_diagonal(float x, float y, float z, float w) SHZ_
 //! Initializes XMTRX to be the 3D symmetric skew matrix formed from the given vector components.
 SHZ_INLINE void shz_xmtrx_init_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;
 
+//! Initializex XMTRX to the 4D matrix resulting from taking the outer product of the two 4D vectors.
+SHZ_INLINE void shz_xmtrx_init_outer_product(shz_vec4_t x, shz_vec4_t y) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Apply Operation

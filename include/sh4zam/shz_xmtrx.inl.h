@@ -1213,6 +1213,71 @@ SHZ_INLINE void shz_xmtrx_init_symmetric_skew(float x, float y, float z) SHZ_NOE
       "m" (x), "m" (y), "m" (z));
 }
 
+/* This actually does a 4x4 matrix multiply to do the outer product.
+   It's this:
+
+   [ x1 x1 x1 x1 ] [ y1 0 0 0 ]     [ x1y1 x1y2 x1y3 x1y4 ]
+   [ x2 x2 x2 x2 ] [ 0 y2 0 0 ]  =  [ x2y1 x2y2 x2y3 x2y4 ]
+   [ x3 x3 x3 x3 ] [ 0 0 y3 0 ]     [ x3y1 x3y2 x3y3 x3y4 ]
+   [ x4 x4 x4 x4 ] [ 0 0 0 y4 ]     [ x4y1 x4y2 x4y3 x4y4 ]
+
+    -- MoopTheHedgehog
+*/
+SHZ_INLINE void shz_xmtrx_init_outer_product(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT {
+    register float ax asm("fr4") = a.x;
+    register float ay asm("fr5") = a.y;
+    register float az asm("fr6") = a.z;
+    register float aw asm("fr7") = a.w;
+
+    register float bx asm("fr8")  = b.x;
+    register float by asm("fr9")  = b.y;
+    register float bz asm("fr10") = b.z;
+    register float bw asm("fr11") = b.w;
+
+    asm volatile(R"(
+        fldi0   fr2
+        fmov    fr2, fr3
+
+        fschg
+        fmov    dr4, xd0
+        fmov    dr4, xd4
+        fmov    dr4, xd8
+        fmov    dr4, xd12
+
+        fmov    dr6, xd2
+        fmov    dr6, xd6
+        fmov    dr6, xd10
+        fmov    dr6, xd14
+
+        fmov    dr8, dr0
+        fmov    dr8, dr4
+        fmov    dr10, dr14
+
+        fmov    dr2, dr6
+        fmov    dr2, dr8
+        fmov    dr2, dr12
+        fschg
+
+        fmov    fr2, fr1
+        ftrv    xmtrx, fv0
+
+        fmov    fr6, fr4
+        ftrv    xmtrx, fv4
+
+        fmov    fr8, fr11
+        ftrv    xmtrx, fv8
+
+        fmov    fr12, fr14
+        ftrv    xmtrx, fv12
+
+        frchg
+    )"
+    :
+    : "f" (ax), "f" (ay), "f" (az), "f" (aw),
+      "f" (bx), "f" (by), "f" (bz), "f" (bw)
+    : "fr0", "fr1", "fr2", "fr3", "fr12", "fr13", "fr14", "fr15");
+}
+
 SHZ_INLINE void shz_xmtrx_apply_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT {
     asm volatile(R"(
         fldi0   fr0

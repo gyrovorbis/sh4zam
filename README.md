@@ -29,13 +29,13 @@ NOTE: <i>This repo is still undergoing rapid changes as we pull in these routine
 - **Intrinsics** for SH4 instructions not emitted by GCC
 - **Memory** routines (memcpy(), memset(), memmove(), etc)
 - **Floating-point Environment** control
-- **Scalar** math operations
+- **Scalar** math operations, including faster `<math.h>` replacements
 - **Trigonomety** functions
 - **Vector** types: 2D, 3D, 4D
 - **Matrix** types: 2x2, 3x2, 3x3, 3x4, 4x3, and 4x4
 - **Quaternion** math operations
 - **XMTRX** API for manipulating 4x4 back-bank of FP registers
-- **Miscellaneous** optimized routines such as IPv4 checksum
+- **Miscellaneous** optimized routines
 
 # Examples
 
@@ -74,12 +74,14 @@ int main(int argc, const char* argv[]) {
     shz::vec4 vec2 = shz::vec4(vec1 * shz::sinf(shz::pi_f)).direction();
     shz::mat4x4 mat {};
 
-    shz::xmtrx::init_diagonal(vec2.x,vec2.y, vec2.z, vec2.w);
+    shz::xmtrx::init_diagonal(vec2.x, vec2.y, vec2.z, vec2.w);
     shz::xmtrx::apply_rotation_x(vec1.dot(vec2));
     shz::xmtrx::apply_translation(vec1.x, vec2.y, vec2.z);
     shz::xmtrx::store(&mat);
 
     shz::vec4 vec3 = shz::xmtrx::transform(vec2);
+
+    return 0;
 }
 ```
 

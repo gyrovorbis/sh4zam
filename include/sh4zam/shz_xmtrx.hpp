@@ -252,6 +252,11 @@ struct xmtrx {
         shz_xmtrx_init_symmetric_skew(x, y, z);
     }
 
+    //! C++ wrapper around shz_xmtrx_init_outer_product().
+    SHZ_FORCE_INLINE static void init_outer_product(shz_vec4_t a, shz_vec4_t b) noexcept {
+        shz_xmtrx_init_outer_product(a, b);
+    }
+
 //! @}
 
 /*! \name  Apply Operation
