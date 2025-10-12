@@ -70,6 +70,26 @@ struct xmtrx {
         shz_xmtrx_write(static_cast<shz_xmtrx_reg>(xf), value);
     }
 
+    //! C++ wrapper around shz_xmtrx_read_row().
+    SHZ_FORCE_INLINE static vec4 read_row(unsigned int index) noexcept {
+        return shz_xmtrx_read_row(index);
+    }
+
+    //! C++ wrapper around shz_xmtrx_read_col().
+    SHZ_FORCE_INLINE static vec4 read_col(unsigned int index) noexcept {
+        return shz_xmtrx_read_col(index);
+    }
+
+    //! C++ wrapper around shz_xmtrx_write_row().
+    SHZ_FORCE_INLINE static void write_row(unsigned int index, vec4 vector) noexcept {
+        shz_xmtrx_write_row(index, vector);
+    }
+
+    //! C++ wrapper around shz_xmtrx_write_col().
+    SHZ_FORCE_INLINE static void write_col(unsigned int index, vec4 vector) noexcept {
+        shz_xmtrx_write_col(index, vector);
+    }
+
 //! @}
 
 /*! \name  Loading

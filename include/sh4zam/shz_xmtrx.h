@@ -87,6 +87,18 @@ SHZ_INLINE float shz_xmtrx_read(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT;
 //! Sets the floating-point value held within the given XMTRX register to \p value.
 SHZ_INLINE void shz_xmtrx_write(shz_xmtrx_reg_t xf, float value) SHZ_NOEXCEPT;
 
+//! Returns the values at the the given row \p index, as a 4D vector.
+SHZ_INLINE shz_vec4_t shz_xmtrx_read_row(unsigned int index) SHZ_NOEXCEPT;
+
+//! Returns the values at the given column \p index, as a 4D vector.
+SHZ_INLINE shz_vec4_t shz_xmtrx_read_col(unsigned int index) SHZ_NOEXCEPT;
+
+//! Sets the values at the given row \p index to the given 4D vector.
+SHZ_INLINE void shz_xmtrx_write_row(unsigned int index, shz_vec4_t vector) SHZ_NOEXCEPT;
+
+//! Sets the values at the given column \p index to the given 4D vector.
+SHZ_INLINE void shz_xmtrx_write_col(unsigned int index, shz_vec4_t vector) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Loading

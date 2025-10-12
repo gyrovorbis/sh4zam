@@ -64,6 +64,242 @@ SHZ_INLINE void shz_xmtrx_write(shz_xmtrx_reg_t xf, float value) SHZ_NOEXCEPT {
     SHZ_FRCHG();
 }
 
+SHZ_INLINE shz_vec4_t shz_xmtrx_read_row(unsigned int index) SHZ_NOEXCEPT {
+    assert(index < 4);
+
+    shz_vec4_t value;
+
+    SHZ_FRCHG();
+    switch(index) {
+    case 0:
+        asm volatile(R"(
+            fmov.s  fr0,  @%[x]
+            fmov.s  fr4,  @%[y]
+            fmov.s  fr8,  @%[z]
+            fmov.s  fr12, @%[w]
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value.x), "m" (value.y),
+          "m" (value.z), "m" (value.w));
+        break;
+    case 1:
+        asm volatile(R"(
+            fmov.s  fr1,  @%[x]
+            fmov.s  fr5,  @%[y]
+            fmov.s  fr9,  @%[z]
+            fmov.s  fr13, @%[w]
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value.x), "m" (value.y),
+          "m" (value.z), "m" (value.w));
+        break;
+    case 2:
+        asm volatile(R"(
+            fmov.s  fr2,  @%[x]
+            fmov.s  fr6,  @%[y]
+            fmov.s  fr10, @%[z]
+            fmov.s  fr14, @%[w]
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value.x), "m" (value.y),
+          "m" (value.z), "m" (value.w));
+        break;
+    case 3:
+        asm volatile(R"(
+            fmov.s  fr3,  @%[x]
+            fmov.s  fr7,  @%[y]
+            fmov.s  fr11, @%[z]
+            fmov.s  fr15, @%[w]
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value.x), "m" (value.y),
+          "m" (value.z), "m" (value.w));
+        break;
+    }
+    SHZ_FRCHG();
+
+    return value;
+}
+
+SHZ_INLINE void shz_xmtrx_write_row(unsigned int index, shz_vec4_t value) SHZ_NOEXCEPT {
+    assert(index < 4);
+
+    SHZ_FRCHG();
+    switch(index) {
+    case 0:
+        asm volatile(R"(
+            fmov.s  @%[x], fr0
+            fmov.s  @%[y], fr4
+            fmov.s  @%[z], fr8
+            fmov.s  @%[w], fr12
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w));
+        break;
+    case 1:
+        asm volatile(R"(
+            fmov.s  @%[x], fr1
+            fmov.s  @%[y], fr5
+            fmov.s  @%[z], fr9
+            fmov.s  @%[w], fr13
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w));
+        break;
+    case 2:
+        asm volatile(R"(
+            fmov.s  @%[x], fr2
+            fmov.s  @%[y], fr6
+            fmov.s  @%[z], fr10
+            fmov.s  @%[w], fr14
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w));
+        break;
+    case 3:
+        asm volatile(R"(
+            fmov.s  @%[x], fr3
+            fmov.s  @%[y], fr7
+            fmov.s  @%[z], fr11
+            fmov.s  @%[w], fr15
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w));
+        break;
+    }
+    SHZ_FRCHG();
+}
+
+SHZ_INLINE shz_vec4_t shz_xmtrx_read_col(unsigned int index) SHZ_NOEXCEPT {
+    assert(index < 4);
+
+    shz_vec4_t value;
+
+    SHZ_FRCHG();
+    switch(index) {
+    case 0:
+        asm volatile(R"(
+            fmov.s  fr0, @%[x]
+            fmov.s  fr1, @%[y]
+            fmov.s  fr2, @%[z]
+            fmov.s  fr3, @%[w]
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value.x), "m" (value.y),
+          "m" (value.z), "m" (value.w));
+        break;
+    case 1:
+        asm volatile(R"(
+            fmov.s  fr4, @%[x]
+            fmov.s  fr5, @%[y]
+            fmov.s  fr6, @%[z]
+            fmov.s  fr7, @%[w]
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value.x), "m" (value.y),
+          "m" (value.z), "m" (value.w));
+        break;
+    case 2:
+        asm volatile(R"(
+            fmov.s  fr8,  @%[x]
+            fmov.s  fr9,  @%[y]
+            fmov.s  fr10, @%[z]
+            fmov.s  fr11, @%[w]
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value.x), "m" (value.y),
+          "m" (value.z), "m" (value.w));
+        break;
+    case 3:
+        asm volatile(R"(
+            fmov.s  fr12, @%[x]
+            fmov.s  fr13, @%[y]
+            fmov.s  fr14, @%[z]
+            fmov.s  fr15, @%[w]
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value.x), "m" (value.y),
+          "m" (value.z), "m" (value.w));
+        break;
+    }
+    SHZ_FRCHG();
+
+    return value;
+}
+
+SHZ_INLINE void shz_xmtrx_write_col(unsigned int index, shz_vec4_t value) SHZ_NOEXCEPT {
+    assert(index < 4);
+
+    SHZ_FRCHG();
+    switch(index) {
+    case 0:
+        asm volatile(R"(
+            fmov.s  @%[x], fr0
+            fmov.s  @%[y], fr1
+            fmov.s  @%[z], fr2
+            fmov.s  @%[w], fr3
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w));
+        break;
+    case 1:
+        asm volatile(R"(
+            fmov.s  @%[x], fr4
+            fmov.s  @%[y], fr5
+            fmov.s  @%[z], fr6
+            fmov.s  @%[w], fr7
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w));
+        break;
+    case 2:
+        asm volatile(R"(
+            fmov.s  @%[x], fr8
+            fmov.s  @%[y], fr9
+            fmov.s  @%[z], fr10
+            fmov.s  @%[w], fr11
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w));
+        break;
+    case 3:
+        asm volatile(R"(
+            fmov.s  @%[x], fr12
+            fmov.s  @%[y], fr13
+            fmov.s  @%[z], fr14
+            fmov.s  @%[w], fr15
+        )"
+        :
+        : [x] "r" (&value.x), [y] "r" (&value.y),
+          [z] "r" (&value.z), [w] "r" (&value.w));
+        break;
+    }
+    SHZ_FRCHG();
+}
+
 SHZ_INLINE void shz_xmtrx_load_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         fschg

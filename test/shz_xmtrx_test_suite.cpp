@@ -84,6 +84,30 @@ GBL_TEST_CASE(read_write_registers)
     GBL_TEST_VERIFY(shz::xmtrx::read(shz::xmtrx::XF15) == 115.0f);
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(read_write_rows)
+    shz::xmtrx::write_row(0, {  1.0f,  2.0f,  3.0f,  4.0f });
+    shz::xmtrx::write_row(1, {  5.0f,  6.0f,  7.0f,  8.0f });
+    shz::xmtrx::write_row(2, {  9.0f, 10.0f, 11.0f, 12.0f });
+    shz::xmtrx::write_row(3, { 13.0f, 14.0f, 15.0f, 16.0f });
+
+    GBL_TEST_VERIFY(shz::xmtrx::read_row(0) == shz::vec4( 1.0f,  2.0f,  3.0f,  4.0f));
+    GBL_TEST_VERIFY(shz::xmtrx::read_row(1) == shz::vec4( 5.0f,  6.0f,  7.0f,  8.0f));
+    GBL_TEST_VERIFY(shz::xmtrx::read_row(2) == shz::vec4( 9.0f, 10.0f, 11.0f, 12.0f));
+    GBL_TEST_VERIFY(shz::xmtrx::read_row(3) == shz::vec4(13.0f, 14.0f, 15.0f, 16.0f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(read_write_cols)
+    shz::xmtrx::write_col(0, {  1.0f,  2.0f,  3.0f,  4.0f });
+    shz::xmtrx::write_col(1, {  5.0f,  6.0f,  7.0f,  8.0f });
+    shz::xmtrx::write_col(2, {  9.0f, 10.0f, 11.0f, 12.0f });
+    shz::xmtrx::write_col(3, { 13.0f, 14.0f, 15.0f, 16.0f });
+
+    GBL_TEST_VERIFY(shz::xmtrx::read_col(0) == shz::vec4( 1.0f,  2.0f,  3.0f,  4.0f));
+    GBL_TEST_VERIFY(shz::xmtrx::read_col(1) == shz::vec4( 5.0f,  6.0f,  7.0f,  8.0f));
+    GBL_TEST_VERIFY(shz::xmtrx::read_col(2) == shz::vec4( 9.0f, 10.0f, 11.0f, 12.0f));
+    GBL_TEST_VERIFY(shz::xmtrx::read_col(3) == shz::vec4(13.0f, 14.0f, 15.0f, 16.0f));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(init_identity)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
@@ -281,7 +305,37 @@ GBL_TEST_CASE(load_transpose_4x4)
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, array));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(load_apply_store_unaligned_4x4)
+    randomize_xmtrx_();
+    alignas(4) std::array<float, 16> matrix1 = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
+    alignas(4) std::array<float, 16> matrix2 = {
+        1.0f, 0.0f, 0.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, 2.0f,
+        0.0f, 0.0f, 1.0f, 3.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
+    alignas(4) std::array<float, 16> out;
+
+    GBL_TEST_SKIP("Temporary, known reest.");
+
+    shz::xmtrx::load_apply_store(out.data(), transpose(matrix1).data(), transpose(matrix2).data());
+    shz::xmtrx::load(out.data());
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                                {
+                                    1.0f, 0.0f, 0.0f, 1.0f,
+                                    0.0f, 1.0f, 0.0f, 2.0f,
+                                    0.0f, 0.0f, 1.0f, 3.0f,
+                                    0.0f, 0.0f, 0.0f, 1.0f }));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(read_write_registers,
+                  read_write_rows,
+                  read_write_cols,
                   init_identity,
                   init_diagonal,
                   init_scale,
@@ -298,4 +352,5 @@ GBL_TEST_REGISTER(read_write_registers,
                   load_unaligned_4x4,
                   load_cols_4x4,
                   load_rows_4x4,
-                  load_transpose_4x4)
+                  load_transpose_4x4,
+                  load_apply_store_unaligned_4x4)
