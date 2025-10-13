@@ -300,6 +300,20 @@ SHZ_INLINE void shz_xmtrx_write_col(unsigned int index, shz_vec4_t value) SHZ_NO
     SHZ_FRCHG();
 }
 
+SHZ_INLINE void shz_xmtrx_swap_rows(unsigned int index1, unsigned int index2) SHZ_NOEXCEPT {
+    shz_vec4_t v1 = shz_xmtrx_read_row(index1);
+    shz_vec4_t v2 = shz_xmtrx_read_row(index2);
+    shz_xmtrx_write_row(index1, v2);
+    shz_xmtrx_write_row(index2, v1);
+}
+
+SHZ_INLINE void shz_xmtrx_swap_cols(unsigned int index1, unsigned int index2) SHZ_NOEXCEPT {
+    shz_vec4_t v1 = shz_xmtrx_read_col(index1);
+    shz_vec4_t v2 = shz_xmtrx_read_col(index2);
+    shz_xmtrx_write_col(index1, v2);
+    shz_xmtrx_write_col(index2, v1);
+}
+
 SHZ_INLINE void shz_xmtrx_load_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         fschg
@@ -1037,6 +1051,64 @@ SHZ_INLINE void shz_xmtrx_init_identity(void) SHZ_NOEXCEPT {
     )");
 }
 
+SHZ_INLINE void shz_xmtrx_init_zero(void) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        frchg
+        fschg
+        fldi0   fr0
+        fldi0   fr1
+        fmov    dr0, dr2
+        fmov    dr0, dr4
+        fmov    dr0, dr6
+        fmov    dr0, dr8
+        fmov    dr0, dr10
+        fmov    dr0, dr12
+        fmov    dr0, dr14
+        fschg
+        frchg
+    )");
+}
+
+SHZ_INLINE void shz_xmtrx_init_one(void) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        frchg
+        fschg
+        fldi1   fr0
+        fldi1   fr1
+        fmov    dr0, dr2
+        fmov    dr0, dr4
+        fmov    dr0, dr6
+        fmov    dr0, dr8
+        fmov    dr0, dr10
+        fmov    dr0, dr12
+        fmov    dr0, dr14
+        fschg
+        frchg
+    )");
+}
+
+SHZ_INLINE void shz_xmtrx_init_fill(float value) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        ftrc    %0, fpul
+        frchg
+        fsts    fpul, fr0
+        fmov    fr0, fr1
+        fschg
+        fmov    dr0, dr2
+        fmov    dr0, dr4
+        fmov    dr0, dr6
+        fmov    dr0, dr8
+        fmov    dr0, dr10
+        fmov    dr0, dr12
+        fmov    dr0, dr14
+        fschg
+        frchg
+    )"
+    :
+    : "f" (value)
+    : "fpul");
+}
+
 SHZ_INLINE void shz_xmtrx_init_diagonal(float x, float y, float z, float w) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
@@ -1061,6 +1133,69 @@ SHZ_INLINE void shz_xmtrx_init_diagonal(float x, float y, float z, float w) SHZ_
     : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z), [w] "r" (&w),
       "m" (x), "m" (y), "m" (z), "m" (w));
 }
+
+SHZ_INLINE void shz_xmtrx_init_upper_diagonal(float col1, shz_vec2_t col2, shz_vec3_t col3, shz_vec4_t col4) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        ftrc    %[c1], fpul
+        frchg
+        fsts    fpul, fr0
+        fldi0   fr1
+        fldi0   fr2
+        fldi0   fr3
+        fmov.s  @%[c2]+, fr4
+        fmov.s  @%[c2]+, fr5
+        add     #-16, %[c2]
+        fldi0   fr6
+        fldi0   fr7
+        fmov.s  @%[c3]+, fr8
+        fmov.s  @%[c3]+, fr9
+        fmov.s  @%[c3]+, fr10
+        add     #-24, %[c3]
+        fldi0   fr11
+        fmov.s  @%[c4]+, fr12
+        fmov.s  @%[c4]+, fr13
+        fmov.s  @%[c4]+, fr14
+        fmov.s  @%[c4]+, fr15
+        add     #-32, %[c4]
+        frchg
+    )"
+    :
+    : [c2] "r" (&col2), [c3] "r" (&col3), [c4] "r" (&col4),
+      [c1] "f" (col1), "m" (col2), "m" (col3), "m" (col4)
+    : "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_init_lower_diagonal(shz_vec4_t col1, shz_vec3_t col2, shz_vec2_t col3, float col4) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        ftrc    %[c4], fpul
+        frchg
+        fmov.s  @%[c1]+, fr0
+        fmov.s  @%[c1]+, fr1
+        fmov.s  @%[c1]+, fr2
+        fmov.s  @%[c1]+, fr3
+        add     #-32, %[c1]
+        fmov.s  @%[c2]+, fr4
+        fmov.s  @%[c2]+, fr5
+        fmov.s  @%[c2]+, fr6
+        add     #-24, %[c2]
+        fldi0   fr7
+        fmov.s  @%[c3]+, fr8
+        fmov.s  @%[c3]+, fr9
+        add     #-16, %[c3]
+        fldi0   fr10
+        fldi0   fr11
+        fsts    fpul, fr12
+        fldi0   fr13
+        fldi0   fr14
+        fldi0   fr15
+        frchg
+    )"
+    :
+    : [c1] "r" (&col1), [c2] "r" (&col2), [c3] "r" (&col3),
+      [c4] "f" (col4), "m" (col1), "m" (col2), "m" (col3)
+    : "fpul");
+}
+
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_scale(float x, float y, float z) SHZ_NOEXCEPT {
     shz_xmtrx_init_diagonal(x, y, z, 1.0f);

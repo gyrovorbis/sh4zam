@@ -99,6 +99,12 @@ SHZ_INLINE void shz_xmtrx_write_row(unsigned int index, shz_vec4_t vector) SHZ_N
 //! Sets the values at the given column \p index to the given 4D vector.
 SHZ_INLINE void shz_xmtrx_write_col(unsigned int index, shz_vec4_t vector) SHZ_NOEXCEPT;
 
+//! Swaps the values of the rows with the given indices.
+SHZ_INLINE void shz_xmtrx_swap_rows(unsigned int index1, unsigned int index2) SHZ_NOEXCEPT;
+
+//! Swaps the values of the columns with the given indices.
+SHZ_INLINE void shz_xmtrx_swap_cols(unsigned int index1, unsigned int index2) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Loading
@@ -206,6 +212,15 @@ SHZ_INLINE void shz_xmtrx_store_2x2(shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
 //! Initializes XMTRX to be a 4D identity matrix.
 SHZ_INLINE void shz_xmtrx_init_identity(void) SHZ_NOEXCEPT;
 
+//! Initializes XMTRX to contain the value of 0.0f for each element.
+SHZ_INLINE void shz_xmtrx_init_zero(void) SHZ_NOEXCEPT;
+
+//! Initializes XMTRX to contain the value of 1.0f for each element.
+SHZ_INLINE void shz_xmtrx_init_one(void) SHZ_NOEXCEPT;
+
+//! Initializes XMTRX to contain the given \p value for each element.
+SHZ_INLINE void shz_xmtrx_init_fill(float value) SHZ_NOEXCEPT;
+
 //! Initializes XMTRX to be a 3D translation matrix to the given coordinates.
 SHZ_INLINE void shz_xmtrx_init_translation(float x, float y, float z) SHZ_NOEXCEPT;
 
@@ -253,6 +268,12 @@ SHZ_INLINE void shz_xmtrx_init_rotation(shz_vec3_t axis, float angle) SHZ_NOEXCE
 
 //! Initializes XMTRX to be a diagonal matrix with the given diagonal values.
 SHZ_INLINE void shz_xmtrx_init_diagonal(float x, float y, float z, float w) SHZ_NOEXCEPT;
+
+//! Initializes XMTRX to be an upper diagonal matrix with the given column values.
+SHZ_INLINE void shz_xmtrx_init_upper_diagonal(float col1, shz_vec2_t col2, shz_vec3_t col3, shz_vec4_t col4) SHZ_NOEXCEPT;
+
+//! Initializes XMTRX to be a lower diagonal matrix with the given column values.
+SHZ_INLINE void shz_xmtrx_init_lower_diagonal(shz_vec4_t col1, shz_vec3_t col2, shz_vec2_t col3, float col4) SHZ_NOEXCEPT;
 
 //! Initializes XMTRX to be the 3D symmetric skew matrix formed from the given vector components.
 SHZ_INLINE void shz_xmtrx_init_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;

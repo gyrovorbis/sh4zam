@@ -90,6 +90,16 @@ struct xmtrx {
         shz_xmtrx_write_col(index, vector);
     }
 
+    //! C++ wrapper around shz_xmtrx_swap_rows().
+    SHZ_FORCE_INLINE static void swap_rows(unsigned int index1, unsigned int index2) noexcept {
+        shz_xmtrx_swap_rows(index1, index2);
+    }
+
+    //! C++ wrapper around shz_xmtrx_swap_cols().
+    SHZ_FORCE_INLINE static void swap_cols(unsigned int index1, unsigned int index2) noexcept {
+        shz_xmtrx_swap_cols(index1, index2);
+    }
+
 //! @}
 
 /*! \name  Loading
@@ -197,6 +207,21 @@ struct xmtrx {
         shz_xmtrx_init_identity();
     }
 
+    //! C++ wrapper around shz_xmtrx_init_zero().
+    SHZ_FORCE_INLINE static void init_zero() noexcept {
+        shz_xmtrx_init_zero();
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_one().
+    SHZ_FORCE_INLINE static void init_one() noexcept {
+        shz_xmtrx_init_one();
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_fill().
+    SHZ_FORCE_INLINE static void init_fill(float value) noexcept {
+        shz_xmtrx_init_fill(value);
+    }
+
     //! C++ wrapper around shz_xmtrx_init_translation().
     SHZ_FORCE_INLINE static void init_translation(float x, float y, float z) noexcept {
         shz_xmtrx_init_translation(x, y, z);
@@ -245,6 +270,16 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_init_diagonal().
     SHZ_FORCE_INLINE static void init_diagonal(float x, float y, float z, float w) noexcept {
         shz_xmtrx_init_diagonal(x, y, z, w);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_upper_diagonal().
+    SHZ_FORCE_INLINE static void init_upper_diagonal(float col1, vec2 col2, vec3 col3, vec4 col4) noexcept {
+        shz_xmtrx_init_upper_diagonal(col1, col2, col3, col4);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_lower_diagonal().
+    SHZ_FORCE_INLINE static void init_lower_diagonal(vec4 col1, vec3 col2, vec2 col3, float col4) noexcept {
+        shz_xmtrx_init_lower_diagonal(col1, col2, col3, col4);
     }
 
     //! C++ wrapper around shz_xmtrx_init_symmetric_skew().
