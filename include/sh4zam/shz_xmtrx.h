@@ -390,6 +390,10 @@ SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates the 3D symmetric skew matrix with the given components onto XMTRX.
 SHZ_INLINE void shz_xmtrx_apply_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates a permutation matrix, which reorders the components of a transformed vector.
+SHZ_INLINE void shz_xmtrx_apply_permutation_wxyz(void) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Compound Operations
@@ -451,6 +455,16 @@ void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
                                               const float matrix2[16]) SHZ_NOEXCEPT;
 
 //! @}
+
+/*! \name GL Transformations
+    \brief OpenGL-style matrix transforms.
+    @{
+*/
+
+//! Multiplies and accumulates XMTRX by a translation matrix with the given components.
+SHZ_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEPT;
+
+//!@}
 
 /*! \name  Vector Transformations
     \brief Transforming vectors against XMTRX.

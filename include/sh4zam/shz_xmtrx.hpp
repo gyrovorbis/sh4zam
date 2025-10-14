@@ -369,6 +369,11 @@ struct xmtrx {
         shz_xmtrx_apply_symmetric_skew(x, y, z);
     }
 
+    //! C++ wrapper around shz_xmtrx_apply_permutation_wxyz().
+    SHZ_FORCE_INLINE static void apply_permutation_wxyz() noexcept {
+        shz_xmtrx_apply_permutation_wxyz();
+    }
+
 //! @}
 
 /*! \name  Compound Operations
@@ -394,6 +399,18 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_load_apply_store_unaligned_4x4().
     SHZ_FORCE_INLINE static void load_apply_store(float out[16], const float matrix1[16], const float matrix2[16]) noexcept {
         shz_xmtrx_load_apply_store_unaligned_4x4(out, matrix1, matrix2);
+    }
+
+//! @}
+
+/*! \name  OpenGL Operations
+    \brief OpenGL-style matrix transformation operations.
+    @{
+*/
+
+    //! C++ wrapper around shz_xmtrx_translate().
+    SHZ_FORCE_INLINE static void translate(float x, float y, float z) noexcept {
+        shz_xmtrx_translate(x, y, z);
     }
 
 //! @}

@@ -2337,6 +2337,74 @@ SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT {
 	: "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
+SHZ_INLINE void shz_xmtrx_apply_permutation_wxyz(void) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        fldi0   fr0
+        fldi0   fr1
+        fldi0   fr2
+        fldi1   fr3
+
+        fldi1   fr4
+        fldi0   fr5
+
+        fschg
+        fmov    dr0, dr6
+        fmov    dr2, dr8
+        fmov    dr0, dr10
+        fmov    dr0, dr12
+        fmov    dr4, dr14
+        fschg
+
+        ftrv    xmtrx, fv0
+        ftrv    xmtrx, fv4
+        ftrv    xmtrx, fv8
+        ftrv    xmtrx, fv12
+
+        frchg
+    )"
+    :
+    :
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+}
+
+SHZ_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        fldi1   fr0
+        fldi0   fr1
+        fldi0   fr2
+        fldi0   fr3
+
+        fschg
+        fmov    dr2, dr6
+        fmov    dr2, dr8
+        fschg
+
+        fmov.s  @%[x], fr12
+        fmov.s  @%[y], fr13
+        fmov.s  @%[z], fr14
+        fldi1   fr15
+
+        fldi0   fr4
+        fldi1   fr5
+
+        fldi1   fr10
+        fldi0   fr11
+
+        ftrv    xmtrx, fv0
+        ftrv    xmtrx, fv4
+        ftrv    xmtrx, fv8
+        ftrv    xmtrx, fv12
+
+        frchg
+    )"
+    :
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z),
+      "m" (x), "m" (y), "m" (z)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+}
+
 SHZ_INLINE void shz_xmtrx_negate(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
