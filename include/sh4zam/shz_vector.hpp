@@ -131,7 +131,7 @@ struct vecN: C {
 
     template<unsigned... Indices>
     SHZ_FORCE_INLINE auto swizzle() const noexcept {
-        return shz_vec_swizzle(Indices...);
+        return shz_vec_swizzle(*this, Indices...);
     }
 
     //! Returns a new vector whose components are the absolute value of the given vector.
