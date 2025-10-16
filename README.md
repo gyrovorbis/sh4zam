@@ -122,6 +122,14 @@ Target      | Description
 `docs`      | Builds Doxygen documentation
 `update`    | Updates git repo to latest
 
+# Examples
+
+Examples can be found within the `example` subdirectory. New examples are always welcome to be contributed!
+
+Example      | Description
+-------------|------------
+Bruce's Balls| Pushes up to 4.5 million PPS, rendering Bruce's balls.
+
 # Contributors
 
 Special thanks to the following individuals who have either directly or indirectly contributed to SH4ZAM:
@@ -144,3 +152,5 @@ Special thanks to the following individuals who have either directly or indirect
 - Jamie Hyland
 - Aleios
 - John Brooks
+- Daniel Fairchild
+- BruceLeet
