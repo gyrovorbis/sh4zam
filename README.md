@@ -37,7 +37,7 @@ NOTE: <i>This repo is still undergoing rapid changes as we pull in these routine
 - **XMTRX** API for manipulating 4x4 back-bank of FP registers
 - **Miscellaneous** optimized routines
 
-# Snippets
+# Usage
 
 ## C23
 For C code, include the header files with the `.h` extensions or `sh4zam/shz_sh4zam.h` to include everything.
