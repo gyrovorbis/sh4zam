@@ -1033,24 +1033,27 @@ SHZ_INLINE void shz_xmtrx_store_2x2(shz_mat2x2_t* matrix) SHZ_NOEXCEPT {
 SHZ_INLINE void shz_xmtrx_init_identity(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
-        fldi1   fr0
-        fschg
         fldi0   fr1
-        fldi0   fr2
+        fldi1   fr0
+        fmul    fr1, fr2
         fldi0   fr3
-        fldi0   fr4
+        fmul    fr1, fr4
         fldi1   fr5
-        fmov    dr2, dr6
-        fmov    dr2, dr8
+        fmul    fr1, fr11
+        fldi0   fr6
+        fmul    fr1, fr7
+        fldi0   fr8
+        fmul    fr1, fr9
         fldi1   fr10
-        fldi0   fr11
-        fmov    dr2, dr12
-        fmov    dr4, dr14
-        fschg
+        fmul    fr1, fr12
+        fldi0   fr13
+        fmul    fr1, fr14
+        fldi1   fr15
         frchg
     )");
 }
 
+// fmul 0 optimize
 SHZ_INLINE void shz_xmtrx_init_zero(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
@@ -1288,6 +1291,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation_z(float z) SHZ_NOEXCEPT {
     : "fpul");
 }
 
+// fmul optimize
 SHZ_INLINE void shz_xmtrx_init_translation(float x, float y, float z) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
@@ -2340,24 +2344,27 @@ SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT {
 SHZ_INLINE void shz_xmtrx_apply_permutation_wxyz(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         fldi0   fr0
-        fldi0   fr1
-        fldi0   fr2
-        fldi1   fr3
-
-        fldi1   fr4
-        fldi0   fr5
-
-        fschg
-        fmov    dr0, dr6
-        fmov    dr2, dr8
-        fmov    dr0, dr10
-        fmov    dr0, dr12
-        fmov    dr4, dr14
-        fschg
-
+        fldi1   fr1
+        fmul    fr0, fr2
+        fldi0   fr3
+        fldi0   fr4
         ftrv    xmtrx, fv0
+
+        fldi0   fr5
+        fldi0   fr7
+        fldi1   fr6
+        fldi0   fr8
         ftrv    xmtrx, fv4
+
+        fldi0   fr9
+        fldi0   fr10
+        fldi1   fr11
+        fldi1   fr12
         ftrv    xmtrx, fv8
+
+        fldi0   fr13
+        fldi0   fr14
+        fldi0   fr15
         ftrv    xmtrx, fv12
 
         frchg
@@ -2370,30 +2377,28 @@ SHZ_INLINE void shz_xmtrx_apply_permutation_wxyz(void) SHZ_NOEXCEPT {
 
 SHZ_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEPT {
     asm volatile(R"(
-        fldi1   fr0
         fldi0   fr1
+        fldi1   fr0
         fldi0   fr2
         fldi0   fr3
+        fldi0   fr4
+        ftrv    xmtrx, fv0
 
-        fschg
-        fmov    dr2, dr6
-        fmov    dr2, dr8
-        fschg
+        fldi1   fr5
+        fldi0   fr6
+        fldi0   fr7
+        fldi0   fr8
+        ftrv    xmtrx, fv4
 
+        fldi0   fr9
+        fldi1   fr10
+        fldi0   fr11
         fmov.s  @%[x], fr12
+        ftrv    xmtrx, fv8
+
         fmov.s  @%[y], fr13
         fmov.s  @%[z], fr14
         fldi1   fr15
-
-        fldi0   fr4
-        fldi1   fr5
-
-        fldi1   fr10
-        fldi0   fr11
-
-        ftrv    xmtrx, fv0
-        ftrv    xmtrx, fv4
-        ftrv    xmtrx, fv8
         ftrv    xmtrx, fv12
 
         frchg

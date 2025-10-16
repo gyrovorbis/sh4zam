@@ -1,5 +1,5 @@
 /*! \file
- *  \brief Vector types and operations.
+ *  \brief   Vector types and operations.
  *  \ingroup vector
  *
  *  This file provides types and mathematical routines for representing and
@@ -110,6 +110,76 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_init(float x, float y, float z) SHZ_NOEXCEP
 
 //! Returns a 4D vector with the given \p x, \p y, \p z, and \p w coordinates.
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_init(float x, float y, float z, float w) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector with the value of each component equal to \p v.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_fill(float v) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector with the value of each compoonent equal to \p v.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_fill(float v) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector with the value of each component equal to \p v.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_fill(float v) SHZ_NOEXCEPT;
+
+//! Extends a 2D vector to 3D, using \p z as the value of the Z component.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec2_vec3(shz_vec2_t vec, float z) SHZ_NOEXCEPT;
+
+//! Extends a 2D vector to 4D, using \p z and \p w as the values of the Z and W components.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec2_vec4(shz_vec2_t vec, float z, float w) SHZ_NOEXCEPT;
+
+//! Extends a 3D vector to 4D, using \p w as the value of the W component.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec3_vec4(shz_vec3_t vec, float w) SHZ_NOEXCEPT;
+
+//! @}
+
+/*! \name  Component-wise Operations
+    \brief Routines which apply to each vector component.
+    @{
+*/
+
+//! Returns a 2D vector whose components are the absolute values of the given vector's components.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_abs(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose components are the absolute values of the given vector's components.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_abs(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose components are the absolute values of the given vector's components.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_abs(shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector whose components are the negative values of the given vector's components.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_neg(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose components are the negative values of the given vector's components.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_neg(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose components are the negative values of the given vector's components.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_neg(shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Returns the maximum value of both of the given vector's components.
+SHZ_FORCE_INLINE float shz_vec2_max(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns the maximum value of the given vector's 3 components.
+SHZ_FORCE_INLINE float shz_vec3_max(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns the maximum value of the given vector's 4 componetns.
+SHZ_FORCE_INLINE float shz_vec4_max(shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Retuns the minimum value of both of the given vector's components.
+SHZ_FORCE_INLINE float shz_vec2_min(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns the minimum value of the given vector's 3 components.
+SHZ_FORCE_INLINE float shz_vec3_min(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns the minimum value of the given vector's 4 components.
+SHZ_FORCE_INLINE float shz_vec4_min(shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Clamps the values of the given 2D \p vec between \p min and \p max, returning a new vector.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_clamp(shz_vec2_t vec, float min, float max) SHZ_NOEXCEPT;
+
+//! Clamps the values of the given 3D \p vec between \p min and \p max, returning a new vector.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_clamp(shz_vec3_t vec, float min, float max) SHZ_NOEXCEPT;
+
+//! Clamps the values of the given 4D \p vec between \p min and \p max, returning a new vector.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_clamp(shz_vec4_t vec, float min, float max) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -368,12 +438,63 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles_deg(float azimuth, float elevat
 
 SHZ_DECLS_END
 
+/*! \name Adapters
+    \brief Macros for treating contiguous floats like SH4ZAM vectors.
+    @{
+*/
+
+//! Dereferences the given pointer to a sequence of 2 floats as a shz_vec2_t.
+#   define shz_vec2_deref(ptr) (*((shz_vec2_t*)(ptr)))
+
+//! Dereferences the given pointer to a sequence of 3 floats as a shz_vec3_t.
+#   define shz_vec3_deref(ptr) (*((shz_vec3_t*)(ptr)))
+
+//! Dereferences the given pointer to a sequence of 4 floats as a shz_vec4_t.
+#   define shz_vec4_deref(ptr) (*((shz_vec4_t*)(ptr)))
+
+//! @}
+
 /*! \name  Type-Generic Routines
     \brief Generalized vector routines for C and C++.
     @{
 */
 
 #ifndef __cplusplus
+
+    //! C type-generic vector absolute value.
+#   define shz_vec_abs(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_abs, \
+                 shz_vec3_t: shz_vec3_abs, \
+                 shz_vec4_t: shz_vec4_abs)(vec)
+
+    //! C type-generic vector negation.
+#   define shz_vec_neg(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_neg, \
+                 shz_vec3_t: shz_vec3_neg, \
+                 shz_vec4_t: shz_vec4_neg)(vec)
+
+    //! C type-generic vector maximum value.
+#   define shz_vec_max(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_max, \
+                 shz_vec3_t: shz_vec3_max, \
+                 shz_vec4_t: shz_vec4_max)(vec)
+
+    //! C type-generic vector minimum value.
+#   define shz_vec_min(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_min, \
+                 shz_vec3_t: shz_vec3_min, \
+                 shz_vec4_t: shz_vec4_min)(vec)
+
+    //! C type-generic vector minimum value.
+#   define shz_vec_clamp(vec, min, max) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_clamp, \
+                 shz_vec3_t: shz_vec3_clamp, \
+                 shz_vec4_t: shz_vec4_clamp)(vec, min, max)
 
     //! C type-generic vector addition.
 #   define shz_vec_add(vec1, vec2) \
@@ -522,6 +643,66 @@ SHZ_DECLS_END
 #else // C++ generics (because it's too dumb to support _Generic()).
 
 #   include <concepts>
+
+    //! C++ type-generic vector absolute value.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_abs(T vec) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_abs(vec);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_abs(vec);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_abs(vec);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic vector negation.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_neg(T vec) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_neg(vec);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_neg(vec);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_neg(vec);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic vector maximum value.
+    template<typename T>
+    SHZ_FORCE_INLINE float shz_vec_max(T vec) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_max(vec);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_max(vec);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_max(vec);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic vector minimum value.
+    template<typename T>
+    SHZ_FORCE_INLINE float shz_vec_min(T vec) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_min(vec);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_min(vec);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_min(vec);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic vector clamp.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_clamp(T vec, float min, float max) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_clamp(vec, min, max);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_clamp(vec, min, max);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_clamp(vec, min, max);
+        else static_assert(false, "Incompatible type!");
+    }
 
     //! C++ type-generic vector addition.
     template<typename T>

@@ -7,6 +7,9 @@
  *
  *  \author    Falco Girgis
  *  \copyright MIT License
+ *
+ *  \todo
+ *      - Implement C++ proxy class equivalent for shz_vecN_deref().
  */
 
 #ifndef SHZ_VECTOR_HPP
@@ -52,7 +55,7 @@ struct vecN: C {
     }
 
     //! Overloaded subscript operator -- allows for indexing vectors like an array.
-    SHZ_FORCE_INLINE auto &&operator[](this auto&& self, size_t index) {
+    SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) {
         return std::forward<decltype(self)>(self).e[index];
     }
 
@@ -74,38 +77,43 @@ struct vecN: C {
                                             rhs.begin(), rhs.end());
     }
 
+    //! Overloaded unary negation operator, returns the negated vector.
+    friend CppType operator-(CppType vec) noexcept {
+        return vec.neg();
+    }
+
     //! Overloaded operator for adding and accumulating a vector onto another.
-    SHZ_FORCE_INLINE CppType &operator+=(this CppType &self, CppType other) noexcept {
+    SHZ_FORCE_INLINE CppType& operator+=(this CppType &self, CppType other) noexcept {
         self = self + other;
         return self;
     }
 
     //! Overloaded subtraction assignment operator, subtracts a vector from the left-hand vector.
-    SHZ_FORCE_INLINE CppType &operator-=(this CppType &self, CppType other) noexcept {
+    SHZ_FORCE_INLINE CppType& operator-=(this CppType &self, CppType other) noexcept {
         self = self - other;
         return self;
     }
 
     //! Overloaded multiplication assignment operator, multiplies and accumulates a vector onto the left-hand vector.
-    SHZ_FORCE_INLINE CppType &operator*=(this CppType &self, CppType other) noexcept {
+    SHZ_FORCE_INLINE CppType& operator*=(this CppType &self, CppType other) noexcept {
         self = self * other;
         return self;
     }
 
     //! Overloaded division assignment operator, divides the left vector by the right, assigning the left to the result.
-    SHZ_FORCE_INLINE CppType &operator/=(this CppType &self, CppType other) noexcept {
+    SHZ_FORCE_INLINE CppType& operator/=(this CppType &self, CppType other) noexcept {
         self = self / other;
         return self;
     }
 
     //! Overloaded multiplication assignment operator, multiplies and accumulates each vector component by the given scalar.
-    SHZ_FORCE_INLINE CppType &operator*=(this CppType &self, float other) noexcept {
+    SHZ_FORCE_INLINE CppType& operator*=(this CppType &self, float other) noexcept {
         self = self * other;
         return self;
     }
 
     //! Overloaded division assignment operator, dividing and assigning each vector component by the given scalar value.
-    SHZ_FORCE_INLINE CppType &operator/=(this CppType &self, float other) noexcept {
+    SHZ_FORCE_INLINE CppType& operator/=(this CppType &self, float other) noexcept {
         self = self / other;
         return self;
     }
@@ -118,6 +126,31 @@ struct vecN: C {
     //! Returns an iterator to the end of the vector -- For STL support.
     SHZ_FORCE_INLINE auto end(this auto&& self) noexcept {
         return &self[Rows];
+    }
+
+    //! Returns a new vector whose components are the absolute value of the given vector.
+    SHZ_FORCE_INLINE CppType abs() const noexcept {
+        return shz_vec_abs(*this);
+    }
+
+    //! Returns a new vector whose components are the negative values of the given vector.
+    SHZ_FORCE_INLINE CppType neg() const noexcept {
+        return shz_vec_neg(*this);
+    }
+
+    //! Returns the maximum value of every element within the vector.
+    SHZ_FORCE_INLINE float max() const noexcept {
+        return shz_vec_max(*this);
+    }
+
+    //! Returns the minimum value of every element within the vector.
+    SHZ_FORCE_INLINE float min() const noexcept {
+        return shz_vec_min(*this);
+    }
+
+    //! Returns a new vector whose values are the clamped components of the given vector.
+    SHZ_FORCE_INLINE CppType clamp(float min, float max) const noexcept {
+        return shz_vec_clamp(*this, min, max);
     }
 
     //! Returns the dot produt of the given vector and another.
@@ -257,11 +290,11 @@ struct vec2: vecN<vec2, shz_vec2_t, 2> {
 
     //! Single-value constructor: sets both components equal to \p v.
     SHZ_FORCE_INLINE vec2(float v) noexcept:
-        vecN({ v, v }) {}
+        vecN(shz_vec2_fill(v)) {}
 
     //! Constructs a vec2 with the given values as components.
     SHZ_FORCE_INLINE vec2(float x, float y) noexcept:
-        vecN({ x, y }) {}
+        vecN(shz_vec2_init(x, y)) {}
 
     //! Constructs a vec2 from the given angle of rotation from the +X axis.
     SHZ_FORCE_INLINE vec2(sincos pair) noexcept:
@@ -302,19 +335,19 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
 
     //! Single-value constructor: initializes all components to \p v.
     SHZ_FORCE_INLINE vec3(float v) noexcept:
-        vecN({ v, v, v }) {}
+        vecN(shz_vec3_fill(v)) {}
 
     //! Value constructor: initializes each component to its given value.
     SHZ_FORCE_INLINE vec3(float x, float y, float z) noexcept:
-        vecN({ x, y, z }) {}
+        vecN(shz_vec3_init(x, y, z)) {}
 
     //! Constructs a vec3 from a shz::vec2 and a scalar value for its z component.
     SHZ_FORCE_INLINE vec3(shz::vec2 xy, float z) noexcept:
-        vecN({ xy.x, xy.y, z }) {}
+        vecN(shz_vec2_vec3(xy, z)) {}
 
     //! Constructs a vec3 from a scalar as its x component and a shz::vec2 as its Y and Z components.
     SHZ_FORCE_INLINE vec3(float x, shz::vec2 yz) noexcept:
-       vecN({ x, yz.x, yz.y }) {}
+       vecN(shz_vec3_init(x, yz.x, yz.y)) {}
 
     //! Returns a 3D vector which forms the given angles with the +X axis.
     SHZ_FORCE_INLINE vec3(sincos azimuth, sincos elevation) noexcept:
@@ -355,35 +388,35 @@ struct vec4: vecN<vec4, shz_vec4_t, 4> {
 
     //! Single-value constructor: initializes each element to the given value.
     SHZ_FORCE_INLINE vec4(float v) noexcept:
-        vecN({ v, v, v, v }) {}
+        vecN(shz_vec4_fill(v)) {}
 
     //! Value constructor: initializes each element to its corresponding parameter value.
     SHZ_FORCE_INLINE vec4(float x, float y, float z, float w) noexcept:
-        vecN({ x, y, z, w }) {}
+        vecN(shz_vec4_init(x, y, z, w)) {}
 
     //! Constructs a 4D vector with a 2D vector providing the X and Y coordinates and scalars providing Z and W.
     SHZ_FORCE_INLINE vec4(shz::vec2 xy, float z, float w) noexcept:
-        vecN({ xy.x, xy.y, z, w }) {}
+        vecN(shz_vec2_vec4(xy, z, w)) {}
 
     //! Constructs a 4D vector with scalars providing X and W coordinates and a 2D vector providing Y and Z.
     SHZ_FORCE_INLINE vec4(float x, shz::vec2 yz, float w) noexcept:
-        vecN({ x, yz.x, yz.y, w }) {}
+        vecN(shz_vec4_init(x, yz.x, yz.y, w)) {}
 
     //! Constructs a 4D vector with scalars providing X and Y coordinaets and a 2D vector providing Z and W.
     SHZ_FORCE_INLINE vec4(float x, float y, shz::vec2 zw) noexcept:
-        vecN({ x, y, zw.x, zw.y }) {}
+        vecN(shz_vec4_init(x, y, zw.x, zw.y )) {}
 
     //! Constructs a 4D vector from the components provided by the given pair of 2D vectors.
     SHZ_FORCE_INLINE vec4(shz::vec2 xy, shz::vec2 zw) noexcept:
-        vecN({ xy.x, xy.y, zw.x, zw.y }) {}
+        vecN(shz_vec4_init(xy.x, xy.y, zw.x, zw.y)) {}
 
     //! Constructs a 4D vector with the X, Y, and Z components given by a 3D vector and W given by a scalar.
     SHZ_FORCE_INLINE vec4(shz::vec3 xyz, float w) noexcept:
-        vecN({ xyz.x, xyz.y, xyz.z, w }) {}
+        vecN(shz_vec3_vec4(xyz, w)) {}
 
     //! Constructs a 4D vector with the X component given by a scalar and the Y, Z, and W components given by a 3D vector.
     SHZ_FORCE_INLINE vec4(float x, shz::vec3 yzw) noexcept:
-        vecN({ x, yzw.x, yzw.y, yzw.z }) {}
+        vecN(shz_vec4_init(x, yzw.x, yzw.y, yzw.z)) {}
 };
 
 }

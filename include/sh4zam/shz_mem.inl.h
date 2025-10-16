@@ -543,7 +543,7 @@ SHZ_INLINE void* shz_sq_memcpy32_1(      void* SHZ_RESTRICT dst,
         fmov.d xd0, @-%[dst]
         pref   @%[dst]          ! Fire off store queue
     )"
-    : [dst] "+r" (d), [src] "+&r" (s),
+    : [src] "+r" (s), [dst] "+r" (d),
       "=m" (d[0]), "=m" (d[1]), "=m" (d[2]), "=m" (d[3]),
       "=m" (d[4]), "=m" (d[5]), "=m" (d[6]), "=m" (d[7])
     : "m" (s[0]), "m" (s[1]), "m" (s[2]), "m" (s[3]),
