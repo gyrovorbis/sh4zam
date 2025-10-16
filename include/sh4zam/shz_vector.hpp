@@ -9,7 +9,8 @@
  *  \copyright MIT License
  *
  *  \todo
- *      - Implement C++ proxy class equivalent for shz_vecN_deref().
+ *      - C++ proxy class equivalent for shz_vecN_deref().
+ *      - C++ better swizzling mechanism
  */
 
 #ifndef SHZ_VECTOR_HPP
@@ -126,6 +127,11 @@ struct vecN: C {
     //! Returns an iterator to the end of the vector -- For STL support.
     SHZ_FORCE_INLINE auto end(this auto&& self) noexcept {
         return &self[Rows];
+    }
+
+    template<unsigned... Indices>
+    SHZ_FORCE_INLINE auto swizzle() const noexcept {
+        return shz_vec_swizzle(Indices...);
     }
 
     //! Returns a new vector whose components are the absolute value of the given vector.

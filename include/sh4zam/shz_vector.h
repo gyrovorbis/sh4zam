@@ -120,15 +120,6 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_fill(float v) SHZ_NOEXCEPT;
 //! Returns a 4D vector with the value of each component equal to \p v.
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_fill(float v) SHZ_NOEXCEPT;
 
-//! Extends a 2D vector to 3D, using \p z as the value of the Z component.
-SHZ_FORCE_INLINE shz_vec3_t shz_vec2_vec3(shz_vec2_t vec, float z) SHZ_NOEXCEPT;
-
-//! Extends a 2D vector to 4D, using \p z and \p w as the values of the Z and W components.
-SHZ_FORCE_INLINE shz_vec4_t shz_vec2_vec4(shz_vec2_t vec, float z, float w) SHZ_NOEXCEPT;
-
-//! Extends a 3D vector to 4D, using \p w as the value of the W component.
-SHZ_FORCE_INLINE shz_vec4_t shz_vec3_vec4(shz_vec3_t vec, float w) SHZ_NOEXCEPT;
-
 //! @}
 
 /*! \name  Component-wise Operations
@@ -435,6 +426,38 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_angle_deg(float degrees) SHZ_NOEXCEPT;
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles_deg(float azimuth, float elevation) SHZ_NOEXCEPT;
 
 //! @}
+
+/*! \name  Extending
+    \brief Routines for extending vectors into other dimensions
+    @{   
+ */
+
+//! Extends a 2D vector to 3D, using \p z as the value of the Z component.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec2_vec3(shz_vec2_t vec, float z) SHZ_NOEXCEPT;
+
+//! Extends a 2D vector to 4D, using \p z and \p w as the values of the Z and W components.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec2_vec4(shz_vec2_t vec, float z, float w) SHZ_NOEXCEPT;
+
+//! Extends a 3D vector to 4D, using \p w as the value of the W component.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec3_vec4(shz_vec3_t vec, float w) SHZ_NOEXCEPT;
+
+//! @}
+
+/*! \name  Swizzling
+    \brief Routines for swizzling the order of a vector's components.
+    @{
+ */
+
+ //! Returns a 2D vector whose elements are equal to the source vector's values at the given indices.
+ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_swizzle(shz_vec2_t vec, unsigned x_idx, unsigned y_idx) SHZ_NOEXCEPT;
+
+ //! Returns a 3D vector whose elements are equal to the source vector's values at the given indices.
+ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_swizzle(shz_vec3_t vec, unsigned x_idx, unsigned y_idx, unsigned z_idx) SHZ_NOEXCEPT;
+
+ //! Returns a new 2D vector whose elements are equal to the source vector's values at the given indices.
+ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_swizzle(shz_vec4_t vec, unsigned x_idx, unsigned y_idx, unsigned z_idx, unsigned w_idx) SHZ_NOEXCEPT;
+
+ //! @}
 
 SHZ_DECLS_END
 
