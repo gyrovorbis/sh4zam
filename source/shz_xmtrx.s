@@ -26,7 +26,7 @@ _shz_xmtrx_load_apply_store_unaligned_4x4:
     fmov.s  @r5+, fr0
     add     #32, r5
     pref    @r5
-    add     #-(32-4), r5
+    add     #-32, r5
     fmov.s  @r5+, fr1
     fmov.s  @r5+, fr2
     fmov.s  @r5+, fr3
