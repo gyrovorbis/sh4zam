@@ -167,6 +167,12 @@ SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) SHZ_NOEXCEPT;
 //! Returns a value that is barycentrically interpolated between \p a, \p b, and \p c using the given barycentric coordinates, \p u and \p v.
 SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u, float v) SHZ_NOEXCEPT;
 
+//! Returns a random floating-point number between `0.0f` and `1.0f`, using and updating the given seed.
+SHZ_FORCE_INLINE float shz_randf(int* seed) SHZ_NOEXCEPT;
+
+//! Returns a random floating-point number between \p min and \p max, using and updating the given seed.
+SHZ_FORCE_INLINE float shz_randf_range(int* seed, float min, float max) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  FSRRA

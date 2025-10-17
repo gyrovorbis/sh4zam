@@ -219,4 +219,22 @@ SHZ_FORCE_INLINE float shz_expf(float p) SHZ_NOEXCEPT {
     return shz_pow2f(1.442695040f * p);
 }
 
+// https://iquilezles.org/articles/sfrand/
+// \todo I can hand-write the ASM better than GCC here. --Falco
+SHZ_FORCE_INLINE float shz_randf(int* seed) SHZ_NOEXCEPT {
+    union {
+        float    f32;
+        unsigned u32;
+    } res;
+
+    *seed = 0x00269ec3 + (*seed) * 0x000343fd;
+    res.u32 = ((((unsigned) * seed) >> 9) | 0x3f800000);
+
+    return res.f32;
+}
+
+SHZ_FORCE_INLINE float shz_randf_range(int* seed, float min, float max) SHZ_NOEXCEPT {
+    return min + (shz_randf(seed) * (max - min));
+}
+
 //! \endcond
