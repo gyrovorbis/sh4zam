@@ -29,7 +29,7 @@
 
 #include <stdlib.h>
 
-//! Number of balls to render (this is max at 60fps with best flags)
+//! Number of balls to render (play with me!)
 constexpr unsigned BALL_COUNT    = 93;
 //! Number of Z stacks which comprise the ball's geometry
 constexpr unsigned SPHERE_STACKS = 20;

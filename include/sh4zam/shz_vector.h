@@ -428,8 +428,8 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles_deg(float azimuth, float elevat
 //! @}
 
 /*! \name  Extending
-    \brief Routines for extending vectors into other dimensions
-    @{   
+    \brief Routines for extending vectors into other dimensions.
+    @{
  */
 
 //! Extends a 2D vector to 3D, using \p z as the value of the Z component.
@@ -662,6 +662,13 @@ SHZ_DECLS_END
         _Generic((vec1), \
                  shz_vec2_t: shz_vec2_angle_between, \
                  shz_vec3_t: shz_vec3_angle_between)(vec1, vec2)
+
+    //! C type-generic vector swizzling.
+#   define shz_vec_swizzle(vec, ...) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_swizzle, \
+                 shz_vec3_t: shz_vec3_swizzle, \
+                 shz_vec4_t: shz_vec4_swizzle)(vec, __VA_ARGS__)
 
 #else // C++ generics (because it's too dumb to support _Generic()).
 
@@ -971,6 +978,21 @@ SHZ_DECLS_END
         else if constexpr(std::convertible_to<T, shz_vec3_t>)
             return shz_vec3_angle_between(vec1, vec2);
         else static_assert(false, "Incompatible type!");
+    }
+
+    //! Overloaded generic swizzle function for 2D vectors.
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_swizzle(shz_vec2_t vec, unsigned x_idx, unsigned y_idx) SHZ_NOEXCEPT {
+        return shz_vec2_swizzle(vec, x_idx, y_idx);
+    }
+
+    //! Overloaded generic swizzle function for 3D vectors.
+    SHZ_FORCE_INLNE shz_vec3_t shz_vec_swizzle(shz_vec3_t vec, unsigned x_idx, unsigned y_idx, unsigned z_idx) SHZ_NOEXCEPT {
+        return shz_vec3_swizzle(vec, x_idx, y_idx, z_idx);
+    }
+
+    //! Overloaded generic swizzle function for 3D vectors.
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_swizzle(shz_vec4_t vec, unsigned x_idx, unsigned y_idx, unsigned z_idx, unsigned w_idx) SHZ_NOEXCEPT {
+        return shz_vec4_swizzle(vec, x_idx, y_idx, z_idx, w_idx);
     }
 #endif
 

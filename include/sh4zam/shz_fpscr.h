@@ -32,7 +32,7 @@
 //! Swaps FMOV size mode (asserting that the previous mode was configured as expected).
 #define SHZ_FSCHG(pairwise_mode) do { \
         assert(shz_fpscr_read().sz == !(pairwise_mode) && \
-               shz_fpscr_read().pr == !(pairwise_mode));  \
+               (!(pairwise_mode) || shz_fpscr_read().pr == !(pairwise_mode)));  \
         asm volatile("fschg"); \
     } while(false)
 
