@@ -73,7 +73,13 @@ GBL_TEST_CASE(lerpf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(barycentric_lerpf)
-
+    GBL_TEST_VERIFY(shz::barycentric_lerpf(0.0f, 1.0f, 2.0f, 0.5f, 0.0f) == 0.5f);
+    GBL_TEST_VERIFY(shz::barycentric_lerpf(0.0f, 1.0f, 2.0f, 0.0f, 0.5f) == 1.0f);
+    GBL_TEST_VERIFY(shz::barycentric_lerpf(0.0f, 1.0f, 2.0f, 0.5f, 0.5f) == 2.0f);
+    GBL_TEST_VERIFY(shz::barycentric_lerpf(3.0f, 4.0f, 5.0f, 0.0f, 0.0f) == 3.0f);
+    GBL_TEST_VERIFY(shz::barycentric_lerpf(3.0f, 4.0f, 5.0f, 1.0f, 0.0f) == 4.0f);
+    GBL_TEST_VERIFY(shz::barycentric_lerpf(3.0f, 4.0f, 5.0f, 0.0f, 1.0f) == 5.0f);
+    GBL_TEST_VERIFY(shz::barycentric_lerpf(1.0f, 2.0f, 3.0f, 1.0f, 1.0f) == 4.0f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(inv_sqrtf)
