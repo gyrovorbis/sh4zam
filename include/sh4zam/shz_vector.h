@@ -986,7 +986,7 @@ SHZ_DECLS_END
     }
 
     //! Overloaded generic swizzle function for 3D vectors.
-    SHZ_FORCE_INLNE shz_vec3_t shz_vec_swizzle(shz_vec3_t vec, unsigned x_idx, unsigned y_idx, unsigned z_idx) SHZ_NOEXCEPT {
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_swizzle(shz_vec3_t vec, unsigned x_idx, unsigned y_idx, unsigned z_idx) SHZ_NOEXCEPT {
         return shz_vec3_swizzle(vec, x_idx, y_idx, z_idx);
     }
 
