@@ -208,32 +208,32 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(apply_rotation_x)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_rotation_x(F_PI);
+    shz::xmtrx::apply_rotation_x(SHZ_F_PI);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                  { 1.0f,       0.0f,        0.0f, 0.0f,
-                   0.0f, cosf(F_PI), -sinf(F_PI), 0.0f,
-                   0.0f, sinf(F_PI),  cosf(F_PI), 0.0f,
+                   0.0f, cosf(SHZ_F_PI), -sinf(SHZ_F_PI), 0.0f,
+                   0.0f, sinf(SHZ_F_PI),  cosf(SHZ_F_PI), 0.0f,
                    0.0f,       0.0f,        0.0f, 1.0f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_rotation_y)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_rotation_y(F_PI);
+    shz::xmtrx::apply_rotation_y(SHZ_F_PI);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                 { cosf(F_PI), 0.0f,  sinf(F_PI), 0.0f,
-                         0.0f, 1.0f,        0.0f, 0.0f,
-                         0.0f, 0.0f,  cosf(F_PI), 0.0f,
-                  -sinf(F_PI), 0.0f,        0.0f, 1.0f }));
+                 { cosf(SHZ_F_PI), 0.0f,  sinf(SHZ_F_PI), 0.0f,
+                         0.0f,     1.0f,   0.0f, 0.0f,
+                         0.0f,     0.0f,  cosf(SHZ_F_PI), 0.0f,
+                  -sinf(SHZ_F_PI), 0.0f,   0.0f, 1.0f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_rotation_z)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_rotation_z(F_PI);
+    shz::xmtrx::apply_rotation_z(SHZ_F_PI);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                 { cosf(F_PI), -sinf(F_PI), 0.0f, 0.0f,
-                   sinf(F_PI),  cosf(F_PI), 0.0f, 0.0f,
+                 { cosf(SHZ_F_PI), -sinf(SHZ_F_PI), 0.0f, 0.0f,
+                   sinf(SHZ_F_PI),  cosf(SHZ_F_PI), 0.0f, 0.0f,
                          0.0f,        0.0f, 1.0f, 0.0f,
                          0.0f,        0.0f, 0.0f, 1.0f }));
 GBL_TEST_CASE_END

@@ -92,7 +92,7 @@ SHZ_NO_INLINE void benchmark(const char* name, F &&function, Args&&... args) {
     uint64_t start = perf_cntr_timer_ns();
 
     SHZ_MEMORY_BARRIER_HARD();
-    volatile auto res = function(std::forward<Args>(args)...);
+    [[maybe_unused]] volatile auto res = function(std::forward<Args>(args)...);
     SHZ_MEMORY_BARRIER_HARD();
 
     uint64_t stop = perf_cntr_timer_ns();
