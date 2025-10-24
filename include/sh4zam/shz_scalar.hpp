@@ -66,8 +66,8 @@ namespace shz {
     constexpr auto remquof    = shz_remquof;
     //! @}
 
-    /*! \name  FMAC
-     *  \brief Routines built around multiply + accumulate operations.
+    /*! \name  Miscellaneous
+     *  \brief Fast versions of miscellaneous FP routines.
      *  @{
      */
     //! C++ alias for shz_copysignf().
@@ -82,6 +82,10 @@ namespace shz {
     constexpr auto lerpf             = shz_lerpf;
     //! C++ alias for shz_barycentric_lerpf().
     constexpr auto barycentric_lerpf = shz_barycentric_lerpf;
+    //! C++ alias for shz_randf().
+    constexpr auto randf             = shz_randf;
+    //! C++ alias for shz_randf_range()
+    constexpr auto randf_range       = shz_randf_range;
     //! @}
 
     /*! \name  FSRRA
@@ -114,8 +118,8 @@ namespace shz {
     constexpr auto mag_sqr4f = shz_mag_sqr4f;
     //! @}
 
-    /*! \name  Miscellaneous
-     *  \brief Routines for accelerating various FP functions.
+    /*! \name  Transcendental
+     *  \brief Routines for accelerating transcendental functions.
      *  @{
     */
     //! C++ alias for shz_pow2f().

@@ -8,7 +8,6 @@
  *
  *  \todo
  *      - shz_xmtrx_xxx_fft()
- *      - shz_xmtrx_xxx_outer_product()
  *      - shz_xmtrx_invert()
  *      - shz_xmtrx_position()
  *      - shz_xmtrx_size()
@@ -16,7 +15,6 @@
  *      - shz_xmtrx_ortho()
  *      - shz_xmtrx_frustum()
  *      - shz_xmtrx_store_transpose_unaligned_4x4()
- *      - shz_xmtrx_load_apply_store_unaligned_4x4()
  *      - shz_xmtrx_init_rotation_quat()
  *
  *  \author Falco Girgis
@@ -209,8 +207,21 @@ SHZ_INLINE void shz_xmtrx_store_2x2(shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
     @{
 */
 
-//! Initializes XMTRX to be a 4D identity matrix.
+/*! Quickly initializes XMTRX to be a 4D identity matrix.
+
+    \warning This routine will not properly zero-out NaN values!
+
+    \sa shz_xmtrx_init_identity_safe()
+*/
 SHZ_INLINE void shz_xmtrx_init_identity(void) SHZ_NOEXCEPT;
+
+/*! Safely initializes XMTRX to be a 4D identity matrix.
+
+    This routine is guaranteed to properly initialize XMTRX, regardless of NaN values.
+
+    \sa shz_xmtrx_init_identity()
+*/
+SHZ_INLINE void shz_xmtrx_init_identity_safe(void) SHZ_NOEXCEPT;
 
 //! Initializes XMTRX to contain the value of 0.0f for each element.
 SHZ_INLINE void shz_xmtrx_init_zero(void) SHZ_NOEXCEPT;

@@ -1053,6 +1053,27 @@ SHZ_INLINE void shz_xmtrx_init_identity(void) SHZ_NOEXCEPT {
     )");
 }
 
+SHZ_INLINE void shz_xmtrx_init_identity_safe(void) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        frchg
+        fldi1   fr0
+        fschg
+        fldi0   fr1
+        fldi0   fr2
+        fldi0   fr3
+        fldi0   fr4
+        fldi1   fr5
+        fmov    dr2, dr6
+        fmov    dr2, dr8
+        fldi1   fr10
+        fldi0   fr11
+        fmov    dr2, dr12
+        fmov    dr4, dr14
+        fschg
+        frchg
+    )");
+}
+
 // fmul 0 optimize
 SHZ_INLINE void shz_xmtrx_init_zero(void) SHZ_NOEXCEPT {
     asm volatile(R"(

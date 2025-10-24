@@ -207,6 +207,11 @@ struct xmtrx {
         shz_xmtrx_init_identity();
     }
 
+    //! C++ wrapper around shz_xmtrx_init_identity_safe().
+    SHZ_FORCE_INLINE static void init_identity_safe() noexcept {
+        shz_xmtrx_init_identity_safe();
+    }
+
     //! C++ wrapper around shz_xmtrx_init_zero().
     SHZ_FORCE_INLINE static void init_zero() noexcept {
         shz_xmtrx_init_zero();
