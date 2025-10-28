@@ -428,6 +428,11 @@ struct xmtrx {
         shz_xmtrx_translate(x, y, z);
     }
 
+    //! C++ wrapper around shz_xmtrx_scale().
+    SHZ_FORCE_INLINE static void scale(float x, float y, float z) noexcept {
+        shz_xmtrx_scale(x, y, z);
+    }
+
 //! @}
 
 /*! \name  Vector Transformations

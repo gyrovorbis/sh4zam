@@ -2500,6 +2500,41 @@ SHZ_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEPT {
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
+SHZ_INLINE void shz_xmtrx_scale(float x, float y, float z) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        fmov.s  @%[x], fr0
+        fldi0   fr1
+        fldi0   fr2
+        fldi0   fr3
+        fldi0   fr4
+        ftrv    xmtrx, fv0
+
+        fmov.s  @%[y], fr5
+        fldi0   fr6
+        fldi0   fr7
+        fldi0   fr8
+        ftrv    xmtrx, fv4
+
+        fldi0   fr9
+        fmov.s  @%[z], fr10
+        fldi0   fr11
+        fldi0   fr12
+        ftrv    xmtrx, fv8
+
+        fldi0   fr13
+        fldi0   fr14
+        fldi1   fr15
+        ftrv    xmtrx, fv12
+
+        frchg
+    )"
+    :
+    : [x] "r" (&x), [y] "r" (&y), [z] "r" (&z),
+      "m" (x), "m" (y), "m" (z)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+}
+
 SHZ_INLINE void shz_xmtrx_negate(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg

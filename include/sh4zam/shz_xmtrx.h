@@ -478,8 +478,11 @@ void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
     @{
 */
 
-//! Multiplies and accumulates XMTRX by a translation matrix with the given components.
+//! Multiplies and accumulates XMTRX by a 3D translation matrix with the given components.
 SHZ_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by a 3D scaling matrix with the given components.
+SHZ_INLINE void shz_xmtrx_scale(float x, float y, float z) SHZ_NOEXCEPT;
 
 //!@}
 
