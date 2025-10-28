@@ -2242,7 +2242,8 @@ SHZ_INLINE void shz_xmtrx_apply_lookat(const float* position_3f,
     )"
 	: [p] "+&r"(position_3f), [t] "+&r"(target_3f), [u] "+&r"(up_3f)
 	:
-	: "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+	: "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
 
@@ -2420,6 +2421,40 @@ SHZ_INLINE void shz_xmtrx_apply_permutation_yzwx(void) SHZ_NOEXCEPT {
         fldi0   fr13
         fldi1   fr14
         fldi0   fr15
+        ftrv    xmtrx, fv12
+
+        frchg
+    )"
+    :
+    :
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+}
+
+SHZ_INLINE void shz_xmtrx_apply_xmtrx(void) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        fschg
+        fmov    xd0, dr0
+        fmov    xd2, dr2
+        fschg
+        ftrv    xmtrx, fv0
+
+        fschg
+        fmov    xd4, dr4
+        fmov    xd6, dr6
+        fschg
+        ftrv    xmtrx, fv4
+
+        fschg
+        fmov    xd8, dr8
+        fmov    xd10, dr10
+        fschg
+        ftrv    xmtrx, fv8
+
+        fschg
+        fmov    xd12, dr12
+        fmov    xd14, dr14
+        fschg
         ftrv    xmtrx, fv12
 
         frchg

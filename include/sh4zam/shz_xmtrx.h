@@ -408,6 +408,9 @@ SHZ_INLINE void shz_xmtrx_apply_permutation_wxyz(void) SHZ_NOEXCEPT;
 //! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in YZWX order.
 SHZ_INLINE void shz_xmtrx_apply_permutation_yzwx(void) SHZ_NOEXCEPT;
 
+//! Multiplies and accumulatse the XMTRX matrix by itself, squaring it.
+SHZ_INLINE void shz_xmtrx_apply_xmtrx(void) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Compound Operations

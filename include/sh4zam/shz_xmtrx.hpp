@@ -384,6 +384,11 @@ struct xmtrx {
         shz_xmtrx_apply_permutation_yzwx();
     }
 
+    //! C++ wrapper around shz_xmtrx_apply_xmtrx().
+    SHZ_FORCE_INLINE static void apply_xmtrx() noexcept {
+        shz_xmtrx_apply_xmtrx();
+    }
+
 //! @}
 
 /*! \name  Compound Operations
