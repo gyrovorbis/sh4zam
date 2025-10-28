@@ -402,8 +402,11 @@ SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT;
 //! Multiplies and accumulates the 3D symmetric skew matrix with the given components onto XMTRX.
 SHZ_INLINE void shz_xmtrx_apply_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;
 
-//! Multiplies and accumulates a permutation matrix, which reorders the components of a transformed vector.
+//! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in WXYZ order.
 SHZ_INLINE void shz_xmtrx_apply_permutation_wxyz(void) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in YZWX order.
+SHZ_INLINE void shz_xmtrx_apply_permutation_yzwx(void) SHZ_NOEXCEPT;
 
 //! @}
 
