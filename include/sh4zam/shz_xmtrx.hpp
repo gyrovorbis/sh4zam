@@ -469,10 +469,20 @@ struct xmtrx {
 
 //! @}
 
-/*! \name  Modifiers
-    \brief Specialized routines that modify only the values of related XMTRX components.
+/*! \name  Miscellaneous
+    \brief Random operations and conversions on XMTRX.
     @{
 */
+
+    //! C++ wrapper around shz_xmtrx_add_4x4().
+    SHZ_FORCE_INLINE static void add(const shz_mat4x4_t& mat) noexcept {
+        shz_xmtrx_add_4x4(&mat);
+    }
+
+    //! C++ wrapper around shz_xmtrx_sub_4x4().
+    SHZ_FORCE_INLINE static void sub(const shz_mat4x4_t& mat) noexcept {
+        shz_xmtrx_sub_4x4(&mat);
+    }
 
     //! C++ wrapper around shz_xmtrx_add_diagonal().
     SHZ_FORCE_INLINE static void add_diagonal(float x, float y, float z, float w) noexcept {
@@ -483,13 +493,6 @@ struct xmtrx {
     SHZ_FORCE_INLINE static void add_symmetric_skew(float x, float y, float z) noexcept {
         shz_xmtrx_add_symmetric_skew(x, y, z);
     }
-
-//! @}
-
-/*! \name  Miscellaneous
-    \brief Random operations and conversions on XMTRX.
-    @{
-*/
 
     //! C++ wrapper around shz_xmtrx_transpose().
     SHZ_FORCE_INLINE static void transpose() noexcept {

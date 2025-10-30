@@ -512,23 +512,19 @@ SHZ_FORCE_INLINE void shz_xmtrx_set_translation(float x, float y, float z) SHZ_N
 
 //! @}
 
-/*! \name  Modifiers
-    \brief Specialized routines that modify only the values of related XMTRX components.
+/*! \name  Miscellaneous
+    \brief Random operations and conversions on XMTRX.
     @{
 */
+
+//! Adds each element within \p mat to each element within XMTRX, storing the result in XMTRX.
+SHZ_INLINE void shz_xmtrx_add_4x4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
 //! Adds the values of a 3D symmetric skew matrix constructed from the given components to XMTRX.
 SHZ_INLINE void shz_xmtrx_add_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Adds the values of a 4D diagonal matrix constructed from the given components to XMTRX.
 SHZ_INLINE void shz_xmtrx_add_diagonal(float x, float y, float z, float w) SHZ_NOEXCEPT;
-
-//! @}
-
-/*! \name  Miscellaneous
-    \brief Random operations and conversions on XMTRX.
-    @{
-*/
 
 //! Transposes the elements within XMTRX, in-place.
 SHZ_INLINE void shz_xmtrx_transpose(void) SHZ_NOEXCEPT;

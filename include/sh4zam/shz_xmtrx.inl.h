@@ -2535,6 +2535,98 @@ SHZ_INLINE void shz_xmtrx_scale(float x, float y, float z) SHZ_NOEXCEPT {
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
+SHZ_INLINE void shz_xmtrx_add_4x4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        fschg
+        fmov    xd0, dr4
+        fmov.d  @%[m]+, dr8
+        add     #24, %[m]
+        fmov    xd2, dr6
+        pref    @%[m]
+        fadd    fr8, fr4
+        add     #(24-8), %[m]
+        fadd    fr9, fr5
+        fmov.d  @%[m]+, dr8
+        fadd    fr8, fr6
+        fadd    fr9, fr7
+        frchg
+
+        fmov.d  @%[m]+, dr0
+        fmov.d  @%[m]+, dr2
+        fadd    fr0, fr4
+        fadd    fr1, fr5
+        fmov.d  @%[m]+, dr0
+        fadd    fr2, fr6
+        fadd    fr3, fr7
+        fmov.d  @%[m]+, dr2
+        fadd    fr0, fr8
+        fadd    fr1, fr9
+        fmov.d  @%[m]+, dr0
+        fadd    fr2, fr10
+        fadd    fr3, fr11
+        fmov.d  @%[m]+, dr2
+        fadd    fr0, fr12
+        fadd    fr1, fr13
+
+        fadd    fr2, fr14
+        fadd    fr3, fr14
+
+        fmov    xd4, dr0
+        fmov    xd6, dr2
+        fschg
+        frchg
+    )"
+    : [m] "+&r" (mat)
+    : "m" (*mat)
+    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9");
+}
+
+SHZ_INLINE void shz_xmtrx_sub_4x4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        fschg
+        fmov    xd0, dr4
+        fmov.d  @%[m]+, dr8
+        add     #24, %[m]
+        fmov    xd2, dr6
+        pref    @%[m]
+        fsub    fr8, fr4
+        add     #(24-8), %[m]
+        fsub    fr9, fr5
+        fmov.d  @%[m]+, dr8
+        fsub    fr8, fr6
+        fsub    fr9, fr7
+        frchg
+
+        fmov.d  @%[m]+, dr0
+        fmov.d  @%[m]+, dr2
+        fsub    fr0, fr4
+        fsub    fr1, fr5
+        fmov.d  @%[m]+, dr0
+        fsub    fr2, fr6
+        fsub    fr3, fr7
+        fmov.d  @%[m]+, dr2
+        fsub    fr0, fr8
+        fsub    fr1, fr9
+        fmov.d  @%[m]+, dr0
+        fsub    fr2, fr10
+        fsub    fr3, fr11
+        fmov.d  @%[m]+, dr2
+        fsub    fr0, fr12
+        fsub    fr1, fr13
+
+        fsub    fr2, fr14
+        fsub    fr3, fr14
+
+        fmov    xd4, dr0
+        fmov    xd6, dr2
+        fschg
+        frchg
+    )"
+    : [m] "+&r" (mat)
+    : "m" (*mat)
+    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9");
+}
+
 SHZ_INLINE void shz_xmtrx_negate(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
