@@ -520,6 +520,9 @@ SHZ_FORCE_INLINE void shz_xmtrx_set_translation(float x, float y, float z) SHZ_N
 //! Adds each element within \p mat to each element within XMTRX, storing the result in XMTRX.
 SHZ_INLINE void shz_xmtrx_add_4x4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
+//! Subtracts each element within \p mat from each element within XMTRX, storing the result in XMTRX.
+SHZ_INLINE void shz_xmtrx_sub_4x4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
 //! Adds the values of a 3D symmetric skew matrix constructed from the given components to XMTRX.
 SHZ_INLINE void shz_xmtrx_add_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;
 
