@@ -8,22 +8,27 @@
 Before we even begin discussing how to make the most out of this library, it is *imperative* that you
 know how to get the most out of the SH GCC toolchain to get your regular C and C++ code as fast as possible.
 
+
+## Flags
 Only a total newb would leave free, universal gainz on the table before jumping directly into hand-optimizing
-critical code, as its possible your bottleneck may not even exist with the proper flags.
+critical code, as its possible your bottleneck may not even exist with the proper flags. If you are using KallistiOS,
+you can control which of these flags are enabled or disabled globally for your entire environment by toggling them
+within your `environ.sh` file.
 
-Flag(s)             |Description
---------------------|-----------
--ffast-math         |1
--mfsca              |2
--mfsrra             |3
--O[n]               |4
--flto               |5
--fipa-pta           |6
--fomit-frame-pointer|7
--m4-single(-only)   |8
--fno-pic/-fno-pie   |9
+Flag(s)               |Description
+----------------------|-----------
+`-ffast-math`         |Allows for the compiler to perform optimizations which breaks strict IEEE compliance of floating-point numbers.
+`-mfsca`              |Allows for the compiler to replace `sinf()` and `cosf()` stdlib calls with the FSCA instruction. Requires `-ffast-math` to take effect.
+`-mfsrra`             |Allows for the compiler to replace `1.0f / sqrtf(x)` patterns with the FSRRA instruction. Requires `-ffast-math` to take effect.
+`-O[0-3, s]`          |Sets the optimization level. Default is typically `-O2`, with `-O3` typically offering speed for more bloated code. `-Os` prioritizes smaller code size above performance. Below `-O2` is useless for release performance but is easier to debug during development.
+`-flto`               |Enables link-time optimizations, which allows the linker to perform function inlining of regular out-of-line functions. This is *extremely* important for performance but increases build times.
+`-fipa-pta`           |Enables interprocedural pointer analysis optimizations in GCC, which allows for GCC to analyze beyond the boundaries of a single function body when optimizing.
+`-fomit-frame-pointer`|Tells the compiler not to reserve one of the general-purpose registers for holding the frame-pointer, allowing to be used for other things.
+`-m4-single(-only)`   |Sets the SH4 FPU mode. `-m4-single-only` implicitly converts every single `double` to `float`. `-m4-single` still supports `double`-precision but defaults to single-precision upon function entry.
+`-fno-pic/-fno-pie`   |Disables position-independent code, which can lose a bit of performance due to indirection and relative offsetting.
+`-DNDEBUG`            |Used to denote a release build, will disable assertion checks within codebases.
 
-## Mixing O3 and Os
+## Mixing Optimization Levels
 While it may seem obvious that your entire project should be compiled at the highest optimization level for
 maximum performance (`-O3`), real-world projects can rarely afford such a luxury due to this bloating the code
 segment size and wasting space. For this reason, I typically opt to use `-Os` for entire codebase as the default
@@ -34,6 +39,54 @@ units involving rendering, collision, and physics.
 By using `-Os` globally as our default with a statetic list of hand-picked translation units to get the `-O3`
 treatment, our GTA3 and Vice City ports were able to achieve within 1FPS of the performance from compiling
 everything with `-O3` while simultaneously saving nearly a megabyte of RAM on code size!
+
+## Selective Fast Math
+Ideally, you would enable `-ffast-math` along with `-mfsca` and `-mfsrra` globally for KOS, any KOS-ports
+you are using, SH4ZAM, and within your codebase. Unfortunately, due to it no longer ensuring strict IEEE
+floating-point compliance, sometimes doing so can result in very broken builds, typically manifesting issues
+in rendering, collision, physics, or FP-heavy code.
+
+Should this happen, and you need to disable `-ffast-math`, SH4ZAM is smart enough to fall-back to inline ASM
+for `FSCA` and `FSRRA` rather than relying on the compiler to emit them; however, it is still advised that you
+isolate the offending source files and simply add them to an explicit list that does not use `-ffast-math` within
+your build system, allowing everything else that doesn't break to still use it.
+
+## FP Precision Modes
+Typically, a regular C or C++ programmer should never have to care about the precision modes, unless they are
+relying on some high-precision `double` value that gets inadvertantly truncated to `float` when using `-m4-single-only`.
+
+`-m4-single` allows you to mix `double` and `float` variables, swapping the SH4's FPU mode as-needed, allowing you to use
+`float` for speed and `double` for precision, with the compiler automatically switching back to single-precision `float`
+mode upon each function entry.
+
+Unfortunately, there exists the potential to run into trouble with `-m4-single` as well, when doing this kind of low-level
+programming with inline assembly routines such as those provided within SH4ZAM. The problem is that all of SH4ZAM's inline
+ASM routines are making the assumption that they are getting called with the SH4 in single-precision mode, which is the
+default for a function call... However, since these functions are largely inlined, it is possible to have used as `double`
+within a function making a SH4ZAM call that expects the CPu to be in single-precision mode, causing it to swap into the
+wrong mode and breaking the program.
+
+The golden rule here when mixing `-m4-single`, `double` variables, and inline ASM, is to NEVER let `double` precision
+variables get anywhere near your inline SH4 assembly routines which do FP calculations, ensuring the SH4 is always in
+single-precision mode when entering such routines.
+
+As a precaution, SH4ZAM adds assert() statements around inline ASM routines which make assumptions about the current
+FP precision mode upon function entry. This allows for at least catching such inconsistencies in debug builds for the
+cost of an extra FP control register check for each such routine while in debug mode.
+
+## Non-Debug Builds
+KallistiOS, SH4ZAM, and many pieces of software use assert() to add extra validation and sanity checks to APIs, so that
+potential bugs can be caught immediately in debug builds for the price of a little bit of performance. When profiling and
+releasing, it is advised to build everything with the `-DNDEBUG` flag to disable such checks... However, should you run
+into any issues and need help debugging further, it's often useful to disable this flag and rebuild a debug binary with
+assert() enabled to see if it catches anything bad.
+
+# Cache
+## Prefetching
+## Preallocating
+## Scratchpad
+### OCRAM
+### OCINDEX
 
 # General SH4 Topics
 - Copying Memory
