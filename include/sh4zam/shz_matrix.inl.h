@@ -435,7 +435,7 @@ SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* mat, shz_mat4x4_t* out)
     shz_xmtrx_store_4x4(out);
 }
 
-SHZ_INLINE shz_vec3_t shz_matrix3x3_trans_vec3(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT {
+SHZ_INLINE shz_vec3_t shz_mat3x3_trans_vec3(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT {
     shz_vec3_t out;
 
     register float fr0 asm("fr0") = v.x;
