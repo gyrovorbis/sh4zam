@@ -376,7 +376,7 @@ typedef struct shz_mat3x4 {
     };
 } shz_mat3x4_t;
 
-SHZ_INLINE shz_vec3_t shz_matrix3x3_trans_vec3(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec3_t shz_mat3x3_trans_vec3(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT;
 
 //! \endcond
 
