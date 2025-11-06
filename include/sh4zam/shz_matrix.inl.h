@@ -185,7 +185,7 @@ SHZ_INLINE void shz_mat4x4_apply_scale(shz_mat4x4_t* mat, float x, float y, floa
     shz_xmtrx_store_4x4(mat);
 }
 
-SHZ_INLINE void shz_mat4x4_apply_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_mat4x4_apply_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
     mat->pos.x += x;
     mat->pos.y += y;
     mat->pos.z += z;
@@ -292,69 +292,69 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_trans_vec4(const shz_mat4x4_t* mat, shz_vec4_t 
     };
 
     asm volatile(R"(
-        ; Load input vector into FV12
+        ! Load input vector into FV12
         fmov.s  @%[v]+, fr12
         fmov.s  @%[v]+, fr13
         fmov.s  @%[v]+, fr14
         fmov.s  @%[v]+, fr15
 
-        ; Prefetch the second half of the matrix
+        ! Prefetch the second half of the matrix
         pref    @%[c2]
 
-        ; Load first column int FV0
+        ! Load first column int FV0
         fmov.s  @%[c0]+, fr0
         fmov.s  @%[c1]+, fr1
         fmov.s  @%[c2]+, fr2
         fmov.s  @%[c3]+, fr3
-        ; Start loading next column
-        fmov.s  @%[c0]+, fr14   ; Vector instructions need 3 cycles between
-        fmov.s  @%[c1]+, fr15   ; loading arguments and using them.
+        ! Start loading next column
+        fmov.s  @%[c0]+, fr4   ! Vector instructions need 3 cycles between
+        fmov.s  @%[c1]+, fr5   ! loading arguments and using them.
 
-        ; Calculate output vector's X component
+        ! Calculate output vector's X component
         fipr    fv12, fv0
 
-        ; Finish loading second column vector
+        ! Finish loading second column vector
         fmov.s  @%[c2]+, fr6
         fmov.s  @%[c3]+, fr7
-        ; Begin loading third column vector
+        ! Begin loading third column vector
         fmov.s  @%[c0]+, fr8
         fmov.s  @%[c1]+, fr9
 
-        ; Calculate output vector's Y componennt
+        ! Calculate output vector's Y componennt
         fipr    fv12, fv4
 
-        ; Finish loading third column vector
+        ! Finish loading third column vector
         fmov.s  @%[c2]+, fr10
-        add     #-16, %[v]      ; Point v back to the beginning of the input vector
-        fmov.s  @%[c2]+, fr11
-        fmov.s  fr3, @%[v]      ; Store output vector X compoonent
-        ; Start loading fourth column vector
+        add     #-16, %[v]      ! Point v back to the beginning of the input vector
+        fmov.s  @%[c3]+, fr11
+        fmov.s  fr3, @%[v]      ! Store output vector X component
+        ! Start loading fourth column vector
         fmov.s  @%[c0]+, fr0
 
-        ; Calculate output vector's Z component
+        ! Calculate output vector's Z component
         fipr    fv12, fv8
 
-        ; Finish loading the fourth column vector
+        ! Finish loading the fourth column vector
         fmov.s  @%[c1]+, fr1
         fmov.s  @%[c2]+, fr2
         fmov.s  @%[c3]+, fr3
-        add     #4, @%[v]       ; Advance output vector pointer
-        fmov.s  fr7, @%[v]      ; Store output vector Y component
+        add     #4, %[v]        ! Advance output vector pointer
+        fmov.s  fr7, @%[v]      ! Store output vector Y component
 
-        ; Calculate output vector's W component
-        fipr    fv12, fv0       ; FUCKING STALL - 4th column vector is still loading (3 cycle delay)
+        ! Calculate output vector's W component
+        fipr    fv12, fv0       ! FUCKING STALL - 4th column vector is still loading (3 cycle delay)
 
-        ; Store output vector's Z component
-        add     #4, %[v]        ; Advance output vector pointer
+        ! Store output vector's Z component
+        add     #4, %[v]        ! Advance output vector pointer
         fmov.s  fr11, @%[v]
         
-        ; Store output vector's W component
-        add     #4, %[v]        ; Advance output vector pointer
-        fmov.s  fr3, @%[v]      ; FUCKING STALL - previous FIPR still in pipeline!
+        ! Store output vector's W component
+        add     #4, %[v]        ! Advance output vector pointer
+        fmov.s  fr3, @%[v]      ! FUCKING STALL - previous FIPR still in pipeline!
     )"
-    : [v] "+r" (v),
+    : [v] "+r" (v), "=m" (in),
       [c0] "+r" (c[0]), [c1] "+r" (c[1]), [c2] "+r" (c[2]), [c3] "+r" (c[3])
-    :
+    : "m" (in), "m" (*c[0]), "m" (*c[1]), "m" (*c[2]), "m" (*c[3])
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 

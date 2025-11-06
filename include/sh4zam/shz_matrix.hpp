@@ -84,6 +84,14 @@ namespace shz {
             shz_mat4x4_apply(this, &mat);
         }
 
+        SHZ_FORCE_INLINE void apply_scale(float x, float y, float z) noexcept {
+            shz_mat4x4_apply_scale(this, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void apply_translation(float x, float y, float z) noexcept {
+            shz_mat4x4_apply_translation(this, x, y, z);
+        }
+
         SHZ_FORCE_INLINE void apply_rotation_x(float angle) noexcept {
             shz_mat4x4_apply_rotation_x(this, angle);
         }

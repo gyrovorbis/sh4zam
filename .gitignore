@@ -3,6 +3,8 @@ CMakeLists.txt.user
 *.a
 *.lib
 *.d
+*.elf
+*.log
 build/
 .vscode/
 doc/html/
