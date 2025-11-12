@@ -21,6 +21,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 set(SHZ_SOURCES
     source/shz_circle.c
+    source/shz_matrix.c
     source/shz_mem.s
     source/shz_xmtrx.c
     source/shz_xmtrx.s

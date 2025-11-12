@@ -78,7 +78,24 @@ SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u, float v) SHZ_NOEXCEPT {
+#if 0
     return shz_fmaf(u, (b - a), shz_fmaf(v, (c - a), a));
+#else
+    // Calculate the third barycentric coordinate
+    float w = 1.0f - u - v;
+
+    // Optional: Clamp u, v, w to the [0, 1] range if the point must be inside the triangle
+    // This is where fmax can be used
+    // u = fmax(0.0f, u);
+    // v = fmax(0.0f, v);
+    // w = fmax(0.0f, w);
+    // Note: Naive clamping like this without re-normalizing can distort the interpolation
+    // if the original u, v were outside the valid range.
+    // The standard formula below assumes u+v+w = 1.
+
+    // Perform the weighted average (interpolation)
+    return shz_dot8f(w, u, v, 0.0f, a, b, c, 0.0f);
+#endif
 }
 
 SHZ_FORCE_INLINE float shz_inv_sqrtf(float x) SHZ_NOEXCEPT {

@@ -73,13 +73,27 @@ GBL_TEST_CASE(lerpf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(barycentric_lerpf)
-    GBL_TEST_VERIFY(shz::barycentric_lerpf(0.0f, 1.0f, 2.0f, 0.5f, 0.0f) == 0.5f);
-    GBL_TEST_VERIFY(shz::barycentric_lerpf(0.0f, 1.0f, 2.0f, 0.0f, 0.5f) == 1.0f);
-    GBL_TEST_VERIFY(shz::barycentric_lerpf(0.0f, 1.0f, 2.0f, 0.5f, 0.5f) == 2.0f);
-    GBL_TEST_VERIFY(shz::barycentric_lerpf(3.0f, 4.0f, 5.0f, 0.0f, 0.0f) == 3.0f);
-    GBL_TEST_VERIFY(shz::barycentric_lerpf(3.0f, 4.0f, 5.0f, 1.0f, 0.0f) == 4.0f);
-    GBL_TEST_VERIFY(shz::barycentric_lerpf(3.0f, 4.0f, 5.0f, 0.0f, 1.0f) == 5.0f);
-    GBL_TEST_VERIFY(shz::barycentric_lerpf(1.0f, 2.0f, 3.0f, 1.0f, 1.0f) == 4.0f);
+    // A: u=0, v=0, w=1 -> should return 'a' (value 10)
+    GBL_TEST_VERIFY(shz_barycentric_lerpf(10.0f, 20.0f, 30.0f, 0.0f, 0.0f) == 10.0f);
+    // B: u=1, v=0, w=0 -> should return 'b' (value 20)
+    GBL_TEST_VERIFY(shz_barycentric_lerpf(10.0f, 20.0f, 30.0f, 1.0f, 0.0f) == 20.0f);
+    // C: u=0, v=1, w=0 -> should return 'c' (value 30)
+    GBL_TEST_VERIFY(shz_barycentric_lerpf(10.0f, 20.0f, 30.0f, 0.0f, 1.0f) == 30.0f);
+
+    // Test center point: u=1/3, v=1/3, w=1/3 -> should be average
+    {
+        float u = 1.0f/3.0f;
+        float v = 1.0f/3.0f;
+        float expected = (10.0f + 20.0f + 30.0f) / 3.0f;
+        GBL_TEST_VERIFY(shz_barycentric_lerpf(10.0f, 20.0f, 30.0f, u, v) == expected);
+    }
+
+    // Midpoint A-B: u=0.5, v=0, w=0.5 -> should be (a+b)/2
+    GBL_TEST_VERIFY(shz_barycentric_lerpf(10.0f, 20.0f, 30.0f, 0.5f, 0.0f) == 15.0f);
+    // Midpoint B-C: u=0.5, v=0.5, w=0 -> should be (b+c)/2
+    GBL_TEST_VERIFY(shz_barycentric_lerpf(10.0f, 20.0f, 30.0f, 0.5f, 0.5f) == 25.0f);
+    // Midpoint A-C: u=0, v=0.5, w=0.5 -> should be (a+c)/2
+    GBL_TEST_VERIFY(shz_barycentric_lerpf(10.0f, 20.0f, 30.0f, 0.0f, 0.5f) == 20.0f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(inv_sqrtf)
