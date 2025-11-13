@@ -23,10 +23,10 @@
 _shz_xmtrx_load_apply_store_unaligned_4x4:
     frchg
     
-    fmov.s  @r5+, fr0
+    fmov.s  @r5, fr0
     add     #32, r5
     pref    @r5
-    add     #-32, r5
+    add     #-28, r5
     fmov.s  @r5+, fr1
     fmov.s  @r5+, fr2
     fmov.s  @r5+, fr3
@@ -54,45 +54,49 @@ _shz_xmtrx_load_apply_store_unaligned_4x4:
     fmov.s  @r6+, fr1
     fmov.s  @r6+, fr2
     fmov.s  @r6+, fr3
-    add     #32, r4
     pref    @r4
+    fmov.s  @r6+, fr4
     ftrv    xmtrx, fv0
 
-    fmov.s  @r6+, fr4
     fmov.s  @r6+, fr5
     fmov.s  @r6+, fr6
     fmov.s  @r6+, fr7
-    add     #-(32-16), r4
-    ftrv    xmtrx, fv4
-    fmov.s  fr0, @-r4
-    fmov.s  fr1, @-r4
-    fmov.s  fr2, @-r4
+    add     #16, r4
     fmov.s  fr3, @-r4
+    ftrv    xmtrx, fv4
+
+    fmov.s  fr2, @-r4
+    fmov.s  fr1, @-r4
+    fmov.s  fr0, @-r4
 
     fmov.s  @r6+, fr0
     fmov.s  @r6+, fr1
     fmov.s  @r6+, fr2
     fmov.s  @r6+, fr3
     add     #32, r4
-    ftrv    xmtrx, fv0
-    fmov.s  fr4, @-r4
-    fmov.s  fr5, @-r4
-    fmov.s  fr6, @-r4
     fmov.s  fr7, @-r4
+    ftrv    xmtrx, fv0
 
+    fmov.s  fr6, @-r4
+    fmov.s  fr5, @-r4
+    fmov.s  fr4, @-r4
+
+    add     #32, r4
+    pref    @r4
     fmov.s  @r6+, fr4
     fmov.s  @r6+, fr5
     fmov.s  @r6+, fr6
     fmov.s  @r6+, fr7
-    add     #32, r4
-    ftrv    xmtrx, fv4
-    fmov.s  fr0, @-r4
-    fmov.s  fr1, @-r4
-    fmov.s  fr2, @-r4
     fmov.s  fr3, @-r4
+    fmov.s  fr2, @-r4
+    ftrv    xmtrx, fv4
 
-    fmov.s  fr4, @-r4
-    fmov.s  fr5, @-r4
-    fmov.s  fr6, @-r4
-    rts
+    fmov.s  fr1, @-r4
+    fmov.s  fr0, @-r4
+    add     #32, r4
+
     fmov.s  fr7, @-r4
+    fmov.s  fr6, @-r4
+    fmov.s  fr5, @-r4
+    rts
+    fmov.s  fr4, @-r4

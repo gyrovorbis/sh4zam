@@ -7,6 +7,7 @@ $(CMAKE_BUILD_DIR)/Makefile: CMakeLists.txt
 $(CMAKE_BUILD_DIR)/libsh4zam.a: $(CMAKE_BUILD_DIR)/Makefile
 	$(MAKE) -C $(@D) sh4zam
 
+.PHONY: $(CMAKE_BUILD_DIR)/test/Sh4zamTests.elf
 $(CMAKE_BUILD_DIR)/test/Sh4zamTests.elf: $(CMAKE_BUILD_DIR)/Makefile
 	$(MAKE) -C $(@D) Sh4zamTests
 

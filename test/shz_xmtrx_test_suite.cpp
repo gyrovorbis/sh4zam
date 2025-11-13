@@ -354,7 +354,7 @@ GBL_TEST_CASE(load_rows_4x4)
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, array));
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(load_transpose_4x4)
+GBL_TEST_CASE(load_transpose_unaligned_4x4)
     randomize_xmtrx_();
     alignas(4) std::array<float, 16> array = {
         -1.0f,   2.0f,  3.0f,  8.0f,
@@ -381,8 +381,6 @@ GBL_TEST_CASE(load_apply_store_unaligned_4x4)
         0.0f, 0.0f, 0.0f, 1.0f
     };
     alignas(4) std::array<float, 16> out;
-
-    GBL_TEST_SKIP("Temporary, known reest.");
 
     shz::xmtrx::load_apply_store(out.data(), transpose(matrix1).data(), transpose(matrix2).data());
     shz::xmtrx::load(out.data());
@@ -416,5 +414,5 @@ GBL_TEST_REGISTER(read_write_registers,
                   load_unaligned_4x4,
                   load_cols_4x4,
                   load_rows_4x4,
-                  load_transpose_4x4,
+                  load_transpose_unaligned_4x4,
                   load_apply_store_unaligned_4x4)

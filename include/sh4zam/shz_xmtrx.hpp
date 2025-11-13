@@ -402,7 +402,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_load_apply_unaligned_4x4().
-    SHZ_FORCE_INLINE static void load_apply_store(const float matrix1[16], const float matrix2[16]) noexcept {
+    SHZ_FORCE_INLINE static void load_apply(const float matrix1[16], const float matrix2[16]) noexcept {
         shz_xmtrx_load_apply_unaligned_4x4(matrix1, matrix2);
     }
 
