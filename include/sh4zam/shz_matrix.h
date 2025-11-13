@@ -324,6 +324,17 @@ SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 */
 SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* mat, shz_mat4x4_t* out) SHZ_NOEXCEPT;
 
+/*! Computes the inverse of a 4x4 matrix.
+
+    \note
+    In-place inversion (mtrx == out) is not supported.
+
+    \warning This routine clobbers XMTRX.
+
+    \param mtrx     Pointer to the 4x4 matrix to invert.
+    \param out      Pointer to the resulting inverted matrix.
+*/
+void shz_mat4x4_inverse(const shz_mat4x4_t* mtrx, shz_mat4x4_t* out) SHZ_NOEXCEPT;
 
 /*!
     Stores the transpose of 3x3 matrix \p mat within \p out.
@@ -363,20 +374,6 @@ SHZ_INLINE void shz_mat3x3_inverse_unscaled(const shz_mat3x3_t* mtrx, shz_mat3x3
     \warning This routine clobbers XMTRX.
  */
 SHZ_INLINE void shz_mat3x3_inverse(const shz_mat3x3_t* mtrx, shz_mat3x3_t* out) SHZ_NOEXCEPT;
-
-
-/*! Computes the inverse of a 4x4 matrix.
-    
-    \note
-    In-place inversion (mtrx == out) is not supported.
-
-    \warning This routine clobbers XMTRX.
-
-    \param mtrx     Pointer to the 4x4 matrix to invert.
-    \param out      Pointer to the resulting inverted matrix.
-*/
-void shz_mat4x4_inverse(const shz_mat4x4_t* mtrx, shz_mat4x4_t* out) SHZ_NOEXCEPT;
-
 
 //! @}
 

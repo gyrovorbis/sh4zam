@@ -137,7 +137,7 @@ SHZ_FORCE_INLINE float shz_vec4_magnitude_sqr(shz_vec4_t vec) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_vec3_magnitude_sqr(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_mag_sqr4f(vec.x, vec.y, vec.z, 0.0f);
+    return shz_mag_sqr3f(vec.x, vec.y, vec.z);
 }
 
 SHZ_FORCE_INLINE float shz_vec2_magnitude(shz_vec2_t vec) SHZ_NOEXCEPT {
@@ -273,7 +273,8 @@ SHZ_FORCE_INLINE float shz_vec4_dot(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCE
 }
 
 SHZ_FORCE_INLINE float shz_vec3_dot(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT {
-    return shz_vec4_dot((shz_vec4_t){ .xyz = vec1 }, (shz_vec4_t){ .xyz = vec2 });
+    return shz_dot6f(vec1.x, vec1.y, vec1.z,
+                     vec2.x, vec2.y, vec2.z);
 }
 
 SHZ_FORCE_INLINE float shz_vec2_distance(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {

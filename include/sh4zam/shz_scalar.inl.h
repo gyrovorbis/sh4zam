@@ -78,9 +78,6 @@ SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u, float v) SHZ_NOEXCEPT {
-#if 0
-    return shz_fmaf(u, (b - a), shz_fmaf(v, (c - a), a));
-#else
     // Calculate the third barycentric coordinate
     float w = 1.0f - u - v;
 
@@ -94,8 +91,7 @@ SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u,
     // The standard formula below assumes u+v+w = 1.
 
     // Perform the weighted average (interpolation)
-    return shz_dot8f(w, u, v, 0.0f, a, b, c, 0.0f);
-#endif
+    return shz_dot6f(a, b, c, w, u, v);
 }
 
 SHZ_FORCE_INLINE float shz_inv_sqrtf(float x) SHZ_NOEXCEPT {
@@ -144,6 +140,44 @@ SHZ_FORCE_INLINE float shz_divf_fsrra(float num, float denom) SHZ_NOEXCEPT {
         return num / denom;
     else
         return num * shz_invf_fsrra(denom);
+}
+
+SHZ_FORCE_INLINE float shz_dot6f(float x1, float y1, float z1,
+                                 float x2, float y2, float z2) SHZ_NOEXCEPT {
+    register float rx1 asm("fr8")  = x1;
+    register float ry1 asm("fr9")  = y1;
+    register float rz1 asm("fr10") = z1;
+    register float rw1 asm("fr11") = 0.0f;
+    register float rx2 asm("fr12") = x2;
+    register float ry2 asm("fr13") = y2;
+    register float rz2 asm("fr14") = z2;
+    register float rw2 asm("fr15");
+
+    // Undefined behavior when in another mode with FIPR
+    SHZ_SINGLE_PRECISION_GUARD();
+
+    asm("fipr fv8, fv12"
+        : "=f" (rw2)
+        : "f" (rx1), "f" (ry1), "f" (rz1), "f" (rw1),
+          "f" (rx2), "f" (ry2), "f" (rz2));
+
+    return rw2;
+}
+
+SHZ_FORCE_INLINE float shz_mag_sqr3f(float x, float y, float z) SHZ_NOEXCEPT {
+    register float rx asm("fr8")  = x;
+    register float ry asm("fr9")  = y;
+    register float rz asm("fr10") = z;
+    register float rw asm("fr11") = 0.0f;
+
+     // Undefined behavior when in another mode with FIPR
+    SHZ_SINGLE_PRECISION_GUARD();
+
+    asm("fipr fv8, fv8"
+        : "+f" (rw)
+        : "f" (rx), "f" (ry), "f" (rz));
+
+    return rw;
 }
 
 SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,

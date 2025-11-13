@@ -112,8 +112,12 @@ namespace shz {
      *  \brief Routines built around fast 4D dot product.
      *  @{
      */
+    //! C++ alias for shz_dot6f().
+    constexpr auto dot6f    = shz_dot6f;
     //! C++ alias for shz_dot8f().
     constexpr auto dot8f     = shz_dot8f;
+    //! C++ alias for shz_mag_sqr3f().
+    constexpr auto mag_sqr3f = shz_mag_sqr3f;
     //! C++ alias for shz_mag_sqr4f().
     constexpr auto mag_sqr4f = shz_mag_sqr4f;
     //! @}

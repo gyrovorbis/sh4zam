@@ -8,7 +8,6 @@
 Before we even begin discussing how to make the most out of this library, it is *imperative* that you
 know how to get the most out of the SH GCC toolchain to get your regular C and C++ code as fast as possible.
 
-
 ## Flags
 Only a total newb would leave free, universal gainz on the table before jumping directly into hand-optimizing
 critical code, as its possible your bottleneck may not even exist with the proper flags. If you are using KallistiOS,

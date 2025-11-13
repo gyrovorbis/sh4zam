@@ -114,6 +114,44 @@ GBL_TEST_CASE(read_write_cols)
     GBL_TEST_VERIFY(shz::xmtrx::read_col(3) == shz::vec4(13.0f, 14.0f, 15.0f, 16.0f));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(swap_rows)
+    randomize_xmtrx_();
+
+    std::array<shz::vec4, 4> rows = {
+        shz::xmtrx::read_row(0),
+        shz::xmtrx::read_row(1),
+        shz::xmtrx::read_row(2),
+        shz::xmtrx::read_row(3)
+    };
+
+    shz::xmtrx::swap_rows(0, 3);
+    shz::xmtrx::swap_rows(1, 2);
+
+    GBL_TEST_VERIFY(rows[0] == shz::xmtrx::read_row(3));
+    GBL_TEST_VERIFY(rows[1] == shz::xmtrx::read_row(2));
+    GBL_TEST_VERIFY(rows[2] == shz::xmtrx::read_row(1));
+    GBL_TEST_VERIFY(rows[3] == shz::xmtrx::read_row(0));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(swap_cols)
+    randomize_xmtrx_();
+
+    std::array<shz::vec4, 4> cols = {
+        shz::xmtrx::read_col(0),
+        shz::xmtrx::read_col(1),
+        shz::xmtrx::read_col(2),
+        shz::xmtrx::read_col(3)
+    };
+
+    shz::xmtrx::swap_cols(0, 3);
+    shz::xmtrx::swap_cols(1, 2);
+
+    GBL_TEST_VERIFY(cols[0] == shz::xmtrx::read_col(3));
+    GBL_TEST_VERIFY(cols[1] == shz::xmtrx::read_col(2));
+    GBL_TEST_VERIFY(cols[2] == shz::xmtrx::read_col(1));
+    GBL_TEST_VERIFY(cols[3] == shz::xmtrx::read_col(0));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(init_identity)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
@@ -255,6 +293,23 @@ GBL_TEST_CASE(load_4x4)
                     11.0f, -12.0f, 13.0f, 14.0f })));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(load_wxyz_4x4)
+    randomize_xmtrx_();
+    shz_mat4x4_t mat4 = {
+        .left    = { -1.0f,   2.0f,  3.0f,  8.0f },
+        .up      = {  4.0f,  -5.0f,  6.0f,  7.0f },
+        .forward = {  7.0f,   8.0f,  9.0f, 10.0f },
+        .pos     = { 11.0f, -12.0f, 13.0f, 14.0f }
+    };
+    shz::xmtrx::load_wxyz(mat4);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                  transpose({
+                     11.0f, -12.0f, 13.0f, 14.0f,
+                     -1.0f,   2.0f,  3.0f,  8.0f,
+                      4.0f,  -5.0f,  6.0f,  7.0f,
+                      7.0f,   8.0f,  9.0f, 10.0f })));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(load_unaligned_4x4)
     randomize_xmtrx_();
     alignas(4) std::array<float, 16> array = {
@@ -342,6 +397,8 @@ GBL_TEST_CASE_END
 GBL_TEST_REGISTER(read_write_registers,
                   read_write_rows,
                   read_write_cols,
+                  swap_rows,
+                  swap_cols,
                   init_identity,
                   init_diagonal,
                   init_scale,
@@ -355,6 +412,7 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_rotation_y,
                   apply_rotation_z,
                   load_4x4,
+                  load_wxyz_4x4,
                   load_unaligned_4x4,
                   load_cols_4x4,
                   load_rows_4x4,

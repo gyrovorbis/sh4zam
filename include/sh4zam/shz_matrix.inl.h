@@ -420,10 +420,10 @@ SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 	float s5 = m[2][0] * m[3][1] - m[3][0] * m[2][1];
 
 	shz_vec4_t coeff = shz_vec4_init(
-		+ shz_dot8f(m[1][1], -m[1][2], m[1][3], 0.0f, s0, s1, s2, 0.0f),
-		- shz_dot8f(m[1][0], -m[1][2], m[1][3], 0.0f, s0, s3, s4, 0.0f),
-		+ shz_dot8f(m[1][0], -m[1][1], m[1][3], 0.0f, s1, s3, s5, 0.0f),
-		- shz_dot8f(m[1][0], -m[1][1], m[1][2], 0.0f, s2, s4, s5, 0.0f)
+		+ shz_dot6f(m[1][1], -m[1][2], m[1][3], s0, s1, s2),
+		- shz_dot6f(m[1][0], -m[1][2], m[1][3], s0, s3, s4),
+		+ shz_dot6f(m[1][0], -m[1][1], m[1][3], s1, s3, s5),
+		- shz_dot6f(m[1][0], -m[1][1], m[1][2], s2, s4, s5)
 	);
 
     return shz_dot8f(m[0][0],    m[0][1],    m[0][2],    m[0][3],

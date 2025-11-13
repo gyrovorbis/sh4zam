@@ -169,6 +169,23 @@ GBL_TEST_CASE(invf)
    GBL_TEST_VERIFY(test(-33333.33f));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(dot6f)
+   auto test = [&](std::array<float, 3> vec1,
+                   std::array<float, 3> vec2)
+   {
+        float fipr_res = shz::dot6f(vec1[0], vec1[1], vec1[2],
+                                    vec2[0], vec2[1], vec2[2]);
+        float c_res    = vec1[0] * vec2[0] + vec1[1] * vec2[1] + vec1[2] * vec2[2];
+        return gblFloatEquals(fipr_res, c_res, shz::fipr_max_error);
+    };
+    GBL_TEST_VERIFY(test({ 1.0f,   2.0f, 3.0f   },
+                         { 1.0f,   2.0f, 3.0f   }));
+    GBL_TEST_VERIFY(test({-1.0f,   2.0f, 3.333f },
+                         { 1.0f, -22.0f, 3.0f   }));
+    GBL_TEST_VERIFY(test({-1.0f,   0.0f, 3.333f },
+                         { 1.0f, -22.0f, 3.0f   }));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(dot8f)
    auto test = [&](std::array<float, 4> vec1,
                    std::array<float, 4> vec2)
@@ -185,6 +202,17 @@ GBL_TEST_CASE(dot8f)
                          { 1.0f, -22.0f, 3.0f,    4.5555f}));
     GBL_TEST_VERIFY(test({-1.0f,   0.0f, 3.333f, -4.4345f},
                          { 1.0f, -22.0f, 3.0f,    4.5555f}));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(mag_sqr3f)
+   auto test = [&](std::array<float, 3> vec1) {
+        float fipr_res = shz::mag_sqr3f(vec1[0], vec1[1], vec1[2]);
+        float c_res    = vec1[0] * vec1[0] + vec1[1] * vec1[1] + vec1[2] * vec1[2];
+        return gblFloatEquals(fipr_res, c_res, shz::fipr_max_error);
+    };
+    GBL_TEST_VERIFY(test({ 1.0f,   2.0f, 3.0f   }));
+    GBL_TEST_VERIFY(test({ 1.0f, -22.0f, 3.0f   }));
+    GBL_TEST_VERIFY(test({-1.0f,   0.0f, 3.333f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(mag_sqr4f)
@@ -212,5 +240,7 @@ GBL_TEST_REGISTER(min,
                   invf_fsrra,
                   divf_fsrra,
                   invf,
+                  dot6f,
                   dot8f,
+                  mag_sqr3f,
                   mag_sqr4f)

@@ -209,9 +209,16 @@ SHZ_FORCE_INLINE float shz_divf_fsrra(float num, float denom) SHZ_NOEXCEPT;
  *  @{
  */
 
+//! Takes two sets of 3D vectors as 3 floats and calculates their dot product using an approximation.
+SHZ_FORCE_INLINE float shz_dot6f(float x1, float y1, float z1,
+                                 float x2, float y2, float z2) SHZ_NOEXCEPT;
+
 //! Takes two sets of 4D vectors as 4 floats and calculates their dot product using an approximation.
 SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
                                  float x2, float y2, float z2, float w2) SHZ_NOEXCEPT;
+
+//! Takes a 3D vector as 3 floats and calculates its squared magnitude using a fast approximation.
+SHZ_FORCE_INLINE float shz_mag_sqr3f(float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Takes a 4D vector as 4 floats and calculates its squared magnitude using a fast approximation.
 SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) SHZ_NOEXCEPT;
