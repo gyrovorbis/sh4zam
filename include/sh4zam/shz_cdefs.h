@@ -96,8 +96,8 @@
 #   define SHZ_INLINE           inline
     //! Tells GCC the function has no effects other than returning a value that depends only on its arguments.
 #   define SHZ_CONST            __attribute__((const)) constexpr
-    //! Dummy define provided for C compatibility
-#   define SHZ_RESTRICT
+    //! Tells GCC the pointer paramter is unique and is not aliased by another parameter
+#   define SHZ_RESTRICT         __restrict__
     //! Tells the compiler that the function does not throw exceptions
 #   define SHZ_NOEXCEPT         noexcept
 #endif
