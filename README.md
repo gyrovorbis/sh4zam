@@ -30,7 +30,7 @@ NOTE: <i>This repo is still undergoing rapid changes as we pull in these routine
 - **Memory** routines (memcpy(), memset(), memmove(), etc)
 - **Floating-point Environment** control
 - **Scalar** math operations, including faster `<math.h>` replacements
-- **Trigonomety** functions
+- **Trigonometry** functions
 - **Vector** types: 2D, 3D, 4D
 - **Matrix** types: 2x2, 3x2, 3x3, 3x4, 4x3, and 4x4
 - **Quaternion** math operations
