@@ -100,8 +100,9 @@ namespace shz {
             shz_mat4x4_init_rotation_xyz(this, yAngle, xAngle, zAngle);
         }
 
-        SHZ_FORCE_INLINE void init_rotation(vec3 axis, float angle) noexcept {
-            shz_mat4x4_init_rotation(this, axis, angle);
+        //! C++ wrapper for shz_mat4x4_init_rotation().
+        SHZ_FORCE_INLINE void init_rotation(float angle, float x, float y, float z) noexcept {
+            shz_mat4x4_init_rotation(this, angle, x, y, z);
         }
 
         SHZ_FORCE_INLINE void init_rotation(quat q) noexcept {
@@ -152,12 +153,48 @@ namespace shz {
             shz_mat4x4_apply_rotation_xyz(this, yAngle, xAngle, zAngle);
         }
 
-        SHZ_FORCE_INLINE void apply_rotation(vec3 axis, float angle) noexcept {
-            shz_mat4x4_apply_rotation(this, axis, angle);
+        SHZ_FORCE_INLINE void apply_rotation(float angle, float x, float y, float z) noexcept {
+            shz_mat4x4_apply_rotation(this, angle, x, y, z);
         }
 
         SHZ_FORCE_INLINE void apply_rotation(quat q) noexcept {
             shz_mat4x4_apply_rotation_quat(this, q);
+        }
+
+        SHZ_FORCE_INLINE void translate(float x, float y, float z) noexcept {
+            shz_mat4x4_translate(this, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void scale(float x, float y, float z) noexcept {
+            shz_mat4x4_scale(this, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void rotate_x(float radians) noexcept {
+            shz_mat4x4_rotate_x(this, radians);
+        }
+
+        SHZ_FORCE_INLINE void rotate_y(float radians) noexcept {
+            shz_mat4x4_rotate_y(this, radians);
+        }
+
+        SHZ_FORCE_INLINE void rotate_z(float radians) noexcept {
+            shz_mat4x4_rotate_z(this, radians);
+        }
+
+        SHZ_FORCE_INLINE void rotate_xyz(float xRadians, float yRadians, float zRadians) noexcept {
+            shz_mat4x4_rotate_xyz(this, xRadians, yRadians, zRadians);
+        }
+
+        SHZ_FORCE_INLINE void rotate_zyx(float zRadians, float yRadians, float xRadians) noexcept {
+            shz_mat4x4_rotate_zyx(this, zRadians, yRadians, xRadians);
+        }
+
+        SHZ_FORCE_INLINE void rotate_yxz(float yRadians, float xRadians, float zRadians) noexcept {
+            shz_mat4x4_rotate_yxz(this, yRadians, xRadians, zRadians);
+        }
+
+        SHZ_FORCE_INLINE void rotate(float radians, float xAxis, float yAxis, float zAxis) noexcept {
+            shz_mat4x4_rotate(this, radians, xAxis, yAxis, zAxis);
         }
 
         SHZ_FORCE_INLINE void copy(const shz_mat4x4_t& mat) noexcept {

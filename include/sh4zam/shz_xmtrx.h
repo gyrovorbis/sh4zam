@@ -17,8 +17,8 @@
  *      - shz_xmtrx_store_transpose_unaligned_4x4()
  *      - shz_xmtrx_init_rotation_quat()
  *
- *  \author Falco Girgis
- *  \author Twada
+ *  \author 2025 Falco Girgis
+ *  \author 2025 Twada
  *
  *  \copyright MIT License
  */
@@ -275,10 +275,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation_zyx(float zAngle, float yAngle, float xA
 SHZ_INLINE void shz_xmtrx_init_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
 
 //! Initializes XMTRX to a 3D rotation matrix of \p angle radians about the given \p axis.
-SHZ_INLINE void shz_xmtrx_init_rotation_axis(float angle, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
-
-//! Initializes XMTRX to a 3D rotation matrix of \p angle radians about the given \p axis.
-SHZ_INLINE void shz_xmtrx_init_rotation(shz_vec3_t axis, float angle) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_init_rotation(float angle, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
 
 //! Initializes XMTRX to be a diagonal matrix with the given diagonal values.
 SHZ_INLINE void shz_xmtrx_init_diagonal(float x, float y, float z, float w) SHZ_NOEXCEPT;
@@ -335,12 +332,6 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) SHZ_NOEXCEPT;
 //! Transforms the values of the inner 3x3 matrix by a rotation matrix of \p z radians about the Z axis.
 SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) SHZ_NOEXCEPT;
 
-//! Transforms the values of the inner 3x3 matrix by a rotation matrix of \p angle radians about the axis with the given components.
-SHZ_INLINE void shz_xmtrx_apply_rotation_axis(float angle, float x, float y, float z) SHZ_NOEXCEPT;
-
-//! Transforms the values of the inner 3x3 matrix by the rotation matrix represented by the given quaternion.
-void shz_xmtrx_apply_rotation_quat(shz_quat_t quat) SHZ_NOEXCEPT;
-
 /*! Multiplies and accumulates XMTRX by a 3D X-Y-Z rotation matrix, with the corresponding angles given in radians.
 
     The transform is applied to the inner 3x3 values within XMTRX, preserving the translational components.
@@ -374,8 +365,11 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_zyx(float zAngle, float yAngle, float x
 */
 SHZ_INLINE void shz_xmtrx_apply_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
 
-//! Multiplies and accumulates the 3D rotation matrix about the given axes with the given angle in radians onto XMTRX.
-SHZ_INLINE void shz_xmtrx_apply_rotation(shz_vec3_t axis, float angle) SHZ_NOEXCEPT;
+//! Transforms the values of the inner 3x3 matrix by a rotation matrix of \p angle radians about the axis with the given components.
+SHZ_INLINE void shz_xmtrx_apply_rotation(float angle, float x, float y, float z) SHZ_NOEXCEPT;
+
+//! Transforms the values of the inner 3x3 matrix by the rotation matrix represented by the given quaternion.
+void shz_xmtrx_apply_rotation_quat(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! Applies the 3D "lookAt" matrix constructed with the given vector components onto XMTRX.
 SHZ_INLINE void shz_xmtrx_apply_lookat(const float* position_3f, const float* target_3f, const float* up_3f) SHZ_NOEXCEPT;
@@ -415,6 +409,40 @@ SHZ_INLINE void shz_xmtrx_apply_permutation_yzwx(void) SHZ_NOEXCEPT;
 SHZ_INLINE void shz_xmtrx_apply_xmtrx(void) SHZ_NOEXCEPT;
 
 //! @}
+
+/*! \name GL Transformations
+    \brief OpenGL-style 4x4 matrix transforms.
+    @{
+*/
+
+//! Multiplies and accumulates XMTRX by a 3D translation matrix with the given components (glTranslatef() equivalent).
+SHZ_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by a 3D scaling matrix with the given components (glScalef() equivalent).
+SHZ_INLINE void shz_xmtrx_scale(float x, float y, float z) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by a 3D rotation matrix about the X axis.
+SHZ_INLINE void shz_xmtrx_rotate_x(float radians) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by a 3D rotation matrix about the Y axis.
+SHZ_INLINE void shz_xmtrx_rotate_y(float radians) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by a 3D rotation matrix about the Z axis.
+SHZ_INLINE void shz_xmtrx_rotate_z(float radians) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by 3D rotation matrices about the X then Y then Z axes.
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_xyz(float xRadians, float yRadians, float zRadians) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by 3D rotation matrices about the Z then Y then X axes.
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_zyx(float zRadians, float yRadians, float xRadians) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by 3D rotation matrices about the Y then X then Z axes.
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_yxz(float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by the 3D rotation matrix formed by the given axis and angle (glRotatef equivalent).
+SHZ_INLINE void shz_xmtrx_rotate(float radians, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
+
+//!@}
 
 /*! \name  Compound Operations
     \brief Multiple operations combined into one pipelined transaction.
@@ -475,28 +503,6 @@ void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
                                               const float matrix2[16]) SHZ_NOEXCEPT;
 
 //! @}
-
-/*! \name GL Transformations
-    \brief OpenGL-style 4x4 matrix transforms.
-    @{
-*/
-
-//! Multiplies and accumulates XMTRX by a 3D translation matrix with the given components.
-SHZ_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEPT;
-
-//! Multiplies and accumulates XMTRX by a 3D scaling matrix with the given components.
-SHZ_INLINE void shz_xmtrx_scale(float x, float y, float z) SHZ_NOEXCEPT;
-
-//! Multiplies and accumulates XMTRX by a 3D rotation matrix about the X axis.
-SHZ_INLINE void shz_xmtrx_rotate_x(float radians) SHZ_NOEXCEPT;
-
-//! Multiplies and accumulates XMTRX by a 3D rotation matrix about the X axis.
-SHZ_INLINE void shz_xmtrx_rotate_y(float radians) SHZ_NOEXCEPT;
-
-//! Multiplies and accumulates XMTRX by a 3D rotation matrix about the X axis.
-SHZ_INLINE void shz_xmtrx_rotate_z(float radians) SHZ_NOEXCEPT;
-
-//!@}
 
 /*! \name  Vector Transformations
     \brief Transforming vectors against XMTRX.

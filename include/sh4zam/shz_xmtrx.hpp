@@ -10,8 +10,9 @@
  *      - Fourier transforms
  *      - Arbitrarily-sized matrix routines
  *      - Outer products
+ *      - shz_rotate_quat()
  *
- *  \author    Falco Girgis
+ *  \author    2025 Falco Girgis
  *  \copyright MIT License
  */
 
@@ -268,8 +269,8 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_init_rotation().
-    SHZ_FORCE_INLINE static void init_rotation(shz_vec3_t axis, float angle) noexcept {
-        shz_xmtrx_init_rotation(axis, angle);
+    SHZ_FORCE_INLINE static void init_rotation(float angle, float x, float y, float z) noexcept {
+        shz_xmtrx_init_rotation(angle, x, y, z);
     }
 
     //! C++ wrapper around shz_xmtrx_init_diagonal().
@@ -344,19 +345,9 @@ struct xmtrx {
         shz_xmtrx_apply_rotation_z(z);
     }
 
-    // C++ wrapper around shz_xmtrx_apply_rotation().
-    SHZ_FORCE_INLINE static void apply_rotation(shz_vec3_t axis, float angle) noexcept {
-        shz_xmtrx_init_rotation(axis, angle);
-    }
-
-    //! C++ wrapper around shz_xmtrx_apply_rotation_quat().
-    SHZ_FORCE_INLINE static void apply_rotation_quat(shz_quat_t quat) noexcept {
-        shz_xmtrx_apply_rotation_quat(quat);
-    }
-
     //! C++ wrapper around shz_xmtrx_init_rotation_xyz().
     SHZ_FORCE_INLINE static void apply_rotation_xyz(float x, float y, float z) noexcept {
-        shz_xmtrx_init_rotation_xyz(x, y, z);
+        shz_xmtrx_apply_rotation_xyz(x, y, z);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_rotation_zyx().
@@ -367,6 +358,16 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_apply_rotation_yxz().
     SHZ_FORCE_INLINE static void apply_rotation_yxz(float y, float x, float z) noexcept {
         shz_xmtrx_apply_rotation_yxz(y, x, z);
+    }
+
+        // C++ wrapper around shz_xmtrx_apply_rotation().
+    SHZ_FORCE_INLINE static void apply_rotation(float angle, float x, float y, float z) noexcept {
+        shz_xmtrx_apply_rotation(angle, x, y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_rotation_quat().
+    SHZ_FORCE_INLINE static void apply_rotation_quat(shz_quat_t quat) noexcept {
+        shz_xmtrx_apply_rotation_quat(quat);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_symmetric_skew().
@@ -387,33 +388,6 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_apply_xmtrx().
     SHZ_FORCE_INLINE static void apply_xmtrx() noexcept {
         shz_xmtrx_apply_xmtrx();
-    }
-
-//! @}
-
-/*! \name  Compound Operations
-    \brief Multiple operations combined into one pipelined transaction.
-    @{
-*/
-
-    //! C++ wrapper around shz_xmtrx_load_apply_4x4().
-    SHZ_FORCE_INLINE static void load_apply(const shz_mat4x4_t &mat1, const shz_mat4x4_t &mat2) noexcept {
-        shz_xmtrx_load_apply_4x4(&mat1, &mat2);
-    }
-
-    //! C++ wrapper around shz_xmtrx_load_apply_unaligned_4x4().
-    SHZ_FORCE_INLINE static void load_apply(const float matrix1[16], const float matrix2[16]) noexcept {
-        shz_xmtrx_load_apply_unaligned_4x4(matrix1, matrix2);
-    }
-
-    //! C++ wrapper around shz_xmtrx_load_apply_store_4x4().
-    SHZ_FORCE_INLINE static void load_apply_store(shz_mat4x4_t* dst, const shz_mat4x4_t &mat1, const shz_mat4x4_t &mat2) noexcept {
-        shz_xmtrx_load_apply_store_4x4(dst, &mat1, &mat2);
-    }
-
-    //! C++ wrapper around shz_xmtrx_load_apply_store_unaligned_4x4().
-    SHZ_FORCE_INLINE static void load_apply_store(float out[16], const float matrix1[16], const float matrix2[16]) noexcept {
-        shz_xmtrx_load_apply_store_unaligned_4x4(out, matrix1, matrix2);
     }
 
 //! @}
@@ -446,6 +420,53 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_rotate_x().
     SHZ_FORCE_INLINE static void rotate_z(float radians) noexcept {
         shz_xmtrx_rotate_z(radians);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_xyz().
+    SHZ_FORCE_INLINE static void rotate_xyz(float x, float y, float z) noexcept {
+        shz_xmtrx_rotate_xyz(x, y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_zyx().
+    SHZ_FORCE_INLINE static void rotate_zyx(float z, float y, float x) noexcept {
+        shz_xmtrx_rotate_zyx(z, y, x);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_yxz().
+    SHZ_FORCE_INLINE static void rotate_yxz(float y, float x, float z) noexcept {
+        shz_xmtrx_rotate_zyx(y, x, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate().
+    SHZ_FORCE_INLINE static void rotate(float radians, float x, float y, float z) noexcept {
+        shz_xmtrx_rotate(radians, x, y, z);
+    }
+
+//! @}
+
+/*! \name  Compound Operations
+    \brief Multiple operations combined into one pipelined transaction.
+    @{
+*/
+
+    //! C++ wrapper around shz_xmtrx_load_apply_4x4().
+    SHZ_FORCE_INLINE static void load_apply(const shz_mat4x4_t &mat1, const shz_mat4x4_t &mat2) noexcept {
+        shz_xmtrx_load_apply_4x4(&mat1, &mat2);
+    }
+
+    //! C++ wrapper around shz_xmtrx_load_apply_unaligned_4x4().
+    SHZ_FORCE_INLINE static void load_apply(const float matrix1[16], const float matrix2[16]) noexcept {
+        shz_xmtrx_load_apply_unaligned_4x4(matrix1, matrix2);
+    }
+
+    //! C++ wrapper around shz_xmtrx_load_apply_store_4x4().
+    SHZ_FORCE_INLINE static void load_apply_store(shz_mat4x4_t* dst, const shz_mat4x4_t &mat1, const shz_mat4x4_t &mat2) noexcept {
+        shz_xmtrx_load_apply_store_4x4(dst, &mat1, &mat2);
+    }
+
+    //! C++ wrapper around shz_xmtrx_load_apply_store_unaligned_4x4().
+    SHZ_FORCE_INLINE static void load_apply_store(float out[16], const float matrix1[16], const float matrix2[16]) noexcept {
+        shz_xmtrx_load_apply_store_unaligned_4x4(out, matrix1, matrix2);
     }
 
 //! @}

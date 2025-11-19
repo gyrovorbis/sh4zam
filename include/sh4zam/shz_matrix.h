@@ -19,9 +19,10 @@
         - shz_mat4x4_apply_unaligned()
         - shz_mat4x4_mult_transpose()
         - shz_mat4x4_mult_unaligned()
-        - shz_mat4x4_inverse()
 
     \author    2025 Falco Girgis
+    \author    2025 Daniel Fairchild
+
     \copyright MIT License
 */
 
@@ -146,7 +147,7 @@ SHZ_INLINE void shz_mat4x4_init_rotation_yxz(shz_mat4x4_t* mat, float yAngle, fl
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_init_rotation(shz_mat4x4_t* mat, shz_vec3_t axis, float angle) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_init_rotation(shz_mat4x4_t* mat, float radians, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
 
 /*! Initializes the given matrix to a 3D translation matrix with the given coordinates.
 
@@ -250,7 +251,7 @@ SHZ_INLINE void shz_mat4x4_apply_rotation_yxz(shz_mat4x4_t* mat, float yAngle, f
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_rotation(shz_mat4x4_t* mat, shz_vec3_t axis, float angle) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_apply_rotation(shz_mat4x4_t* mat, float angle, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates the given matrix with a rotation matrix whose orientation is given by a quaternion.
 SHZ_INLINE void shz_mat4x4_apply_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
@@ -272,17 +273,74 @@ SHZ_INLINE void shz_mat4x4_apply_translation(shz_mat4x4_t* mat, float x, float y
 
 //! @}
 
-/*! \name  Miscellaneous
-    \brief Other matrix-related operations and routines
+/*! \name  GL Transformations
+    \brief OpenGL-style 4x4 matrix transforms.
     @{
 */
 
-/*! Copies the given \p src 4x4 matrix into the given \p dst 4x4 matrix.
+/*! Multiplies and accumulates \p mat by a 3D translation matrix with the given components.
 
-    \warning
-    This routine clobbers XMTRX!
+    \note glTranslatef() equivalent.
+    \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_copy(shz_mat4x4_t* dst, const shz_mat4x4_t* src) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_translate(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by a 3D scaling matrix with the given components.
+
+    \note glScalef() equivalent.
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by a 3D rotation matrix about the X axis.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_rotate_x(shz_mat4x4_t* mat, float radians) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by a 3D rotation matrix about the Y axis.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_rotate_y(shz_mat4x4_t* mat, float radians) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by a 3D rotation matrix about the Z axis.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_rotate_z(shz_mat4x4_t* mat, float radians) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by 3D rotation matrices about the X then Y then Z axes.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_FORCE_INLINE void shz_mat4x4_rotate_xyz(shz_mat4x4_t* mat, float xRadians, float yRadians, float zRadians) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by 3D rotation matrices about the Z then Y then X axes.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_FORCE_INLINE void shz_mat4x4_rotate_zyx(shz_mat4x4_t* mat, float zRadians, float yRadians, float xRadians) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by 3D rotation matrices about the Y then X then Z axes.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_FORCE_INLINE void shz_mat4x4_rotate_yxz(shz_mat4x4_t* mat, float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by the 3D rotation matrix formed by the given axis and angle.
+
+    \note Equivalent to glRotatef().
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_rotate(shz_mat4x4_t* mat, float radians, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
+
+//!@}
+
+/*! \name  Transforming
+    \brief Routines for transforming vectors by a matrix.
+    @{
+*/
 
 /*! Transforms a 3D vector by a 4x4 matrix.
 
@@ -312,17 +370,24 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_trans_vec3(const shz_mat4x4_t* m, shz_vec3_t v)
 */
 SHZ_INLINE shz_vec4_t shz_mat4x4_trans_vec4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT;
 
+//! @}
+
+/*! \name  Miscellaneous
+    \brief Other matrix-related operations and routines
+    @{
+*/
+
 //! Converts the given 4x4 orientation matrix into a quaternion.
 SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
-
-//! Returns the determinant of the given 4x4 matrix.
-SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
 /*! Stores the transpose of \p mat within \p out.
 
     \warning This routine clobbers XMTRX.
 */
 SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* mat, shz_mat4x4_t* out) SHZ_NOEXCEPT;
+
+//! Returns the determinant of the given 4x4 matrix.
+SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
 /*! Computes the inverse of a 4x4 matrix.
 
@@ -336,44 +401,12 @@ SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* mat, shz_mat4x4_t* out)
 */
 void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) SHZ_NOEXCEPT;
 
-/*!
-    Stores the transpose of 3x3 matrix \p mat within \p out.
-    
-    mtrx: Pointer to the 3x3 matrix to transpose.
-    out: Pointer to the resulting transposed matrix.
+/*! Copies the given \p src 4x4 matrix into the given \p dst 4x4 matrix.
 
-    \warning This routine clobbers XMTRX.
-
- */
-SHZ_INLINE void shz_mat3x3_transpose(const shz_mat3x3_t* mat, shz_mat3x3_t* out) SHZ_NOEXCEPT;
-
-/*!
-    Computes the inverse of a 3x3 matrix, saves cycles by not scaling by the
-    determinant, which makes sense when used for normals and lighting that are
-    usually normalized later.
-    
-    mtrx: Pointer to the 3x3 matrix to invert.
-    out: Pointer to the resulting inverted matrix.
-    
-    \note
-    Only valid if the matrix is known to be orthonormal.
-
-    \warning This routine clobbers XMTRX.
- */
-SHZ_INLINE void shz_mat3x3_inverse_unscaled(const shz_mat3x3_t* mtrx, shz_mat3x3_t* out) SHZ_NOEXCEPT;
-
-/*!
-    Computes the inverse of a 3x3 matrix.
-    
-    mtrx: Pointer to the 3x3 matrix to invert.
-    out: Pointer to the resulting inverted matrix.
-    
-    \note
-    Only valid for non-singular matrices.
-
-    \warning This routine clobbers XMTRX.
- */
-SHZ_INLINE void shz_mat3x3_inverse(const shz_mat3x3_t* mtrx, shz_mat3x3_t* out) SHZ_NOEXCEPT;
+    \warning
+    This routine clobbers XMTRX!
+*/
+SHZ_INLINE void shz_mat4x4_copy(shz_mat4x4_t* dst, const shz_mat4x4_t* src) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -426,6 +459,46 @@ typedef struct shz_mat3x4 {
         };
     };
 } shz_mat3x4_t;
+
+/*!
+    Stores the transpose of 3x3 matrix \p mat within \p out.
+
+    mtrx: Pointer to the 3x3 matrix to transpose.
+    out: Pointer to the resulting transposed matrix.
+
+    \warning This routine clobbers XMTRX.
+
+ */
+SHZ_INLINE void shz_mat3x3_transpose(const shz_mat3x3_t* mat, shz_mat3x3_t* out) SHZ_NOEXCEPT;
+
+/*!
+    Computes the inverse of a 3x3 matrix, saves cycles by not scaling by the
+    determinant, which makes sense when used for normals and lighting that are
+    usually normalized later.
+
+    mtrx: Pointer to the 3x3 matrix to invert.
+    out: Pointer to the resulting inverted matrix.
+
+    \note
+    Only valid if the matrix is known to be orthonormal.
+
+    \warning This routine clobbers XMTRX.
+ */
+SHZ_INLINE void shz_mat3x3_inverse_unscaled(const shz_mat3x3_t* mtrx, shz_mat3x3_t* out) SHZ_NOEXCEPT;
+
+/*!
+    Computes the inverse of a 3x3 matrix.
+
+    mtrx: Pointer to the 3x3 matrix to invert.
+    out: Pointer to the resulting inverted matrix.
+
+    \note
+    Only valid for non-singular matrices.
+
+    \warning This routine clobbers XMTRX.
+ */
+SHZ_INLINE void shz_mat3x3_inverse(const shz_mat3x3_t* mtrx, shz_mat3x3_t* out) SHZ_NOEXCEPT;
+
 
 SHZ_INLINE shz_vec3_t shz_mat3x3_trans_vec3(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT;
 

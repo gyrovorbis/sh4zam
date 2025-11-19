@@ -1316,7 +1316,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation_z(float z) SHZ_NOEXCEPT {
     : "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_init_rotation_axis(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_init_rotation(float angle, float x, float y, float z) SHZ_NOEXCEPT {
     register float x_ asm("fr4") = x;
     register float y_ asm("fr5") = y;
     register float z_ asm("fr6") = z;
@@ -2032,7 +2032,7 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) SHZ_NOEXCEPT {
     : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_rotation_axis(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_apply_rotation(float angle, float x, float y, float z) SHZ_NOEXCEPT {
     register float x_ asm("fr4") = x;
     register float y_ asm("fr5") = y;
     register float z_ asm("fr6") = z;
@@ -2138,26 +2138,6 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_yxz(float yAngle, float xAngle, float z
     shz_xmtrx_apply_rotation_y(yAngle);
     shz_xmtrx_apply_rotation_x(xAngle);
     shz_xmtrx_apply_rotation_z(zAngle);
-}
-
-SHZ_INLINE void shz_xmtrx_init_rotation(shz_vec3_t axis, float angle) SHZ_NOEXCEPT {
-    shz_sincos_t sincos = shz_sincosf(angle);
-    shz_vec3_t skew_scaled1 = shz_vec3_scale(axis, 1.0f - shz_cosf(angle));
-    shz_xmtrx_init_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
-    shz_xmtrx_apply_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
-    shz_vec3_t skew_scaled2 = shz_vec3_scale(axis, sincos.sin);
-    shz_xmtrx_apply_symmetric_skew(skew_scaled2.x, skew_scaled2.y, skew_scaled2.z);
-    shz_xmtrx_add_diagonal(sincos.cos, sincos.cos, sincos.cos, 0.0f);
-}
-
-SHZ_INLINE void shz_xmtrx_apply_rotation(shz_vec3_t axis, float angle) SHZ_NOEXCEPT {
-    shz_sincos_t sincos = shz_sincosf(angle);
-    shz_vec3_t skew_scaled1 = shz_vec3_scale(axis, 1.0f - shz_cosf(angle));
-    shz_xmtrx_apply_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
-    shz_xmtrx_apply_symmetric_skew(skew_scaled1.x, skew_scaled1.y, skew_scaled1.z);
-    shz_vec3_t skew_scaled2 = shz_vec3_scale(axis, sincos.sin);
-    shz_xmtrx_apply_symmetric_skew(skew_scaled2.x, skew_scaled2.y, skew_scaled2.z);
-    shz_xmtrx_add_diagonal(sincos.cos, sincos.cos, sincos.cos, 0.0f);
 }
 
 void shz_xmtrx_apply_rotation_quat(shz_quat_t quat) SHZ_NOEXCEPT;
@@ -2722,6 +2702,102 @@ SHZ_INLINE void shz_xmtrx_rotate_z(float z) SHZ_NOEXCEPT {
     : "fr0", "fr1", "fr2", "fr3", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
       "fpul");
+}
+
+/* Tait-Bryan angles, (extrinsic rotation notation) */
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_rotate_x(xAngle);
+    shz_xmtrx_rotate_y(yAngle);
+    shz_xmtrx_rotate_z(zAngle);
+}
+
+// Same as yaw, pitch, roll
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_rotate_z(zAngle);
+    shz_xmtrx_rotate_y(yAngle);
+    shz_xmtrx_rotate_x(xAngle);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_rotate_y(yAngle);
+    shz_xmtrx_rotate_x(xAngle);
+    shz_xmtrx_rotate_z(zAngle);
+}
+
+SHZ_INLINE void shz_xmtrx_rotate(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+    register float x_ asm("fr4") = x;
+    register float y_ asm("fr5") = y;
+    register float z_ asm("fr6") = z;
+    register float a_ asm("fr7") = angle * SHZ_FSCA_RAD_FACTOR;
+
+    asm volatile(R"(
+        ftrc	fr7, fpul
+        fsca	fpul, dr2
+        fldi1	fr0
+        fsub	fr3, fr0	/* 1-cos */
+
+        fldi0	fr7
+        fipr	fv4, fv4
+        fsrra	fr7
+        fmul	fr7, fr4
+        fmul	fr7, fr5
+        fmul	fr7, fr6
+
+        fmov	fr4, fr1
+        fmul	fr2, fr1	/* xsin */
+        fmov	fr5, fr7
+        fmul	fr2, fr7	/* ysin */
+        fmul	fr6, fr2	/* zsin */
+
+        fmov	fr4, fr8
+        fmul	fr0, fr8
+        fmov	fr5, fr9
+        fmul	fr8, fr9	/* xy(1-cos) */
+        fmul	fr6, fr8	/* xz(1-cos) */
+        fmov	fr6, fr10
+        fmul	fr0, fr6
+        fmul	fr6, fr10
+        fadd	fr3, fr10	/* zz(1-cos)+cos */
+        fmul	fr5, fr6	/* yz(1-cos) */
+        fmul	fr5, fr5
+        fmul	fr0, fr5
+        fadd	fr3, fr5	/* yy(1-cos)+cos */
+        fmul	fr4, fr0
+        fmul	fr4, fr0
+        fadd	fr3, fr0	/* xx(1-cos)+cos */
+
+        fmov	fr8, fr3	/* xz(1-cos) */
+        fmov	fr9, fr4	/* xy(1-cos) */
+        fadd	fr7, fr8
+        fmov	fr6, fr9
+        fsub	fr1, fr9
+        fldi0	fr11
+        ftrv	xmtrx, fv8
+
+        fadd	fr1, fr6
+        fmov	fr4, fr1
+        fsub	fr2, fr4
+        fsub	fr7, fr3
+        fldi0	fr7
+        ftrv	xmtrx, fv4
+
+        fadd	fr2, fr1
+        fmov	fr3, fr2
+        fldi0	fr3
+        ftrv	xmtrx, fv0
+
+        fldi0   fr12
+        fmov    fr0, fr13
+        fldi0   fr14
+        fldi1   fr15
+        ftrv    xmtrx, fv12
+
+        frchg
+    )"
+    : "+f"(x_), "+f"(y_), "+f"(z_), "+f"(a_)
+    :
+    : "fr0", "fr1", "fr2", "fr3", "fr8", "fr9", "fr10", "fr11",
+      "fr12", "fr13", "fr14", "fr15", "fpul");
 }
 
 SHZ_INLINE void shz_xmtrx_add_4x4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
