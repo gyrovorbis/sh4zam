@@ -5,7 +5,7 @@
 !  This file contains the out-of-line assembly implementations of assorted
 !  memcpy() and memset()-like routines.
 !
-!  \author    Falco Girgis
+!  \author    2025 Falco Girgis
 !  \copyright MIT License
 !!
 

@@ -12,7 +12,7 @@
  *      - shz_memset()
  *      - shz_memmove()
  *
- * \author    Falco Girgis
+ * \author    2025 Falco Girgis
  * \copyright MIT License
  */
 

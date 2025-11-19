@@ -5,7 +5,7 @@
  *
  *  Implementation of inlined memory API routines.
  *
- *  \author    Falco Girgis
+ *  \author    2025 Falco Girgis
  *  \copyright MIT License
  */
 
@@ -216,7 +216,7 @@ SHZ_INLINE void* shz_memcpy32(      void* SHZ_RESTRICT dst,
 
     size_t cnt = (bytes >> 5);
 
-    SHZ_FSCHG(true);
+    SHZ_FSCHG();
 
     if(SHZ_LIKELY(cnt >= 8)) {
         shz_memcpy128_(d, s, bytes);
@@ -234,7 +234,7 @@ SHZ_INLINE void* shz_memcpy32(      void* SHZ_RESTRICT dst,
         d += 4;
     }
 
-    SHZ_FSCHG(false);
+    SHZ_FSCHG();
 
     return dst;
 }
@@ -248,7 +248,7 @@ SHZ_INLINE void* shz_sq_memcpy32(     void* SHZ_RESTRICT dst,
 
     bytes >>= 5;
 
-    SHZ_FSCHG(true);
+    SHZ_FSCHG();
 
     asm volatile(R"(
     1:
@@ -271,7 +271,7 @@ SHZ_INLINE void* shz_sq_memcpy32(     void* SHZ_RESTRICT dst,
     : "m" ((const char (*)[])src)
     : "memory");
 
-    SHZ_FSCHG(false);
+    SHZ_FSCHG();
 
     return ret;
 }
@@ -284,7 +284,7 @@ SHZ_INLINE void* shz_memcpy64(      void* SHZ_RESTRICT dst,
 
     assert(!(bytes % 64) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
 
-    SHZ_FSCHG(true);
+    SHZ_FSCHG();
 
     size_t cnt = (bytes >> 6);
 
@@ -304,7 +304,7 @@ SHZ_INLINE void* shz_memcpy64(      void* SHZ_RESTRICT dst,
         d += 8;
     }
 
-    SHZ_FSCHG(false);
+    SHZ_FSCHG();
 
     return dst;
 }
@@ -315,9 +315,9 @@ SHZ_INLINE void* shz_memcpy128(      void* SHZ_RESTRICT dst,
     assert(!(bytes % 128) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
 
     if(bytes & ~0x7f) {
-        SHZ_FSCHG(true);
+        SHZ_FSCHG();
         shz_memcpy128_(dst, src, bytes);
-        SHZ_FSCHG(false);
+        SHZ_FSCHG();
     }
 
     return dst;
@@ -494,7 +494,7 @@ SHZ_INLINE void shz_memswap32_1(void* SHZ_RESTRICT p1,
     assert(!((uintptr_t)p1 & 7) && ((uintptr_t)p2 & 7));
 
     SHZ_PREFETCH(b);
-    SHZ_FSCHG(true);
+    SHZ_FSCHG();
 
     asm volatile(R"(
         fmov.d  @%[a]+, xd0
@@ -519,7 +519,7 @@ SHZ_INLINE void shz_memswap32_1(void* SHZ_RESTRICT p1,
     )"
     : [a] "+r" (a), [b] "+r" (b), "+m" (*a), "+m" (*b));
 
-    SHZ_FSCHG(false);
+    SHZ_FSCHG();
 }
 
 SHZ_INLINE void* shz_sq_memcpy32_1(      void* SHZ_RESTRICT dst,
@@ -529,7 +529,7 @@ SHZ_INLINE void* shz_sq_memcpy32_1(      void* SHZ_RESTRICT dst,
 
     assert(!((uintptr_t)s & 7) && !((uintptr_t)d & 7));
 
-    SHZ_FSCHG(true);
+    SHZ_FSCHG();
 
     asm volatile(R"(
         fmov.d @%[src]+, xd0
@@ -549,7 +549,7 @@ SHZ_INLINE void* shz_sq_memcpy32_1(      void* SHZ_RESTRICT dst,
     : "m" (s[0]), "m" (s[1]), "m" (s[2]), "m" (s[3]),
       "m" (s[4]), "m" (s[5]), "m" (s[6]), "m" (s[7]));
 
-    SHZ_FSCHG(false);
+    SHZ_FSCHG();
 
     return dst;
 }

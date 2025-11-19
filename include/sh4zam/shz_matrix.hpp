@@ -5,7 +5,7 @@
     This file provides a C++ binding layer over the C API provied
     by shz_matrix.h.
 
-    \author    Falco Girgis
+    \author    2025 Falco Girgis
     \copyright MIT License
 */
 
@@ -20,7 +20,43 @@
 namespace shz {
 
     struct mat4x4: public shz_mat4x4_t {
+        static constexpr size_t Rows = 4;   //!< Number of rows
+        static constexpr size_t Cols = 4;   //!< Number of columns
+
         mat4x4() noexcept = default;
+
+        //! Overloaded subscript operator -- allows for indexing vectors like an array.
+        SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) noexcept {
+            return std::forward<decltype(self)>(self).elem[index];
+        }
+
+        //! Returns an iterator to the beginning of the vector -- For STL support.
+        SHZ_FORCE_INLINE auto begin(this auto&& self) noexcept {
+            return &self[0];
+        }
+
+        //! Returns an iterator to the end of the vector -- For STL support.
+        SHZ_FORCE_INLINE auto end(this auto&& self) noexcept {
+            return &self[Rows * Cols - 1];
+        }
+
+        //! Overloaded space-ship operator, for generic lexicographical comparison of vectors.
+        friend constexpr auto operator<=>(const mat4x4& lhs, const mat4x4& rhs) noexcept {
+            return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(),
+                                                          rhs.begin(), rhs.end());
+        }
+
+        //! Overloaded equality operator, for comparing vectors.
+        friend constexpr auto operator==(const mat4x4& lhs, const mat4x4& rhs) noexcept {
+            return std::equal(lhs.begin(), lhs.end(),
+                              rhs.begin(), rhs.end());
+        }
+
+        //! Overloaded "less-than" operator, for comparing vectors.
+        friend constexpr auto operator<(const mat4x4& lhs, const mat4x4& rhs) noexcept {
+            return std::lexicographical_compare(lhs.begin(), lhs.end(),
+                                                rhs.begin(), rhs.end());
+        }
 
         SHZ_FORCE_INLINE static mat4x4 from_xmtrx() noexcept {
             mat4x4 mat;
@@ -146,6 +182,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE float determinant() const noexcept {
             return shz_mat4x4_determinant(this);
+        }
+
+        SHZ_FORCE_INLINE void inverse(mat4x4* out) const noexcept {
+            return shz_mat4x4_inverse(this, out);
         }
     };
 }

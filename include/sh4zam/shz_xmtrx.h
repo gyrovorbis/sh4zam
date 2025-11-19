@@ -275,6 +275,9 @@ SHZ_INLINE void shz_xmtrx_init_rotation_zyx(float zAngle, float yAngle, float xA
 SHZ_INLINE void shz_xmtrx_init_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
 
 //! Initializes XMTRX to a 3D rotation matrix of \p angle radians about the given \p axis.
+SHZ_INLINE void shz_xmtrx_init_rotation_axis(float angle, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
+
+//! Initializes XMTRX to a 3D rotation matrix of \p angle radians about the given \p axis.
 SHZ_INLINE void shz_xmtrx_init_rotation(shz_vec3_t axis, float angle) SHZ_NOEXCEPT;
 
 //! Initializes XMTRX to be a diagonal matrix with the given diagonal values.
@@ -474,7 +477,7 @@ void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
 //! @}
 
 /*! \name GL Transformations
-    \brief OpenGL-style matrix transforms.
+    \brief OpenGL-style 4x4 matrix transforms.
     @{
 */
 
@@ -483,6 +486,15 @@ SHZ_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates XMTRX by a 3D scaling matrix with the given components.
 SHZ_INLINE void shz_xmtrx_scale(float x, float y, float z) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by a 3D rotation matrix about the X axis.
+SHZ_INLINE void shz_xmtrx_rotate_x(float radians) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by a 3D rotation matrix about the X axis.
+SHZ_INLINE void shz_xmtrx_rotate_y(float radians) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by a 3D rotation matrix about the X axis.
+SHZ_INLINE void shz_xmtrx_rotate_z(float radians) SHZ_NOEXCEPT;
 
 //!@}
 

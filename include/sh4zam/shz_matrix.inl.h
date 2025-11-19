@@ -6,7 +6,7 @@
     This file provides the private implementation for all inlined funtions
     declared within the Matrix C API.
 
-    \author    Falco Girgis
+    \author    2025 Falco Girgis
     \copyright MIT License
 */
 
@@ -238,24 +238,24 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_trans_vec3(const shz_mat4x4_t* m, shz_vec3_t v)
     register float fr3 asm("fr3") = 0.0f;
 
     register float fr4 asm("fr4") = m->elem2D[0][0];
-    register float fr5 asm("fr5") = m->elem2D[0][1];
-    register float fr6 asm("fr6") = m->elem2D[0][2];
-    register float fr7 asm("fr7") = 0.0f;
+    register float fr5 asm("fr5") = m->elem2D[1][0];
+    register float fr6 asm("fr6") = m->elem2D[2][0];
+    register float fr7 asm("fr7");
 
     asm volatile("fipr fv0, fv4"
-        : "+f" (fr7)
+        : "=f" (fr7)
         : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
           "f" (fr4), "f" (fr5), "f" (fr6));
 
     __atomic_thread_fence(1);
 
-    register float fr8  asm("fr8")  = m->elem2D[1][0];
+    register float fr8  asm("fr8")  = m->elem2D[0][1];
     register float fr9  asm("fr9")  = m->elem2D[1][1];
-    register float fr10 asm("fr10") = m->elem2D[1][2];
-    register float fr11 asm("fr11") = 0.0f;
+    register float fr10 asm("fr10") = m->elem2D[2][1];
+    register float fr11 asm("fr11");
 
     asm volatile("fipr fv0, fv8"
-        : "+f" (fr11)
+        : "=f" (fr11)
         : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
           "f" (fr8), "f" (fr9), "f" (fr10));
 
@@ -265,13 +265,12 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_trans_vec3(const shz_mat4x4_t* m, shz_vec3_t v)
 
     __atomic_thread_fence(1);
 
-    fr4 = m->elem2D[2][0];
-    fr5 = m->elem2D[2][1];
+    fr4 = m->elem2D[0][2];
+    fr5 = m->elem2D[1][2];
     fr6 = m->elem2D[2][2];
-    fr7 = 0.0f;
 
     asm volatile("fipr fv0, fv4"
-        : "+f" (fr7)
+        : "=f" (fr7)
         : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
           "f" (fr4), "f" (fr5), "f" (fr6));
 

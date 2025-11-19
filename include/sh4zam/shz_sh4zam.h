@@ -5,7 +5,7 @@
  *  the SH4ZAM library has to offer to the C language within
  *  a single header file.
  *
- *  \author    Falco Girgis
+ *  \author    2025 Falco Girgis
  *  \copyright MIT License
  */
 

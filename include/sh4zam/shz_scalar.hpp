@@ -5,7 +5,7 @@
  *  This file provides a collection of general-purpose math routines for
  *  individual scalar values in C++23.
  *
- *  \author    Falco Girgis
+ *  \author    2025 Falco Girgis
  *  \copyright MIT License
  */
 

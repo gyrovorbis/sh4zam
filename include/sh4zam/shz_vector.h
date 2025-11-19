@@ -8,8 +8,8 @@
  *  \todo
  *      - shz_vec_rotate(): for one-off rotations
  *
- *  \author Falco Girgis
- *  \author Paul Cercueil
+ *  \author 2025 Falco Girgis
+ *  \author 2025 Paul Cercueil
  *
  *  \copyright MIT License
  */
@@ -357,6 +357,9 @@ SHZ_FORCE_INLINE float shz_vec2_cross(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEX
 
 //! Returns the vector produced by taking the cross-product of the two given 3D vectors.
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cross(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
+
+//! Returns the 3D vector "triple product" between vector's \p a, \p b, and \p c.
+SHZ_INLINE float shz_vec3_triple(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT;
 
 //! Returns the resulting vector from projecting the given 2D vector along the given (unit) axis
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project(shz_vec2_t vec, shz_vec2_t onto) SHZ_NOEXCEPT;

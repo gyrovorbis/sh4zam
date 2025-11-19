@@ -4,7 +4,7 @@
  *
  *  C++ wrapper API for copying, assigning, and working with memory.
  *
- *  \author    Falco Girgis
+ *  \author    2025 Falco Girgis
  *  \copyright MIT License
  */
 

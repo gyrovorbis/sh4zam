@@ -21,7 +21,7 @@
         - shz_mat4x4_mult_unaligned()
         - shz_mat4x4_inverse()
 
-    \author    Falco Girgis
+    \author    2025 Falco Girgis
     \copyright MIT License
 */
 
@@ -334,7 +334,7 @@ SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* mat, shz_mat4x4_t* out)
     \param mtrx     Pointer to the 4x4 matrix to invert.
     \param out      Pointer to the resulting inverted matrix.
 */
-void shz_mat4x4_inverse(const shz_mat4x4_t* mtrx, shz_mat4x4_t* out) SHZ_NOEXCEPT;
+void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) SHZ_NOEXCEPT;
 
 /*!
     Stores the transpose of 3x3 matrix \p mat within \p out.

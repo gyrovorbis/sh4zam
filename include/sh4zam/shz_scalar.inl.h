@@ -5,8 +5,8 @@
  *
  *  This file provides the inlined implementation of the scalar API.
  *
- *  \author    Falco Girgis
- *  \author    Paul Cercueil
+ *  \author    2025 Falco Girgis
+ *  \author    2025 Paul Cercueil
  *  \copyright MIT License
  */
 
@@ -154,7 +154,7 @@ SHZ_FORCE_INLINE float shz_dot6f(float x1, float y1, float z1,
     register float rw2 asm("fr15");
 
     // Undefined behavior when in another mode with FIPR
-    SHZ_SINGLE_PRECISION_GUARD();
+    assert(!shz_fpscr_read().pr);
 
     asm("fipr fv8, fv12"
         : "=f" (rw2)
@@ -171,7 +171,7 @@ SHZ_FORCE_INLINE float shz_mag_sqr3f(float x, float y, float z) SHZ_NOEXCEPT {
     register float rw asm("fr11") = 0.0f;
 
      // Undefined behavior when in another mode with FIPR
-    SHZ_SINGLE_PRECISION_GUARD();
+    assert(!shz_fpscr_read().pr);
 
     asm("fipr fv8, fv8"
         : "+f" (rw)
@@ -192,7 +192,7 @@ SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
     register float rw2 asm("fr15") = w2;
 
     // Undefined behavior when in another mode with FIPR
-    SHZ_SINGLE_PRECISION_GUARD();
+    assert(!shz_fpscr_read().pr);
 
     asm("fipr fv8, fv12"
         : "+f" (rw2)
@@ -209,7 +209,7 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) SHZ_NOE
     register float rw asm("fr11") = w;
 
      // Undefined behavior when in another mode with FIPR
-    SHZ_SINGLE_PRECISION_GUARD();
+    assert(!shz_fpscr_read().pr);
 
     asm("fipr fv8, fv8"
         : "+f" (rw)

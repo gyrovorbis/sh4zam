@@ -5,7 +5,7 @@
     \todo
         - overload arithmetic operators
 
-    \author    Falco Girgis
+    \author    2025 Falco Girgis
     \copyright MIT License
 */
 

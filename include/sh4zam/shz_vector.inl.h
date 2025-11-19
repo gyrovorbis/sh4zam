@@ -9,8 +9,8 @@
  *  \todo
  *      - shz_vec_rotate(): for one-off rotations
  *
- *  \author Falco Girgis
- *  \author Paul Cercueil
+ *  \author 2025 Falco Girgis
+ *  \author 2025 Paul Cercueil
  *
  *  \copyright MIT License
  */
@@ -395,6 +395,17 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cross(shz_vec3_t vec1, shz_vec3_t vec2) SHZ
         vec1.z * vec2.x - vec1.x * vec2.z,
         vec1.x * vec2.y - vec1.y * vec2.x
     );
+}
+
+SHZ_INLINE float shz_vec3_triple(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT {
+    register float ax asm("fr8")  = a.x;
+    register float bx asm("fr9")  = b.x;
+    register float cx asm("fr10") = c.x;
+
+    float dotPQ = shz_dot6f(ax, bx, cx, b.y * c.z, -c.y * a.z, -a.y * b.z);
+    float dotRS = shz_dot6f(ax, bx, cx, c.y * b.z,  a.y * c.z,  b.y * a.z);
+
+    return -(dotPQ + dotRS);
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project(shz_vec2_t vec, shz_vec2_t onto) SHZ_NOEXCEPT {

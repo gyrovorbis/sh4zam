@@ -433,6 +433,21 @@ struct xmtrx {
         shz_xmtrx_scale(x, y, z);
     }
 
+    //! C++ wrapper around shz_xmtrx_rotate_x().
+    SHZ_FORCE_INLINE static void rotate_x(float radians) noexcept {
+        shz_xmtrx_rotate_x(radians);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_x().
+    SHZ_FORCE_INLINE static void rotate_y(float radians) noexcept {
+        shz_xmtrx_rotate_y(radians);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_x().
+    SHZ_FORCE_INLINE static void rotate_z(float radians) noexcept {
+        shz_xmtrx_rotate_z(radians);
+    }
+
 //! @}
 
 /*! \name  Vector Transformations

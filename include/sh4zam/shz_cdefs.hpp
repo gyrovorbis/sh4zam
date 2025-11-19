@@ -3,7 +3,7 @@
  *
  *  This file contains the C++ API around the C preprocessor and macro API.
  *
- *  \author    Falco Girgis
+ *  \author    2025 Falco Girgis
  *  \copyright MIT License
  */
 

@@ -8,8 +8,8 @@
  *  \todo
  *      - Use FP rounding modes for rounding functionality.
  *
- *  \author    Falco Girgis
- *  \author    Paul Cercueil
+ *  \author    2025 Falco Girgis
+ *  \author    2025 Paul Cercueil
  *  \copyright MIT License
  */
 

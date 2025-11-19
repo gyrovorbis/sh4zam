@@ -6,12 +6,9 @@
  *
  *  \todo
  *      - shz_atan2f()
- *      - shz_secf()
- *      - shz_cosecf()
- *      - shz_cotanf()
  *
- *  \author Falco Girgis
- *  \author Paul Cercueil
+ *  \author 2025 Falco Girgis
+ *  \author 2025 Paul Cercueil
  *
  *  \copyright MIT License
  */

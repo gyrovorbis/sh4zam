@@ -10,6 +10,18 @@ GBL_TEST_FIXTURE {
 GBL_TEST_INIT_NONE
 GBL_TEST_FINAL_NONE
 
+GBL_TEST_CASE(inverse)
+    shz::mat4x4 mat, inverted, invertedInverted;
+
+    mat.init_identity();
+    mat.apply_scale(2.0f, 3.0f, 4.0f);
+    mat.apply_translation(10.0f, 20.0f, 30.0f);
+    mat.inverse(&inverted);
+    inverted.inverse(&invertedInverted);
+
+    GBL_TEST_VERIFY(mat == invertedInverted);
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(transform_vec4)
     shz::mat4x4 mat;
 
@@ -26,4 +38,5 @@ GBL_TEST_CASE(transform_vec4)
                         shz::vec4( -2.0f, 2.0f, 8.0f, 1.0f ));
 GBL_TEST_CASE_END
 
-GBL_TEST_REGISTER(transform_vec4)
+GBL_TEST_REGISTER(inverse,
+                  transform_vec4)

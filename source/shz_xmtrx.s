@@ -5,7 +5,7 @@
 !  This file contains the out-of-line assembly implementation(s) of
 !  the XMTRX API.
 !
-!  \author    Falco Girgis
+!  \author    2025 Falco Girgis
 !  \copyright MIT License
 !!
 

@@ -5,7 +5,7 @@
  *  This file provides types and mathematical functions for representing and
  *  operating on vectors within C++.
  *
- *  \author    Falco Girgis
+ *  \author    2025 Falco Girgis
  *  \copyright MIT License
  *
  *  \todo
@@ -56,7 +56,7 @@ struct vecN: C {
     }
 
     //! Overloaded subscript operator -- allows for indexing vectors like an array.
-    SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) {
+    SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) noexcept {
         return std::forward<decltype(self)>(self).e[index];
     }
 
@@ -372,6 +372,11 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
     //! Returns a 3D vector which forms the given angles with the +X axis.
     SHZ_FORCE_INLINE vec3 cross(vec3 other) const noexcept {
         return shz_vec3_cross(*this, other);
+    }
+
+    //! Returns the 3D vector "triple product" between the given vector and vectors \p a and \p b.
+    SHZ_FORCE_INLINE float triple(vec3 b, vec3 c) const noexcept {
+        return shz_vec3_triple(*this, b, c);
     }
 };
 

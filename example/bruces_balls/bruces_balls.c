@@ -18,8 +18,8 @@
     \note
     This example is written in C23.
 
-    \author    BruceLeet
-    \author    Falco Girgis
+    \author 2025 BruceLeet
+    \author 2025 Falco Girgis
 
     \copyright MIT License
 */

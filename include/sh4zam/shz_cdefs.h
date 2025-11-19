@@ -6,7 +6,7 @@
  *      - Compiler attributes
  *      - Miscellaneous utilities
  *
- *  \author    Falco Girgis
+ *  \author    2025 Falco Girgis
  *  \copyright MIT License
  */
 

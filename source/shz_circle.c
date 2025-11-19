@@ -2,7 +2,7 @@
     \brief Algorithm to speed up circle drawing.
     \ingroup misc
 
-    \author Paul Cercueil
+    \author 2025 Paul Cercueil
 
     \copyright MIT License
 */

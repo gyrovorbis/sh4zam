@@ -2,7 +2,7 @@
     \brief C++ bindings to SH4ZAM C-based Circle API.
     \ingroup misc
 
-    \author Falco Girgis
+    \author 2025 Falco Girgis
 
     \copyright MIT License
 */

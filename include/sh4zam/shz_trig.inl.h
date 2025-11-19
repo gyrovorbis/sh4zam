@@ -6,8 +6,8 @@
  *  This file provides providest the inlined function implementations for the
  *  trigonometry API.
  *
- *  \author Falco Girgis
- *  \author Paul Cercueil
+ *  \author 2025 Falco Girgis
+ *  \author 2025 Paul Cercueil
  *
  *  \copyright MIT License
  */

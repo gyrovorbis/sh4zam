@@ -18,7 +18,7 @@ rm-elf:
 
 $(TARGET): $(OBJS)
 	kos-cc -o $(TARGET) $(OBJS) -lsh4zam -lkosutils -lm \
-           -Wl,--gc-sections -Wl,--strip-all
+           -Wl,--gc-sections
 
 run: $(TARGET)
 	$(KOS_LOADER) $(TARGET)

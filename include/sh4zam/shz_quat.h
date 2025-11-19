@@ -10,8 +10,8 @@
         - shz_quat_to_angles_xyz()
         - shz_quat_angle_between()
 
-    \author Falco Girgis
-    \author Oleg Endo
+    \author 2025 Falco Girgis
+    \author 2025 Oleg Endo
 
     \copyright MIT License
 */

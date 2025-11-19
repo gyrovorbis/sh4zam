@@ -87,26 +87,23 @@ assert() enabled to see if it catches anything bad.
 ### OCRAM
 ### OCINDEX
 
-# General SH4 Topics
-- Copying Memory
-- Store Queues
-- Prefetching
-- Performance counters
-- Compiler Explorer
-
-
-# FPU
-## FSCHG
-## FSCA
-## FSRRA
-
-### Fast Division
+# Floating-Point Math
+## double Promotion
+## <math.h> Considerations
+### Single-precision routines
+### Fast Replacements
+## Fast Trigonometry
+### Fast Division + Inversion
 
 When you know the denominator will always be positive, and some precision loss is acceptable,
 multiply the numerator by `shz_invf_fsrra(denominator)`. When the denominator is not guaranteed
 to be positive, use `shz_invf(denominator)`. This trick is most commonly leveraged for
 perspective division during T&L.
 
+### Fast Square Root
+
+
+# Vector Math
 ## Dot Product
 ### FIPR Register Pinning
 ### FIPR Pipelining

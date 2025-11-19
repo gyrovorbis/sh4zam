@@ -5,7 +5,7 @@
     This file contains the non-inlined functions implementing the quaternion
     C API.
 
-    \author Falco Girgis
+    \author 2025 Falco Girgis
 
     \copyright MIT License
 */

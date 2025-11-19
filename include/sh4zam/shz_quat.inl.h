@@ -6,8 +6,8 @@
     This file contains the implementation of the inline functions declared
     within the Quaternion API.
 
-    \author Falco Girgis
-    \author Oleg Endo
+    \author 2025 Falco Girgis
+    \author 2025 Oleg Endo
 
     \copyright MIT License
 */

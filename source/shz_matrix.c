@@ -1,6 +1,17 @@
+/*! \file
+ *  \brief   Out-of-line in-memory matrix routines.
+ *  \ingroup matrix
+ *
+ *  This file contains the implementations for any routines within
+ *  the matrix API which have been declared out-of-line.
+ *
+ *  \author    2025 Daniel Fairchild
+ *  \copyright MIT License
+ */
+
 #include "sh4zam/shz_matrix.h"
 
-void shz_mat4x4_inverse(const shz_mat4x4_t* mtrx, shz_mat4x4_t* out) {
+void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) {
     assert(mtrx != out &&
            "shz_mat4x4_inverse: in-place inversion is not supported");
     /**
@@ -35,6 +46,7 @@ void shz_mat4x4_inverse(const shz_mat4x4_t* mtrx, shz_mat4x4_t* out) {
             .w = inv_w};
         return;
     }
+
     // General case for full 4x4 matrix inversion, roughly ported from cglm
     const float c1 = shz_fmaf(mtrx->elem2D[2][2], mtrx->elem2D[3][3],
                               -mtrx->elem2D[2][3] * mtrx->elem2D[3][2]),
@@ -63,55 +75,61 @@ void shz_mat4x4_inverse(const shz_mat4x4_t* mtrx, shz_mat4x4_t* out) {
                 inv_det = shz_invf(c8 * c1 + c4 * c9 + c10 * c3 + c2 * c7 -
                                    c12 * c5 - c6 * c11);
 
-    out->elem2D[0][0] = +(mtrx->elem2D[1][1] * c1 - mtrx->elem2D[1][2] * c5 +
-                          mtrx->elem2D[1][3] * c9) *
-                        inv_det;
-    out->elem2D[0][1] = -(mtrx->elem2D[0][1] * c1 - mtrx->elem2D[0][2] * c5 +
-                          mtrx->elem2D[0][3] * c9) *
-                        inv_det;
-    out->elem2D[0][2] = +(mtrx->elem2D[3][1] * c2 - mtrx->elem2D[3][2] * c6 +
-                          mtrx->elem2D[3][3] * c10) *
-                        inv_det;
-    out->elem2D[0][3] = -(mtrx->elem2D[2][1] * c2 - mtrx->elem2D[2][2] * c6 +
-                          mtrx->elem2D[2][3] * c10) *
-                        inv_det;
+    /* Introduce inner function to break into multiple functions,
+       in order to prevent GCC15's register allocator from ICEing. */
+    void store(void) {
+        out->elem2D[0][0] = +(mtrx->elem2D[1][1] * c1 - mtrx->elem2D[1][2] * c5 +
+                              mtrx->elem2D[1][3] * c9) *
+                            inv_det;
+        out->elem2D[0][1] = -(mtrx->elem2D[0][1] * c1 - mtrx->elem2D[0][2] * c5 +
+                              mtrx->elem2D[0][3] * c9) *
+                            inv_det;
+        out->elem2D[0][2] = +(mtrx->elem2D[3][1] * c2 - mtrx->elem2D[3][2] * c6 +
+                              mtrx->elem2D[3][3] * c10) *
+                            inv_det;
+        out->elem2D[0][3] = -(mtrx->elem2D[2][1] * c2 - mtrx->elem2D[2][2] * c6 +
+                              mtrx->elem2D[2][3] * c10) *
+                            inv_det;
 
-    out->elem2D[1][0] = -(mtrx->elem2D[1][0] * c1 - mtrx->elem2D[1][2] * c3 +
-                          mtrx->elem2D[1][3] * c11) *
-                        inv_det;
-    out->elem2D[1][1] = +(mtrx->elem2D[0][0] * c1 - mtrx->elem2D[0][2] * c3 +
-                          mtrx->elem2D[0][3] * c11) *
-                        inv_det;
-    out->elem2D[1][2] = -(mtrx->elem2D[3][0] * c2 - mtrx->elem2D[3][2] * c4 +
-                          mtrx->elem2D[3][3] * c12) *
-                        inv_det;
-    out->elem2D[1][3] = +(mtrx->elem2D[2][0] * c2 - mtrx->elem2D[2][2] * c4 +
-                          mtrx->elem2D[2][3] * c12) *
-                        inv_det;
+        out->elem2D[1][0] = -(mtrx->elem2D[1][0] * c1 - mtrx->elem2D[1][2] * c3 +
+                              mtrx->elem2D[1][3] * c11) *
+                            inv_det;
+        out->elem2D[1][1] = +(mtrx->elem2D[0][0] * c1 - mtrx->elem2D[0][2] * c3 +
+                              mtrx->elem2D[0][3] * c11) *
+                            inv_det;
+        out->elem2D[1][2] = -(mtrx->elem2D[3][0] * c2 - mtrx->elem2D[3][2] * c4 +
+                              mtrx->elem2D[3][3] * c12) *
+                            inv_det;
+        out->elem2D[1][3] = +(mtrx->elem2D[2][0] * c2 - mtrx->elem2D[2][2] * c4 +
+                              mtrx->elem2D[2][3] * c12) *
+                            inv_det;
 
-    out->elem2D[2][0] = +(mtrx->elem2D[1][0] * c5 - mtrx->elem2D[1][1] * c3 +
-                          mtrx->elem2D[1][3] * c7) *
-                        inv_det;
-    out->elem2D[2][1] = -(mtrx->elem2D[0][0] * c5 - mtrx->elem2D[0][1] * c3 +
-                          mtrx->elem2D[0][3] * c7) *
-                        inv_det;
-    out->elem2D[2][2] = +(mtrx->elem2D[3][0] * c6 - mtrx->elem2D[3][1] * c4 +
-                          mtrx->elem2D[3][3] * c8) *
-                        inv_det;
-    out->elem2D[2][3] = -(mtrx->elem2D[2][0] * c6 - mtrx->elem2D[2][1] * c4 +
-                          mtrx->elem2D[2][3] * c8) *
-                        inv_det;
+        out->elem2D[2][0] = +(mtrx->elem2D[1][0] * c5 - mtrx->elem2D[1][1] * c3 +
+                              mtrx->elem2D[1][3] * c7) *
+                            inv_det;
+        out->elem2D[2][1] = -(mtrx->elem2D[0][0] * c5 - mtrx->elem2D[0][1] * c3 +
+                              mtrx->elem2D[0][3] * c7) *
+                            inv_det;
+        out->elem2D[2][2] = +(mtrx->elem2D[3][0] * c6 - mtrx->elem2D[3][1] * c4 +
+                              mtrx->elem2D[3][3] * c8) *
+                            inv_det;
+        out->elem2D[2][3] = -(mtrx->elem2D[2][0] * c6 - mtrx->elem2D[2][1] * c4 +
+                              mtrx->elem2D[2][3] * c8) *
+                            inv_det;
 
-    out->elem2D[3][0] = -(mtrx->elem2D[1][0] * c9 - mtrx->elem2D[1][1] * c11 +
-                          mtrx->elem2D[1][2] * c7) *
-                        inv_det;
-    out->elem2D[3][1] = +(mtrx->elem2D[0][0] * c9 - mtrx->elem2D[0][1] * c11 +
-                          mtrx->elem2D[0][2] * c7) *
-                        inv_det;
-    out->elem2D[3][2] = -(mtrx->elem2D[3][0] * c10 - mtrx->elem2D[3][1] * c12 +
-                          mtrx->elem2D[3][2] * c8) *
-                        inv_det;
-    out->elem2D[3][3] = +(mtrx->elem2D[2][0] * c10 - mtrx->elem2D[2][1] * c12 +
-                          mtrx->elem2D[2][2] * c8) *
-                        inv_det;
+        out->elem2D[3][0] = -(mtrx->elem2D[1][0] * c9 - mtrx->elem2D[1][1] * c11 +
+                              mtrx->elem2D[1][2] * c7) *
+                            inv_det;
+        out->elem2D[3][1] = +(mtrx->elem2D[0][0] * c9 - mtrx->elem2D[0][1] * c11 +
+                              mtrx->elem2D[0][2] * c7) *
+                            inv_det;
+        out->elem2D[3][2] = -(mtrx->elem2D[3][0] * c10 - mtrx->elem2D[3][1] * c12 +
+                              mtrx->elem2D[3][2] * c8) *
+                            inv_det;
+        out->elem2D[3][3] = +(mtrx->elem2D[2][0] * c10 - mtrx->elem2D[2][1] * c12 +
+                              mtrx->elem2D[2][2] * c8) *
+                            inv_det;
+    }
+
+    store();
 }
