@@ -409,12 +409,12 @@ int main(int argc, const char *argv[]) {
     alignas(32) shz_mat4x4_t projection_view;
     // Cached polygon header to be submitted when drawing Bruce's balls.
     pvr_poly_hdr_t poly_header;
-    //! PVR direct rendering state, required to submit goemetry with the DR API.
+    //! PVR direct rendering state, required to submit geometry with the DR API.
     pvr_dr_state_t dr_state;
     
     // Initialize the PVR.
     pvr_init(&(const pvr_init_params_t) {
-        // The only tile bins we need are those for opaque goemetry. This is 32 bins per TA tile.
+        // The only tile bins we need are those for opaque geometry. This is 32 bins per TA tile.
         { PVR_BINSIZE_32, PVR_BINSIZE_0, PVR_BINSIZE_0, PVR_BINSIZE_0, PVR_BINSIZE_0 },
         // We need 3MB of vertex array storage in VRAM to fit all of Bruce's balls.
         1024 * 1024 * 3, 0, 0, 0, 6
