@@ -15,8 +15,6 @@
 # Overview
 `SH4ZAM` is a hand-optimized, general-purpose math and linear algebra library for harnessing the floating-point power of the SH4 processor in the Sega Dreamcast. It originally began as a collection of inline assembly routines developed specifically to accelerate the math in the Grand Theft Auto 3 and Vice City DC ports. These routines, along with many others from various contributors, have been separated and combined into a single standalone library, which can be leveraged to bring gainz to the Dreamcast and SuperH communities at large.
 
-NOTE: <i>This repo is still undergoing rapid changes as we pull in these routines from various places, get them exposed via both C and C++ APIs, and get them unit tested. The majority of the content has now been tested and verified in shipping games; however, not everything has been fully tested, as we are not yet to version 1.0.</i>
-
 # Features
 - Dual modern C23 and modern C++23 APIs
 - Clean header files, separating interface from implementation
@@ -123,12 +121,30 @@ Target      | Description
 `update`    | Updates git repo to latest
 
 # Examples
-
 Examples can be found within the `example` subdirectory. New examples are always welcome to be contributed!
 
 Example      | Description
 -------------|------------
 Bruce's Balls| Pushes up to 4.5 million PPS, rendering Bruce's balls.
+
+# Projects
+The following projects have been successfully accelerated with SH4ZAM and make great references:
+
+Project                                                              | Description
+---------------------------------------------------------------------|------------
+[SH4ZAM PVR](https://github.com/dfchil/sh4zam_pvr)                   | Fantastic example(s) for doing advanced PVR DR rendering with SH4ZAM acceleration.
+[PVR DMA Rendering](https://github.com/jnmartin84/pvr_dma_rendering) | Example of doing real-world, complex PVR DMA rendering with SH4ZAM acceleration.
+[Mario Kart 64 DC](https://github.com/jnmartin84/mk64-dc)            | jnmartin's Mario Kart 64 Dreamcast port was accelerated with SH4ZAM.
+[Star Fox 64 DC](https://github.com/jnmartin84/sf64-dc)              | jnmartin's Star Fox 64 Dreamcast port was accelerated with SH4ZAM.
+
+# Conventions
+The following conventions are used throughout the API by default, unless otherwise specified:
+
+Convention        | Description
+------------------|------------
+Matrices          | Stored in column-major order, as with OpenGL.
+Quaternions       | Stored in `<W, X, Y, Z>` order.
+Coordinate System | Right-handed for world/view space, Left-handed for screen/clip-space as with OpenGL.
 
 # Contributors
 
