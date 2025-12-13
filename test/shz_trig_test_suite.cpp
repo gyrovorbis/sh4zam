@@ -1,5 +1,5 @@
 #include "shz_test.h"
-#include "sh4zam/shz_trig.hpp"
+#include <sh4zam/shz_trig.hpp>
 #include <gimbal/algorithms/gimbal_random.h>
 #include <cmath>
 #include <kos.h>
@@ -88,7 +88,7 @@ template<typename F, typename... Args>
 SHZ_NO_INLINE void benchmark(const char* name, F &&function, Args&&... args) {
     SHZ_MEMORY_BARRIER_HARD();
     auto state = irq_disable();
-    uint64_t tstart = timer_ns_gettime64();
+    //uint64_t tstart = timer_ns_gettime64();
     uint64_t start = perf_cntr_timer_ns();
 
     SHZ_MEMORY_BARRIER_HARD();
@@ -96,10 +96,10 @@ SHZ_NO_INLINE void benchmark(const char* name, F &&function, Args&&... args) {
     SHZ_MEMORY_BARRIER_HARD();
 
     uint64_t stop = perf_cntr_timer_ns();
-    uint64_t tstop = timer_ns_gettime64();
+    //uint64_t tstop = timer_ns_gettime64();
     SHZ_MEMORY_BARRIER_HARD();
     irq_restore(state);
-    printf("\t%20s : %llu ns, %llu ns\n", name, (uint64_t)stop - start, (uint64_t)tstop - tstart);
+    printf("\t%20s : %llu ns\n", name, (uint64_t)stop - start);
 }
 
 #define benchmark(f, ...) (benchmark)(#f, f, __VA_ARGS__)
@@ -115,6 +115,7 @@ GBL_TEST_CASE(benches)
     perf_cntr_timer_enable();
     for(volatile unsigned i = 0; i < 30; ++i) {
         float random = gblRandUniform(-F_PI, F_PI);
+        float random2 = gblRandUniform(-F_PI, F_PI);
         printf("RANDOMNUM: %f\n", random);
         benchmark(shz_atanf, random);
         benchmark(atanf, random);
@@ -122,6 +123,8 @@ GBL_TEST_CASE(benches)
         benchmark(asinf, random);
         benchmark(shz_acosf, random);
         benchmark(acosf, random);
+        benchmark(shz::atan2f, random, random2);
+        benchmark(atan2f, random, random2);
         printf("\n");
     }
     benchmark(shz_pow2f, 13.0f);

@@ -408,6 +408,7 @@ SHZ_INLINE float shz_vec3_triple(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_N
     return -(dotPQ + dotRS);
 }
 
+//! \todo The FIPR-y can still be better pipelined and optimized here.
 SHZ_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p,
                                           shz_vec3_t a,
                                           shz_vec3_t b,
@@ -418,24 +419,21 @@ SHZ_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p,
     shz_vec3_t v1 = shz_vec3_sub(c, a);
     shz_vec3_t v2 = shz_vec3_sub(p, a);
 
-    /* Pin v0's components to FV8 regs, so they don't get
-       reloaded unecessarily between mag_sqr() or dot() calls. */
     register float rx asm ("fr8")  = v0.x;
     register float ry asm ("fr9")  = v0.y;
     register float rz asm ("fr10") = v0.z;
-    register float rw asm ("fr11") = 0.0f;
 
-    float d00 = shz_vec3_magnitude_sqr(v0);
-    float d01 = shz_vec3_dot(v0, v1);
-    float d02 = shz_vec3_dot(v0, v2);
+    float d00 = shz_mag_sqr3f(rx, ry, rz);
+    float d01 = shz_dot6f(rx, ry, rz, v1.x, v1.y, v1.z);
+    float d02 = shz_dot6f(rx, ry, rz, v2.x, v2.y, v2.z);
 
     // Now hold V1 constant within the FV8 regs.
     rx = v1.x;
     ry = v1.y;
     rz = v1.z;
 
-    float d11 = shz_vec3_magnitude_sqr(v1);
-    float d12 = shz_vec3_dot(v1, v2);
+    float d11 = shz_mag_sqr3f(rx, ry, rz);
+    float d12 = shz_dot6f(rx, ry, rz, v2.x, v2.y, v2.z);
 
     float denom = (d00 * d11) - (d01 * d01);
 

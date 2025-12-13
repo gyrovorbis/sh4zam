@@ -159,22 +159,24 @@ SHZ_INLINE float shz_atanf(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE float shz_atan2f(float y, float x) SHZ_NOEXCEPT {
-    if SHZ_UNLIKELY(y == 0.0f && x == 0.0f)
+    if(SHZ_UNLIKELY(y == 0.0f && x == 0.0f))
         return 0.0f;
 
-    float abs_y = fabsf(y);
     float angle = SHZ_F_PI_2;
     float r = x;
+    float abs_sum = fabsf(y);
 
     if(x < 0.0f) {
         angle += SHZ_F_PI_4;
-        r += abs_y;
+        r += abs_sum;
+        abs_sum -= x;
     } else {
         angle -= SHZ_F_PI_4;
-        r -= abs_y;
+        r -= abs_sum;
+        abs_sum += x;
     }
 
-    r *= shz_invf_fsrra(abs_y + fabsf(x));
+    r *= shz_invf_fsrra(abs_sum);
     angle += shz_fmaf(0.1963f, r * r, -0.9817f) * r;
 
     return shz_copysignf(angle, y);
