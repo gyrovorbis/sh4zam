@@ -1,11 +1,10 @@
 TARGET = bruces_balls.elf
 OBJS = bruces_balls.o   
 
-CFLAGS += -std=gnu23 -O3 \
+CFLAGS += -std=gnu2x -O3 \
           -fomit-frame-pointer -flto -fbuiltin -ffast-math -ffp-contract=fast -mfsrra -mfsca \
           -fmerge-all-constants -funroll-loops -fno-PIC -fipa-pta  \
           -ftree-vectorize -I$(KOS_BASE)/utils  
-
 
 all: rm-elf $(TARGET)
 include $(KOS_BASE)/Makefile.rules
