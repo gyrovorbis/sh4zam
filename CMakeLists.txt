@@ -11,6 +11,15 @@ project(sh4zam
         HOMEPAGE_URL "sh4zam.falcogirgis.com"
         LANGUAGES    ASM C CXX)
 
+
+set(GCC_VERSION_MIN "12.0")
+
+# Compare the version string
+if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS ${GCC_VERSION_MIN})
+    message(FATAL_ERROR "GCC version is too old! Minimum required version is ${GCC_VERSION_MIN}.")
+endif()
+
+
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
