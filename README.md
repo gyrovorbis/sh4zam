@@ -87,8 +87,12 @@ NOTE: <i>C++ can still use the C API by design, and every C++ type is also compa
 
 # Installation
 
+## KallistiOS
+SH4ZAM is now an official part of [kos-ports](https://github.com/KallistiOS/kos-ports), meaning that it is now directly integrated within the [KallistiOS](https://github.com/KallistiOS/KallistiOS) ecosystem and will be automatically set up as part of the regular KOS installation process. If you're following the standard community guide for [Setting up KallistiOS](https://dreamcast.wiki/Getting_Started_with_Dreamcast_development), SH4ZAM will be installed as part of the [Building KOS Ports](https://dreamcast.wiki/Getting_Started_with_Dreamcast_development#Building_kos-ports) step. If you're using [DreamSDK](https://dreamsdk.org/) to manage your KallistiOS development environment, SH4ZAM may be installed from the `KallistiOS Ports` tab.
+
+
 ## CMake
-To quickly build the project with CMake in any environment, run the following from the repo root:
+To quickly build the project with CMake in any environment, independently of KOS, run the following from the repo root:
 ```
 mkdir build
 cd build
@@ -102,52 +106,37 @@ If you would like to also build and run the unit tests, include `-DSHZ_ENABLE_TE
 
 NOTE: <i>For KOS users, use `kos-cmake` instead of your system `cmake` command!</i>
 
-## Make (KallistiOS)
-A `Makefile` has been included to provide a convenient way to install and use SH4ZAM within the standard [KallistiOS environment](https://github.com/KallistiOS/KallistiOS). See [The Wiki](https://dreamcast.wiki/Getting_Started_with_Dreamcast_development) for a guide on how to set up KallistiOS.
-
-Simply run `make <target>` from the root of the repo, optionally passing in one of the following targets:
-
-Target      | Description
-------------|------------
-`all`       | Builds everything
-`clean`     | Cleans everything
-`lib`       | Builds just libsh4zam.a
-`tests`     | Builds unit test ELF
-`run`       | Builds and runs unit tests using ${KOS_LOADER}
-`flycast`   | Builds and runs unit tests using Flycast emulator
-`install`   | Installs library as a KOS addon
-`uninstall` | Uninstalls library from KOS addons
-`docs`      | Builds Doxygen documentation
-`update`    | Updates git repo to latest
-
 # Examples
 Examples can be found within the `example` subdirectory. New examples are always welcome to be contributed!
 
-Example      | Description
--------------|------------
-Bruce's Balls| Pushes up to 4.5 million PPS, rendering Bruce's balls.
+NOTE:  <i>If you've installed SH4ZAM through KOS-ports, the examples should get installed to `kos-ports/examples/sh4zam`.</i>
+
+Example       | Description
+--------------|------------
+Bruce's Balls | Pushes up to 4.5 million PPS, rendering Bruce's balls.
 
 # Projects
 The following projects have been successfully accelerated with SH4ZAM and make great references:
 
-Project                                                              | Description
----------------------------------------------------------------------|------------
-[SH4ZAM PVR](https://github.com/dfchil/sh4zam_pvr)                   | Fantastic example(s) for doing advanced PVR DR rendering with SH4ZAM acceleration.
-[PVR DMA Rendering](https://github.com/jnmartin84/pvr_dma_rendering) | Example of doing real-world, complex PVR DMA rendering with SH4ZAM acceleration.
-[Mario Kart 64 DC](https://github.com/jnmartin84/mk64-dc)            | jnmartin's Mario Kart 64 Dreamcast port was accelerated with SH4ZAM.
-[Star Fox 64 DC](https://github.com/jnmartin84/sf64-dc)              | jnmartin's Star Fox 64 Dreamcast port was accelerated with SH4ZAM.
+Project                                                   | Description
+----------------------------------------------------------|------------
+[SH4ZAM PVR](https://github.com/dfchil/sh4zam_pvr)        | Advanced PVR DR rendering examples with SH4ZAM acceleration.
+[Mario Kart 64 DC](https://github.com/jnmartin84/mk64-dc) | jnmartin's Mario Kart 64 DC port with SH4ZAM acceleration.
+[Star Fox 64 DC](https://github.com/jnmartin84/sf64-dc)   | jnmartin's Star Fox 63 DC port with SH4ZAM acceleration.
 
 # Conventions
 The following conventions are used throughout the API by default, unless otherwise specified:
 
-Convention        | Description
-------------------|------------
-Matrices          | Stored in column-major order, as with OpenGL.
-Quaternions       | Stored in `<W, X, Y, Z>` order.
-Coordinate System | Right-handed for world/view space, Left-handed for screen/clip-space as with OpenGL.
+Convention   | Description
+-------------|------------
+Coordinates  | Right-handed for world/view space, Left-handed for screen/clip-space, as with GL.
+Matrices     | Stored in column-major order, as with GL.
+Quaternions  | Stored in `<W, X, Y, Z>` order.
+
+# Community
+The `#sh4zam` channel within the [Simulant Discord Server](https://discord.gg/G2Ay9kxec2) for Dreamcast development is the best place to ask questions, get help, give feedback, or discuss anything relating to SH4ZAM.
 
 # Contributors
-
 Special thanks to the following individuals who have either directly or indirectly contributed to SH4ZAM:
 - Falco Girgis
 - Paul Cercueil
@@ -170,3 +159,5 @@ Special thanks to the following individuals who have either directly or indirect
 - John Brooks
 - Daniel Fairchild
 - BruceLeet
+- Eric Fradella
+- Donald Haase
