@@ -408,6 +408,54 @@ SHZ_INLINE float shz_vec3_triple(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_N
     return -(dotPQ + dotRS);
 }
 
+SHZ_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p,
+                                          shz_vec3_t a,
+                                          shz_vec3_t b,
+                                          shz_vec3_t c) SHZ_NOEXCEPT {
+    shz_vec3_t result;
+
+    shz_vec3_t v0 = shz_vec3_sub(b, a);
+    shz_vec3_t v1 = shz_vec3_sub(c, a);
+    shz_vec3_t v2 = shz_vec3_sub(p, a);
+
+    /* Pin v0's components to FV8 regs, so they don't get
+       reloaded unecessarily between mag_sqr() or dot() calls. */
+    register float rx asm ("fr8")  = v0.x;
+    register float ry asm ("fr9")  = v0.y;
+    register float rz asm ("fr10") = v0.z;
+    register float rw asm ("fr11") = 0.0f;
+
+    float d00 = shz_vec3_magnitude_sqr(v0);
+    float d01 = shz_vec3_dot(v0, v1);
+    float d02 = shz_vec3_dot(v0, v2);
+
+    // Now hold V1 constant within the FV8 regs.
+    rx = v1.x;
+    ry = v1.y;
+    rz = v1.z;
+
+    float d11 = shz_vec3_magnitude_sqr(v1);
+    float d12 = shz_vec3_dot(v1, v2);
+
+    float denom = (d00 * d11) - (d01 * d01);
+
+    /* Protect against divide-by-zero only in debug builds for now,
+       cuz ain't nobody got the cycles to spare.*/
+    assert(denom > 0.0f);
+
+    /* We can mathematically prove that "denom" is guaranteed to be
+       positive here, so we can abuse the fast reciprocal square root
+       approximation instruction (FSRRA) to do a fast inversion. */
+    float inv_denom = shz_invf_fsrra(denom);
+
+    result.y = ((d11 * d02) - (d01 * d12)) * inv_denom;
+    result.z = ((d00 * d12) - (d01 * d02)) * inv_denom;
+    result.x = 1.0f - (result.z + result.y);
+
+    return result;
+}
+
+
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project(shz_vec2_t vec, shz_vec2_t onto) SHZ_NOEXCEPT {
     return shz_vec2_scale(shz_vec2_normalize(vec), shz_vec2_dot(vec, onto));
 }

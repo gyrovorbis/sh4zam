@@ -358,9 +358,6 @@ SHZ_FORCE_INLINE float shz_vec2_cross(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEX
 //! Returns the vector produced by taking the cross-product of the two given 3D vectors.
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cross(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
 
-//! Returns the 3D vector "triple product" between vector's \p a, \p b, and \p c.
-SHZ_INLINE float shz_vec3_triple(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT;
-
 //! Returns the resulting vector from projecting the given 2D vector along the given (unit) axis
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project(shz_vec2_t vec, shz_vec2_t onto) SHZ_NOEXCEPT;
 
@@ -390,6 +387,19 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_project_safe(shz_vec3_t vec, shz_vec3_t ont
     This routine should safely return the zero vector when \p vec has a magnitude of 0.0f.
 */
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_project_safe(shz_vec4_t vec, shz_vec4_t onto) SHZ_NOEXCEPT;
+
+//! @}
+
+/*! \name  Miscellaneous
+    \brief Other specialized vector routines.
+    @{
+*/
+
+//! Returns the 3D vector "triple product" between vector's \p a, \p b, and \p c.
+SHZ_INLINE float shz_vec3_triple(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT;
+
+//! Computes barycentric coordinates `<u, v, w>` for point p, within the plane of the triangle with vertices \p a, \p b, and \p c.
+SHZ_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p, shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT;
 
 //! @}
 

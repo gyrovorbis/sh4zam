@@ -285,7 +285,7 @@ SHZ_FORCE_INLINE float shz_randf(int* seed) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_randf_range(int* seed, float min, float max) SHZ_NOEXCEPT {
-    return min + (shz_randf(seed) * (max - min));
+    return shz_fmaf(shz_randf(seed), max - min, min);
 }
 
 //! \endcond

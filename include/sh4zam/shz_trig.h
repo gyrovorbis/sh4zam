@@ -28,6 +28,10 @@
 
 //! Single-precision floating-point PI approximation (do not use M_PI!)
 #define SHZ_F_PI                3.1415926f
+//! Single-precision FP PI approximation divided by 2.
+#define SHZ_F_PI_2              (SHZ_F_PI * 0.5f)
+//! Single-precision FP PI approximation divided by 4.
+#define SHZ_F_PI_4              (SHZ_F_PI * 0.25f)
 //! Multiplicative factor for passing the FSCA instruction angles in radians
 #define SHZ_FSCA_RAD_FACTOR     10430.37835f
 //! Multiplicative factor for passing the FSCA instrution angles in degrees
@@ -146,6 +150,9 @@ SHZ_INLINE float shz_atanf_q1(float x) SHZ_NOEXCEPT;
 
 //! Fast arctangent approximation; equvalent to C's atanf().
 SHZ_INLINE float shz_atanf(float x) SHZ_NOEXCEPT;
+
+//! Computes arctangent of `y / x`, using the signs of arguments to determine correct quadtrant. Equivalent to C's atan2f().
+SHZ_INLINE float shz_atan2f(float y, float x) SHZ_NOEXCEPT;
 
 //! Fast arcsecant/inverse secant approximation, taking units in radians.
 SHZ_INLINE float shz_asecf(float x) SHZ_NOEXCEPT;

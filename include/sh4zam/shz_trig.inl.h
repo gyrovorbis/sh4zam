@@ -146,7 +146,7 @@ SHZ_FORCE_INLINE float shz_atanf_unit(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE float shz_atanf_q1(float x) SHZ_NOEXCEPT {
-    return (SHZ_F_PI * 0.5f) - shz_atanf_unit(shz_invf_fsrra(x));
+    return SHZ_F_PI_2 - shz_atanf_unit(shz_invf_fsrra(x));
 }
 
 SHZ_INLINE float shz_atanf(float x) SHZ_NOEXCEPT {
@@ -158,12 +158,35 @@ SHZ_INLINE float shz_atanf(float x) SHZ_NOEXCEPT {
         return shz_atanf_unit(x);
 }
 
+SHZ_INLINE float shz_atan2f(float y, float x) SHZ_NOEXCEPT {
+    if SHZ_UNLIKELY(y == 0.0f && x == 0.0f)
+        return 0.0f;
+
+    float abs_y = fabsf(y);
+    float angle = SHZ_F_PI_2;
+    float r = x;
+
+    if(x < 0.0f) {
+        angle += SHZ_F_PI_4;
+        r += abs_y;
+    } else {
+        angle -= SHZ_F_PI_4;
+        r -= abs_y;
+    }
+
+    r *= shz_invf_fsrra(abs_y + fabsf(x));
+    angle += shz_fmaf(0.1963f, r * r, -0.9817f) * r;
+
+    return shz_copysignf(angle, y);
+}
+
+
 SHZ_INLINE float shz_asinf(float x) SHZ_NOEXCEPT {
     return shz_atanf(x * shz_inv_sqrtf(1.0f - (x * x)));
 }
 
 SHZ_INLINE float shz_acosf(float x) SHZ_NOEXCEPT {
-    return (SHZ_F_PI * 0.5f) - shz_asinf(x);
+    return SHZ_F_PI_2 - shz_asinf(x);
 }
 
 SHZ_INLINE float shz_asecf(float x) SHZ_NOEXCEPT {

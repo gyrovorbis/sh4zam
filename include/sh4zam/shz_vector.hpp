@@ -378,6 +378,11 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
     SHZ_FORCE_INLINE float triple(vec3 b, vec3 c) const noexcept {
         return shz_vec3_triple(*this, b, c);
     }
+
+    //! Computes the barycentric coordinates `<u, v, w>` for the given 3D vector, within the plane of the triangle formed by the given vertices, \p a, \p b, and \p c.
+    SHZ_FORCE_INLINE vec3 barycenter(vec3 a, vec3 b, vec3 c) const noexcept {
+        return shz_vec3_barycenter(*this, a, b, c);
+    }
 };
 
 /*! 4D Vector type

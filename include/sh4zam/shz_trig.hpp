@@ -20,6 +20,10 @@
 namespace shz {
     //! Floating-point constant approximation for Pi.
     constexpr float pi_f            = SHZ_F_PI;
+    //! Floating-point constant approximation for Pi/2.
+    constexpr float pi_f_2          = SHZ_F_PI_2;
+    //! Floating-point constant approximation for Pi/4.
+    constexpr float pi_f_4          = SHZ_F_PI_4;
     //! Scaling factor used to scale the input to FSCA from radians.
     constexpr float fsca_rad_factor = SHZ_FSCA_RAD_FACTOR;
     //! Scaling factor used to scale the input to FSCA from degrees.
@@ -139,6 +143,8 @@ namespace shz {
     constexpr auto atanf_q1   = shz_atanf_q1;
     //! C++ wrapper around shz_atanf().
     constexpr auto atanf      = shz_atanf;
+    //! C++ wrapper around shz_atan2f().
+    constexpr auto atan2f     = shz_atan2f;
     //! C++ wrapper around shz_asinf().
     constexpr auto asinf      = shz_asinf;
     //! C++ wrapper around shz_acosf().
