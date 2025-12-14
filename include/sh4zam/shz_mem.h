@@ -310,6 +310,17 @@ SHZ_INLINE void shz_memset2_16(void* dst, uint16_t value) SHZ_NOEXCEPT;
 SHZ_INLINE void shz_memcpy4_16(      void* SHZ_RESTRICT dst,
                                const void* SHZ_RESTRICT src) SHZ_NOEXCEPT;
 
+/*! Copies 32 bytes from \p p1 to \p p2 as a single chunk.
+
+    \warning
+    This routine may clobber the `XMTRX` matrix back-bank.
+
+    \warning
+    \p dst must be 32-byte aligned, while \p src can be only 8-byte aligned.
+*/
+SHZ_INLINE void shz_memcpy32_1(      void* SHZ_RESTRICT dst,
+                               const void* SHZ_RESTRICT src) SHZ_NOEXCEPT;
+
 /*! Swaps the values within the given 32-byte buffers.
 
     \warning

@@ -486,6 +486,25 @@ SHZ_INLINE void shz_memcpy4_16(      void* SHZ_RESTRICT dst,
     : "r0", "r1", "r2", "r3");
 }
 
+SHZ_INLINE void shz_memcpy32_1(      void* SHZ_RESTRICT dst,
+                               const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
+          shz_alias_uint64_t* d = (      shz_alias_uint64_t*)dst;
+    const shz_alias_uint64_t* s = (const shz_alias_uint64_t*)src;
+
+    assert(!((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
+
+    SHZ_PREFETCH(s);
+
+    SHZ_FSCHG();
+
+    shz_memcpy32_load_(&s);
+    shz_dcache_alloc_line(d);
+    shz_memcpy32_store_(&d);
+
+    SHZ_FSCHG();
+}
+
+
 SHZ_INLINE void shz_memswap32_1(void* SHZ_RESTRICT p1,
                                 void* SHZ_RESTRICT p2) SHZ_NOEXCEPT {
     shz_alias_uint32_t (*a)[8] = (shz_alias_uint32_t (*)[8])p1;
