@@ -90,7 +90,6 @@ NOTE: <i>C++ can still use the C API by design, and every C++ type is also compa
 ## KallistiOS
 SH4ZAM is now an official part of [kos-ports](https://github.com/KallistiOS/kos-ports), meaning that it is now directly integrated within the [KallistiOS](https://github.com/KallistiOS/KallistiOS) ecosystem and will be automatically set up as part of the regular KOS installation process. If you're following the standard community guide for [Setting up KallistiOS](https://dreamcast.wiki/Getting_Started_with_Dreamcast_development), SH4ZAM will be installed as part of the [Building KOS Ports](https://dreamcast.wiki/Getting_Started_with_Dreamcast_development#Building_kos-ports) step. If you're using [DreamSDK](https://dreamsdk.org/) to manage your KallistiOS development environment, SH4ZAM may be installed from the `KallistiOS Ports` tab.
 
-
 ## CMake
 To quickly build the project with CMake in any environment, independently of KOS, run the following from the repo root:
 ```
@@ -109,11 +108,12 @@ NOTE: <i>For KOS users, use `kos-cmake` instead of your system `cmake` command!<
 # Examples
 Examples can be found within the `example` subdirectory. New examples are always welcome to be contributed!
 
-NOTE:  <i>If you've installed SH4ZAM through KOS-ports, the examples should get installed to `kos-ports/examples/sh4zam`.</i>
-
 Example       | Description
 --------------|------------
 Bruce's Balls | Pushes up to 4.5 million PPS, rendering Bruce's balls.
+PVR DMA       | Real-world, complex renderer using KOS's PVR DMA API.
+
+NOTE: <i>If you've installed SH4ZAM through KOS-ports, the examples should get installed to `kos-ports/examples/sh4zam`.</i>
 
 # Projects
 The following projects have been successfully accelerated with SH4ZAM and make great references:
@@ -122,7 +122,7 @@ Project                                                   | Description
 ----------------------------------------------------------|------------
 [SH4ZAM PVR](https://github.com/dfchil/sh4zam_pvr)        | Advanced PVR DR rendering examples with SH4ZAM acceleration.
 [Mario Kart 64 DC](https://github.com/jnmartin84/mk64-dc) | jnmartin's Mario Kart 64 DC port with SH4ZAM acceleration.
-[Star Fox 64 DC](https://github.com/jnmartin84/sf64-dc)   | jnmartin's Star Fox 63 DC port with SH4ZAM acceleration.
+[Star Fox 64 DC](https://github.com/jnmartin84/sf64-dc)   | jnmartin's Star Fox 64 DC port with SH4ZAM acceleration.
 
 # Conventions
 The following conventions are used throughout the API by default, unless otherwise specified:
