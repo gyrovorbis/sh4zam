@@ -295,11 +295,29 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_normalize_safe(shz_vec4_t vec) SHZ_NOEXCEPT
 //! Returns the dot product between the two given 2D vectors.
 SHZ_FORCE_INLINE float shz_vec2_dot(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT;
 
-//! Returns the dot product between the two given 4D vectors.
-SHZ_FORCE_INLINE float shz_vec4_dot(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
+//! Returns the two dot products taken between the 2D vector \p l and 2D vectors \p r1 and \p r2.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_dot2(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2) SHZ_NOEXCEPT;
+
+//! Returns the three dot products taken between the 2D vector \p l and 2D vectors \p r1, \p r2, and \p r3.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec2_dot3(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2, shz_vec2_t r3) SHZ_NOEXCEPT;
 
 //! Returns the dot product between the two given 3D vectors.
 SHZ_FORCE_INLINE float shz_vec3_dot(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
+
+//! Returns the two dot products taken between the 3D vector \p l and 3D vectors \p r1 and \p r2.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec3_dot2(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2) SHZ_NOEXCEPT;
+
+//! Returns the three dot products taken between the 3D vector \p l and 3D vectors \p r1, \p r2, and \p r3.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_dot3(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2, shz_vec3_t r3) SHZ_NOEXCEPT;
+
+//! Returns the dot product between the two given 4D vectors.
+SHZ_FORCE_INLINE float shz_vec4_dot(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
+
+//! Returns the two dot products taken between the 4D vector \p l and 4D vectors \p r1 and \p r2.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec4_dot2(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2) SHZ_NOEXCEPT;
+
+//! Returns the three dot products taken between the 4D vector \p l and 4D vectors \p r1, \p r2, and \p r3.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec4_dot3(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2, shz_vec4_t r3) SHZ_NOEXCEPT;
 
 //! Returns the distance between the two given 2D vectors.
 SHZ_FORCE_INLINE float shz_vec2_distance(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT;
@@ -574,6 +592,20 @@ SHZ_DECLS_END
                  shz_vec3_t: shz_vec3_dot, \
                  shz_vec4_t: shz_vec4_dot)(vec1, vec2)
 
+    //! C type-generic vector chained double dot product.
+#   define shz_vec_dot2(l, r1, r2) \
+        _Generic((l), \
+                 shz_vec2_t: shz_vec2_dot2, \
+                 shz_vec3_t: shz_vec3_dot2, \
+                 shz_vec4_t: shz_vec4_dot2)(l, r1, r2)
+
+    //! C type-generic vector chained triple dot product.
+#   define shz_vec_dot3(l, r1, r2, r3) \
+        _Generic((l), \
+                 shz_vec2_t: shz_vec2_dot3, \
+                 shz_vec3_t: shz_vec3_dot3, \
+                 shz_vec4_t: shz_vec4_dot3)(l, r1, r2, r3)
+
     //! C type-generic vector squared magnitude.
 #   define shz_vec_magnitude_sqr(vec) \
         _Generic((vec), \
@@ -816,6 +848,30 @@ SHZ_DECLS_END
             return shz_vec3_dot(vec1, vec2);
         else if constexpr(std::convertible_to<T, shz_vec4_t>)
             return shz_vec4_dot(vec1, vec2);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic vector dot product operation.
+    template<typename T>
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_dot2(T l, T r1, T r2) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_dot2(l, r1, r2);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_dot2(l, r1, r2);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_dot2(l, r1, r2);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic vector dot product operation.
+    template<typename T>
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_dot3(T l, T r1, T r2, T r3) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_dot3(l, r1, r2, r3);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_dot3(l, r1, r2, r3);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_dot3(l, r1, r2, r3);
         else static_assert(false, "Incompatible type!");
     }
 

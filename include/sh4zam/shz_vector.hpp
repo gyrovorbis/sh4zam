@@ -25,6 +25,10 @@
 
 namespace shz {
 
+struct vec2;
+struct vec3;
+struct vec4;
+
 /*! Common C++ base structure inherited by all vector types. 
 
     This struct template serves as the base class for all
@@ -159,10 +163,16 @@ struct vecN: C {
         return shz_vec_clamp(*this, min, max);
     }
 
-    //! Returns the dot produt of the given vector and another.
+    //! Returns the dot product of the given vector and another.
     SHZ_FORCE_INLINE float dot(this const CppType& self, CppType other) noexcept {
         return shz_vec_dot(self, other);
     }
+
+    //! Returns the dot product of the given vector against two others.
+    SHZ_FORCE_INLINE vec2 dot(this const CppType& self, CppType v1, CppType v2) noexcept;
+
+    //! Returns the dot product of the given vector against three others.
+    SHZ_FORCE_INLINE vec3 dot(this const CppType& self, CppType v1, CppType v2, CppType v3) noexcept;
 
     //! Returns the magnitude of the given vector.
     SHZ_FORCE_INLINE float magnitude() const noexcept {
@@ -281,6 +291,9 @@ SHZ_FORCE_INLINE CRTP operator/(float lhs, vecN<CRTP, C, R> rhs) noexcept {
     return shz_vec_scale(rhs, shz::invf(lhs));
 }
 
+struct vec3;
+struct vec4;
+
 /*! 2D Vector type
  *
  *  C++ structure for representing a 2-dimensional vector.
@@ -290,6 +303,9 @@ SHZ_FORCE_INLINE CRTP operator/(float lhs, vecN<CRTP, C, R> rhs) noexcept {
 struct vec2: vecN<vec2, shz_vec2_t, 2> {
     // Inherit parent constructors and operators.
     using vecN::vecN;
+
+    // Unhide inherited overloaded dot product methods.
+    using vecN::dot;
 
     //! Default constructor: does nothing.
     vec2() = default;
@@ -320,6 +336,11 @@ struct vec2: vecN<vec2, shz_vec2_t, 2> {
     SHZ_FORCE_INLINE float cross(vec2 other) const noexcept {
         return shz_vec2_cross(*this, other);
     }
+
+    //! C++ wrapper for shz_vec2_dot2().
+    SHZ_FORCE_INLINE vec2 dot(vec2 r1, vec2 r2) const noexcept {
+        return shz_vec2_dot2(*this, r1, r2);
+    }
 };
 
 /*! 3D Vector type
@@ -331,6 +352,9 @@ struct vec2: vecN<vec2, shz_vec2_t, 2> {
 struct vec3: vecN<vec3, shz_vec3_t, 3> {
     // Inherit parent constructors and operators.
     using vecN::vecN;
+
+    // Unhide inherited overloaded dot product methods.
+    using vecN::dot;
 
     //! Default constructor: does nothing
     vec3() = default;
@@ -395,6 +419,9 @@ struct vec4: vecN<vec4, shz_vec4_t, 4> {
     // Inherit parent constructors and operators.
     using vecN::vecN;
 
+    // Unhide inherited overloaded dot product methods.
+    using vecN::dot;
+
     //! Default constructor: does nothing.
     vec4() = default;
 
@@ -434,6 +461,16 @@ struct vec4: vecN<vec4, shz_vec4_t, 4> {
     SHZ_FORCE_INLINE vec4(float x, shz::vec3 yzw) noexcept:
         vecN(shz_vec4_init(x, yzw.x, yzw.y, yzw.z)) {}
 };
+
+template<typename CRTP, typename C, size_t R>
+SHZ_FORCE_INLINE vec2 vecN<CRTP, C, R>::dot(this const CppType& self, CppType v1, CppType v2) noexcept {
+    return shz_vec_dot2(self, v1, v2);
+}
+
+template<typename CRTP, typename C, size_t R>
+SHZ_FORCE_INLINE vec3 vecN<CRTP, C, R>::dot(this const CppType& self, CppType v1, CppType v2, CppType v3) noexcept {
+    return shz_vec_dot3(self, v1, v2, v3);
+}
 
 }
 

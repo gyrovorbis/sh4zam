@@ -1,4 +1,5 @@
 #include "shz_test.h"
+#include "shz_test.hpp"
 #include "sh4zam/shz_vector.hpp"
 
 #include <print>
@@ -146,6 +147,71 @@ GBL_TEST_CASE(vec2Dot)
     GBL_TEST_VERIFY(base.dot((shz_vec2_t){-3.0f, 4.0f}) == 6.0f);
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(vec2Dot2)
+   auto test = [&](shz::vec2 vec1,
+                   shz::vec2 vec2,
+                   shz::vec2 vec3)
+   {
+        shz::vec2 fipr_res, c_res;
+
+        benchmark(&fipr_res, [&]{ return vec1.dot(vec2, vec3); });
+
+        benchmark(&c_res, [&]{ return shz::vec2 {
+                                    vec1.x * vec2.x + vec1.y * vec2.y,
+                                    vec1.x * vec3.x + vec1.y * vec3.y
+                                };
+                           });
+
+        return gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
+               gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error);
+    };
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec2Dot3)
+   auto test = [&](shz::vec2 vec1,
+                   shz::vec2 vec2,
+                   shz::vec2 vec3,
+                   shz::vec2 vec4)
+   {
+        shz::vec3 fipr_res, c_res;
+
+        benchmark(&fipr_res, [&]{ return vec1.dot(vec2, vec3, vec4); });
+
+        benchmark(&c_res, [&]{ return shz::vec3 {
+                            vec1.x * vec2.x + vec1.y * vec2.y,
+                            vec1.x * vec3.x + vec1.y * vec3.y,
+                            vec1.x * vec4.x + vec1.y * vec4.y
+                        };
+                   });
+
+        return gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
+               gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error) &&
+               gblFloatEquals(fipr_res.z, c_res.z, shz::fipr_max_error);
+    };
+
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf() }));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(vec2Magnitude)
     GBL_TEST_ERROR((shz::vec2{1.0f, 1.0f}.magnitude()), sqrtf(2.0f), 0.0001f, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR((shz::vec2(2.0f, 3.0f).magnitude()), 3.60555127546f, 0.0001f, GBL_TEST_ERROR_FUZZY);
@@ -165,6 +231,148 @@ GBL_TEST_CASE(vec2Direction)
     GBL_TEST_VERIFY((shz::vec2{0.0f, 0.0f}.direction() == shz::vec2(0.0f)));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(vec3Dot)
+    auto base = shz::vec3(2.0f, 3.0f, 4.0f);
+    GBL_TEST_VERIFY(base.dot({1.0f, -1.0f, 1.0f}) == 3.0f);
+    GBL_TEST_VERIFY(base.dot((shz_vec3_t){-3.0f, 4.0f, -2.0f}) == -2.0f);
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Dot2)
+   auto test = [&](shz::vec3 vec1,
+                   shz::vec3 vec2,
+                   shz::vec3 vec3)
+   {
+        shz::vec2 fipr_res, c_res;
+
+        benchmark(&fipr_res, [&]{ return vec1.dot(vec2, vec3); });
+
+        benchmark(&c_res, [&]{ return shz::vec2 {
+                                    vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z,
+                                    vec1.x * vec3.x + vec1.y * vec3.y + vec1.z * vec3.z
+                                };
+                           });
+
+        return gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
+               gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error);
+    };
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Dot3)
+   auto test = [&](shz::vec3 vec1,
+                   shz::vec3 vec2,
+                   shz::vec3 vec3,
+                   shz::vec3 vec4)
+   {
+        shz::vec3 fipr_res, c_res;
+
+        benchmark(&fipr_res, [&]{ return vec1.dot(vec2, vec3, vec4); });
+
+        benchmark(&c_res, [&]{ return shz::vec3 {
+                            vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z,
+                            vec1.x * vec3.x + vec1.y * vec3.y + vec1.z * vec3.z,
+                            vec1.x * vec4.x + vec1.y * vec4.y + vec1.z * vec3.z
+                        };
+                   });
+
+        return gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
+               gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error) &&
+               gblFloatEquals(fipr_res.z, c_res.z, shz::fipr_max_error);
+    };
+
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4Dot)
+    auto base = shz::vec4(2.0f, 3.0f, 4.0f, 1.0f);
+    GBL_TEST_VERIFY(base.dot({1.0f, -1.0f, 1.0f, 2.0f}) == 5.0f);
+    GBL_TEST_VERIFY(base.dot((shz_vec4_t){-3.0f, 4.0f, -2.0f, -3.0f}) == -5.0f);
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4Dot2)
+   auto test = [&](shz::vec4 vec1,
+                   shz::vec4 vec2,
+                   shz::vec4 vec3)
+   {
+        shz::vec2 fipr_res, c_res;
+
+        benchmark(&fipr_res, [&]{ return vec1.dot(vec2, vec3); });
+
+        benchmark(&c_res, [&]{ return shz::vec2 {
+                                    vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z + vec1.w * vec2.w,
+                                    vec1.x * vec3.x + vec1.y * vec3.y + vec1.z * vec3.z + vec1.w * vec3.w
+                                };
+                           });
+
+        return gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
+               gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error);
+    };
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4Dot3)
+   auto test = [&](shz::vec4 vec1,
+                   shz::vec4 vec2,
+                   shz::vec4 vec3,
+                   shz::vec4 vec4)
+   {
+        shz::vec3 fipr_res, c_res;
+
+        benchmark(&fipr_res, [&]{ return vec1.dot(vec2, vec3, vec4); });
+
+        benchmark(&c_res, [&]{ return shz::vec3 {
+                            vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z + vec1.w * vec2.w,
+                            vec1.x * vec3.x + vec1.y * vec3.y + vec1.z * vec3.z + vec1.w * vec3.w,
+                            vec1.x * vec4.x + vec1.y * vec4.y + vec1.z * vec4.z + vec1.w * vec4.w
+                        };
+                   });
+
+        return gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
+               gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error) &&
+               gblFloatEquals(fipr_res.z, c_res.z, shz::fipr_max_error);
+    };
+
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(vec2Construct,
                   vec2Set,
                   vec2Lerp,
@@ -176,7 +384,15 @@ GBL_TEST_REGISTER(vec2Construct,
                   vec2DivEqualsScalar,
                   vec2Compare,
                   vec2Dot,
+                  vec2Dot2,
+                  vec2Dot3,
                   vec2Magnitude,
                   vec2MagnitudeSqr,
                   vec2MagnitudeInv,
-                  vec2Direction)
+                  vec2Direction,
+                  vec3Dot,
+                  vec3Dot2,
+                  vec3Dot3,
+                  vec4Dot,
+                  vec4Dot2,
+                  vec4Dot3)

@@ -18,6 +18,7 @@ add_subdirectory(libgimbal)
 add_executable(Sh4zamTests
     shz_test.c
     shz_test.h
+    shz_test.hpp
     shz_scalar_test_suite.cpp
     shz_trig_test_suite.cpp
     shz_vector_test_suite.cpp
