@@ -210,6 +210,16 @@ namespace shz {
             return shz_quat_dot(*this, other);
         }
 
+        //! Returns the dot product of the given quaternion against two others.
+        SHZ_FORCE_INLINE vec2 dot(quat q1, quat q2) const noexcept {
+            return shz_quat_dot2(*this, q1, q2);
+        }
+
+        //! Returns the dot product of the given quaternion against three others.
+        SHZ_FORCE_INLINE vec3 dot(quat q1, quat q2, quat q3) const noexcept {
+            return shz_quat_dot3(*this, q1, q2, q3);
+        }
+
         //! Returns a new quaterion from multiplying the given quaternion by another.
         SHZ_FORCE_INLINE quat mult(quat rhs) const noexcept {
             return shz_quat_mult(*this, rhs);

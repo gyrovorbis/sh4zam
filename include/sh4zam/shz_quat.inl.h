@@ -25,6 +25,7 @@ SHZ_INLINE shz_quat_t shz_quat_from_angles_xyz(float xangle, float yangle, float
     shz_sincos_t scy = shz_sincosf(yangle * 0.5f);
     shz_sincos_t scz = shz_sincosf(zangle * 0.5f);
 
+    // \todo Some shz_vec2_dot4() kind of pattern?
     return shz_quat_init(
         ((scy.cos * scx.cos) * scz.sin) - ((scy.sin * scx.sin) * scz.cos),
         ((scx.sin * scy.cos) * scz.cos) + ((scy.sin * scx.cos) * scz.sin),
@@ -97,6 +98,20 @@ SHZ_FORCE_INLINE float shz_quat_dot(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
                      q2.x, q2.y, q2.z, q2.w);
 }
 
+SHZ_FORCE_INLINE shz_vec2_t shz_quat_dot2(shz_quat_t l, shz_quat_t r1, shz_quat_t r2) SHZ_NOEXCEPT {
+    return shz_vec4_dot2(shz_vec3_vec4( l.axis, l.w),
+                         shz_vec3_vec4(r1.axis, r1.w),
+                         shz_vec3_vec4(r2.axis, r2.w));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_quat_dot3(shz_quat_t l, shz_quat_t r1, shz_quat_t r2, shz_quat_t r3) SHZ_NOEXCEPT {
+    return shz_vec4_dot3(shz_vec3_vec4( l.axis, l.w),
+                         shz_vec3_vec4(r1.axis, r1.w),
+                         shz_vec3_vec4(r2.axis, r2.w),
+                         shz_vec3_vec4(r3.axis, r3.w));
+}
+
+
 SHZ_FORCE_INLINE shz_quat_t shz_quat_conjugate(shz_quat_t quat) SHZ_NOEXCEPT {
     return shz_quat_init(quat.w, -quat.x, -quat.y, -quat.z);
 }
@@ -117,6 +132,7 @@ SHZ_INLINE shz_quat_t shz_quat_from_rotated_axis(shz_vec3_t v1, shz_vec3_t v2) S
 	return shz_quat_normalize(q);
 }
 
+// \todo Some kind of shz_vec3_dot4() pattern.
 SHZ_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT {
 	if(shz_quat_dot(a, b) < 0.0f) {
         return shz_quat_init(t * (b.w + a.w) - a.w,
@@ -242,12 +258,31 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE shz_vec3_t shz_quat_transform_vec3(shz_quat_t q, shz_vec3_t v) SHZ_NOEXCEPT {
-    shz_vec3_t a   = shz_vec3_init(q.x, q.y, q.z);
-	shz_vec3_t uv  = shz_vec3_cross(a, v);
-	shz_vec3_t uuv = shz_vec3_cross(a, uv);
-	shz_vec3_t tr  = shz_vec3_scale(shz_vec3_add(shz_vec3_scale(uv, q.w), uuv), 2.0f);
+    register float vx asm("fr8")  = v.x;
+    register float vy asm("fr9")  = v.y;
+    register float vz asm("fr10") = v.z;
+    register float vw asm("fr11");
 
-	return shz_vec3_add(v, tr);
+    register float qx asm("fr4") = q.x;
+    register float qy asm("fr5") = q.y;
+    register float qz asm("fr6") = q.z;
+    register float qw asm("fr7") = 0.0f;
+
+    asm("fipr   fv4, fv8"
+        : "=f" (vw)
+        : "f" (qx), "f" (qy), "f" (qz), "f" (qw),
+          "f" (vx), "f" (vy), "f" (vz));
+
+    asm("fipr   fv4, fv4"
+        : "+f" (qw)
+        : "f" (qx), "f" (qy), "f" (qz));
+
+    shz_vec3_t cross_qv = shz_vec3_cross(q.axis, v);
+
+    return shz_vec3_dot3(shz_vec3_init(2.0f * vw, (q.w * q.w) - qw, 2.0f * q.w),
+                         shz_vec3_init(q.x, v.x, cross_qv.x),
+                         shz_vec3_init(q.y, v.y, cross_qv.y),
+                         shz_vec3_init(q.z, v.z, cross_qv.z));
 }
 
 //! \endcond

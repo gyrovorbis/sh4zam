@@ -27,7 +27,7 @@
 */
 
 //! Minimum epsilon below which shz_quat_slerp() performs no interpolation.
-#define SHZ_QUAT_SLERP_PHI_EPSILON 0.00001f
+#define SHZ_QUAT_SLERP_PHI_EPSILON FLT_EPSILON
 
 SHZ_DECLS_BEGIN
 
@@ -149,11 +149,17 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_add(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEP
 //! Scales the components of the given quaternion by the given factor.
 SHZ_FORCE_INLINE shz_quat_t shz_quat_scale(shz_quat_t q, float f) SHZ_NOEXCEPT;
 
+//! Multiplies the two quaternions, returning the result as a new quaternion.
+SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT;
+
 //! Returns the dot product of the two quaternions.
 SHZ_FORCE_INLINE float shz_quat_dot(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT;
 
-//! Multiplies the two quaternions, returning the result as a new quaternion.
-SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT;
+//! Returns the two dot products taken between the \p l quaternion and the \p r1 and \p r2 quaternions.
+SHZ_FORCE_INLINE shz_vec2_t shz_quat_dot2(shz_quat_t l, shz_quat_t r1, shz_quat_t r2) SHZ_NOEXCEPT;
+
+//! Returns the two dot products taken between the \p l quaternion and the \p r1, \p r2, and \p r3 quaternions.
+SHZ_FORCE_INLINE shz_vec3_t shz_quat_dot3(shz_quat_t l, shz_quat_t r1, shz_quat_t r2, shz_quat_t r3) SHZ_NOEXCEPT;
 
 //! @}
 
