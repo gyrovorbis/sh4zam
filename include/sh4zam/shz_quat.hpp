@@ -81,6 +81,8 @@ namespace shz {
         }
 
         //! Returns the quaternion that is spherically linearly interpolating \p q to \p p, by a t factor of `0.0f-1.0f`.
+	//!
+	//! \warning The returned quaternion is not guaranteed to be normalized due to a floating-point error. Callers should normalize the result before reuse, especially when performing repeated interpolations.
         SHZ_FORCE_INLINE static quat slerp(quat q, quat p, float t) noexcept {
             return shz_quat_slerp(q, p, t);
         }
