@@ -86,9 +86,14 @@ SHZ_INLINE shz_quat_t shz_quat_from_rotated_axis(shz_vec3_t v1, shz_vec3_t v2) S
 //! Returns the quaternion that is linearly interpolating \p a to \p b, by a t factor of `0.0f-1.0f`.
 SHZ_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT;
 
-//! Returns the quaternion that is spherically linearly interpolating \p a to \p b, by a t factor of `0.0f-1.0f`.
-//!
-//! \warning The returned quaternion is not guaranteed to be normalized due to a floating-point error. Callers should normalize the result before reuse, especially when performing repeated interpolations.
+//! Equivalent to shz_quat_lerp(), except that the resulting quaternion is normalized.
+SHZ_FORCE_INLINE shz_quat_t shz_quat_nlerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT;
+
+/*! Returns the quaternion that is spherically linearly interpolating \p a to \p b, by a \p t factor of `0.0f-1.0f`.
+
+    \warning The returned quaternion is not guaranteed to be normalized due to a floating-point error.
+             Callers should normalize the result before reuse, especially when performing repeated interpolations.
+*/
 SHZ_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NOEXCEPT;
 
 //! @}

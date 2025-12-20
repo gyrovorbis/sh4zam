@@ -111,7 +111,6 @@ SHZ_FORCE_INLINE shz_vec3_t shz_quat_dot3(shz_quat_t l, shz_quat_t r1, shz_quat_
                          shz_vec3_vec4(r3.axis, r3.w));
 }
 
-
 SHZ_FORCE_INLINE shz_quat_t shz_quat_conjugate(shz_quat_t quat) SHZ_NOEXCEPT {
     return shz_quat_init(quat.w, -quat.x, -quat.y, -quat.z);
 }
@@ -145,6 +144,10 @@ SHZ_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOE
                              t * (b.y - a.y) + a.y,
                              t * (b.z - a.z) + a.z);
     }
+}
+
+SHZ_FORCE_INLINE shz_quat_t shz_quat_nlerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT {
+    return shz_quat_normalize(shz_quat_lerp(a, b, t));
 }
 
 SHZ_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NOEXCEPT {
@@ -203,7 +206,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
         t1y = q2z;
         t1z = -q2y;
         t1w = q2x;
-        asm("fipr	fv4,fv0\n"
+        asm("fipr	fv4,fv0"
             : "+f" (t1w)
             : "f" (q1x), "f" (q1y), "f" (q1z), "f" (q1w),
               "f" (t1x), "f" (t1y), "f" (t1z)
@@ -217,7 +220,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
         SHZ_MEMORY_BARRIER_HARD();
         r.x = t1w;   // get previous result
         t1w = q2y;
-        asm("fipr	fv4,fv0\n"
+        asm("fipr	fv4,fv0"
             : "+f" (t1w)
             : "f" (q1x), "f" (q1y), "f" (q1z), "f" (q1w),
               "f" (t1x), "f" (t1y), "f" (t1z)
@@ -231,7 +234,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
         SHZ_MEMORY_BARRIER_HARD();
         r.y = t1w;   // get previous result
         t1w = q2z;
-        asm("fipr	fv4,fv0\n"
+        asm("fipr	fv4,fv0"
             : "+f" (t1w)
             : "f" (q1x), "f" (q1y), "f" (q1z), "f" (q1w),
               "f" (t1x), "f" (t1y), "f" (t1z)
@@ -243,7 +246,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
         q2x = -q2x;
         q2y = -q2y;
         q2z = -q2z;
-        asm("fipr	fv4,fv8\n"
+        asm("fipr	fv4,fv8"
             : "+f" (q2w)
             : "f" (q1x), "f" (q1y), "f" (q1z), "f" (q1w),
               "f" (q2x), "f" (q2y), "f" (q2z)
