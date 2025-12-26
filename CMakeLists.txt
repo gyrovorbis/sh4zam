@@ -11,10 +11,11 @@ project(sh4zam
         HOMEPAGE_URL "sh4zam.falcogirgis.com"
         LANGUAGES    ASM C CXX)
 
-set(GCC_VERSION_MIN "12.0")
-if(CMAKE_C_COMPILER_VERSION VERSION_LESS ${GCC_VERSION_MIN})
-    message(FATAL_ERROR "GCC version is too old! Minimum required version: ${GCC_VERSION_MIN}.")
-endif()
+# Compiler min version check broken with DreamSDK!
+#set(GCC_VERSION_MIN "12.0")
+#if(CMAKE_C_COMPILER_VERSION VERSION_LESS ${GCC_VERSION_MIN})
+#    message(FATAL_ERROR "GCC version is too old! Minimum required version: ${GCC_VERSION_MIN}.")
+#endif()
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
