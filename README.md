@@ -123,6 +123,7 @@ Project                                                   | Description
 [SH4ZAM PVR](https://github.com/dfchil/sh4zam_pvr)        | Advanced PVR DR rendering examples with SH4ZAM acceleration.
 [Mario Kart 64 DC](https://github.com/jnmartin84/mk64-dc) | jnmartin's Mario Kart 64 DC port with SH4ZAM acceleration.
 [Star Fox 64 DC](https://github.com/jnmartin84/sf64-dc)   | jnmartin's Star Fox 64 DC port with SH4ZAM acceleration.
+[Mario 64 DC](https://github.com/jnmartin84/sm64-dc)      | Super Mario 64 DC port with SH4ZAM acceleration.
 
 # Conventions
 The following conventions are used throughout the API by default, unless otherwise specified:
