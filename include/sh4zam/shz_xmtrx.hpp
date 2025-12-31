@@ -263,6 +263,11 @@ struct xmtrx {
         shz_xmtrx_init_rotation_zyx(z, y, x);
     }
 
+    //! C++ wrapper around shz_xmtrx_init_rotation_zxy().
+    SHZ_FORCE_INLINE static void init_rotation_zxy(float z, float x, float y) noexcept {
+        shz_xmtrx_init_rotation_zxy(z, x, y);
+    }
+
     //! C++ wrapper around shz_xmtrx_init_rotation_yxz().
     SHZ_FORCE_INLINE static void init_rotation_yxz(float y, float x, float z) noexcept {
         shz_xmtrx_init_rotation_yxz(y, x, z);
@@ -355,6 +360,11 @@ struct xmtrx {
         shz_xmtrx_apply_rotation_zyx(z, y, x);
     }
 
+    //! C++ wrapper around shz_xmtrx_apply_rotation_zxy().
+    SHZ_FORCE_INLINE static void apply_rotation_zxy(float z, float x, float y) noexcept {
+        shz_xmtrx_apply_rotation_zxy(z, x, y);
+    }
+
     //! C++ wrapper around shz_xmtrx_apply_rotation_yxz().
     SHZ_FORCE_INLINE static void apply_rotation_yxz(float y, float x, float z) noexcept {
         shz_xmtrx_apply_rotation_yxz(y, x, z);
@@ -430,6 +440,11 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_rotate_zyx().
     SHZ_FORCE_INLINE static void rotate_zyx(float z, float y, float x) noexcept {
         shz_xmtrx_rotate_zyx(z, y, x);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_zxy().
+    SHZ_FORCE_INLINE static void rotate_zxy(float z, float x, float y) noexcept {
+        shz_xmtrx_rotate_zxy(z, x, y);
     }
 
     //! C++ wrapper around shz_xmtrx_rotate_yxz().

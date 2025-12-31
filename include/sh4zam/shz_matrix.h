@@ -137,6 +137,12 @@ SHZ_INLINE void shz_mat4x4_init_rotation_xyz(shz_mat4x4_t* mat, float xAngle, fl
 */
 SHZ_INLINE void shz_mat4x4_init_rotation_zyx(shz_mat4x4_t* mat, float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
 
+/*! Initializes the given matrix to a 3D rotation matrix from the intrinsic rotation created by the given Tait-Bryan Z-X-Y angles.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_rotation_zxy(shz_mat4x4_t* mat, float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT;
+
 /*! Initializes the given matrix to a 3D rotation matrix from the intrinsic rotation created by the given Tait-Bryan Y-X-Z angles.
 
     \warning This routine clobbers XMTRX.
@@ -237,6 +243,14 @@ SHZ_INLINE void shz_mat4x4_apply_rotation_xyz(shz_mat4x4_t* mat, float xAngle, f
 */
 SHZ_INLINE void shz_mat4x4_apply_rotation_zyx(shz_mat4x4_t* mat, float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
 
+/*! Rotates the given transform matrix about the Z axis, then the X axis, then the Y axis by the given angles in radians.
+
+    Multiplies and accumulates the given matrix with the 3D rotation matrix formed from the intrinsic rotation created by the given Tait-Bryan Z-Y-X angles.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_rotation_zxy(shz_mat4x4_t* mat, float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT;
+
 /*! Rotates the given transform matrix about the Y axis, then the X axis, then the Z axis by the given angles in radians.
 
     Multiplies and accumulates the given matrix with the 3D rotation matrix formed from the intrinsic rotation created by the given Tait-Bryan Y-X-Z angles.
@@ -321,6 +335,12 @@ SHZ_FORCE_INLINE void shz_mat4x4_rotate_xyz(shz_mat4x4_t* mat, float xRadians, f
     \warning This routine clobbers XMTRX.
 */
 SHZ_FORCE_INLINE void shz_mat4x4_rotate_zyx(shz_mat4x4_t* mat, float zRadians, float yRadians, float xRadians) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by 3D rotation matrices about the Z then X then Y axes.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_FORCE_INLINE void shz_mat4x4_rotate_zxy(shz_mat4x4_t* mat, float zRadians, float xRadians, float yRadians) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates \p mat by 3D rotation matrices about the Y then X then Z axes.
 

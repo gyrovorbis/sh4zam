@@ -93,11 +93,15 @@ namespace shz {
         }
 
         SHZ_FORCE_INLINE void init_rotation_zyx(float zAngle, float yAngle, float xAngle) noexcept {
-            shz_mat4x4_init_rotation_xyz(this, zAngle, yAngle, xAngle);
+            shz_mat4x4_init_rotation_zyx(this, zAngle, yAngle, xAngle);
+        }
+
+        SHZ_FORCE_INLINE void init_rotation_zxy(float zAngle, float xAngle, float yAngle) noexcept {
+            shz_mat4x4_init_rotation_zxy(this, zAngle, xAngle, yAngle);
         }
 
         SHZ_FORCE_INLINE void init_rotation_yxz(float yAngle, float xAngle, float zAngle) noexcept {
-            shz_mat4x4_init_rotation_xyz(this, yAngle, xAngle, zAngle);
+            shz_mat4x4_init_rotation_yxz(this, yAngle, xAngle, zAngle);
         }
 
         //! C++ wrapper for shz_mat4x4_init_rotation().
@@ -146,11 +150,15 @@ namespace shz {
         }
 
         SHZ_FORCE_INLINE void apply_rotation_zyx(float zAngle, float yAngle, float xAngle) noexcept {
-            shz_mat4x4_apply_rotation_xyz(this, zAngle, yAngle, xAngle);
+            shz_mat4x4_apply_rotation_zyx(this, zAngle, yAngle, xAngle);
+        }
+
+        SHZ_FORCE_INLINE void apply_rotation_zxy(float zAngle, float xAngle, float yAngle) noexcept {
+            shz_mat4x4_apply_rotation_zxy(this, zAngle, xAngle, yAngle);
         }
 
         SHZ_FORCE_INLINE void apply_rotation_yxz(float yAngle, float xAngle, float zAngle) noexcept {
-            shz_mat4x4_apply_rotation_xyz(this, yAngle, xAngle, zAngle);
+            shz_mat4x4_apply_rotation_yxz(this, yAngle, xAngle, zAngle);
         }
 
         SHZ_FORCE_INLINE void apply_rotation(float angle, float x, float y, float z) noexcept {
@@ -187,6 +195,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE void rotate_zyx(float zRadians, float yRadians, float xRadians) noexcept {
             shz_mat4x4_rotate_zyx(this, zRadians, yRadians, xRadians);
+        }
+
+        SHZ_FORCE_INLINE void rotate_zxy(float zRadians, float xRadians, float yRadians) noexcept {
+            shz_mat4x4_rotate_zxy(this, zRadians, xRadians, yRadians);
         }
 
         SHZ_FORCE_INLINE void rotate_yxz(float yRadians, float xRadians, float zRadians) noexcept {

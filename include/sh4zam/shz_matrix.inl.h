@@ -50,6 +50,11 @@ SHZ_INLINE void shz_mat4x4_init_rotation_zyx(shz_mat4x4_t* mat, float zAngle, fl
     shz_xmtrx_store_4x4(mat);
 }
 
+SHZ_INLINE void shz_mat4x4_init_rotation_zxy(shz_mat4x4_t* mat, float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_zxy(zAngle, xAngle, yAngle);
+    shz_xmtrx_store_4x4(mat);
+}
+
 SHZ_INLINE void shz_mat4x4_init_rotation_yxz(shz_mat4x4_t* mat, float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT {
     shz_xmtrx_init_rotation_yxz(yAngle, xAngle, zAngle);
     shz_xmtrx_store_4x4(mat);
@@ -154,6 +159,12 @@ SHZ_INLINE void shz_mat4x4_apply_rotation_zyx(shz_mat4x4_t* mat, float zAngle, f
     shz_xmtrx_store_4x4(mat);
 }
 
+SHZ_INLINE void shz_mat4x4_apply_rotation_zxy(shz_mat4x4_t* mat, float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_apply_rotation_zxy(zAngle, xAngle, yAngle);
+    shz_xmtrx_store_4x4(mat);
+}
+
 SHZ_INLINE void shz_mat4x4_apply_rotation_yxz(shz_mat4x4_t* mat, float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(mat);
     shz_xmtrx_apply_rotation_yxz(yAngle, xAngle, zAngle);
@@ -230,6 +241,12 @@ SHZ_FORCE_INLINE void shz_mat4x4_rotate_xyz(shz_mat4x4_t* mat, float xRadians, f
 SHZ_FORCE_INLINE void shz_mat4x4_rotate_zyx(shz_mat4x4_t* mat, float zRadians, float yRadians, float xRadians) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(mat);
     shz_xmtrx_rotate_zyx(zRadians, yRadians, xRadians);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_FORCE_INLINE void shz_mat4x4_rotate_zxy(shz_mat4x4_t* mat, float zRadians, float xRadians, float yRadians) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_zxy(zRadians, xRadians, yRadians);
     shz_xmtrx_store_4x4(mat);
 }
 

@@ -265,6 +265,15 @@ SHZ_INLINE void shz_xmtrx_init_rotation_xyz(float xAngle, float yAngle, float zA
 */
 SHZ_INLINE void shz_xmtrx_init_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
 
+/*! Initializes XMTRX to be a 3D Z-X-Y rotation matrix, with the corresponding angles given in radians.
+
+    \note
+    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
+
+    \sa shz_xmtrx_init_rotation_zyx(), shz_xmtrx_init_rotation_yxz()
+*/
+SHZ_INLINE void shz_xmtrx_init_rotation_zxy(float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT;
+
 /*! Initializes XMTRX to be a 3D Y-X-Z rotation matrix, with the corresponding angles given in radians.
 
     \note
@@ -435,6 +444,9 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_xyz(float xRadians, float yRadians, float
 
 //! Multiplies and accumulates XMTRX by 3D rotation matrices about the Z then Y then X axes.
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_zyx(float zRadians, float yRadians, float xRadians) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX by 3D rotation matrices about the Z then X then Y axes.
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_zxy(float zRadians, float xRadians, float yRadians) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates XMTRX by 3D rotation matrices about the Y then X then Z axes.
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_yxz(float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT;
