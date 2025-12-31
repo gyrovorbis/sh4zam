@@ -504,8 +504,8 @@ void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
 
 //! @}
 
-/*! \name  Vector Transformations
-    \brief Transforming vectors against XMTRX.
+/*! \name  Transformations
+    \brief Transforming vectors and points against XMTRX.
     @{
 */
 
@@ -515,8 +515,14 @@ SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4(shz_vec4_t vec) SHZ_NOEXCEP
 //! Returns the 3D vector that is the result of transforming \p vec by XMTRX.
 SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_vec3(shz_vec3_t vec) SHZ_NOEXCEPT;
 
-//! Returns the 2D vector that is the result of transformin g\p vec by XMTRX.
+//! Returns the 2D vector that is the result of transforming \p vec by XMTRX.
 SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_vec2(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns the 2D point that is the result of transforming \p pt by XMTRX.
+SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_point2(shz_vec2_t pt) SHZ_NOEXCEPT;
+
+//! Returns the 3D point that is the result of transforming \p pt by XMTRX.
+SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_point3(shz_vec3_t pt) SHZ_NOEXCEPT;
 
 //! @}
 

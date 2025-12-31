@@ -284,7 +284,7 @@ SHZ_INLINE void shz_mat4x4_copy(shz_mat4x4_t* dst, const shz_mat4x4_t* src) SHZ_
     : "m" (*src));
 }
 
-SHZ_INLINE shz_vec3_t shz_mat4x4_trans_vec3(const shz_mat4x4_t* m, shz_vec3_t v) SHZ_NOEXCEPT {
+SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3(const shz_mat4x4_t* m, shz_vec3_t v) SHZ_NOEXCEPT {
     shz_vec3_t out;
 
     register float fr0 asm("fr0") = v.x;
@@ -337,7 +337,7 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_trans_vec3(const shz_mat4x4_t* m, shz_vec3_t v)
     return out;
 }
 
-SHZ_INLINE shz_vec4_t shz_mat4x4_trans_vec4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {
+SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {
     SHZ_PREFETCH(mat);
 
     shz_vec4_t* v = &in;
@@ -413,6 +413,10 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_trans_vec4(const shz_mat4x4_t* mat, shz_vec4_t 
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 
     return in;
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_point3(const shz_mat4x4_t* mat, shz_vec3_t pt) SHZ_NOEXCEPT {
+    return shz_mat4x4_transform_vec4(mat, shz_vec3_vec4(pt, 1.0f)).xyz;
 }
 
 SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {

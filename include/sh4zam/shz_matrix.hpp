@@ -202,11 +202,15 @@ namespace shz {
         }
 
         SHZ_FORCE_INLINE vec3 transform(vec3 in) const noexcept {
-            return shz_mat4x4_trans_vec3(this, in);
+            return shz_mat4x4_transform_vec3(this, in);
         }
 
         SHZ_FORCE_INLINE vec4 transform(vec4 in) const noexcept {
-            return shz_mat4x4_trans_vec4(this, in);
+            return shz_mat4x4_transform_vec4(this, in);
+        }
+
+        SHZ_FORCE_INLINE vec3 transform_point(vec3 pt) const noexcept {
+            return shz_mat4x4_transform_point3(this, pt);
         }
 
         SHZ_FORCE_INLINE quat to_quat() const noexcept {

@@ -471,8 +471,8 @@ struct xmtrx {
 
 //! @}
 
-/*! \name  Vector Transformations
-    \brief Transforming vectors against XMTRX.
+/*! \name  Transformations
+    \brief Transforming vectors and points against XMTRX.
     @{
 */
 
@@ -489,6 +489,16 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_transform_vec2().
     SHZ_FORCE_INLINE static vec2 transform(shz_vec2_t in) noexcept {
         return shz_xmtrx_transform_vec2(in);
+    }
+
+    //! C++ wrapper around shz_xmtrx_transform_point3().
+    SHZ_FORCE_INLINE static vec3 transform_point(shz_vec3_t pt) noexcept {
+        return shz_xmtrx_transform_point3(pt);
+    }
+
+    //! C++ wrapper around shz_xmtrx_transform_point2().
+    SHZ_FORCE_INLINE static vec2 transform_point(shz_vec2_t pt) noexcept {
+        return shz_xmtrx_transform_point2(pt);
     }
 
 //! @}
