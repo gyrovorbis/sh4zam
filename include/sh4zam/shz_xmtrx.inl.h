@@ -2599,7 +2599,7 @@ SHZ_INLINE void shz_xmtrx_scale(float x, float y, float z) SHZ_NOEXCEPT {
 
 
 SHZ_INLINE void shz_xmtrx_rotate_x(float x) SHZ_NOEXCEPT {
-    float register x_ asm("fr4") = x * SHZ_FSCA_RAD_FACTOR;
+    register float x_ asm("fr4") = x * SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    fr4, fpul
         fsca    fpul, dr0
@@ -2639,7 +2639,7 @@ SHZ_INLINE void shz_xmtrx_rotate_x(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE void shz_xmtrx_rotate_y(float y) SHZ_NOEXCEPT {
-    float register y_ asm ("fr4") = y * SHZ_FSCA_RAD_FACTOR;
+    register float y_ asm ("fr4") = y * SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    %0, fpul
         fsca    fpul, dr0
@@ -2679,7 +2679,7 @@ SHZ_INLINE void shz_xmtrx_rotate_y(float y) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE void shz_xmtrx_rotate_z(float z) SHZ_NOEXCEPT {
-    float register z_ asm("fr4") = z * SHZ_FSCA_RAD_FACTOR;
+    register float z_ asm("fr4") = z * SHZ_FSCA_RAD_FACTOR;
     asm volatile(R"(
         ftrc    %0, fpul
         fsca    fpul, dr4
