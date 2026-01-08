@@ -20,7 +20,7 @@
  *  \brief  Miscellaneous function-like macros
  *  @{
  */
- //! Stringifies an expression \i after preprocessing
+ //! Stringifies an expression _after_ preprocessing
 #define SHZ_STRINGIFY(a)        SHZ_STRINGIFY_(a)
 //! Returns the number of elements within a statically sized array
 #define SHZ_COUNT_OF(array)    (sizeof(array) / sizeof((array)[0]))

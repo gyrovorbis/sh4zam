@@ -363,6 +363,17 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_xyz(float xAngle, float yAngle, float z
 */
 SHZ_INLINE void shz_xmtrx_apply_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
 
+/*! Multiplies and accumulates XMTRX by a 3D Z-X-Y rotation matrix, with the corresponding angles given in radians.
+
+    The transform is applied to the inner 3x3 values within XMTRX, preserving the translational components.
+
+    \note
+    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
+
+    \sa shz_xmtrx_apply_rotation_zyx(), shz_xmtrx_apply_rotation_yxz()
+*/
+SHZ_INLINE void shz_xmtrx_apply_rotation_zxy(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
+
 /*! Multiplies and accumulates XMTRX by a 3D Y-X-Z rotation matrix, with the corresponding angles given in radians.
 
     The transform is applied to the inner 3x3 values within XMTRX, preserving the translational components.

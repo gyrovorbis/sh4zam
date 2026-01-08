@@ -4,9 +4,6 @@
  *
  *  This file provides an API offering fast versions of trigonometry functions.
  *
- *  \todo
- *      - shz_atan2f()
- *
  *  \author 2025 Falco Girgis
  *  \author 2025 Paul Cercueil
  *
