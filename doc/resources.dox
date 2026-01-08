@@ -1,0 +1,16 @@
+
+/*! \page  resources Resources
+	\brief           Additional SH4 and optimization resources.
+
+
+    Link | Description
+    -----|------------
+    [Renesas SH Instruction Set Summary](https://shared-ptr.com/sh_insns.html)|Easy-to-navigate instruction set reference for the SuperH processor line.
+    [Dreamcast Compiler Explorer Templates](https://dreamcast.wiki/SH4_in_Compiler_Explorer)|Preconfigured templates for viewing SH4 disassembly from KOS-based C/C++ source code within the web browser.
+    [SH4 Programming Manual](https://0x04.net/~mwk/doc/sh/e602156_sh4.pdf)|Detailed information on the SH4's instruction set.
+    [SH4A Hardware Manual](https://www.renesas.cn/zh/document/mah/sh-4a-core-extended-functions-users-manual-hardware)|Detailed information about the SH4's peripherals and HW.
+    [SH4 C ABI Specification](https://www.st.com/resource/en/reference_manual/rm0197-sh4-generic-and-c-specific-application-binary-interface-stmicroelectronics.pdf)|Documents the C binary interface and calling convention. 
+    [SH4 Pipeline Simulator](https://sh4-sim.dreamcast.wiki/)|Low-level SH4 pipeline simulator for manually scheduling instructions.
+    [Dreamcast.wiki SH4 Optimization Tips](https://dreamcast.wiki/Development#Optimization)|List of useful optimization tips.
+
+*/

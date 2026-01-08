@@ -4,6 +4,7 @@ CMakeLists.txt.user
 *.lib
 *.d
 *.elf
+*.img
 *.log
 build/
 .vscode/
