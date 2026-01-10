@@ -9,7 +9,7 @@ project(sh4zam
         VERSION      ${SHZ_VERSION}
         DESCRIPTION  "Fast math library for the Sega Dreamcast's SH4 CPU"
         HOMEPAGE_URL "sh4zam.falcogirgis.com"
-        LANGUAGES    ASM C CXX)
+	LANGUAGES    C CXX ASM)
 
 # Compiler min version check broken with DreamSDK!
 #set(GCC_VERSION_MIN "12.0")
