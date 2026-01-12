@@ -6,9 +6,11 @@
     This file provides the private implementation for all inlined funtions
     declared within the Matrix C API.
 
-    \author    2025 Falco Girgis
+    \author    2025, 2026 Falco Girgis
     \copyright MIT License
 */
+
+#include <stdalign.h>
 
 SHZ_INLINE void shz_mat4x4_init_identity(shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     shz_xmtrx_init_identity();
