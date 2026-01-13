@@ -73,6 +73,18 @@ As a precaution, SH4ZAM adds assert() statements around inline ASM routines whic
 FP precision mode upon function entry. This allows for at least catching such inconsistencies in debug builds for the
 cost of an extra FP control register check for each such routine while in debug mode.
 
+### Double Promotion
+It is important to be aware of the circumstances under which single precision floating-point values get promoted to
+double-precision floating point values, as this is an insidious way to lose performance without realizing it. ALWAYS
+use the `f` suffix with floating-point literals, such as `10.0f` rather than `10.0`, which is a `double`, not a `float`.
+
+Beware of performing binary arithmetic between a `float` by a `uint32_t` value, as the SH4's integer-to-float conversion
+instruction, `LDS`, is only able to convert *signed* integers to floats. This means that math between a `float` and a 
+32-bit *unsigned* integer must take a slow path where both values get promoted to `double`-precision first... However,
+since the SH4 has an instruction, `extu.w`, to extend a 16-bit unsigned integer to a 32-bit signed integer, performing
+arithmetic between a `float` and a `uint16_t` does not have the same performance penalty and does not result in `double`
+promotions.
+
 ## Non-Debug Builds
 KallistiOS, SH4ZAM, and many pieces of software use assert() to add extra validation and sanity checks to APIs, so that
 potential bugs can be caught immediately in debug builds for the price of a little bit of performance. When profiling and
