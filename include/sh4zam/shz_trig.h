@@ -162,7 +162,7 @@ SHZ_INLINE float shz_acotf(float x) SHZ_NOEXCEPT;
 
 //! @}
 
-#include "shz_trig.inl.h"
+#include "inline/shz_trig.inl.h"
 
 SHZ_DECLS_END
 

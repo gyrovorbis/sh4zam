@@ -184,7 +184,7 @@ SHZ_INLINE float shz_atan2f(float y, float x) SHZ_NOEXCEPT {
 
 
 SHZ_INLINE float shz_asinf(float x) SHZ_NOEXCEPT {
-    return shz_atanf(x * shz_inv_sqrtf(1.0f - (x * x)));
+    return shz_atanf(x * shz_inv_sqrtf_fsrra(1.0f - (x * x)));
 }
 
 SHZ_INLINE float shz_acosf(float x) SHZ_NOEXCEPT {

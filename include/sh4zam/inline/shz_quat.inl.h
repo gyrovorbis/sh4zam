@@ -78,7 +78,7 @@ SHZ_FORCE_INLINE float shz_quat_magnitude(shz_quat_t quat) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_quat_magnitude_inv(shz_quat_t quat) SHZ_NOEXCEPT {
-    return shz_inv_sqrtf(shz_quat_magnitude_sqr(quat));
+    return shz_inv_sqrtf_fsrra(shz_quat_magnitude_sqr(quat));
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_normalize(shz_quat_t quat) SHZ_NOEXCEPT {
@@ -89,7 +89,7 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_normalize_safe(shz_quat_t quat) SHZ_NOEXCEP
     float mag = shz_quat_magnitude_sqr(quat);
 
     return (mag != 0.0f)?
-        shz_quat_scale(quat, shz_inv_sqrtf(mag)) :
+        shz_quat_scale(quat, shz_inv_sqrtf_fsrra(mag)) :
         shz_quat_identity();
 }
 

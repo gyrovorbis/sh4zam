@@ -9,10 +9,9 @@
  *  \todo
  *      - Fourier transforms
  *      - Arbitrarily-sized matrix routines
- *      - Outer products
  *      - shz_rotate_quat()
  *
- *  \author    2025 Falco Girgis
+ *  \author    2025, 2026 Falco Girgis
  *  \copyright MIT License
  */
 
@@ -303,6 +302,21 @@ struct xmtrx {
         shz_xmtrx_init_outer_product(a, b);
     }
 
+    //! C++ wrapper around shz_xmtx_init_screen().
+    SHZ_FORCE_INLINE static void init_screen(float width, float height) noexcept {
+        shz_xmtrx_init_screen(width, height);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_permutation_wxyz().
+    SHZ_FORCE_INLINE static void init_permutation_wxyz() noexcept {
+        shz_xmtrx_init_permutation_wxyz();
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_permutation_yzwx().
+    SHZ_FORCE_INLINE static void init_permutation_yzwx() noexcept {
+        shz_xmtrx_init_permutation_yzwx();
+    }
+
 //! @}
 
 /*! \name  Apply Operation
@@ -323,6 +337,51 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_apply_unaligned_4x4().
     SHZ_FORCE_INLINE static void apply(const std::array<float, 16> array) noexcept {
         shz_xmtrx_apply_unaligned_4x4(array.data());
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_transpose_4x4().
+    SHZ_FORCE_INLINE static void apply_transpose(const shz_mat4x4_t& mat4) noexcept {
+        shz_xmtrx_apply_transpose_4x4(&mat4);
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_transpose_unaligned_4x4().
+    SHZ_FORCE_INLINE static void apply_transpose(const float cArray[16]) noexcept {
+        shz_xmtrx_apply_transpose_unaligned_4x4(cArray);
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_transpose_unaligned_4x4().
+    SHZ_FORCE_INLINE static void apply_transpose(const std::array<float, 16> array) noexcept {
+        shz_xmtrx_apply_transpose_unaligned_4x4(array.data());
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_reverse_4x4().
+    SHZ_FORCE_INLINE static void apply_reverse(const shz_mat4x4_t& mat4) noexcept {
+        shz_xmtrx_apply_reverse_4x4(&mat4);
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_reverse_unaligned_4x4().
+    SHZ_FORCE_INLINE static void apply_reverse(const float cArray[16]) noexcept {
+        shz_xmtrx_apply_reverse_unaligned_4x4(cArray);
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_reverse_unaligned_4x4().
+    SHZ_FORCE_INLINE static void apply_reverse(const std::array<float, 16> array) noexcept {
+        shz_xmtrx_apply_reverse_unaligned_4x4(array.data());
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_reverse_transpose_4x4().
+    SHZ_FORCE_INLINE static void apply_reverse_transpose(const shz_mat4x4_t& mat4) noexcept {
+        shz_xmtrx_apply_reverse_transpose_4x4(&mat4);
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_reverse_transpose_unaligned_4x4().
+    SHZ_FORCE_INLINE static void apply_reverse_transpose(const float cArray[16]) noexcept {
+        shz_xmtrx_apply_reverse_transpose_unaligned_4x4(cArray);
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_reverse_transpose_unaligned_4x4().
+    SHZ_FORCE_INLINE static void apply_reverse_transpose(const std::array<float, 16> array) noexcept {
+        shz_xmtrx_apply_reverse_transpose_unaligned_4x4(array.data());
     }
 
     //! C++ wrapper around shz_xmtrx_apply_translation().

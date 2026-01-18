@@ -457,13 +457,41 @@ GBL_TEST_CASE(init_symmetric_skew)
                    0.0f, 0.0f, 0.0f, 1.0f }));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(init_screen)
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_permutation_wxyz)
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_permutation_yzwx)
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(init_outer_product)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_4x4)
+    shz::xmtrx::init_identity();
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_unaligned_4x4)
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_transpose_4x4)
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_transpose_unaligned_4x4)
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_reverse_4x4)
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_reverse_unaligned_4x4)
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_reverse_transpose_4x4)
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_reverse_transpose_unaligned_4x4)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_translation)
@@ -517,6 +545,24 @@ GBL_TEST_CASE(apply_rotation_yxz)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_rotation_quat)
+    shz::xmtrx::init_identity();
+    shz::xmtrx::apply_rotation_quat({ 0.5f, 0.5f, 0.5f, 0.5f });
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                                {
+                                    0.0f, 0.0f, 1.0f, 0.0f,
+                                    1.0f, 0.0f, 0.0f, 0.0f,
+                                    0.0f, 1.0f, 0.0f, 0.0f,
+                                    0.0f, 0.0f, 0.0f, 1.0f }));
+
+    shz::xmtrx::init_identity();
+    shz::xmtrx::apply_rotation_quat({ 0.7071068f, 0.0f, 0.0f, 0.7071068f });
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                                {
+                                    0.0f, -1.0f, 0.0f, 0.0f,
+                                    1.0f, 0.0f, 0.0f, 0.0f,
+                                    0.0f, 0.0f, 1.0f, 0.0f,
+                                    0.0f, 0.0f, 0.0f, 1.0f }));
+
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_apply_store_unaligned_4x4)
@@ -579,8 +625,17 @@ GBL_TEST_REGISTER(read_write_registers,
                   init_lower_diagonal,
                   init_symmetric_skew,
                   init_outer_product,
+                  init_screen,
+                  init_permutation_wxyz,
+                  init_permutation_yzwx,
                   apply_4x4,
                   apply_unaligned_4x4,
+                  apply_transpose_4x4,
+                  apply_transpose_unaligned_4x4,
+                  apply_reverse_4x4,
+                  apply_reverse_unaligned_4x4,
+                  apply_reverse_transpose_4x4,
+                  apply_reverse_transpose_unaligned_4x4,
                   apply_translation,
                   apply_scale,
                   apply_rotation_x,

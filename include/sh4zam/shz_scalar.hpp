@@ -5,7 +5,7 @@
  *  This file provides a collection of general-purpose math routines for
  *  individual scalar values in C++23.
  *
- *  \author    2025 Falco Girgis
+ *  \author    2025, 2026 Falco Girgis
  *  \copyright MIT License
  */
 
@@ -82,6 +82,8 @@ namespace shz {
     constexpr auto lerpf             = shz_lerpf;
     //! C++ alias for shz_barycentric_lerpf().
     constexpr auto barycentric_lerpf = shz_barycentric_lerpf;
+    //! C++ alias for shz_quadratic_roots().
+    constexpr auto quadratic_roots   = shz_quadratic_roots;
     //! C++ alias for shz_randf().
     constexpr auto randf             = shz_randf;
     //! C++ alias for shz_randf_range()
@@ -92,20 +94,22 @@ namespace shz {
      *  \brief Routines built around fast reciprocal square root.
      *  @{
      */
-    //! C++ alias for shz_sqrtf().
-    constexpr auto sqrtf       = shz_sqrtf;
-    //! C++ alias for shz_sqrtf_fsrra().
-    constexpr auto sqrtf_fsrra = shz_sqrtf_fsrra;
+    //! C++ alias for shz_inv_sqrtf_fsrra().
+    constexpr auto inv_sqrtf_fsrra = shz_inv_sqrtf_fsrra;
     //! C++ alias for shz_inv_sqrtf().
-    constexpr auto inv_sqrtf   = shz_inv_sqrtf;
-    //! C++ alias for shz_invf().
-    constexpr auto invf        = shz_invf;
+    constexpr auto inv_sqrtf       = shz_inv_sqrtf;
+    //! C++ alias for shz_sqrtf_fsrra().
+    constexpr auto sqrtf_fsrra     = shz_sqrtf_fsrra;
+    //! C++ alias for shz_sqrtf().
+    constexpr auto sqrtf           = shz_sqrtf;
     //! C++ alias for shz_invf_fsrra().
-    constexpr auto invf_fsrra  = shz_invf_fsrra;
-    //! C++ alias for shz_divf().
-    constexpr auto divf        = shz_divf;
+    constexpr auto invf_fsrra      = shz_invf_fsrra;
+    //! C++ alias for shz_invf().
+    constexpr auto invf            = shz_invf;
     //! C++ alias for shz_divf_fsrra().
-    constexpr auto divf_fsrra  = shz_divf_fsrra;
+    constexpr auto divf_fsrra      = shz_divf_fsrra;
+    //! C++ alias for shz_divf().
+    constexpr auto divf            = shz_divf;
     //! @}
 
     /*! \name  FIPR

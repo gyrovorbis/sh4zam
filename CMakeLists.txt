@@ -9,7 +9,7 @@ project(sh4zam
         VERSION      ${SHZ_VERSION}
         DESCRIPTION  "Fast math library for the Sega Dreamcast's SH4 CPU"
         HOMEPAGE_URL "sh4zam.falcogirgis.com"
-	LANGUAGES    C CXX ASM)
+        LANGUAGES    C CXX ASM)
 
 # Compiler min version check broken with DreamSDK!
 #set(GCC_VERSION_MIN "12.0")
@@ -40,30 +40,32 @@ set(SHZ_INCLUDES
     include/sh4zam/shz_circle.hpp
     include/sh4zam/shz_trig.h
     include/sh4zam/shz_trig.hpp
-    include/sh4zam/shz_trig.inl.h
+    include/sh4zam/inline/shz_trig.inl.h
     include/sh4zam/shz_scalar.h
     include/sh4zam/shz_scalar.hpp
-    include/sh4zam/shz_scalar.inl.h
+    include/sh4zam/inline/shz_scalar.inl.h
     include/sh4zam/shz_vector.h
     include/sh4zam/shz_vector.hpp
-    include/sh4zam/shz_vector.inl.h
+    include/sh4zam/inline/shz_vector.inl.h
     include/sh4zam/shz_xmtrx.h
     include/sh4zam/shz_xmtrx.hpp
-    include/sh4zam/shz_xmtrx.inl.h
+    include/sh4zam/inline/shz_xmtrx.inl.h
     include/sh4zam/shz_matrix.h
     include/sh4zam/shz_matrix.hpp
-    include/sh4zam/shz_matrix.inl.h
+    include/sh4zam/inline/shz_matrix.inl.h
     include/sh4zam/shz_quat.h
     include/sh4zam/shz_quat.hpp
-    include/sh4zam/shz_quat.inl.h
+    include/sh4zam/inline/shz_quat.inl.h
     include/sh4zam/shz_mem.h
     include/sh4zam/shz_mem.hpp
-    include/sh4zam/shz_mem.inl.h
+    include/sh4zam/inline/shz_mem.inl.h
     include/sh4zam/shz_fpscr.h
     include/sh4zam/shz_sh4zam.h
     include/sh4zam/shz_sh4zam.hpp)
 
 add_library(sh4zam STATIC ${SHZ_SOURCES})
+
+target_compile_features(sh4zam PUBLIC c_std_23 cxx_std_23)
 
 set_target_properties(sh4zam PROPERTIES
                       PUBLIC_HEADER "${SHZ_INCLUDES}")

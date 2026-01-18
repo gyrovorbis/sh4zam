@@ -169,6 +169,10 @@ namespace shz {
             shz_mat4x4_apply_rotation_quat(this, q);
         }
 
+        SHZ_FORCE_INLINE void set_translation(float x, float y, float z) noexcept {
+            shz_mat4x4_set_translation(this, x, y, z);
+        }
+
         SHZ_FORCE_INLINE void translate(float x, float y, float z) noexcept {
             shz_mat4x4_translate(this, x, y, z);
         }

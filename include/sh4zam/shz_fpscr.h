@@ -10,7 +10,7 @@
         - shz_frchg_scoped()
         - C++ bindings
 
-    \author    2025 Falco Girgis
+    \author    2025, 2026 Falco Girgis
     \copyright MIT License
 */
 

@@ -21,7 +21,7 @@ shz_quat_t shz_quat_from_look_axis(shz_vec3_t forward, shz_vec3_t up) SHZ_NOEXCE
 	mat.up  	= shz_vec3_normalize(shz_vec3_cross(mat.forward, mat.left));
 
 	float s = 1.0f + mat.elem2D[0][0] + mat.elem2D[1][1] + mat.elem2D[2][2];
-	float i = shz_inv_sqrtf(s) * 2.0f;
+	float i = shz_inv_sqrtf_fsrra(s) * 2.0f;
 	
 	return shz_quat_init(
 		s * i * 0.25f,

@@ -264,7 +264,6 @@ SHZ_INLINE void shz_mat4x4_rotate(shz_mat4x4_t* mat, float radians, float xAxis,
     shz_xmtrx_store_4x4(mat);
 }
 
-
 SHZ_INLINE void shz_mat4x4_copy(shz_mat4x4_t* dst, const shz_mat4x4_t* src) SHZ_NOEXCEPT {
     asm volatile(R"(
         fschg
@@ -442,7 +441,7 @@ SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 	float f, s, m;
 
 	if((f = mat->up.y + mat->left.x + mat->pos.z) >= 0.0f) {
-		s = shz_inv_sqrtf(f + 1.0f);
+		s = shz_inv_sqrtf_fsrra(f + 1.0f);
 		m = 0.5f * s;
 		return shz_quat_init(
 			shz_divf_fsrra(0.5f, s),
@@ -453,7 +452,7 @@ SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 	}
 
 	if((f = mat->left.x - mat->up.y - mat->pos.z) >= 0.0f) {
-		s = shz_inv_sqrtf(f + 1.0f);
+		s = shz_inv_sqrtf_fsrra(f + 1.0f);
 		m = 0.5f * s;
 		return shz_quat_init(
 			(mat->up.z - mat->pos.y) * m,
@@ -464,7 +463,7 @@ SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 	}
 
 	if ((f = mat->up.y - mat->left.x - mat->pos.z) >= 0.0f) {
-		s = shz_inv_sqrtf(f + 1.0f);
+		s = shz_inv_sqrtf_fsrra(f + 1.0f);
 		m = 0.5f * s;
 		return shz_quat_init(
 			(mat->pos.x - mat->left.z) * m,
@@ -475,7 +474,7 @@ SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 	}
 
 	f = mat->pos.z - (mat->up.y + mat->left.x);
-	s = shz_inv_sqrtf(f + 1.0f);
+	s = shz_inv_sqrtf_fsrra(f + 1.0f);
 	m = 0.5f * s;
 	return shz_quat_init(
 		(mat->left.y - mat->up.x) * m,

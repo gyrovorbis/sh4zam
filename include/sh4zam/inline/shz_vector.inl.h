@@ -15,7 +15,7 @@
  *  \copyright MIT License
  */
 
- #include "shz_mem.h"
+ #include "../shz_mem.h"
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_init(float x, float y) SHZ_NOEXCEPT {
     return (shz_vec2_t){ .x = x, .y = y };
@@ -155,15 +155,15 @@ SHZ_FORCE_INLINE float shz_vec4_magnitude(shz_vec4_t vec) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_vec2_magnitude_inv(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return shz_inv_sqrtf(shz_vec2_magnitude_sqr(vec));
+    return shz_inv_sqrtf_fsrra(shz_vec2_magnitude_sqr(vec));
 }
 
 SHZ_FORCE_INLINE float shz_vec3_magnitude_inv(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_inv_sqrtf(shz_vec3_magnitude_sqr(vec));
+    return shz_inv_sqrtf_fsrra(shz_vec3_magnitude_sqr(vec));
 }
 
 SHZ_FORCE_INLINE float shz_vec4_magnitude_inv(shz_vec4_t vec) SHZ_NOEXCEPT {
-    return shz_inv_sqrtf(shz_vec4_magnitude_sqr(vec));
+    return shz_inv_sqrtf_fsrra(shz_vec4_magnitude_sqr(vec));
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_normalize(shz_vec2_t vec) SHZ_NOEXCEPT {
@@ -182,7 +182,7 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_normalize_safe(shz_vec2_t vec) SHZ_NOEXCEPT
     float mag = shz_vec2_magnitude_sqr(vec);
 
     return (mag > 0.0f)?
-        shz_vec2_scale(vec, shz_inv_sqrtf(mag)) :
+        shz_vec2_scale(vec, shz_inv_sqrtf_fsrra(mag)) :
         shz_vec2_init(0.0f, 0.0f);
 }
 
@@ -190,7 +190,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_normalize_safe(shz_vec3_t vec) SHZ_NOEXCEPT
     float mag = shz_vec3_magnitude_sqr(vec);
 
     return (mag > 0.0f)?
-        shz_vec3_scale(vec, shz_inv_sqrtf(mag)) :
+        shz_vec3_scale(vec, shz_inv_sqrtf_fsrra(mag)) :
         shz_vec3_init(0.0f, 0.0f, 0.0f);
 }
 
@@ -198,7 +198,7 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_normalize_safe(shz_vec4_t vec) SHZ_NOEXCEPT
     float mag = shz_vec4_magnitude_sqr(vec);
 
     return (mag > 0.0f)?
-        shz_vec4_scale(vec, shz_inv_sqrtf(mag)) :
+        shz_vec4_scale(vec, shz_inv_sqrtf_fsrra(mag)) :
         shz_vec4_init(0.0f, 0.0f, 0.0f, 0.0f);
 }
 

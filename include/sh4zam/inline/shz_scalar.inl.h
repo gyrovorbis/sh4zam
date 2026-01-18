@@ -5,7 +5,7 @@
  *
  *  This file provides the inlined implementation of the scalar API.
  *
- *  \author    2025 Falco Girgis
+ *  \author    2025, 2026 Falco Girgis
  *  \author    2025 Paul Cercueil
  *  \copyright MIT License
  */
@@ -94,17 +94,44 @@ SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u,
     return shz_dot6f(a, b, c, w, u, v);
 }
 
-SHZ_FORCE_INLINE float shz_inv_sqrtf(float x) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE bool shz_quadratic_roots(float a, float b, float c,
+                                          float* root1, float* root2) SHZ_NOEXCEPT {
+    const float discriminant = (b * b) - (4.0f * a * c);
+
+    // One real root
+    if(discriminant == 0.0f) {
+        *root1 = *root2 = shz_divf(-b, 2.0f * a);
+        return true;
+
+    // Two real roots
+    } else if(discriminant > 0.0f) {
+        const float denom = shz_invf(2.0f * a);
+
+        *root1 = (-b + shz_sqrtf_fsrra(discriminant)) * denom;
+        *root2 = (-b - shz_sqrtf_fsrra(discriminant)) * denom;
+        return true;
+
+    // Two imaginary roots
+    } else {
+        *root1 = *root2 = 0.0f;
+        return false;
+    }
+}
+
+SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
     asm volatile("fsrra %0" : "+f" (x));
     return x;
 }
 
-SHZ_FORCE_INLINE float shz_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
-    return shz_inv_sqrtf(x) * x;
+SHZ_FORCE_INLINE float shz_inv_sqrtf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return 1.0f / sqrtf(x);
+
+    return (x == 0.0f)? 0.0f : shz_inv_sqrtf_fsrra(x);
 }
 
-SHZ_FORCE_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT {
-    return shz_inv_sqrtf(x * x);
+SHZ_FORCE_INLINE float shz_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
+    return shz_inv_sqrtf_fsrra(x) * x;
 }
 
 SHZ_FORCE_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT {
@@ -114,13 +141,15 @@ SHZ_FORCE_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT {
     return (x == 0.0f)? 0.0f : shz_sqrtf_fsrra(x);
 }
 
-SHZ_FORCE_INLINE float shz_invf(float x) SHZ_NOEXCEPT {
-    float inv;
+SHZ_FORCE_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT {
+    return shz_inv_sqrtf_fsrra(x * x);
+}
 
+SHZ_FORCE_INLINE float shz_invf(float x) SHZ_NOEXCEPT {
     if (__builtin_constant_p(x))
         return 1.0f / x;
 
-    inv = shz_invf_fsrra(x);
+    float inv = shz_invf_fsrra(x);
 
     if (x < 0.0f)
         inv = -inv;
@@ -128,18 +157,18 @@ SHZ_FORCE_INLINE float shz_invf(float x) SHZ_NOEXCEPT {
     return inv;
 }
 
-SHZ_FORCE_INLINE float shz_divf(float num, float denom) SHZ_NOEXCEPT {
-    if(__builtin_constant_p(denom))
-        return num / denom;
-    else
-        return num * shz_invf(denom);
-}
-
 SHZ_FORCE_INLINE float shz_divf_fsrra(float num, float denom) SHZ_NOEXCEPT {
     if(__builtin_constant_p(denom))
         return num / denom;
     else
         return num * shz_invf_fsrra(denom);
+}
+
+SHZ_FORCE_INLINE float shz_divf(float num, float denom) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(denom))
+        return num / denom;
+    else
+        return num * shz_invf(denom);
 }
 
 SHZ_FORCE_INLINE float shz_dot6f(float x1, float y1, float z1,

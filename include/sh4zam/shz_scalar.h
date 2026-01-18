@@ -8,7 +8,7 @@
  *  \todo
  *      - Use FP rounding modes for rounding functionality.
  *
- *  \author    2025 Falco Girgis
+ *  \author    2025, 2026 Falco Girgis
  *  \author    2025 Paul Cercueil
  *  \copyright MIT License
  */
@@ -17,6 +17,7 @@
 #define SHZ_SCALAR_H
 
 #include <math.h>
+#include <stdbool.h>
 
 #include "shz_cdefs.h"
 #include "shz_fpscr.h"
@@ -167,6 +168,9 @@ SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) SHZ_NOEXCEPT;
 //! Returns a value that is barycentrically interpolated between \p a, \p b, and \p c using the given barycentric coordinates, \p u and \p v.
 SHZ_FORCE_INLINE float shz_barycentric_lerpf(float a, float b, float c, float u, float v) SHZ_NOEXCEPT;
 
+//! Uses the quadratic formula with the given coefficients to solve for the two roots, returning `true` if any real roots exist, and `false` if the roots are only imaginary.
+SHZ_FORCE_INLINE bool shz_quadratic_roots(float a, float b, float c, float* root1, float* root2) SHZ_NOEXCEPT;
+
 //! Returns a random floating-point number between `0.0f` and `1.0f`, using and updating the given seed.
 SHZ_FORCE_INLINE float shz_randf(int* seed) SHZ_NOEXCEPT;
 
@@ -180,26 +184,29 @@ SHZ_FORCE_INLINE float shz_randf_range(int* seed, float min, float max) SHZ_NOEX
  *  @{
  */
 
-//! Calculates 1.0f/sqrtf( \p x ), using a fast approximation.
+//! Calculates 1.0f/sqrtf( \p x), using a fast approximation.
+SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra(float x) SHZ_NOEXCEPT;
+
+//! Calculates 1.0f/sqrtf( \p x ), using a fast approximation, while safely protecting against division-by-zero.
 SHZ_FORCE_INLINE float shz_inv_sqrtf(float x) SHZ_NOEXCEPT;
 
-//! Returns the faster approximate square root of the given value, \p x.
+//! Returns the fast approximate square root of the given value, \p x.
 SHZ_FORCE_INLINE float shz_sqrtf_fsrra(float x) SHZ_NOEXCEPT;
 
-//! Takes the inverse of \p p using a very fast approximation, returning a positive result.
-SHZ_FORCE_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT;
-
-//! Calculates the square root of \p x using a fast approximation.
+//! Returns the fast approximate square root of the given value, \p x, safely returning `0.0f` is \p x == `0.0f`.
 SHZ_FORCE_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT;
 
-//! Takes the inverse of \p p using a slighty faster approximation than doing a full division.
+//! Takes the inverse of \p x using a very fast approximation, returning a positive result.
+SHZ_FORCE_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT;
+
+//! Takes the inverse of \p x using a slighty faster approximation than doing a full division, safely handling negative values.
 SHZ_FORCE_INLINE float shz_invf(float x) SHZ_NOEXCEPT;
 
-//! Divides \p num by \p denom using a slightly faster approximation.
-SHZ_FORCE_INLINE float shz_divf(float num, float denom) SHZ_NOEXCEPT;
-
-//! Divides \p num by \p denom using a very fast approximation, returning a positive result.
+//! Divides \p num by \p denom using a very fast approximation, which requires \p denom be a positive value.
 SHZ_FORCE_INLINE float shz_divf_fsrra(float num, float denom) SHZ_NOEXCEPT;
+
+//! Divides \p num by \p denom using a slightly faster approximation, allowing \p denom to be negative.
+SHZ_FORCE_INLINE float shz_divf(float num, float denom) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -247,7 +254,7 @@ SHZ_FORCE_INLINE float shz_expf(float p) SHZ_NOEXCEPT;
 
 //! @}
 
-#include "shz_scalar.inl.h"
+#include "inline/shz_scalar.inl.h"
 
 SHZ_DECLS_END
 
