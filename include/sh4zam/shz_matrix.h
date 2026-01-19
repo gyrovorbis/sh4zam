@@ -20,7 +20,7 @@
         - shz_mat4x4_mult_transpose()
         - shz_mat4x4_mult_unaligned()
 
-    \author    2025 Falco Girgis
+    \author    2025, 2026 Falco Girgis
     \author    2025 Daniel Fairchild
 
     \copyright MIT License
@@ -89,17 +89,46 @@ typedef SHZ_ALIGNAS(8) struct shz_mat4x4 {
    @{
 */
 
-/*! Initializes the given matrix to the identity matrix.
+/*! Initializes the given matrix to the identity matrix as fast as possible.
 
+    \warning This routine will NOT zero out NaNs properly!
     \warning This routine clobbers XMTRX.
+
+    \sa shz_mat4x4_init_identity_safe()
 */
 SHZ_INLINE void shz_mat4x4_init_identity(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
-/*! Initializes the given matrix to a diagonal matrix with the given 4 values.
+/*! Initializes the given matrix to the identity matrix, safely zeroing out NaN values.
+
+    \warning This routine clobbers XMTRX.
+
+    \sa shz_mat4x4_init_identity()
+*/
+SHZ_INLINE void shz_mat4x4_init_identity_safe(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix with all 0s for its element values.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_init_diagonal(shz_mat4x4_t* mat, float x, float y, float z, float w) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_init_zero(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix with all 1s for its element values.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_one(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix with all elements assigned to the given value.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_fill(shz_mat4x4_t* mat, float value) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix to a 3D translation matrix with the given coordinates.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
 
 /*! Initializes the given matrix to a 3D scaling matrix with the given dimensions.
 
@@ -155,13 +184,29 @@ SHZ_INLINE void shz_mat4x4_init_rotation_yxz(shz_mat4x4_t* mat, float yAngle, fl
 */
 SHZ_INLINE void shz_mat4x4_init_rotation(shz_mat4x4_t* mat, float radians, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
 
-/*! Initializes the given matrix to a 3D translation matrix with the given coordinates.
+/*! Initializes the given matrix to a 3D rotation matrix with its orientation given by a quaternion.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_init_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_init_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
 
-SHZ_INLINE void shz_mat4x4_init_mult(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, const shz_mat4x4_t* rhs) SHZ_NOEXCEPT;
+/*! Initializes the given matrix to a diagonal matrix with the given 4 values.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_diagonal(shz_mat4x4_t* mat, float x, float y, float z, float w) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix to an upper diagonal matrix whose nonzero entries have the given value.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_upper_diagonal(shz_mat4x4_t* mat, float col1, shz_vec2_t col2, shz_vec3_t col3, shz_vec4_t col4) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix to a lower diagonal matrix whose nonzero entries have the given value.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_lower_diagonal(shz_mat4x4_t* mat, shz_vec4_t col1, shz_vec3_t col2, shz_vec2_t col3, float col4) SHZ_NOEXCEPT;
 
 /*! Initializes the given matrix to be the symmetric skew of the given 3D vector components.
 
@@ -173,10 +218,29 @@ SHZ_INLINE void shz_mat4x4_init_mult(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs,
 */
 SHZ_INLINE void shz_mat4x4_init_symmetric_skew(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
 
-SHZ_INLINE void shz_mat4x4_set_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
+/*! Initializes the given matrix to be the result from taking the outer product of the two given 4D vectors.
 
-//! Initializes the given matrix to a 3D rotation matrix with its orientation given by a quaternion.
-SHZ_INLINE void shz_mat4x4_init_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_outer_product(shz_mat4x4_t* mat, shz_vec4_t v1, shz_vec4_t v2) SHZ_NOEXCEPT;
+
+/*! Initializes the matrix to to a permutation matrix, which reorders the components of transformed vectors to be in WXYZ order.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_permutation_wxyz(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
+/*! Initializes the matrix to to a permutation matrix, which reorders the components of transformed vectors to be in YZWX order.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_permutation_yzwx(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix to the viewport matrix with the given dimenions.
+
+    \sa This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_screen(shz_mat4x4_t* mat, float width, float height) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -185,17 +249,18 @@ SHZ_INLINE void shz_mat4x4_init_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ
     @{
 */
 
+//! Assigns only the 3D translation-related elements of the given matrix to the given values.
+SHZ_INLINE void shz_mat4x4_set_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+
 //! Assigns only the 3D scale-related elements of the given matrix to the given values.
 SHZ_INLINE void shz_mat4x4_set_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+
+//! Sets just the rotational component of the matrix to the orientation given by a quaternion, keeping the other elements in-tact.
+SHZ_INLINE void shz_mat4x4_set_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
 
 //! Assigns only the 4 elements along the diagonal of the given matrix to the given values.
 SHZ_INLINE void shz_mat4x4_set_diagonal(shz_mat4x4_t* mat, float x, float y, float z, float w) SHZ_NOEXCEPT;
 
-//! Assigns only the 3D translation-related elements of the given matrix to the given values.
-SHZ_INLINE void shz_mat4x4_set_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
-
-//! Sets just the rotational component of the matrix to the orientation given by a quaternion, keeping the other elements in-tact.
-SHZ_INLINE void shz_mat4x4_set_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
 //! @}
 
 /*! \name  Applying
@@ -208,6 +273,36 @@ SHZ_INLINE void shz_mat4x4_set_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_
     \warning This routine clobbers XMTRX.
 */
 SHZ_INLINE void shz_mat4x4_apply(shz_mat4x4_t* dst, const shz_mat4x4_t* src) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates the unaligned \p src 4x4 matrix onto the \p dst 4x4 matrix.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_unaligned(shz_mat4x4_t* dst, const float src[16]) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates the transposed \p src 4x4 matrix onto the \p dst 4x4 matrix.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_transpose(shz_mat4x4_t* dst, const shz_mat4x4_t* src) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates the transposed unaligned \p src 4x4 matrix onto the \p dst 4x4 matrix.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_transpose_unaligned(shz_mat4x4_t* dst, const float src[16]) SHZ_NOEXCEPT;
+
+/*! Adds the given 3D vector components to the translational values of the given matrix.
+
+    \note This routine does not use XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates the scale-related elements of the given matrix by the given 3D components.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates a rotation matrix by \p xAngle radians about the X-axis onto the given matrix.
 
@@ -267,8 +362,29 @@ SHZ_INLINE void shz_mat4x4_apply_rotation_yxz(shz_mat4x4_t* mat, float yAngle, f
 */
 SHZ_INLINE void shz_mat4x4_apply_rotation(shz_mat4x4_t* mat, float angle, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
 
-//! Multiplies and accumulates the given matrix with a rotation matrix whose orientation is given by a quaternion.
+/*! Multiplies and accumulates the given matrix with a rotation matrix whose orientation is given by a quaternion.
+
+    \note This routine does not use XMTRX.
+*/
 SHZ_INLINE void shz_mat4x4_apply_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
+
+/*! Applies the 3D "lookAt" matrix constructed with the given vector components onto the given matrix.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_lookat(shz_mat4x4_t* m, shz_vec3_t pos, shz_vec3_t target, shz_vec3_t up) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates the perspective matrix constructed from the given values onto the given matrix.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_perspective(shz_mat4x4_t* m, float fov, float aspect, float near_z) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates the viewport matrix created with the given components ont othe given matrix.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_screen(shz_mat4x4_t* m, float width, float height) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the given matrix with a symmetric skew matrix formed from the given 3D vector components.
 
@@ -276,14 +392,23 @@ SHZ_INLINE void shz_mat4x4_apply_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SH
 */
 SHZ_INLINE void shz_mat4x4_apply_symmetric_skew(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
 
-/*! Multiplies and accumulates the scale-related elements of the given matrix by the given 3D components.
+/*! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in WXYZ order.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_apply_permutation_wxyz(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
-//! Adds the given 3D vector components to the translational values of the given matrix.
-SHZ_INLINE void shz_mat4x4_apply_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+/*! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in YZWX order.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_permutation_yzwx(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates the given matrix onto itself.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_self(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -362,6 +487,18 @@ SHZ_INLINE void shz_mat4x4_rotate(shz_mat4x4_t* mat, float radians, float xAxis,
     @{
 */
 
+/*! Multiplies two 4x4 matrices together, storing the result into a third.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_mult(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, const shz_mat4x4_t* rhs) SHZ_NOEXCEPT;
+
+/*! Multiplies two 4x4 matrices together, with the right handed matrix being unaligned, storing the result into a third.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_mult_unaligned(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, const float rhs[16]) SHZ_NOEXCEPT;
+
 /*! Transforms a 3D vector by a 4x4 matrix.
 
     This is a routine specializing in one-off transforms of a **single**
@@ -437,10 +574,15 @@ void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ
 
 /*! Copies the given \p src 4x4 matrix into the given \p dst 4x4 matrix.
 
-    \warning
-    This routine clobbers XMTRX!
+    \warning This routine clobbers XMTRX!
 */
 SHZ_INLINE void shz_mat4x4_copy(shz_mat4x4_t* dst, const shz_mat4x4_t* src) SHZ_NOEXCEPT;
+
+/*! Copies the given unaligned \p src 4x4 matrix into the given \p dst 4x4 matrix.
+
+    \warning This routine clobbers XMtRX.
+*/
+SHZ_INLINE void shz_mat4x4_copy_unaligned(shz_mat4x4_t* dst, const float src[16]) SHZ_NOEXCEPT;
 
 //! @}
 

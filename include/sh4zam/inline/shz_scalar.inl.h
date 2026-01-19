@@ -7,6 +7,7 @@
  *
  *  \author    2025, 2026 Falco Girgis
  *  \author    2025 Paul Cercueil
+ *
  *  \copyright MIT License
  */
 
@@ -66,6 +67,13 @@ SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT {
 SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEXCEPT {
     *quot = shz_roundf(shz_divf(num, denom));
     return num - *quot * denom;
+}
+
+/* Only here in case we ever find a platform where the compiler is so dumb
+   fabsf() isn't optimal... but in the meantime, it is.
+*/
+SHZ_FORCE_INLINE float shz_fabsf(float x) SHZ_NOEXCEPT {
+    return fabsf(x);
 }
 
 // Compiler is smart enough to do the right thing regardless of flags.

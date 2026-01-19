@@ -131,6 +131,12 @@ SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEX
  *  @{
  */
 
+/*! Replacement for the <math.h> routine, fabsf().
+
+    Returns the absolute value of \p x.
+*/
+SHZ_FORCE_INLINE float shz_fabsf(float x) SHZ_NOEXCEPT;
+
 /*! Replacement for the <math.h> routine, copysignf().
 
     Returns the value of \p x with the sign of \p y.

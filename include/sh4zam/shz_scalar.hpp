@@ -70,6 +70,8 @@ namespace shz {
      *  \brief Fast versions of miscellaneous FP routines.
      *  @{
      */
+    //! C++ alias for shz_fabsf().
+    constexpr auto fabsf             = shz_fabsf;
     //! C++ alias for shz_copysignf().
     constexpr auto copysignf         = shz_copysignf;
     //! C++ alias for shz_fmacf().

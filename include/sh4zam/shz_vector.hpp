@@ -54,6 +54,22 @@ struct vecN: C {
     SHZ_FORCE_INLINE vecN(CType other) noexcept:
         CType(other) {}
 
+    //! Conversion operator for going from a layout-compatible vector type to a SH4ZAM vector type.
+    SHZ_FORCE_INLINE static CppType from(const auto& raw) noexcept {
+        return *reinterpret_cast<const CppType*>(&raw);
+    }
+
+    //! Conversion operator for going from a SH4ZAM vector type to another layout-compatible type.
+    template<typename T>
+    SHZ_FORCE_INLINE T to() const noexcept {
+        return *reinterpret_cast<const T*>(this);
+    }
+
+    //! Conversion operator for accessing an existing pointer type as though it were a refrence to a SH4ZAM type.
+    SHZ_FORCE_INLINE CppType& deref(const auto* raw) noexcept {
+        return *const_cast<CppType*>(reinterpret_cast<const CppType*>(raw));
+    }
+
     //! Returns the vector that is linearly interpolated between the two given vectors by the `0.0f-1.0f` factor, \p t.
     SHZ_FORCE_INLINE static CppType lerp(CppType start, CppType end, float t) noexcept {
         return shz_vec_lerp(start, end, t);
@@ -134,7 +150,7 @@ struct vecN: C {
     }
 
     template<unsigned... Indices>
-    SHZ_FORCE_INLINE auto swizzle() const noexcept {
+    SHZ_FORCE_INLINE CppType swizzle() const noexcept {
         return shz_vec_swizzle(*this, Indices...);
     }
 
@@ -291,9 +307,6 @@ SHZ_FORCE_INLINE CRTP operator/(float lhs, vecN<CRTP, C, R> rhs) noexcept {
     return shz_vec_scale(rhs, shz::invf(lhs));
 }
 
-struct vec3;
-struct vec4;
-
 /*! 2D Vector type
  *
  *  C++ structure for representing a 2-dimensional vector.
@@ -383,6 +396,11 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
     SHZ_FORCE_INLINE vec3(sincos azimuth, sincos elevation) noexcept:
         vecN(shz_vec3_from_sincos(azimuth, elevation)) {}
 
+    // Returns the inner 2D vector, <X, Y>, as a C++ vector.
+    SHZ_FORCE_INLINE vec2 xy() const noexcept {
+        return shz_vec3_t::xy;
+    }
+
     //! Returns a 3D vector which forms the given angles with the +X axis, in radians.
     SHZ_FORCE_INLINE static vec3 from_angles(float azimuth_rads, float elevation_rads) noexcept {
         return shz_vec3_from_angles(azimuth_rads, elevation_rads);
@@ -460,6 +478,21 @@ struct vec4: vecN<vec4, shz_vec4_t, 4> {
     //! Constructs a 4D vector with the X component given by a scalar and the Y, Z, and W components given by a 3D vector.
     SHZ_FORCE_INLINE vec4(float x, shz::vec3 yzw) noexcept:
         vecN(shz_vec4_init(x, yzw.x, yzw.y, yzw.z)) {}
+
+    // Returns the inner 2D vector, <X, Y>, as a C++ vector.
+    SHZ_FORCE_INLINE vec2 xy() const noexcept {
+        return shz_vec4_t::xy;
+    }
+
+    // Returns the inner 2D vector, <Z, W>, as a C++ vector.
+    SHZ_FORCE_INLINE vec2 zw() const noexcept {
+        return shz_vec4_t::zw;
+    }
+
+    // Returns the inner 3D vector, <X, Y, Z>, as a C++ vector.
+    SHZ_FORCE_INLINE vec3 xyz() const noexcept {
+        return shz_vec4_t::xyz;
+    }
 };
 
 template<typename CRTP, typename C, size_t R>

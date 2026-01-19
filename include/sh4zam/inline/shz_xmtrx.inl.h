@@ -2803,7 +2803,7 @@ SHZ_INLINE void shz_xmtrx_apply_permutation_yzwx(void) SHZ_NOEXCEPT {
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_xmtrx(void) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_apply_self(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         fschg
         fmov    xd0, dr0

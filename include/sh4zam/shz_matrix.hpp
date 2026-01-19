@@ -5,8 +5,14 @@
     This file provides a C++ binding layer over the C API provied
     by shz_matrix.h.
 
-    \author    2025 Falco Girgis
+    \author    2025, 2026 Falco Girgis
     \copyright MIT License
+
+    \todo
+        - Fully document
+        - Operator overloading
+        - full transforms (GL-style) taking a separate destination matrix?
+        - Copy to unaligned dest
 */
 
 #ifndef SHZ_MATRIX_HPP
@@ -58,18 +64,33 @@ namespace shz {
                                                 rhs.begin(), rhs.end());
         }
 
-        SHZ_FORCE_INLINE static mat4x4 from_xmtrx() noexcept {
-            mat4x4 mat;
-            xmtrx::store(&mat);
-            return mat;
-        }
+        /*! \name  Initialization
+            \brief Routines for fully initializing a matrix.
+           @{
+        */
 
         SHZ_FORCE_INLINE void init_identity() noexcept {
             shz_mat4x4_init_identity(this);
         }
 
-        SHZ_FORCE_INLINE void init_diagonal(float x, float y, float z, float w) noexcept {
-            shz_mat4x4_init_diagonal(this, x, y, z, w);
+        SHZ_FORCE_INLINE void init_identity_safe() noexcept {
+            shz_mat4x4_init_identity_safe(this);
+        }
+
+        SHZ_FORCE_INLINE void init_zero() noexcept {
+            shz_mat4x4_init_zero(this);
+        }
+
+        SHZ_FORCE_INLINE void init_one() noexcept {
+            shz_mat4x4_init_one(this);
+        }
+
+        SHZ_FORCE_INLINE void init_fill(float value) noexcept {
+            shz_mat4x4_init_fill(this, value);
+        }
+
+        SHZ_FORCE_INLINE void init_translation(float x, float y, float z) noexcept {
+            shz_mat4x4_init_translation(this, x, y, z);
         }
 
         SHZ_FORCE_INLINE void init_scale(float x, float y, float z) noexcept {
@@ -113,16 +134,78 @@ namespace shz {
             shz_mat4x4_init_rotation_quat(this, q);
         }
 
-        SHZ_FORCE_INLINE void init_translation(float x, float y, float z) noexcept {
-            shz_mat4x4_init_translation(this, x, y, z);
+        SHZ_FORCE_INLINE void init_diagonal(float x, float y, float z, float w) noexcept {
+            shz_mat4x4_init_diagonal(this, x, y, z, w);
+        }
+
+        SHZ_FORCE_INLINE void init_upper_diagonal(float col1, vec2 col2, vec3 col3, vec4 col4) noexcept{
+            shz_mat4x4_init_upper_diagonal(this, col1, col2, col3, col4);
+        }
+
+        SHZ_FORCE_INLINE void init_lower_diagonal(vec4 col1, vec3 col2, vec2 col3, float col4) noexcept {
+            shz_mat4x4_init_lower_diagonal(this, col1, col2, col3, col4);
         }
 
         SHZ_FORCE_INLINE void init_symmetric_skew(float x, float y, float z) noexcept {
             shz_mat4x4_init_symmetric_skew(this, x, y, z);
         }
 
+        SHZ_FORCE_INLINE void init_outer_product(vec4 v1, vec4 v2) noexcept {
+            shz_mat4x4_init_outer_product(this, v1, v2);
+        }
+
+        SHZ_FORCE_INLINE void init_permutation_wxyz() noexcept {
+            shz_mat4x4_init_permutation_wxyz(this);
+        }
+
+        SHZ_FORCE_INLINE void init_permutation_yzwx() noexcept {
+            shz_mat4x4_init_permutation_yzwx(this);
+        }
+
+        SHZ_FORCE_INLINE void init_screen(float width, float height) noexcept {
+            shz_mat4x4_init_screen(this, width, height);
+        }
+
+        //! @}
+
+        /*! \name Setting
+            \brief Routines for setting specific values within a matrix
+            @{
+        */
+
+        SHZ_FORCE_INLINE void set_translation(float x, float y, float z) noexcept {
+            shz_mat4x4_set_translation(this, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void set_rotation(quat rot) noexcept {
+            shz_mat4x4_set_rotation_quat(this, rot);
+        }
+
+        SHZ_FORCE_INLINE void set_diagonal(float x, float y, float z, float w) noexcept {
+            shz_mat4x4_set_diagonal(this, x, y, z, w);
+        }
+
+        //! @}
+
+        /*! \name  Applying
+            \brief Routines for multiplying and accumulating onto the given matrix.
+            @{
+        */
+
         SHZ_FORCE_INLINE void apply(const shz_mat4x4_t& mat) noexcept {
             shz_mat4x4_apply(this, &mat);
+        }
+
+        SHZ_FORCE_INLINE void apply(const float mat[16]) noexcept {
+            shz_mat4x4_apply_unaligned(this, mat);
+        }
+
+        SHZ_FORCE_INLINE void apply_transpose(const shz_mat4x4_t& mat) noexcept {
+            shz_mat4x4_apply_transpose(this, &mat);
+        }
+
+        SHZ_FORCE_INLINE void apply_transpose(const float mat[16]) noexcept {
+            shz_mat4x4_apply_transpose_unaligned(this, mat);
         }
 
         SHZ_FORCE_INLINE void apply_scale(float x, float y, float z) noexcept {
@@ -169,9 +252,40 @@ namespace shz {
             shz_mat4x4_apply_rotation_quat(this, q);
         }
 
-        SHZ_FORCE_INLINE void set_translation(float x, float y, float z) noexcept {
-            shz_mat4x4_set_translation(this, x, y, z);
+        SHZ_FORCE_INLINE void apply_lookat(vec3 pos, vec3 target, vec3 up) noexcept {
+            shz_mat4x4_apply_lookat(this, pos, target, up);
         }
+
+        SHZ_FORCE_INLINE void apply_perspective(float fov, float aspect, float near_z) noexcept {
+            shz_mat4x4_apply_perspective(this, fov, aspect, near_z);
+        }
+
+        SHZ_FORCE_INLINE void apply_screen(float width, float height) noexcept {
+            shz_mat4x4_apply_screen(this, width, height);
+        }
+
+        SHZ_FORCE_INLINE void apply_symmetric_skew(float x, float y, float z) noexcept {
+            shz_mat4x4_apply_symmetric_skew(this, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void apply_permutation_wxyz() noexcept {
+            shz_mat4x4_apply_permutation_wxyz(this);
+        }
+
+        SHZ_FORCE_INLINE void apply_permutation_yzwx() noexcept {
+            shz_mat4x4_apply_permutation_yzwx(this);
+        }
+
+        SHZ_FORCE_INLINE void apply_self() noexcept {
+            shz_mat4x4_apply_self(this);
+        }
+
+        //! @}
+
+        /*! \name  GL Transformations
+            \brief OpenGL-style 4x4 matrix transforms.
+            @{
+        */
 
         SHZ_FORCE_INLINE void translate(float x, float y, float z) noexcept {
             shz_mat4x4_translate(this, x, y, z);
@@ -213,8 +327,19 @@ namespace shz {
             shz_mat4x4_rotate(this, radians, xAxis, yAxis, zAxis);
         }
 
-        SHZ_FORCE_INLINE void copy(const shz_mat4x4_t& mat) noexcept {
-            shz_mat4x4_copy(this, &mat);
+        //! @}
+
+        /*! \name  Transforming
+            \brief Routines for transforming vectors and points by a matrix.
+            @{
+        */
+
+        SHZ_FORCE_INLINE static void mult(mat4x4* dst, const mat4x4& lhs, const mat4x4& rhs) noexcept {
+            shz_mat4x4_mult(dst, &lhs, &rhs);
+        }
+
+        SHZ_FORCE_INLINE static void mult(mat4x4* dst, const mat4x4& lhs, const float rhs[16]) noexcept {
+            shz_mat4x4_mult_unaligned(dst, &lhs, rhs);
         }
 
         SHZ_FORCE_INLINE vec3 transform(vec3 in) const noexcept {
@@ -233,10 +358,6 @@ namespace shz {
             return shz_mat4x4_to_quat(this);
         }
 
-        SHZ_FORCE_INLINE void set_rotation(quat q) noexcept {
-            shz_mat4x4_set_rotation_quat(this, q);
-        }
-
         SHZ_FORCE_INLINE float determinant() const noexcept {
             return shz_mat4x4_determinant(this);
         }
@@ -244,6 +365,23 @@ namespace shz {
         SHZ_FORCE_INLINE void inverse(mat4x4* out) const noexcept {
             return shz_mat4x4_inverse(this, out);
         }
+
+        //! @}
+
+        /*! \name  Miscellaneous
+            \brief Other matrix-related operations and routines
+            @{
+        */
+
+        SHZ_FORCE_INLINE static void copy(shz_mat4x4_t* lhs, const shz_mat4x4_t& rhs) noexcept {
+            shz_mat4x4_copy(lhs, &rhs);
+        }
+
+        SHZ_FORCE_INLINE static void copy(shz_mat4x4_t* lhs, const float rhs[16]) noexcept {
+            shz_mat4x4_copy_unaligned(lhs, rhs);
+        }
+
+        //! @}
     };
 }
 
