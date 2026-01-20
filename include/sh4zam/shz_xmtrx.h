@@ -14,7 +14,6 @@
  *      - shz_xmtrx_angles()
  *      - shz_xmtrx_ortho()
  *      - shz_xmtrx_frustum()
- *      - shz_xmtrx_store_transpose_unaligned_4x4()
  *      - shz_xmtrx_init_rotation_quat()
  *
  *  \author 2025, 2026 Falco Girgis
@@ -519,7 +518,7 @@ SHZ_INLINE void shz_xmtrx_rotate(float radians, float xAxis, float yAxis, float 
 
     \sa shz_xmtrx_load_4x4(), shz_xmtrx_apply_4x4(), shz_xmtrx_load_apply_store_4x4()
 */
-SHZ_INLINE void shz_xmtrx_load_apply_4x4(const shz_mat4x4_t* matrix1,
+SHZ_FORCE_INLINE void shz_xmtrx_load_apply_4x4(const shz_mat4x4_t* matrix1,
                                          const shz_mat4x4_t* matrix2) SHZ_NOEXCEPT;
 
 /*! Loads XMTRX with the result of applying unaligned \p matrix2 onto \p matrix1.

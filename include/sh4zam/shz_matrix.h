@@ -527,6 +527,16 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3(const shz_mat4x4_t* m, shz_vec3_
 */
 SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT;
 
+/*! Transforms a 3D vector by the transpose of a a 4x4 matrix.
+
+    This is a routine specializing in one-off transforms of a **single**
+    3D vector (such as a normal, without a W component) by the transpose
+    of a **single** 4x4 matrix. It should be faster than going through XMTRX.
+
+    \sa shz_mat4x4_transform_vec4_transpose(), shz_mat4x4_transform_vec3()
+*/
+SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3_transpose(const shz_mat4x4_t* m, shz_vec3_t v) SHZ_NOEXCEPT;
+
 /*! Transforms a 3D point by a 4x4 matrix.
 
     This is a routine specializing in one-off transforms of a *single*

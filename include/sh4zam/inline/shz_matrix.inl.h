@@ -504,6 +504,59 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4(const shz_mat4x4_t* mat, shz_vec
     return in;
 }
 
+SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3_transpose(const shz_mat4x4_t* m, shz_vec3_t v) SHZ_NOEXCEPT {
+    shz_vec3_t out;
+
+    register float fr0 asm("fr0") = v.x;
+    register float fr1 asm("fr1") = v.y;
+    register float fr2 asm("fr2") = v.z;
+    register float fr3 asm("fr3") = 0.0f;
+
+    register float fr4 asm("fr4") = m->elem2D[0][0];
+    register float fr5 asm("fr5") = m->elem2D[0][1];
+    register float fr6 asm("fr6") = m->elem2D[0][2];
+    register float fr7 asm("fr7");
+
+    asm volatile("fipr fv0, fv4"
+        : "=f" (fr7)
+        : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
+          "f" (fr4), "f" (fr5), "f" (fr6));
+
+    __atomic_thread_fence(1);
+
+    register float fr8  asm("fr8")  = m->elem2D[1][0];
+    register float fr9  asm("fr9")  = m->elem2D[1][1];
+    register float fr10 asm("fr10") = m->elem2D[1][2];
+    register float fr11 asm("fr11");
+
+    asm volatile("fipr fv0, fv8"
+        : "=f" (fr11)
+        : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
+          "f" (fr8), "f" (fr9), "f" (fr10));
+
+    __atomic_thread_fence(1);
+
+    out.x = fr7;
+
+    __atomic_thread_fence(1);
+
+    fr4 = m->elem2D[2][0];
+    fr5 = m->elem2D[2][1];
+    fr6 = m->elem2D[2][2];
+
+    asm volatile("fipr fv0, fv4"
+        : "=f" (fr7)
+        : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
+          "f" (fr4), "f" (fr5), "f" (fr6));
+
+    __atomic_thread_fence(1);
+
+    out.y = fr11;
+    out.z = fr7;
+
+    return out;
+}
+
 SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_point3(const shz_mat4x4_t* mat, shz_vec3_t pt) SHZ_NOEXCEPT {
     return shz_mat4x4_transform_vec4(mat, shz_vec3_vec4(pt, 1.0f)).xyz;
 }
@@ -545,7 +598,7 @@ SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 	}
 
 	f = mat->pos.z - (mat->up.y + mat->left.x);
-	s = shz_inv_sqrtf_fsrra(f + 1.0f);
+	s = shz_inv_sqrtf(f + 1.0f);
 	m = 0.5f * s;
 	return shz_quat_init(
 		(mat->left.y - mat->up.x) * m,
@@ -563,14 +616,30 @@ SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* mat, shz_mat4x4_t* out)
 SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 	const float (*m)[4] = mat->elem2D;
 
-	// Cache subfactors
-	float s0 = m[2][2] * m[3][3] - m[3][2] * m[2][3];
-	float s1 = m[2][1] * m[3][3] - m[3][1] * m[2][3];
-	float s2 = m[2][1] * m[3][2] - m[3][1] * m[2][2];
-	float s3 = m[2][0] * m[3][3] - m[3][0] * m[2][3];
-	float s4 = m[2][0] * m[3][2] - m[3][0] * m[2][2];
-	float s5 = m[2][0] * m[3][1] - m[3][0] * m[2][1];
+#if 0 // Cache the subfactors
+    float s0 = m[2][1] * m[3][3] - m[3][1] * m[2][3];
+    float s1 = m[2][1] * m[3][2] - m[3][1] * m[2][2];
+    float s2 = m[2][0] * m[3][3] - m[3][0] * m[2][3];
 
+    float s3 = m[2][0] * m[3][3] - m[3][0] * m[2][3];
+    float s4 = m[2][0] * m[3][2] - m[3][0] * m[2][2];
+    float s5 = m[2][0] * m[3][1] - m[3][0] * m[2][1];
+#else // FIPR da subfactors
+    shz_vec2_t s01 = shz_vec2_dot2(shz_vec2_init(m[2][1], -m[3][1]),
+                                   shz_vec2_init(m[3][3],  m[2][3]),
+                                   shz_vec2_init(m[3][2],  m[2][2]));
+    float s0 = s01.x;
+    float s1 = s01.y;
+    float s2 = m[2][0] * m[3][3] - m[3][0] * m[2][3];
+
+    shz_vec3_t s345 = shz_vec2_dot3(shz_vec2_init(m[2][0], -m[3][0]),
+                                    shz_vec2_init(m[3][3],  m[2][3]),
+                                    shz_vec2_init(m[3][2],  m[2][2]),
+                                    shz_vec2_init(m[3][1],  m[2][1]));
+    float s3 = s345.x;
+    float s4 = s345.y;
+    float s5 = s345.z;
+#endif
 	shz_vec4_t coeff = shz_vec4_init(
 		+ shz_dot6f(m[1][1], -m[1][2], m[1][3], s0, s1, s2),
 		- shz_dot6f(m[1][0], -m[1][2], m[1][3], s0, s3, s4),
@@ -578,7 +647,7 @@ SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 		- shz_dot6f(m[1][0], -m[1][1], m[1][2], s2, s4, s5)
 	);
 
-    return shz_dot8f(m[0][0],    m[0][1],    m[0][2],    m[0][3],
+    return shz_dot8f(   m[0][0],    m[0][1],    m[0][2],    m[0][3],
                      coeff.e[0], coeff.e[1], coeff.e[2], coeff.e[3]);
 }
 

@@ -493,18 +493,36 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec3_vec4(shz_vec3_t vec, float w) SHZ_NOEXCEPT;
 SHZ_DECLS_END
 
 /*! \name Adapters
-    \brief Macros for treating contiguous floats like SH4ZAM vectors.
+    \brief Macros for converting between SH4ZAM and other compatible formats.
     @{
 */
 
 //! Dereferences the given pointer to a sequence of 2 floats as a shz_vec2_t.
-#   define shz_vec2_deref(ptr) (*((shz_vec2_t*)(ptr)))
+#define shz_vec2_deref(ptr) (*((shz_vec2_t*)(ptr)))
 
 //! Dereferences the given pointer to a sequence of 3 floats as a shz_vec3_t.
-#   define shz_vec3_deref(ptr) (*((shz_vec3_t*)(ptr)))
+#define shz_vec3_deref(ptr) (*((shz_vec3_t*)(ptr)))
 
 //! Dereferences the given pointer to a sequence of 4 floats as a shz_vec4_t.
-#   define shz_vec4_deref(ptr) (*((shz_vec4_t*)(ptr)))
+#define shz_vec4_deref(ptr) (*((shz_vec4_t*)(ptr)))
+
+//! Converts the given \p value or expression to the equivalent 2D SH4ZAM vector value.
+#define shz_vec2_from(value) SHZ_CONVERT(shz_vec2_t, value)
+
+//! Converts the given \p value or expression to the equivalent 3D SH4ZAM vector value.
+#define shz_vec3_from(value) SHZ_CONVERT(shz_vec3_t, value)
+
+//! Converts the given \p value or expression to the equivalent 4D SH4ZAM vector value.
+#define shz_vec4_from(value) SHZ_CONVERT(shz_vec4_t, value)
+
+//! Converts the given 2D \p vector into a value of the given \p type.
+#define shz_vec2_to(type, vector) SHZ_CONVERT(type, vector)
+
+//! Converts the given 3D \p vector into a value of the given \p type.
+#define shz_vec3_to(type, vector) SHZ_CONVERT(type, vector)
+
+//! Converts the given 4D \p vector into a value of the given \p type.
+#define shz_vec4_to(type, vector) SHZ_CONVERT(type, vector)
 
 //! @}
 

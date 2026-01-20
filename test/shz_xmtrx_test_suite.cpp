@@ -1,4 +1,5 @@
 #include "shz_test.h"
+#include "shz_test.hpp"
 #include "sh4zam/shz_xmtrx.hpp"
 #include "sh4zam/shz_matrix.hpp"
 
@@ -470,7 +471,6 @@ GBL_TEST_CASE(init_outer_product)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_4x4)
-    shz::xmtrx::init_identity();
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_unaligned_4x4)
@@ -565,6 +565,36 @@ GBL_TEST_CASE(apply_rotation_quat)
 
 GBL_TEST_CASE_END
 
+extern "C" void shz_xmtrx_load_apply_4x4_2(const shz_mat4x4_t* mat1, const shz_mat4x4_t* mat2);
+
+GBL_TEST_CASE(load_apply_4x4)
+    alignas(32) std::array<float, 16> matrix1 = {
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+    };
+    alignas(32) std::array<float, 16> matrix2 = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        1.0f, 2.0f, 3.0f, 1.0f
+    };
+    alignas(8) std::array<float, 16> out;
+
+    benchmark(nullptr, [&]{ 
+        shz_xmtrx_load_apply_4x4(reinterpret_cast<const shz::mat4x4*>(matrix1.data()),
+                                                   reinterpret_cast<const shz::mat4x4*>(matrix2.data())); });
+    shz::xmtrx::store(out.data());
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                                {
+                                    1.0f, 0.0f, 0.0f, 1.0f,
+                                    0.0f, 1.0f, 0.0f, 2.0f,
+                                    0.0f, 0.0f, 1.0f, 3.0f,
+                                    0.0f, 0.0f, 0.0f, 1.0f }));
+
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(load_apply_store_unaligned_4x4)
     randomize_xmtrx_();
     alignas(4) std::array<float, 16> matrix1 = {
@@ -645,4 +675,5 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_rotation_zyx,
                   apply_rotation_yxz,
                   apply_rotation_quat,
+                  load_apply_4x4,
                   load_apply_store_unaligned_4x4)

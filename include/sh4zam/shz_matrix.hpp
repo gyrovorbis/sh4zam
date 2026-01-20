@@ -354,16 +354,8 @@ namespace shz {
             return shz_mat4x4_transform_point3(this, pt);
         }
 
-        SHZ_FORCE_INLINE quat to_quat() const noexcept {
-            return shz_mat4x4_to_quat(this);
-        }
-
-        SHZ_FORCE_INLINE float determinant() const noexcept {
-            return shz_mat4x4_determinant(this);
-        }
-
-        SHZ_FORCE_INLINE void inverse(mat4x4* out) const noexcept {
-            return shz_mat4x4_inverse(this, out);
+        SHZ_FORCE_INLINE vec3 transform_transpose(vec3 in) const noexcept {
+            return shz_mat4x4_transform_vec3_transpose(this, in);
         }
 
         //! @}
@@ -379,6 +371,18 @@ namespace shz {
 
         SHZ_FORCE_INLINE static void copy(shz_mat4x4_t* lhs, const float rhs[16]) noexcept {
             shz_mat4x4_copy_unaligned(lhs, rhs);
+        }
+
+        SHZ_FORCE_INLINE quat to_quat() const noexcept {
+            return shz_mat4x4_to_quat(this);
+        }
+
+        SHZ_FORCE_INLINE float determinant() const noexcept {
+            return shz_mat4x4_determinant(this);
+        }
+
+        SHZ_FORCE_INLINE void inverse(mat4x4* out) const noexcept {
+            return shz_mat4x4_inverse(this, out);
         }
 
         //! @}

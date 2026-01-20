@@ -6,7 +6,7 @@
  *      - Compiler attributes
  *      - Miscellaneous utilities
  *
- *  \author    2025 Falco Girgis
+ *  \author    2025, 2026 Falco Girgis
  *  \copyright MIT License
  */
 
@@ -21,19 +21,13 @@
  *  @{
  */
  //! Stringifies an expression _after_ preprocessing
-#define SHZ_STRINGIFY(a)        SHZ_STRINGIFY_(a)
+#define SHZ_STRINGIFY(a)                    SHZ_STRINGIFY_(a)
 //! Returns the number of elements within a statically sized array
-#define SHZ_COUNT_OF(array)    (sizeof(array) / sizeof((array)[0]))
+#define SHZ_COUNT_OF(array)                 (sizeof(array) / sizeof((array)[0]))
 //! Returns the containing structure from a pointer to one of its members
-#define SHZ_CONTAINER_OF(ptr, type, member) \
-    ((type *)((char *)(ptr) - offsetof(type, member)))
-
-//! Swaps the contents of two variables
-#define SHZ_SWAP(a, b) do { \
-        typeof(a) tmp = a; \
-        a = b; \
-        b = tmp; \
-    } while(false)
+#define SHZ_CONTAINER_OF(ptr, type, member) ((type *)((char *)(ptr) - offsetof(type, member)))
+//! Macro which swaps the two values held by \p a and \p b.
+#define SHZ_SWAP(a, b)                      do { typeof(a) tmp = a; a = b; b = tmp; } while(false)
 //! @}
 
 //! \cond
@@ -80,26 +74,31 @@
     //! Dummy define provided for C++ compatibility
 #   define SHZ_DECLS_END
     //! Requests a function or member to be inlined (nonforcibly) OR to have static linkage.
-#   define SHZ_INLINE           inline static
+#   define SHZ_INLINE                   inline static
     //! Tells GCC the function has no effects other than returning a value that depends only on its arguments.
-#   define SHZ_CONST            __attribute__((const))
+#   define SHZ_CONST                    __attribute__((const))
     //! Tells GCC the pointer paramter is unique and is not aliased by another parameter
-#   define SHZ_RESTRICT         restrict
+#   define SHZ_RESTRICT                 restrict
     //! Dummy define provided for C++ compatibility
 #   define SHZ_NOEXCEPT
+    //! Conversion macro for zero-overhead conversions, taking the given \p value to a value of the given \p type.
+#   define SHZ_CONVERT(type, value)     (((struct { union { typeof(value) from; type to; }; }){ (value) }).to)
+
 #else
     //! Forces functions declared after this directive to use C linkage.
-#   define SHZ_DECLS_BEGIN      extern "C" {
+#   define SHZ_DECLS_BEGIN              extern "C" {
     //! Ends forcing functions to use C linkage.
-#   define SHZ_DECLS_END        }
+#   define SHZ_DECLS_END                }
     //! Requests a function or member to be inlined (nonforcibly).
-#   define SHZ_INLINE           inline
+#   define SHZ_INLINE                   inline
     //! Tells GCC the function has no effects other than returning a value that depends only on its arguments.
-#   define SHZ_CONST            __attribute__((const)) constexpr
+#   define SHZ_CONST                    __attribute__((const)) constexpr
     //! Tells GCC the pointer paramter is unique and is not aliased by another parameter
-#   define SHZ_RESTRICT         __restrict__
+#   define SHZ_RESTRICT                 __restrict__
     //! Tells the compiler that the function does not throw exceptions
-#   define SHZ_NOEXCEPT         noexcept
+#   define SHZ_NOEXCEPT                 noexcept
+    //! Conversion macro for zero-overhead conversions, taking the given \p value to a value of the given \p type.
+#   define SHZ_CONVERT(type, value)     (shz::convert<type>(value))
 #endif
 //! @}
 //! \endcond
@@ -144,7 +143,16 @@ typedef struct shz_mat4x4 shz_mat4x4_t;
 /*! \endcond */
 
 //! \cond
-#define SHZ_STRINGIFY_(a)       #a
+#define SHZ_STRINGIFY_(a) #a
+
+#ifdef __cplusplus
+namespace shz {
+    template<typename T> auto convert(const auto& expr) noexcept {
+        return reinterpret_cast<const T&>(expr);
+    }
+}
+#endif
+
 //! \endcond
 
 #endif // SHZ_CDEFS_H
