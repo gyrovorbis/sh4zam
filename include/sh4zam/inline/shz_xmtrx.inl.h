@@ -503,60 +503,10 @@ SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_unaligned_4x4(const float matrix[
     shz_xmtrx_load_transpose_4x4((const shz_mat4x4_t*)matrix);
 }
 
- __attribute__((cold))
 SHZ_INLINE void shz_xmtrx_load_apply_4x4(const shz_mat4x4_t* matrix1,
                                          const shz_mat4x4_t* matrix2) SHZ_NOEXCEPT {
     unsigned int prefetch_scratch;
-#if 1
-    asm volatile (R"(
-    mov     %[m1], %[prefscr] 
-    fschg
-    add     #32, %[prefscr]
-    fmov.d  @%[m1]+, xd0 
 
-    pref    @%[prefscr]
-  
-    fmov.d  @%[m1]+, xd2 
-    fmov.d  @%[m1]+, xd4
-    fmov.d  @%[m1]+, xd6
-    mov     %[m2], %[prefscr]
-    pref    @%[prefscr]
-    fmov.d  @%[m1]+, xd8
-  
-    fmov.d  @%[m1]+, xd10
-
-    fmov.d  @%[m1]+, xd12
-    fmov.d  @%[m1]+, xd14
-    add     #32, %[prefscr]
-    fmov.d  @%[m2]+, dr0 
-
-    fmov.d  @%[m2]+, dr2
-
-    fmov.d  @%[m2]+, dr4
-
-    pref    @%[prefscr]
-    ftrv    xmtrx, fv0
-    fmov.d  @%[m2]+, dr6
-
-    fmov.d  @%[m2]+, dr8
-    ftrv    xmtrx, fv4
-    fmov.d  @%[m2]+, dr10
-
-    fmov.d  @%[m2]+, dr12
-    fmov.d  @%[m2]+, dr14
-    ftrv    xmtrx, fv8
-
-    fschg
-
-    ftrv    xmtrx, fv12
-    frchg
-    )"
-    : [m1] "+&r" (matrix1), [m2] "+r" (matrix2),
-      [prefscr] "=&r" (prefetch_scratch)
-    : "m" (*matrix1), "m" (*matrix2)
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
-      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
-#else
     asm volatile (R"(
         mov     %[m1], %[prefscr]
         add     #32, %[prefscr]
@@ -567,7 +517,7 @@ SHZ_INLINE void shz_xmtrx_load_apply_4x4(const shz_mat4x4_t* matrix1,
         fmov.d  @%[m1]+, xd2
         fmov.d  @%[m1]+, xd4
         fmov.d  @%[m1]+, xd6
-        pref    @%[m1]
+        pref    @%[m2]
         fmov.d  @%[m1]+, xd8
         fmov.d  @%[m1]+, xd10
         fmov.d  @%[m1]+, xd12
@@ -599,7 +549,6 @@ SHZ_INLINE void shz_xmtrx_load_apply_4x4(const shz_mat4x4_t* matrix1,
     : "m" (*matrix1), "m" (*matrix2)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
-#endif
 }
 
 SHZ_INLINE void shz_xmtrx_load_apply_unaligned_4x4(const float matrix1[16],
@@ -680,7 +629,7 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
         fmov.d  @%[m1]+, xd2
         fmov.d  @%[m1]+, xd4
         fmov.d  @%[m1]+, xd6
-        pref    @%[m1]
+        pref    @%[m2]
         fmov.d  @%[m1]+, xd8
         fmov.d  @%[m1]+, xd10
         fmov.d  @%[m1]+, xd12
@@ -688,39 +637,34 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
         add     #32, %[prefscr]
         fmov.d  @%[m1], xd14
         pref    @%[prefscr]
-
         fmov.d  @%[m2]+, dr0
         fmov.d  @%[m2]+, dr2
         fmov.d  @%[m2]+, dr4
-        ftrv    xmtrx, fv0
-
         fmov.d  @%[m2]+, dr6
+        pref    @%[out]
+        ftrv    xmtrx, fv0
+        mov     %[out], %[prefscr]
         fmov.d  @%[m2]+, dr8
         ftrv    xmtrx, fv4
-
+        add #32 %[prefscr]
         fmov.d  @%[m2]+, dr10
-        fmov.d  @%[m2]+, dr12
-        ftrv    xmtrx, fv8
-
         add     #16, %[out]
+        fmov.d  @%[m2]+, dr12
+        add     #32, %[out]
+        fmov.d  @%[m2], dr14
+        pref @%[prefscr]
+        ftrv    xmtrx, fv8
         fmov.d  dr2, @-%[out]
         fmov.d  dr0,  @-%[out]
-
-        fmov.d  @%[m2], dr14
+        add     #32, %[out]
         ftrv    xmtrx, fv12
-
-        add     #32, %[out]
         fmov.d  dr6, @-%[out]
-        fmov.d  dr4, @-%[out]
-
-        add     #32, %[out]
+        fmov.d  dr4,  @-%[out]
         fmov.d  dr10, @-%[out]
-        fmov.d  dr8, @-%[out]
-
+        fmov.d  dr8,  @-%[out]
         add     #32, %[out]
         fmov.d  dr14, @-%[out]
-        fmov.d  dr12, @-%[out]
-
+        fmov.d  dr12,  @-%[out]
         fschg
     )"
     : [m1] "+&r" (matrix1), [m2] "+r" (matrix2), [out] "+&r" (out), "=m" (*out),

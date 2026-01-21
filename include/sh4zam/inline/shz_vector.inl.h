@@ -279,7 +279,6 @@ SHZ_FORCE_INLINE float shz_vec3_dot(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCE
                      vec2.x, vec2.y, vec2.z);
 }
 
-SHZ_ICACHE_ALIGNED
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_dot2(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2) SHZ_NOEXCEPT {
     shz_vec2_t res;
 
@@ -314,7 +313,6 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_dot2(shz_vec2_t l, shz_vec2_t r1, shz_vec2_
     return res;
 }
 
-SHZ_ICACHE_ALIGNED
 SHZ_FORCE_INLINE shz_vec3_t shz_vec2_dot3(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2, shz_vec2_t r3) SHZ_NOEXCEPT {
     shz_vec3_t res;
 
@@ -362,7 +360,6 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec2_dot3(shz_vec2_t l, shz_vec2_t r1, shz_vec2_
     return res;
 }
 
-SHZ_ICACHE_ALIGNED
 SHZ_FORCE_INLINE shz_vec2_t shz_vec3_dot2(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2) SHZ_NOEXCEPT {
     shz_vec2_t res;
 
@@ -399,7 +396,6 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec3_dot2(shz_vec3_t l, shz_vec3_t r1, shz_vec3_
     return res;
 }
 
-SHZ_ICACHE_ALIGNED
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_dot3(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2, shz_vec3_t r3) SHZ_NOEXCEPT {
     shz_vec3_t res;
 
@@ -450,7 +446,6 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_dot3(shz_vec3_t l, shz_vec3_t r1, shz_vec3_
     return res;
 }
 
-SHZ_ICACHE_ALIGNED
 SHZ_FORCE_INLINE shz_vec2_t shz_vec4_dot2(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2) SHZ_NOEXCEPT {
     shz_vec2_t res;
 
@@ -487,7 +482,6 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec4_dot2(shz_vec4_t l, shz_vec4_t r1, shz_vec4_
     return res;
 }
 
-SHZ_ICACHE_ALIGNED
 SHZ_FORCE_INLINE shz_vec3_t shz_vec4_dot3(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2, shz_vec4_t r3) SHZ_NOEXCEPT {
     shz_vec3_t res;
 

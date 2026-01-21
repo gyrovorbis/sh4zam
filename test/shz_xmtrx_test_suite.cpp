@@ -565,26 +565,70 @@ GBL_TEST_CASE(apply_rotation_quat)
 
 GBL_TEST_CASE_END
 
-extern "C" void shz_xmtrx_load_apply_4x4_2(const shz_mat4x4_t* mat1, const shz_mat4x4_t* mat2);
-
 GBL_TEST_CASE(load_apply_4x4)
-    alignas(32) std::array<float, 16> matrix1 = {
+    alignas(32) std::array<std::array<float, 16>, 128> matrix1 = {{
             1.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 1.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 1.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f
-    };
-    alignas(32) std::array<float, 16> matrix2 = {
+    }};
+    alignas(32) std::array<std::array<float, 16>, 128> matrix2 = {{
         1.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 1.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
         1.0f, 2.0f, 3.0f, 1.0f
-    };
+    }};
     alignas(8) std::array<float, 16> out;
 
-    benchmark(nullptr, [&]{ 
-        shz_xmtrx_load_apply_4x4(reinterpret_cast<const shz::mat4x4*>(matrix1.data()),
-                                                   reinterpret_cast<const shz::mat4x4*>(matrix2.data())); });
+    const shz_mat4x4_t* mat1 = reinterpret_cast<const shz_mat4x4_t*>(&matrix1[0][0]);
+    const shz_mat4x4_t* mat2 = reinterpret_cast<const shz_mat4x4_t*>(&matrix2[0][0]);
+    unsigned int count = 0;
+
+    benchmark(nullptr, [&] {
+        shz_xmtrx_load_apply_4x4(reinterpret_cast<const shz::mat4x4*>(&mat1[count++%128]),
+                                 reinterpret_cast<const shz::mat4x4*>(&mat2[count++%128]));
+    });
+
+    shz_xmtrx_load_apply_4x4(reinterpret_cast<const shz::mat4x4*>(&mat1[0]),
+                             reinterpret_cast<const shz::mat4x4*>(&mat2[0]));
+
+    shz::xmtrx::store(out.data());
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                                {
+                                    1.0f, 0.0f, 0.0f, 1.0f,
+                                    0.0f, 1.0f, 0.0f, 2.0f,
+                                    0.0f, 0.0f, 1.0f, 3.0f,
+                                    0.0f, 0.0f, 0.0f, 1.0f }));
+
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_apply_store_4x4)
+    alignas(32) std::array<std::array<float, 16>, 128> matrix1 = {{
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+    }};
+    alignas(32) std::array<std::array<float, 16>, 128> matrix2 = {{
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        1.0f, 2.0f, 3.0f, 1.0f
+    }};
+    alignas(32) std::array<std::array<float, 16>, 128> out;
+    unsigned int count = 0;
+
+    benchmark(nullptr, [&] {
+        const auto idx = count++ % 128;
+        shz_xmtrx_load_apply_store_4x4(reinterpret_cast<      shz::mat4x4*>(&    out[idx]),
+                                       reinterpret_cast<const shz::mat4x4*>(&matrix2[idx]),
+                                       reinterpret_cast<const shz::mat4x4*>(&matrix1[idx]));
+    });
+
+    shz_xmtrx_load_apply_store_4x4(reinterpret_cast<      shz::mat4x4*>(&    out[0]),
+                                   reinterpret_cast<const shz::mat4x4*>(&matrix2[0]),
+                                   reinterpret_cast<const shz::mat4x4*>(&matrix1[0]));
+
     shz::xmtrx::store(out.data());
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                                 {
@@ -676,4 +720,5 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_rotation_yxz,
                   apply_rotation_quat,
                   load_apply_4x4,
+                  load_apply_store_4x4,
                   load_apply_store_unaligned_4x4)

@@ -11,7 +11,6 @@
 
 .text
     .globl _shz_xmtrx_load_apply_store_unaligned_4x4
-    .globl _shz_xmtrx_load_apply_4x4_2
 
 !
 ! void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16], const float matrix1[16], const float matrix2[16])
@@ -101,46 +100,3 @@ _shz_xmtrx_load_apply_store_unaligned_4x4:
     fmov.s  fr5, @-r4
     rts
     fmov.s  fr4, @-r4
-
-
-    .align 2
-_shz_xmtrx_load_apply_4x4_2:
-    mov     r4, r6 
-    fschg
-    add     #32, r6   
-    fmov.d  @r4+, xd0 
-
-    pref    @r6 
-  
-    fmov.d  @r4+, xd2 
-    fmov.d  @r4+, xd4
-    fmov.d  @r4+, xd6
-    mov     r5, r6  
-    pref    @r6
-    fmov.d  @r4+, xd8
-  
-    fmov.d  @r4+, xd10
-
-    fmov.d  @r4+, xd12
-    fmov.d  @r4+, xd14
-    add     #32, r6
-    fmov.d  @r5+, dr0 
-
-    fmov.d  @r5+, dr2
-
-    fmov.d  @r5+, dr4
-
-    pref    @r6
-    ftrv    xmtrx, fv0
-    fmov.d  @r5+, dr6
-
-    fmov.d  @r5+, dr8
-    ftrv    xmtrx, fv4
-    fmov.d  @r5+, dr10
-
-    fmov.d  @r5+, dr12
-    fmov.d  @r5, dr14
-    fschg
-    ftrv    xmtrx, fv8
-    ftrv    xmtrx, fv12
-    frchg

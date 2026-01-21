@@ -70,7 +70,7 @@ idiomatic C API with support for multiple targets, such as CGLM or raymath:
     // Only introduce SH4ZAM for supported targets within cross-platform codebases.
     #ifdef GAINZ
          // Include all of SH4ZAM, using the .h header for the C APIs.
-    #    include <sh4zam/shz_vector.h>
+    #    include <sh4zam/shz_sh4zam.h>
     #endif
 
     // The existing 4D vector structure used within the codebase.
@@ -110,7 +110,6 @@ idiomatic C++ API with support for multiple targets, such as GLM or the Simulant
         struct Vec4 {
             // Type-compatible layout with SH4ZAM's shz::vec4.
             float value[4];
-         public:
             // Overloaded operator providing 4D vector addition operation.
             friend Vec4 operator+(Vec4 lhs, Vec4 rhs);
         };
