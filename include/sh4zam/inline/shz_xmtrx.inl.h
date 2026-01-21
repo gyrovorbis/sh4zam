@@ -624,47 +624,46 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
         add     #32, %[prefscr]
         fschg
         pref    @%[prefscr]
-
         fmov.d  @%[m1]+, xd0
         fmov.d  @%[m1]+, xd2
         fmov.d  @%[m1]+, xd4
         fmov.d  @%[m1]+, xd6
-        pref    @%[m2]
         fmov.d  @%[m1]+, xd8
+        pref    @%[m2]
         fmov.d  @%[m1]+, xd10
         fmov.d  @%[m1]+, xd12
         mov     %[m2], %[prefscr]
         add     #32, %[prefscr]
         fmov.d  @%[m1], xd14
-        pref    @%[prefscr]
         fmov.d  @%[m2]+, dr0
         fmov.d  @%[m2]+, dr2
+        pref    @%[prefscr]
         fmov.d  @%[m2]+, dr4
         fmov.d  @%[m2]+, dr6
-        pref    @%[out]
         ftrv    xmtrx, fv0
         mov     %[out], %[prefscr]
         fmov.d  @%[m2]+, dr8
+        pref    @%[out]
         ftrv    xmtrx, fv4
-        add #32 %[prefscr]
+        add     #32 %[prefscr]
         fmov.d  @%[m2]+, dr10
         add     #16, %[out]
         fmov.d  @%[m2]+, dr12
-        add     #32, %[out]
         fmov.d  @%[m2], dr14
-        pref @%[prefscr]
         ftrv    xmtrx, fv8
         fmov.d  dr2, @-%[out]
         fmov.d  dr0,  @-%[out]
+        pref    @%[prefscr]
         add     #32, %[out]
         ftrv    xmtrx, fv12
         fmov.d  dr6, @-%[out]
         fmov.d  dr4,  @-%[out]
+        add     #32, %[out]
         fmov.d  dr10, @-%[out]
         fmov.d  dr8,  @-%[out]
         add     #32, %[out]
         fmov.d  dr14, @-%[out]
-        fmov.d  dr12,  @-%[out]
+        fmov.d  dr12,  @%[out]
         fschg
     )"
     : [m1] "+&r" (matrix1), [m2] "+r" (matrix2), [out] "+&r" (out), "=m" (*out),
