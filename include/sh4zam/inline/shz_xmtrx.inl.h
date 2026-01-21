@@ -663,7 +663,7 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
         fmov.d  dr8,  @-%[out]
         add     #32, %[out]
         fmov.d  dr14, @-%[out]
-        fmov.d  dr12,  @%[out]
+        fmov.d  dr12, @-%[out]
         fschg
     )"
     : [m1] "+&r" (matrix1), [m2] "+r" (matrix2), [out] "+&r" (out), "=m" (*out),
