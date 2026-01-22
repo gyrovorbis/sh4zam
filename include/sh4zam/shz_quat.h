@@ -53,6 +53,9 @@ typedef struct shz_quat {
     };
 } shz_quat_t;
 
+//! Alternate shz_quat_t C typedef for those who hate POSIX style.
+typedef shz_quat_t shz_quat;
+
 /*! \name  Initialization
     \brief Routines for creating and initializing quaternions.
     @{

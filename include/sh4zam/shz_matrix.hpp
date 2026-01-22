@@ -387,6 +387,9 @@ namespace shz {
 
         //! @}
     };
+
+    //! Alternate mat4x4 C++ alias for those who like POSIX style.
+    using mat4x4_t = mat4x4;
 }
 
 #endif

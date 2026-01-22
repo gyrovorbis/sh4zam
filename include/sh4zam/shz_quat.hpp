@@ -239,6 +239,9 @@ namespace shz {
             return shz_quat_transform_vec3(*this, in);
         }
     };
+
+    //! Alternate C++ alias for quat, for those who like POSIX style.
+    using quat_t = quat;
 }
 
 #endif

@@ -78,6 +78,9 @@ namespace shz {
         }
     };
 
+    //! C++ alias for sincos for those who like POSIX-style typenames.
+    using sincos_t = sincos;
+
     /*! \name  Sine/Cosine pairs
         \brief Routines operating on pairs of sine and cosine values.
         @{

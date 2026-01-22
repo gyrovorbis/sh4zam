@@ -84,6 +84,9 @@ typedef SHZ_ALIGNAS(8) struct shz_mat4x4 {
     };
 } shz_mat4x4_t;
 
+//! Alternate shz_mat4x4_t C typedef for those who hate POSIX style.
+typedef shz_mat4x4_t shz_mat4x4;
+
 /*! \name  Initialization
     \brief Routines for fully initializing a matrix.
    @{

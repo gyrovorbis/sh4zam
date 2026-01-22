@@ -48,6 +48,9 @@ typedef struct shz_vec2 {
     };
 } shz_vec2_t;
 
+//! Alternate typedef for the shz_vec2 struct for those who hate POSIX-style.
+typedef shz_vec2_t shz_vec2;
+
 /*! 3D Vector type
  *
  *  Structure for holding coordinates of a 3-dimensional vector.
@@ -69,6 +72,9 @@ typedef struct shz_vec3 {
         };
     };
 } shz_vec3_t;
+
+//! Alternate typedef for the shz_vec3 struct for those who hate POSIX-style.
+typedef shz_vec3_t shz_vec3;
 
 /*! 4D Vector type
  *
@@ -96,6 +102,10 @@ typedef struct shz_vec4 {
         };
     };
 } shz_vec4_t;
+
+
+//! Alternate typedef for the shz_vec4 struct for those who hate POSIX-style.
+typedef shz_vec4_t shz_vec4;
 
 /*! \name  Initializers
     \brief Component-based initialization routines.

@@ -356,6 +356,9 @@ struct vec2: vecN<vec2, shz_vec2_t, 2> {
     }
 };
 
+//! C++ alias for vec2 for those who like POSIX-style.
+using vec2_t = vec2;
+
 /*! 3D Vector type
  *
  *  C++ structure for representing a 3-dimensional vector.
@@ -427,6 +430,9 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
     }
 };
 
+//! C++ alias for vec3 for those who like POSIX-style.
+using vec3_t = vec3;
+
 /*! 4D Vector type
  *
  *  C++ structure for representing a 4-dimensional vector.
@@ -494,6 +500,9 @@ struct vec4: vecN<vec4, shz_vec4_t, 4> {
         return shz_vec4_t::xyz;
     }
 };
+
+//! C++ alias for vec4 for those who like POSIX-style.
+using vec4_t = vec4;
 
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE vec2 vecN<CRTP, C, R>::dot(this const CppType& self, CppType v1, CppType v2) noexcept {

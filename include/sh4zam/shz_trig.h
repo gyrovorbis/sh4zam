@@ -57,6 +57,9 @@ typedef struct shz_sincos {
     float cos;  //!< cosf() approximation for the angle
 } shz_sincos_t;
 
+//! Alternate C shz_sincos_t typedef for those who hate POSIX style.
+typedef shz_sincos_t shz_sincos;
+
 /*! \name  Sin/Cos Pairs
     \brief Routines involving precomputed sine + cosine pairs.
     @{
