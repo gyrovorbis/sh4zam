@@ -55,6 +55,14 @@
 
 SHZ_DECLS_BEGIN
 
+/*! \cond Forward Declarations */
+SHZ_DECLARE_STRUCT_ALIGNED(shz_mat2x2, shz_mat2x2_t, 8);
+SHZ_DECLARE_STRUCT_ALIGNED(shz_mat4x4, shz_mat4x4_t, 8);
+SHZ_DECLARE_STRUCT(shz_mat3x3, shz_mat3x3_t);
+SHZ_DECLARE_STRUCT(shz_mat4x3, shz_mat4x3_t);
+SHZ_DECLARE_STRUCT(shz_mat3x4, shz_mat3x4_t);
+/*! \endcond */
+
 //! Registers comprising XMTRX, in the FPU back-bank.
 typedef enum shz_xmtrx_reg {
     SHZ_XMTRX_XF0,  //!< FP register `xf0`.
@@ -73,7 +81,7 @@ typedef enum shz_xmtrx_reg {
     SHZ_XMTRX_XF13, //!< FP register `xf13`.
     SHZ_XMTRX_XF14, //!< FP register `xf14`.
     SHZ_XMTRX_XF15  //!< FP register `xf15`.
-} shz_xmtrx_reg_t;
+} shz_xmtrx_reg_t, shz_xmtrx_reg;
 
 /*! \name  Accessors
     \brief Setting and retrieving individual XMTRX register values.

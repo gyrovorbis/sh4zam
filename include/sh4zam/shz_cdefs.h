@@ -14,20 +14,29 @@
 #define SHZ_CDEFS_H
 
 #include <stdint.h>
-#include <assert.h>
+
+#ifdef __cplusplus
+#   include <type_traits>
+#endif
 
 /*! \name   Utilities
  *  \brief  Miscellaneous function-like macros
  *  @{
  */
- //! Stringifies an expression _after_ preprocessing
-#define SHZ_STRINGIFY(a)                    SHZ_STRINGIFY_(a)
+//! Stringifies a literal expression.
+#define SHZ_STRINGIFY_LITERAL(a)            #a
+ //! Stringifies an expression _after_ preprocessing, supporting macro expansion.
+#define SHZ_STRINGIFY(a)                    SHZ_STRINGIFY_LITERAL(a)
 //! Returns the number of elements within a statically sized array
 #define SHZ_COUNT_OF(array)                 (sizeof(array) / sizeof((array)[0]))
 //! Returns the containing structure from a pointer to one of its members
-#define SHZ_CONTAINER_OF(ptr, type, member) ((type *)((char *)(ptr) - offsetof(type, member)))
+#define SHZ_CONTAINER_OF(ptr, type, member) ((type*)((char*)(ptr) - offsetof(type, member)))
 //! Macro which swaps the two values held by \p a and \p b.
 #define SHZ_SWAP(a, b)                      do { typeof(a) tmp = a; a = b; b = tmp; } while(false)
+//! Macro which forward declares a struct and its typedef.
+#define SHZ_DECLARE_STRUCT(n, t)            struct n; typedef struct n t
+//! Macro which forward declares a manually aligned struct and its typedef.
+#define SHZ_DECLARE_STRUCT_ALIGNED(n, t, a) struct SHZ_ALIGNAS(a) n; typedef struct n t
 //! @}
 
 //! \cond
@@ -87,7 +96,6 @@
 #   define SHZ_NOEXCEPT
     //! Conversion macro for zero-overhead conversions, taking the given \p value to a value of the given \p type.
 #   define SHZ_CONVERT(type, value)     (((struct { union { typeof(value) from; type to; }; }){ (value) }).to)
-
 #else
     //! Forces functions declared after this directive to use C linkage.
 #   define SHZ_DECLS_BEGIN              extern "C" {
@@ -101,8 +109,8 @@
 #   define SHZ_RESTRICT                 __restrict__
     //! Tells the compiler that the function does not throw exceptions
 #   define SHZ_NOEXCEPT                 noexcept
-    //! Conversion macro for zero-overhead conversions, taking the given \p value to a value of the given \p type.
-#   define SHZ_CONVERT(type, value)     (shz::convert<type>(value))
+    //! Conversion macro for zero-overhead conversions, converting the constant lvalue reference \p from to a constant lvalue reference of \p To type.
+#   define SHZ_CONVERT(type, value)     [](auto& from)<template To>{ if constexpr (std::is_const_v<To>) return reinterpret_cast<const To&>(from); else return reinterpret_cast<To&>(from); }.operator<type>(value)
 #endif
 //! @}
 //! \endcond
@@ -128,35 +136,5 @@ typedef SHZ_ALIASING uint64_t shz_alias_uint64_t;
 //! double type whose value may be aliased as another type.
 typedef SHZ_ALIASING double   shz_alias_double_t;
 //! @}
-
-/*! \cond Forward Declarations */
-struct SHZ_ALIGNAS(8) shz_mat2x2;
-typedef struct shz_mat2x2 shz_mat2x2_t;
-
-struct mat3x3;
-typedef struct shz_mat3x3 shz_mat3x3_t;
-
-struct shz_mat4x3;
-typedef struct shz_mat4x3 shz_mat4x3_t;
-
-struct shz_mat3x4;
-typedef struct shz_mat3x4 shz_mat3x4_t;
-
-struct SHZ_ALIGNAS(8) shz_mat4x4;
-typedef struct shz_mat4x4 shz_mat4x4_t;
-/*! \endcond */
-
-//! \cond
-#define SHZ_STRINGIFY_(a) #a
-
-#ifdef __cplusplus
-namespace shz {
-    template<typename T> auto convert(const auto& expr) noexcept {
-        return reinterpret_cast<const T&>(expr);
-    }
-}
-#endif
-
-//! \endcond
 
 #endif // SHZ_CDEFS_H

@@ -11,6 +11,8 @@
  *  \copyright MIT License
  */
 
+ #include <assert.h>
+
  SHZ_FORCE_INLINE float shz_floorf(float x) SHZ_NOEXCEPT {
     float result = (float)(int)x;
 

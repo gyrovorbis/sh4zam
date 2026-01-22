@@ -55,6 +55,9 @@ struct xmtrx {
         XF15 = SHZ_XMTRX_XF15   //!< FP register XF15
     };
 
+    //! Non-POSIX style reg_t alias.
+    using reg_t = reg;
+
 /*! \name  Accessors
     \brief Setting and retrieving individual XMTRX register values.
     @{
