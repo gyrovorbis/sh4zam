@@ -155,6 +155,15 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_neg(shz_vec3_t vec) SHZ_NOEXCEPT;
 //! Returns a 4D vector whose components are the negative values of the given vector's components.
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_neg(shz_vec4_t vec) SHZ_NOEXCEPT;
 
+//! Returns the 4D vector whose components have been inverted or reciprocated.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_inv(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns the 4D vector whose components have been inverted or reciprocated.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_inv(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns the 4D vector whose components have been inverted or reciprocated.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_inv(shz_vec4_t vec) SHZ_NOEXCEPT;
+
 //! Returns the maximum value of both of the given vector's components.
 SHZ_FORCE_INLINE float shz_vec2_max(shz_vec2_t vec) SHZ_NOEXCEPT;
 
@@ -355,6 +364,9 @@ SHZ_FORCE_INLINE float shz_vec3_distance_sqr(shz_vec3_t vec1, shz_vec3_t vec2) S
 
 //! Returns the squared-distance between the two given 4D vectors.
 SHZ_FORCE_INLINE float shz_vec4_distance_sqr(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
+
+//! Returns the given vector, translated towards the \p target by the given \p max_distance.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_move(shz_vec2_t vec, shz_vec2_t target, float max_distance) SHZ_NOEXCEPT;
 
 //! Returns a 2D vector that is linearly interpolated from \p a to \p b by the given `0.0f-1.0f` factor, \p t.
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_lerp(shz_vec2_t a, shz_vec2_t b, float t) SHZ_NOEXCEPT;
@@ -568,6 +580,13 @@ SHZ_DECLS_END
                  shz_vec2_t: shz_vec2_neg, \
                  shz_vec3_t: shz_vec3_neg, \
                  shz_vec4_t: shz_vec4_neg)(vec)
+
+    //! C type-generic vector inversion.
+#   define shz_vec_inv(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_inv, \
+                 shz_vec3_t: shz_vec3_inv, \
+                 shz_vec4_t: shz_vec4_inv)(vec)
 
     //! C type-generic vector maximum value.
 #   define shz_vec_max(vec) \
@@ -787,6 +806,18 @@ SHZ_DECLS_END
             return shz_vec3_neg(vec);
         else if constexpr(std::convertible_to<T, shz_vec4_t>)
             return shz_vec4_neg(vec);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic vector inversion.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_inv(T vec) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_inv(vec);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_inv(vec);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_inv(vec);
         else static_assert(false, "Incompatible type!");
     }
 

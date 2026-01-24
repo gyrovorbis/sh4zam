@@ -265,6 +265,18 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_col(const shz_mat4x4_t* mat, size_t col) SHZ_NO
     @{
 */
 
+//! Sets the values of \p mat at the given \p row to those of the 4D vector, \p vec.
+SHZ_INLINE void shz_mat4x4_set_row(shz_mat4x4_t* mat, size_t row, shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Sets the values of \p mat at the given \p col to those of the 4D vector, \p vec.
+SHZ_INLINE void shz_mat4x4_set_col(shz_mat4x4_t* mat, size_t col, shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Swaps the 4D row vectors located at \p row1 and \p row2 within \p mat.
+SHZ_INLINE void shz_mat4x4_swap_rows(shz_mat4x4_t* mat, size_t row1, size_t row2) SHZ_NOEXCEPT;
+
+//! Swaps the 4D column vectors located at \p row1 and \p row2 within \p mat.
+SHZ_INLINE void shz_mat4x4_swap_cols(shz_mat4x4_t* mat, size_t col1, size_t col2) SHZ_NOEXCEPT;
+
 //! Assigns only the 3D translation-related elements of the given matrix to the given values.
 SHZ_INLINE void shz_mat4x4_set_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
 

@@ -190,6 +190,22 @@ namespace shz {
             @{
         */
 
+        SHZ_FORCE_INLINE void set_row(size_t index, vec4 values) noexcept {
+            shz_mat4x4_set_row(this, index, values);
+        }
+
+        SHZ_FORCE_INLINE void set_col(size_t index, vec4 values) noexcept {
+            shz_mat4x4_set_col(this, index, values);
+        }
+
+        SHZ_FORCE_INLINE void swap_rows(size_t row1, size_t row2) noexcept {
+            shz_mat4x4_swap_rows(this, row1, row2);
+        }
+
+        SHZ_FORCE_INLINE void swap_cols(size_t col1, size_t col2) noexcept {
+            shz_mat4x4_swap_cols(this, col1, col2);
+        }
+
         SHZ_FORCE_INLINE void set_translation(float x, float y, float z) noexcept {
             shz_mat4x4_set_translation(this, x, y, z);
         }

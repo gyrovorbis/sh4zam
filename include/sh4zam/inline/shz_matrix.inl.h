@@ -386,6 +386,37 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_col(const shz_mat4x4_t* mat, size_t col) SHZ_NO
     return mat->col[col];
 }
 
+SHZ_INLINE void shz_mat4x4_set_row(shz_mat4x4_t* mat, size_t row, shz_vec4_t values) SHZ_NOEXCEPT {
+    assert(row < 4);
+
+    mat->elem2D[0][row] = values.x;
+    mat->elem2D[1][row] = values.y;
+    mat->elem2D[2][row] = values.z;
+    mat->elem2D[3][row] = values.w;
+}
+
+SHZ_INLINE void shz_mat4x4_set_col(shz_mat4x4_t* mat, size_t col, shz_vec4_t values) SHZ_NOEXCEPT {
+    assert(col < 4);
+
+    mat->col[col] = values;
+}
+
+SHZ_INLINE void shz_mat4x4_swap_rows(shz_mat4x4_t* mat, size_t row1, size_t row2) SHZ_NOEXCEPT {
+    shz_vec4_t tmp = shz_mat4x4_row(mat, row1);
+
+    shz_mat4x4_set_row(mat, row1, shz_mat4x4_row(mat, row2));
+    shz_mat4x4_set_row(mat, row2, tmp);
+}
+
+//! Swaps the 4D column vectors located at \p row1 and \p row2 within \p mat.
+SHZ_INLINE void shz_mat4x4_swap_cols(shz_mat4x4_t* mat, size_t col1, size_t col2) SHZ_NOEXCEPT {
+    shz_vec4_t tmp = shz_mat4x4_col(mat, col1);
+
+    shz_mat4x4_set_col(mat, col1, shz_mat4x4_col(mat, col1));
+    shz_mat4x4_set_col(mat, col2, tmp);
+}
+
+
 SHZ_INLINE shz_vec2_t shz_mat4x4_transform_vec2(const shz_mat4x4_t* mat, shz_vec2_t vec) SHZ_NOEXCEPT {
     return shz_vec2_dot2(vec,
                          shz_mat4x4_row(mat, 0).xy,

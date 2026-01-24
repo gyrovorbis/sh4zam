@@ -218,6 +218,18 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_neg(shz_vec4_t vec) SHZ_NOEXCEPT {
     return shz_vec3_vec4(shz_vec3_neg(vec.xyz), -vec.w);
 }
 
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_inv(shz_vec2_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_invf(vec.x), shz_invf(vec.y));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_inv(shz_vec3_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_vec3(shz_vec2_inv(vec.xy), shz_invf(vec.z));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_inv(shz_vec4_t vec) SHZ_NOEXCEPT {
+    return shz_vec3_vec4(shz_vec3_inv(vec.xyz), shz_invf(vec.w));
+}
+
 SHZ_FORCE_INLINE float shz_vec2_max(shz_vec2_t vec) SHZ_NOEXCEPT {
     return shz_fmaxf(vec.x, vec.y);
 }
@@ -404,10 +416,8 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles_deg(float azimuth, float elevat
     return shz_vec3_from_sincos(shz_sincosf_deg(azimuth), shz_sincosf_deg(elevation));
 }
 
-
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_rotate(shz_vec2_t vec, float radians) SHZ_NOEXCEPT {
 #if 0 // GOD DAMNIT, SO CLOSE TO BEATING YOUR ASS, GCC!!
-    //shz_sincos_t sincos = shz_sincosf(radians);
     shz_vec2_t res;
 
     register float vx asm("fr4") = vec.x;
@@ -416,25 +426,22 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_rotate(shz_vec2_t vec, float radians) SHZ_N
     register float r2 asm("fr3");
     register float r1 asm("fr11");
 
-    asm (R"(
-    .align 2
+    asm volatile(R"(
         ftrc    fr6, fpul
-
-        fsca    fpul, dr0
         fldi0   fr6
+        fsca    fpul, dr0
         fldi0   fr7
         fmov    fr0, fr9
-
         fipr    fv4, fv0
         fmov    fr1, fr8
         fneg    fr9
-
         fipr    fv4, fv8
 
     )"
     : [r1] "=f" (r1), [r2] "=f" (r2), [rd] "+&f" (rd)
     : [vx] "f" (vx), [vy] "f" (vy)
     : "fr0", "fr1", "fr7", "fr8", "fr9", "fpul");
+
     SHZ_MEMORY_BARRIER_SOFT();
     res.y = r2;
     SHZ_MEMORY_BARRIER_SOFT();
@@ -494,6 +501,18 @@ SHZ_INLINE float shz_vec3_triple(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_N
     float dotRS = shz_dot6f(ax, bx, cx, c.y * b.z,  a.y * c.z,  b.y * a.z);
 
     return -(dotPQ + dotRS);
+}
+
+SHZ_INLINE shz_vec2_t shz_vec2_move(shz_vec2_t vec, shz_vec2_t target, float max_distance) SHZ_NOEXCEPT {
+    shz_vec2_t delta   = shz_vec2_sub(target, vec);
+    float      sqrdist = shz_vec2_magnitude_sqr(delta);
+
+    if(sqrdist <= max_distance * max_distance)
+        return target;
+
+    float scaled_dist = shz_inv_sqrtf(sqrdist) * max_distance;
+
+    return shz_vec2_add(vec, shz_vec2_scale(delta, scaled_dist));
 }
 
 //! \todo The FIPR-y can still be better pipelined and optimized here.

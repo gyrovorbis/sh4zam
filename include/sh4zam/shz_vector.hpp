@@ -163,6 +163,11 @@ struct vecN: C {
         return shz_vec_neg(*this);
     }
 
+    //! Returns a new vector whose components are the reciprocal values of the given vector.
+    SHZ_FORCE_INLINE CppType inv() const noexcept {
+        return shz_vec_inv(*this);
+    }
+
     //! Returns the maximum value of every element within the vector.
     SHZ_FORCE_INLINE float max() const noexcept {
         return shz_vec_max(*this);
