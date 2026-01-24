@@ -16,7 +16,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16(uint16_t radians16) SHZ_NOEXCEPT {
     register float rsin asm("fr8");
     register float rcos asm("fr9");
 
-    asm volatile(R"(
+    asm(R"(
             lds  %2, fpul
             fsca fpul, dr8
         )"
@@ -39,7 +39,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) SHZ_NOEXCEPT {
 
     radians *= SHZ_FSCA_RAD_FACTOR;
 
-    asm volatile(R"(
+    asm(R"(
         ftrc  %2, fpul
         fsca  fpul, dr8
     )"
@@ -62,7 +62,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) SHZ_NOEXCEPT {
 
     degrees *= SHZ_FSCA_DEG_FACTOR;
 
-    asm volatile(R"(
+    asm(R"(
         ftrc  %2, fpul
         fsca  fpul, dr8
     )"

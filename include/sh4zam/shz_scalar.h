@@ -83,15 +83,26 @@ SHZ_FORCE_INLINE float shz_ceilf(float x) SHZ_NOEXCEPT;
 */
 SHZ_FORCE_INLINE float shz_roundf(float x) SHZ_NOEXCEPT;
 
+/*! Replacement for the <math.h> routine, truncf().
+
+    Returns the value of \p with its fractional component discarded.
+
+    \warning
+    This routine only returns valid values for the input range
+    INT32_MIN <= \p x <= INT32_MAX.
+*/
+SHZ_FORCE_INLINE float shz_truncf(float x) SHZ_NOEXCEPT;
+
 /*! Replacement for the <math.h> routine, remainderf().
 
     Returns the floating-point remainder of \p num divided by \p denom,
     rounded to the nearest integer (as a float).
 
     \warning
-    This routine does not gracefully handle dividing by zero.
+    This routine does not gracefully handle dividing by zero, and it is only
+    valid for the input range INT32_MIN <= \p num / \p denom <= INT32_MAX.
 
-    \sa shz_fmodf(), shz_remquof()
+    \sa shz_fmodf(), shz_remquof(), shz_truncf().
 */
 SHZ_FORCE_INLINE float shz_remainderf(float num, float denom) SHZ_NOEXCEPT;
 
@@ -123,6 +134,31 @@ SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT;
     \sa shz_remainderf()
 */
 SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEXCEPT;
+
+//! @}
+
+/*! \name  Mapping
+    \brief Routines for mapping a number to another range.
+    @{
+*/
+
+//! Maps a value within the given range \p from to \p to, to be within the range of `0.0f += 1.0f`.
+SHZ_FORCE_INLINE float shz_normalizef(float from, float to, float current) SHZ_NOEXCEPT;
+
+//! Maps a value within the given range \p from to \p to, to be within the range of `0.0f + 1.0f` more quickly, provided \p to - \p from is a positive difference.
+SHZ_FORCE_INLINE float shz_normalizef_fsrra(float from, float to, float current) SHZ_NOEXCEPT;
+
+//! Maps a value within the given range \p inputStart to \p inputEnd, to be within the range of \p outputStart to \p outputEnd.
+SHZ_FORCE_INLINE float shz_remapf(float value, float inputStart, float inputEnd, float outputStart, float outputEnd) SHZ_NOEXCEPT;
+
+//! Maps a value within the given range \p inputStart to \p inputEnd, to be within the range of \p outputStart to \p outputEnd more quickly, provided the \p outputEnd - \p outputStart is a positive difference.
+SHZ_FORCE_INLINE float shz_remapf_fsrra(float value, float inputStart, float inputEnd, float outputStart, float outputEnd) SHZ_NOEXCEPT;
+
+//! Wraps the given \p value back to be within the range of \p min to \p max.
+SHZ_FORCE_INLINE float shz_wrapf(float value, float min, float max) SHZ_NOEXCEPT;
+
+//! Wraps the given \p value back to be within the range of \p min to \p max more quickly, provided \p max - \p min is a positive difference.
+SHZ_FORCE_INLINE float shz_wrapf_fsrra(float value, float min, float max) SHZ_NOEXCEPT;
 
 //! @}
 

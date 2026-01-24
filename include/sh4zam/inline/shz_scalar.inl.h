@@ -14,7 +14,7 @@
  #include <assert.h>
 
  SHZ_FORCE_INLINE float shz_floorf(float x) SHZ_NOEXCEPT {
-    float result = (float)(int)x;
+    float result = shz_truncf(x);
 
     if (x < 0.0f)
         result -= 1.0f;
@@ -23,7 +23,7 @@
 }
 
 SHZ_FORCE_INLINE float shz_ceilf(float x) SHZ_NOEXCEPT {
-    float result = (float)(int)x;
+    float result = shz_truncf(x);
 
     if (x > result)
         result += 1.0f;
@@ -33,6 +33,7 @@ SHZ_FORCE_INLINE float shz_ceilf(float x) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE float shz_copysignf(float x, float y) SHZ_NOEXCEPT {
     x = fabsf(x);
+
     return (y < 0.0f)? -x : x;
 }
 
@@ -50,6 +51,10 @@ SHZ_FORCE_INLINE float shz_roundf(float x) SHZ_NOEXCEPT {
         return x;
 }
 
+SHZ_FORCE_INLINE float shz_truncf(float x) SHZ_NOEXCEPT {
+    return (float)(int32_t)x;
+}
+
 SHZ_FORCE_INLINE float shz_fdimf(float x, float y) SHZ_NOEXCEPT {
     return (x > y)? x - y : 0.0f;
 }
@@ -63,12 +68,49 @@ SHZ_FORCE_INLINE float shz_remainderf(float num, float denom) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT {
-    return num - truncf(shz_divf(num, denom)) * denom;
+    return num - shz_truncf(shz_divf(num, denom)) * denom;
 }
 
 SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEXCEPT {
     *quot = shz_roundf(shz_divf(num, denom));
     return num - *quot * denom;
+}
+
+SHZ_FORCE_INLINE float shz_normalizef(float from, float to, float current) SHZ_NOEXCEPT {
+    float t;
+
+    if((t = to - from) <= 0.0f) {
+        if(t == 0.0f)
+            return 1.0f;
+        else
+            return -shz_divf_fsrra(current - from, t);
+    }
+
+    return shz_divf_fsrra(current - from, t);
+}
+
+SHZ_FORCE_INLINE float shz_normalizef_fsrra(float from, float to, float current) SHZ_NOEXCEPT {
+    return shz_divf_fsrra(current - from, to - from);
+}
+
+SHZ_FORCE_INLINE float shz_remapf(float value, float inputStart, float inputEnd, float outputStart, float outputEnd) SHZ_NOEXCEPT {
+    return shz_divf(value - inputStart, inputEnd - inputStart)*(outputEnd - outputStart) + outputStart;
+}
+
+SHZ_FORCE_INLINE float shz_remapf_fsrra(float value, float inputStart, float inputEnd, float outputStart, float outputEnd) SHZ_NOEXCEPT {
+    return shz_divf_fsrra(value - inputStart, inputEnd - inputStart) * (outputEnd - outputStart) + outputStart;
+}
+
+SHZ_FORCE_INLINE float shz_wrapf(float value, float min, float max) SHZ_NOEXCEPT {
+    float diff = max - min;
+
+    return value - (diff * shz_floorf(shz_divf(value - min, diff)));
+}
+
+SHZ_FORCE_INLINE float shz_wrapf_fsrra(float value, float min, float max) SHZ_NOEXCEPT {
+    float diff = max - min;
+
+    return value - (diff * shz_floorf(shz_divf_fsrra(value - min, diff)));
 }
 
 /* Only here in case we ever find a platform where the compiler is so dumb
@@ -78,7 +120,8 @@ SHZ_FORCE_INLINE float shz_fabsf(float x) SHZ_NOEXCEPT {
     return fabsf(x);
 }
 
-// Compiler is smart enough to do the right thing regardless of flags.
+/* Compiler is smart enough to do the right thing regardless of flags for SH4.
+   Smarter than even using the builtin (seriously). */
 SHZ_FORCE_INLINE float shz_fmaf(float a, float b, float c) SHZ_NOEXCEPT {
     return a * b + c;
 }
@@ -129,7 +172,12 @@ SHZ_FORCE_INLINE bool shz_quadratic_roots(float a, float b, float c,
 }
 
 SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
+    // Just in case someone raw-dogs FSRRA with a literal, don't let them lose gainz.
+    if(__builtin_constant_p(x))
+        return (x == 0.0f)? 0.0f : 1.0f / sqrtf(x);
+
     asm volatile("fsrra %0" : "+f" (x));
+
     return x;
 }
 
