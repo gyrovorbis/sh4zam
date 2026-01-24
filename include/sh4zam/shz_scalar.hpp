@@ -58,12 +58,32 @@ namespace shz {
     constexpr auto ceilf      = shz_ceilf;
     //! C++ alias for shz_roundf().
     constexpr auto roundf     = shz_roundf;
+    //! C++ alias for shz_truncf().
+    constexpr auto truncf     = shz_truncf;
     //! C++ alias for shz_remainderf().
     constexpr auto remainderf = shz_remainderf;
     //! C++ alias for shz_fmodf().
     constexpr auto fmodf      = shz_fmodf;
     //! C++ alias for shz_remquof().
     constexpr auto remquof    = shz_remquof;
+    //! @}
+
+    /*! \name  Mapping
+     *  \brief Routines for mapping a number to another range.
+     *  @{
+    */
+    //! C++ alias for shz_normalizef().
+    constexpr auto normalizef         = shz_normalizef;
+    //! C++ alias for shz_normalizef_fsrra().
+    constexpr auto normalizef_fsrra   = shz_normalizef_fsrra;
+    //! C++ alias for shz_remapf().
+    constexpr auto remapf             = shz_remapf;
+    //! C++ alias for shz_remapf_fsrra().
+    constexpr auto remapf_fsrra       = shz_remapf_fsrra;
+    //! C++ alias for shz_wrapf().
+    constexpr auto wrapf              = shz_wrapf;
+    //! C++ alias for shz_wrapf_fsrra().
+    constexpr auto wrapf_fsrra        = shz_wrapf_fsrra;
     //! @}
 
     /*! \name  Miscellaneous
