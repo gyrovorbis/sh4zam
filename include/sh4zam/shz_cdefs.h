@@ -109,8 +109,26 @@
 #   define SHZ_RESTRICT                 __restrict__
     //! Tells the compiler that the function does not throw exceptions
 #   define SHZ_NOEXCEPT                 noexcept
-    //! Conversion macro for zero-overhead conversions, converting the constant lvalue reference \p from to a constant lvalue reference of \p To type.
-#   define SHZ_CONVERT(type, value)     [](auto& from)<template To>{ if constexpr (std::is_const_v<To>) return reinterpret_cast<const To&>(from); else return reinterpret_cast<To&>(from); }.operator<type>(value)
+    //! Conversion macro for zero-overhead conversions that handles pointers/references \p from and \p type.
+#   define SHZ_CONVERT(type, from) \
+    [&]<typename To, typename V>(V&& value) -> To { \
+        using TNR = std::remove_reference_t<To>; \
+        using VNR = std::remove_reference_t<V>; \
+        if constexpr (std::is_pointer_v<To>) { \
+            if constexpr (std::is_pointer_v<VNR>) { \
+                return reinterpret_cast<To>(value); \
+            } else { \
+                return reinterpret_cast<To>(&value); \
+            } \
+        } else if constexpr (std::is_reference_v<To>) { \
+            static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes when converting to a reference type."); \
+            return reinterpret_cast<To>(value); \
+        } else { \
+            static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes."); \
+            return reinterpret_cast<To&>(value); \
+        } \
+    }.operator()<type>(from)
+    
 #endif
 //! @}
 //! \endcond
