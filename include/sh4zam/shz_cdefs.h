@@ -14,6 +14,7 @@
 #define SHZ_CDEFS_H
 
 #include <stdint.h>
+#include <assert.h>
 
 #ifdef __cplusplus
 #   include <type_traits>
@@ -95,7 +96,14 @@
     //! Dummy define provided for C++ compatibility
 #   define SHZ_NOEXCEPT
     //! Conversion macro for zero-overhead conversions, taking the given \p value to a value of the given \p type.
-#   define SHZ_CONVERT(type, value)     (((struct { union { typeof(value) from; type to; }; }){ (value) }).to)
+#   define SHZ_CONVERT(type, value) \
+        (((struct { \
+            union { \
+                typeof(value) from; \
+                type to; \
+            }; \
+            static_assert(sizeof(type) == sizeof(value), "SHZ_CONVERT: Cannot convert between types of differing sizes."); \
+        }){ (value) }).to)
 #else
     //! Forces functions declared after this directive to use C linkage.
 #   define SHZ_DECLS_BEGIN              extern "C" {
@@ -111,23 +119,23 @@
 #   define SHZ_NOEXCEPT                 noexcept
     //! Conversion macro for zero-overhead conversions that handles pointers/references \p from and \p type.
 #   define SHZ_CONVERT(type, from) \
-    [&]<typename To, typename V>(V&& value) -> To { \
-        using TNR = std::remove_reference_t<To>; \
-        using VNR = std::remove_reference_t<V>; \
-        if constexpr (std::is_pointer_v<To>) { \
-            if constexpr (std::is_pointer_v<VNR>) { \
+        [&]<typename To, typename V>(V&& value) -> To { \
+            using TNR = std::remove_reference_t<To>; \
+            using VNR = std::remove_reference_t<V>; \
+            if constexpr (std::is_pointer_v<To>) { \
+                if constexpr (std::is_pointer_v<VNR>) { \
+                    return reinterpret_cast<To>(value); \
+                } else { \
+                    return reinterpret_cast<To>(&value); \
+                } \
+            } else if constexpr (std::is_reference_v<To>) { \
+                static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes when converting to a reference type."); \
                 return reinterpret_cast<To>(value); \
             } else { \
-                return reinterpret_cast<To>(&value); \
+                static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes."); \
+                return reinterpret_cast<To&>(value); \
             } \
-        } else if constexpr (std::is_reference_v<To>) { \
-            static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes when converting to a reference type."); \
-            return reinterpret_cast<To>(value); \
-        } else { \
-            static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes."); \
-            return reinterpret_cast<To&>(value); \
-        } \
-    }.operator()<type>(from)
+        }.operator()<type>(from)
     
 #endif
 //! @}

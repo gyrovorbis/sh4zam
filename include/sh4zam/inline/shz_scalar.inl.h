@@ -14,6 +14,9 @@
  #include <assert.h>
 
  SHZ_FORCE_INLINE float shz_floorf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_floorf(x);
+
     float result = shz_truncf(x);
 
     if (x < 0.0f)
@@ -23,6 +26,9 @@
 }
 
 SHZ_FORCE_INLINE float shz_ceilf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_ceilf(x);
+
     float result = shz_truncf(x);
 
     if (x > result)
@@ -32,14 +38,20 @@ SHZ_FORCE_INLINE float shz_ceilf(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_copysignf(float x, float y) SHZ_NOEXCEPT {
-    x = fabsf(x);
+    if(__builtin_constant_p(x) && __builtin_constant_p(y))
+        return __builtin_copysignf(x, y);
+
+    x = shz_fabsf(x);
 
     return (y < 0.0f)? -x : x;
 }
 
 SHZ_FORCE_INLINE float shz_roundf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_roundf(x);
+
     if(x > 0.0f) {
-        float xfloor = (float)(uint32_t)x;
+        float xfloor = shz_truncf(x);
 
         if(x - xfloor >= 0.5f)
             xfloor += 1.0f;
@@ -52,6 +64,9 @@ SHZ_FORCE_INLINE float shz_roundf(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_truncf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_truncf(x);
+
     return (float)(int32_t)x;
 }
 
@@ -60,19 +75,38 @@ SHZ_FORCE_INLINE float shz_fdimf(float x, float y) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_hypotf(float x, float y) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x) && __builtin_constant_p(y))
+        return __builtin_hypotf(x, y);
+
     return shz_sqrtf((x * x) + (y * y));
 }
 
 SHZ_FORCE_INLINE float shz_remainderf(float num, float denom) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(num) && __builtin_constant_p(denom))
+        return __builtin_remainderf(num, denom);
+
     return num - shz_roundf(shz_divf(num, denom)) * denom;
 }
 
 SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(num) && __builtin_constant_p(denom))
+        return __builtin_fmodf(num, denom);
+
     return num - shz_truncf(shz_divf(num, denom)) * denom;
 }
 
 SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(num) && __builtin_constant_p(denom)) {
+        int int_quot;
+        float remainder = __builtin_remquof(num, denom, &int_quot);
+
+        *quot = int_quot;
+
+        return remainder;
+    }
+
     *quot = shz_roundf(shz_divf(num, denom));
+
     return num - *quot * denom;
 }
 
@@ -117,6 +151,9 @@ SHZ_FORCE_INLINE float shz_wrapf_fsrra(float value, float min, float max) SHZ_NO
    fabsf() isn't optimal... but in the meantime, it is.
 */
 SHZ_FORCE_INLINE float shz_fabsf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_fabsf(x);
+
     return fabsf(x);
 }
 
@@ -172,18 +209,17 @@ SHZ_FORCE_INLINE bool shz_quadratic_roots(float a, float b, float c,
 }
 
 SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
-    // Just in case someone raw-dogs FSRRA with a literal, don't let them lose gainz.
     if(__builtin_constant_p(x))
-        return (x == 0.0f)? 0.0f : 1.0f / sqrtf(x);
+        return (x == 0.0f)? 0.0f : 1.0f / __builtin_sqrtf(x);
 
-    asm volatile("fsrra %0" : "+f" (x));
+    asm("fsrra %0" : "+f" (x));
 
     return x;
 }
 
 SHZ_FORCE_INLINE float shz_inv_sqrtf(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
-        return 1.0f / sqrtf(x);
+        return (x == 0.0f)? 0.0f : 1.0f / __builtin_sqrtf(x);
 
     return (x == 0.0f)? 0.0f : shz_inv_sqrtf_fsrra(x);
 }
@@ -194,18 +230,21 @@ SHZ_FORCE_INLINE float shz_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
-        return sqrtf(x);
+        return __builtin_sqrtf(x);
 
     return (x == 0.0f)? 0.0f : shz_sqrtf_fsrra(x);
 }
 
 SHZ_FORCE_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return (x == 0.0f)? 0.0f : 1.0f / __builtin_fabsf(x);
+
     return shz_inv_sqrtf_fsrra(x * x);
 }
 
 SHZ_FORCE_INLINE float shz_invf(float x) SHZ_NOEXCEPT {
     if (__builtin_constant_p(x))
-        return 1.0f / x;
+        return (x == 0.0f)? 0.0f : 1.0f / x;
 
     float inv = shz_invf_fsrra(x);
 
@@ -231,6 +270,11 @@ SHZ_FORCE_INLINE float shz_divf(float num, float denom) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE float shz_dot6f(float x1, float y1, float z1,
                                  float x2, float y2, float z2) SHZ_NOEXCEPT {
+
+    if(__builtin_constant_p(x1) && __builtin_constant_p(y1) && __builtin_constant_p(z1) &&
+       __builtin_constant_p(x2) && __builtin_constant_p(y2) && __builtin_constant_p(z2))
+        return (x1 * x2) + (y1 * y2) + (z1 * z2);
+
     register float rx1 asm("fr8")  = x1;
     register float ry1 asm("fr9")  = y1;
     register float rz1 asm("fr10") = z1;
@@ -252,6 +296,9 @@ SHZ_FORCE_INLINE float shz_dot6f(float x1, float y1, float z1,
 }
 
 SHZ_FORCE_INLINE float shz_mag_sqr3f(float x, float y, float z) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x) && __builtin_constant_p(y) && __builtin_constant_p(z))
+        return (x * x) + (y * y) + (z * z);
+
     register float rx asm("fr8")  = x;
     register float ry asm("fr9")  = y;
     register float rz asm("fr10") = z;
@@ -269,6 +316,11 @@ SHZ_FORCE_INLINE float shz_mag_sqr3f(float x, float y, float z) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
                                  float x2, float y2, float z2, float w2) SHZ_NOEXCEPT {
+
+    if(__builtin_constant_p(x1) && __builtin_constant_p(y1) && __builtin_constant_p(z1) && __builtin_constant_p(w1) &&
+       __builtin_constant_p(x2) && __builtin_constant_p(y2) && __builtin_constant_p(z2) && __builtin_constant_p(w2))
+        return (x1 * x2) + (y1 * y2) + (z1 * z2) + (w1 * w2);
+
     register float rx1 asm("fr8")  = x1;
     register float ry1 asm("fr9")  = y1;
     register float rz1 asm("fr10") = z1;
@@ -290,6 +342,9 @@ SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
 }
 
 SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x) && __builtin_constant_p(y) && __builtin_constant_p(z) && __builtin_constant_p(w))
+        return (x * x) + (y * y) + (z * z) + (w * w);
+
     register float rx asm("fr8")  = x;
     register float ry asm("fr9")  = y;
     register float rz asm("fr10") = z;
@@ -309,7 +364,7 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) SHZ_NOE
 SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT {
     // Let GCC compute statically if compile-time constant.
     if(__builtin_constant_p(p))
-        return powf(2.0f, p);
+        return __builtin_powf(2.0f, p);
 
     // Underflow of exponential is common practice in numerical routines, so handle it here.
     const float clipp = p < -126.0f ? -126.0f : p;
@@ -323,7 +378,7 @@ SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT {
 SHZ_FORCE_INLINE float shz_log2f(float x) SHZ_NOEXCEPT {
     // Let GCC compute statically if compile-time constant.
     if(__builtin_constant_p(x))
-        return log2f(x);
+        return __builtin_log2f(x);
 
     assert(x >= 0.0f);
 
@@ -336,7 +391,7 @@ SHZ_FORCE_INLINE float shz_log2f(float x) SHZ_NOEXCEPT {
 SHZ_FORCE_INLINE float shz_logf(float x) SHZ_NOEXCEPT {
     // Let GCC compute statically if compile-time constant.
     if(__builtin_constant_p(x))
-        return logf(x);
+        return __builtin_logf(x);
 
     return 0.69314718f * shz_log2f(x);
 }
@@ -344,7 +399,7 @@ SHZ_FORCE_INLINE float shz_logf(float x) SHZ_NOEXCEPT {
 SHZ_FORCE_INLINE float shz_powf(float x, float p) SHZ_NOEXCEPT {
     // Let GCC compute statically if compile-time constant.
     if(__builtin_constant_p(x) && __builtin_constant_p(p))
-        return powf(x, p);
+        return __builtin_powf(x, p);
 
     return shz_pow2f(p * shz_log2f(x));
 }
@@ -352,7 +407,7 @@ SHZ_FORCE_INLINE float shz_powf(float x, float p) SHZ_NOEXCEPT {
 SHZ_FORCE_INLINE float shz_expf(float p) SHZ_NOEXCEPT {
     // Let GCC compute statically if compile-time constant.
     if(__builtin_constant_p(p))
-        return expf(p);
+        return __builtin_expf(p);
 
     return shz_pow2f(1.442695040f * p);
 }

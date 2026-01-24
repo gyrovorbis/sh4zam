@@ -9,7 +9,7 @@
  *  \todo
  *      - shz_vec_rotate(): for one-off rotations
  *
- *  \author 2025 Falco Girgis
+ *  \author 2025, 2026 Falco Girgis
  *  \author 2025 Paul Cercueil
  *
  *  \copyright MIT License
@@ -594,48 +594,42 @@ SHZ_INLINE shz_vec2_t shz_vec2_refract(shz_vec2_t incidence, shz_vec2_t normal, 
     const float dot = shz_vec2_dot(incidence, normal);
     const float k   = 1.0f - eta * eta * (1.0f - dot * dot);
 
-    if(k < 0.0f)
-        return shz_vec2_init(0.0f, 0.0f);
-    else {
-        incidence = shz_vec2_scale(incidence, eta);
-
+    if(k <= 0.0f) {
         if(k == 0.0f)
-            return incidence;
+            return shz_vec2_scale(incidence, eta);
         else
-            return shz_vec2_sub(incidence, shz_vec2_scale(normal, eta * dot * shz_sqrtf_fsrra(k)));
-    }
+            return shz_vec2_fill(0.0f);
+    } else
+        return shz_vec2_sub(shz_vec2_scale(incidence, eta),
+                            shz_vec2_scale(normal, eta * dot * shz_sqrtf_fsrra(k)));
 }
 
 SHZ_INLINE shz_vec3_t shz_vec3_refract(shz_vec3_t incidence, shz_vec3_t normal, float eta) SHZ_NOEXCEPT {
     const float dot = shz_vec3_dot(incidence, normal);
     const float k   = 1.0f - eta * eta * (1.0f - dot * dot);
 
-    if(k < 0.0f)
-        return shz_vec3_init(0.0f, 0.0f, 0.0f);
-    else {
-        incidence = shz_vec3_scale(incidence, eta);
-
+    if(k <= 0.0f) {
         if(k == 0.0f)
-            return incidence;
+            return shz_vec3_scale(incidence, eta);
         else
-            return shz_vec3_sub(incidence, shz_vec3_scale(normal, eta * dot * shz_sqrtf_fsrra(k)));
-    }
+            return shz_vec3_fill(0.0f);
+    } else
+        return shz_vec3_sub(shz_vec3_scale(incidence, eta),
+                            shz_vec3_scale(normal, eta * dot * shz_sqrtf_fsrra(k)));
 }
 
 SHZ_INLINE shz_vec4_t shz_vec4_refract(shz_vec4_t incidence, shz_vec4_t normal, float eta) SHZ_NOEXCEPT {
     const float dot = shz_vec4_dot(incidence, normal);
     const float k   = 1.0f - eta * eta * (1.0f - dot * dot);
 
-    if(k < 0.0f)
-        return shz_vec4_init(0.0f, 0.0f, 0.0f, 0.0f);
-    else {
-        incidence = shz_vec4_scale(incidence, eta);
-
+    if(k <= 0.0f) {
         if(k == 0.0f)
-            return incidence;
+            return shz_vec4_scale(incidence, eta);
         else
-            return shz_vec4_sub(incidence, shz_vec4_scale(normal, eta * dot * shz_sqrtf_fsrra(k)));
-    }
+            return shz_vec4_fill(0.0f);
+    } else
+        return shz_vec4_sub(shz_vec4_scale(incidence, eta),
+                            shz_vec4_scale(normal, eta * dot * shz_sqrtf_fsrra(k)));
 }
 
 SHZ_FORCE_INLINE float shz_vec2_cross(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
@@ -740,7 +734,7 @@ SHZ_FORCE_INLINE float shz_vec3_angle_between(shz_vec3_t vec1, shz_vec3_t vec2) 
 }
 
 SHZ_FORCE_INLINE float shz_vec2_angle(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return atan2f(vec.y, vec.x);
+    return shz_atan2f(vec.y, vec.x);
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_angles(shz_vec3_t vec) SHZ_NOEXCEPT {
