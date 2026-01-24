@@ -17,41 +17,26 @@
 namespace shz {
     constexpr float fipr_max_error = 0.1f; // Not accurate yet. lol.
 
-    /*! \name  Min/Max
-     *  \brief Routines for minimum, maximum, clamping, and normalization.
-     *  @{
-     */
-    //! Returns the minimum of the two given values.
-    SHZ_FORCE_INLINE constexpr auto min(auto&& a, auto&& b) noexcept {
-        return SHZ_MIN(std::forward<decltype(a)>(a),
-                       std::forward<decltype(b)>(b));
-    }
-
-    //! Returns the maximum of the two given values.
-    SHZ_FORCE_INLINE constexpr auto max(auto&& a, auto&& b) noexcept {
-        return SHZ_MAX(std::forward<decltype(a)>(a),
-                       std::forward<decltype(b)>(b));
-    }
-
-    //! Clamps \p v between \p min and \p max.
-    SHZ_FORCE_INLINE constexpr auto clamp(auto&& v, auto&& min, auto&& max) noexcept {
-        return SHZ_CLAMP(std::forward<decltype(v)>(v),
-                         std::forward<decltype(min)>(min),
-                         std::forward<decltype(max)>(max));
-    }
-
-    //! Clamps \p v within \p min and \p max then normalizes it between 0.0f and 1.0f
-    SHZ_FORCE_INLINE constexpr auto norm(auto&& v, auto&& min, auto&& max) noexcept {
-        return SHZ_NORM(std::forward<decltype(v)>(v),
-                        std::forward<decltype(min)>(min),
-                        std::forward<decltype(max)>(max));
-    }
+    /*! \name  Comparisons
+        \brief Routines for comparing and classifying floating-point values.
+        @{
+    */
+    //! C++ alias for shz_fminf()
+    constexpr auto fminf       = shz_fminf;
+    //! C++ alias for shz_fmaxf()
+    constexpr auto fmaxf       = shz_fmaxf;
+    //! C++ alias for shz_equalf()
+    constexpr auto equalf      = shz_equalf;
+    //! C++ alias for shz_equalf_abs()
+    constexpr auto equalf_abs  = shz_equalf_abs;
+    //! C++ alias for shz_equalf_rel()
+    constexpr auto equalf_rel  = shz_equalf_rel;
     //! @}
 
     /*! \name  Rounding
-     *  \brief Routines for rounding floats.
-     *  @{
-     */
+        \brief Routines for rounding floats.
+        @{
+    */
     //! C++ alias for shz_floorf().
     constexpr auto floorf     = shz_floorf;
     //! C++ alias for shz_ceilf().
@@ -69,9 +54,11 @@ namespace shz {
     //! @}
 
     /*! \name  Mapping
-     *  \brief Routines for mapping a number to another range.
-     *  @{
+        \brief Routines for mapping a number to another range.
+        @{
     */
+    //! C++ alias for shz_clampf().
+    constexpr auto clampf             = shz_clampf;
     //! C++ alias for shz_normalizef().
     constexpr auto normalizef         = shz_normalizef;
     //! C++ alias for shz_normalizef_fsrra().
@@ -87,9 +74,9 @@ namespace shz {
     //! @}
 
     /*! \name  Miscellaneous
-     *  \brief Fast versions of miscellaneous FP routines.
-     *  @{
-     */
+        \brief Fast versions of miscellaneous FP routines.
+        @{
+    */
     //! C++ alias for shz_fabsf().
     constexpr auto fabsf             = shz_fabsf;
     //! C++ alias for shz_copysignf().
@@ -113,9 +100,9 @@ namespace shz {
     //! @}
 
     /*! \name  FSRRA
-     *  \brief Routines built around fast reciprocal square root.
-     *  @{
-     */
+        \brief Routines built around fast reciprocal square root.
+        @{
+    */
     //! C++ alias for shz_inv_sqrtf_fsrra().
     constexpr auto inv_sqrtf_fsrra = shz_inv_sqrtf_fsrra;
     //! C++ alias for shz_inv_sqrtf().
@@ -135,9 +122,9 @@ namespace shz {
     //! @}
 
     /*! \name  FIPR
-     *  \brief Routines built around fast 4D dot product.
-     *  @{
-     */
+        \brief Routines built around fast 4D dot product.
+        @{
+    */
     //! C++ alias for shz_dot6f().
     constexpr auto dot6f    = shz_dot6f;
     //! C++ alias for shz_dot8f().
@@ -149,8 +136,8 @@ namespace shz {
     //! @}
 
     /*! \name  Transcendental
-     *  \brief Routines for accelerating transcendental functions.
-     *  @{
+        \brief Routines for accelerating transcendental functions.
+        @{
     */
     //! C++ alias for shz_pow2f().
     constexpr auto pow2f = shz_pow2f;

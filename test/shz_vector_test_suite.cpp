@@ -373,6 +373,27 @@ GBL_TEST_CASE(vec4Dot3)
                          { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(vec2Rotate)
+   auto test = [&](shz::vec2 vec, float radians) {
+        shz::vec2 shz_rotated, c_rotated;
+
+        benchmark(&c_rotated, [&]{
+            float cosres = cosf(radians);
+            float sinres = sinf(radians);
+
+            return shz_vec2_init(vec.x * cosres - vec.y * sinres,
+                                 vec.x * sinres + vec.y * cosres);
+        });
+
+        benchmark(&shz_rotated, [&]{ return vec.rotate(radians); });
+
+        return shz_rotated == c_rotated;
+    };
+
+    test({1.0f, 2.0f }, SHZ_F_PI);
+    test({gblRandf(), gblRandf()}, gblRandf());
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(vec2Construct,
                   vec2Set,
                   vec2Lerp,
@@ -395,4 +416,5 @@ GBL_TEST_REGISTER(vec2Construct,
                   vec3Dot3,
                   vec4Dot,
                   vec4Dot2,
-                  vec4Dot3)
+                  vec4Dot3,
+                  vec2Rotate)

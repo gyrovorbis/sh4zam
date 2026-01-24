@@ -585,8 +585,9 @@ GBL_TEST_CASE(load_apply_4x4)
     unsigned int count = 0;
 
     benchmark(nullptr, [&] {
-        shz_xmtrx_load_apply_4x4(reinterpret_cast<const shz::mat4x4*>(&mat1[count++%128]),
-                                 reinterpret_cast<const shz::mat4x4*>(&mat2[count++%128]));
+        const auto idx = count++ % 128;
+        shz_xmtrx_load_apply_4x4(reinterpret_cast<const shz::mat4x4*>(&mat1[idx]),
+                                 reinterpret_cast<const shz::mat4x4*>(&mat2[idx]));
     });
 
     shz_xmtrx_load_apply_4x4(reinterpret_cast<const shz::mat4x4*>(&mat1[0]),

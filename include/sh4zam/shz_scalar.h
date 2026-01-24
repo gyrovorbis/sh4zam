@@ -34,20 +34,36 @@
     and domain errors back to the user.
 */
 
-//! Returns the minimum of the two given values
-#define SHZ_MIN(a, b)           (((a) < (b))? (a) : (b))
-//! Return sthe maximum of the two given values
-#define SHZ_MAX(a, b)           (((a) > (b))? (a) : (b))
-//! Clamps \p v between the given \p min and \p max values
-#define SHZ_CLAMP(v, min, max)  SHZ_MIN(SHZ_MAX(v, min), max)
-//! Clamps \p v within \p min and \p max then normalizes it between 0.0f and 1.0f
-#define SHZ_NORM(v, min, max)   ((float)(SHZ_CLAMP(v, min, max) - (min)) / (float)((max) - (min)))
+//! Floating-point epsilon used with inexact FP-based comparisons.
+#define SHZ_FLT_EPSILON 0.000001f
 
 SHZ_DECLS_BEGIN
 
+/*! \name  Comparisons
+    \brief Routines for comparing and classifying floating-point values.
+    @{
+*/
+
+//! Returns the minimum value of two given floats.
+SHZ_FORCE_INLINE float shz_fminf(float a, float b) SHZ_NOEXCEPT;
+
+//! Returns the maximum value of two given floats.
+SHZ_FORCE_INLINE float shz_fmaxf(float a, float b) SHZ_NOEXCEPT;
+
+//! Checks for equality based on EITHER the absolute toerance or relative tolerance, using SHZ_FLT_EPSILON.
+SHZ_FORCE_INLINE bool shz_equalf(float a, float b) SHZ_NOEXCEPT;
+
+//! Checks for equality based on the absolute tolerance using SHZ_FLT_EPSILON.
+SHZ_FORCE_INLINE bool shz_equalf_abs(float a, float b) SHZ_NOEXCEPT;
+
+//! Checks for equality based on the relative tolerance using SHZ_FLT_EPSILON.
+SHZ_FORCE_INLINE bool shz_equalf_rel(float a, float b) SHZ_NOEXCEPT;
+
+//! @}
+
 /*! \name  Rounding
- *  \brief Routines for rounding and manipulating floats.
- *  @{
+    \brief Routines for rounding and manipulating floats.
+    @{
  */
 
 /*! Replacement for the <math.h> routine, floorf().
@@ -142,11 +158,14 @@ SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEX
     @{
 */
 
+//! Clamps a floating-point value by the given \p min and \p max values.
+SHZ_FORCE_INLINE float shz_clampf(float value, float min, float max) SHZ_NOEXCEPT;
+
 //! Maps a value within the given range \p from to \p to, to be within the range of `0.0f += 1.0f`.
-SHZ_FORCE_INLINE float shz_normalizef(float from, float to, float current) SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE float shz_normalizef(float current, float from, float to) SHZ_NOEXCEPT;
 
 //! Maps a value within the given range \p from to \p to, to be within the range of `0.0f + 1.0f` more quickly, provided \p to - \p from is a positive difference.
-SHZ_FORCE_INLINE float shz_normalizef_fsrra(float from, float to, float current) SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE float shz_normalizef_fsrra(float current, float from, float to) SHZ_NOEXCEPT;
 
 //! Maps a value within the given range \p inputStart to \p inputEnd, to be within the range of \p outputStart to \p outputEnd.
 SHZ_FORCE_INLINE float shz_remapf(float value, float inputStart, float inputEnd, float outputStart, float outputEnd) SHZ_NOEXCEPT;

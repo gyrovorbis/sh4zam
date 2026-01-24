@@ -182,6 +182,15 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_clamp(shz_vec3_t vec, float min, float max)
 //! Clamps the values of the given 4D \p vec between \p min and \p max, returning a new vector.
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_clamp(shz_vec4_t vec, float min, float max) SHZ_NOEXCEPT;
 
+//! Returns true if the values of each element within the two 2D vectors are approximately equal based on relative or absolute tolerance.
+SHZ_FORCE_INLINE bool shz_vec2_equal(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT;
+
+//! Returns true if the values of each element within the two 3D vectors are approximately equal based on relative or absolute tolerance.
+SHZ_FORCE_INLINE bool shz_vec3_equal(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT;
+
+//! Returns true if the values of each element within the two 4D vectors are approximately equal based on relative or absolute tolerance.
+SHZ_FORCE_INLINE bool shz_vec4_equal(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name   Arithmetic
@@ -432,7 +441,7 @@ SHZ_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p, shz_vec3_t a, shz_vec3_t
 //! @}
 
 /*! \name  Angles
-	\brief Routines for converting vectors to angles and vice-versa.
+	\brief Routines for working with vectors and angles.
 	@{
 */
 
@@ -465,6 +474,9 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_angle_deg(float degrees) SHZ_NOEXCEPT;
 
 //! Returns the 3D unit vector representing the given rotation angles relative to the positive X axis in degrees.
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles_deg(float azimuth, float elevation) SHZ_NOEXCEPT;
+
+//! Rotates the given 2D vector about the Z axis by the given angle in radians.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_rotate(shz_vec2_t vec, float radians) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -577,6 +589,13 @@ SHZ_DECLS_END
                  shz_vec2_t: shz_vec2_clamp, \
                  shz_vec3_t: shz_vec3_clamp, \
                  shz_vec4_t: shz_vec4_clamp)(vec, min, max)
+
+    //! C type-generic vector equals.
+#   define shz_vec_equal(vec1, vec2) \
+        _Generic((vec1), \
+                 shz_vec2_t: shz_vec2_equal, \
+                 shz_vec3_t: shz_vec3_equal, \
+                 shz_vec4_t: shz_vec4_equal)(vec1, vec2)
 
     //! C type-generic vector addition.
 #   define shz_vec_add(vec1, vec2) \
@@ -804,6 +823,18 @@ SHZ_DECLS_END
             return shz_vec3_clamp(vec, min, max);
         else if constexpr(std::convertible_to<T, shz_vec4_t>)
             return shz_vec4_clamp(vec, min, max);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic vector equal.
+    template<typename T>
+    SHZ_FORCE_INLINE bool shz_vec_equal(T vec1, T vec2) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_equal(vec1, vec2);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_equal(vec1, vec2);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_equal(vec1, vec2);
         else static_assert(false, "Incompatible type!");
     }
 

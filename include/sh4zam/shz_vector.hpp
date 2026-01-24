@@ -88,8 +88,7 @@ struct vecN: C {
 
     //! Overloaded equality operator, for comparing vectors.
     friend constexpr auto operator==(CppType lhs, CppType rhs) noexcept {
-        return std::equal(lhs.begin(), lhs.end(),
-                          rhs.begin(), rhs.end());
+        return shz_vec_equal(lhs, rhs);
     }
 
     //! Overloaded "less-than" operator, for comparing vectors.
@@ -350,9 +349,9 @@ struct vec2: vecN<vec2, shz_vec2_t, 2> {
         return shz_vec2_cross(*this, other);
     }
 
-    //! C++ wrapper for shz_vec2_dot2().
-    SHZ_FORCE_INLINE vec2 dot(vec2 r1, vec2 r2) const noexcept {
-        return shz_vec2_dot2(*this, r1, r2);
+    //! C++ wrapper for shz_vec2_rotate().
+    SHZ_FORCE_INLINE vec2 rotate(float radians) const noexcept {
+        return shz_vec2_rotate(*this, radians);
     }
 };
 

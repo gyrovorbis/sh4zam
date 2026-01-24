@@ -33,7 +33,7 @@ template<typename F, typename... Args>
 void benchmark(auto res, const char* name, F &&function, Args&&... args) {
     perf_cntr_timer_enable();
 
-    auto inner = [&]<bool CacheFlush>() SHZ_COLD {
+    auto inner = [&]<bool CacheFlush>() SHZ_HOT {
         uint64_t iterations = 0;
         uint64_t sum = 0;
         uint64_t tmu_sum = 0;

@@ -1,4 +1,3 @@
-<!-- PROJECT LOGO -->
 <div align="center">
   <a href="https://github.com/gyrovorbis/sh4zam">
     <img src="http://sh4zam.falcogirgis.net/logo.png" alt="SH4ZAM">
@@ -16,11 +15,14 @@
 `SH4ZAM` is a hand-optimized, general-purpose math and linear algebra library for harnessing the floating-point power of the SH4 processor in the Sega Dreamcast. It originally began as a collection of inline assembly routines developed specifically to accelerate the math in the Grand Theft Auto 3 and Vice City DC ports. These routines, along with many others from various contributors, have been separated and combined into a single standalone library, which can be leveraged to bring gainz to the Dreamcast and SuperH communities at large.
 
 # Features
-- Dual modern C23 and modern C++23 APIs
+- Dual, modern, interoperable C23 and C++23 APIs
+- Ergonomic, overhead-free composition from C or C++
 - Clean header files, separating interface from implementation
-- No external dependencies (can be used with KallistiOS, SH Linux, etc)
+- Constexpr evaluation handled for both C and C++
+- Zero-cost conversion operators for interop with other APIs
 - Meticulously optimized for latest SH-GCC version 15.x
-- Rigorously unit tested and validated on physical HW
+- Rigorously unit tested and validated on physical hardware
+- Heavily documented header files and external Doxygen site
 
 # APIs
 - **Preprocessor** directives controlling optimizations
@@ -28,7 +30,7 @@
 - **Memory** routines (memcpy(), memset(), memmove(), etc)
 - **Floating-point Environment** control
 - **Scalar** math operations, including faster `<math.h>` replacements
-- **Trigonometry** functions
+- **Trigonometry** functions, inverse trig functions
 - **Vector** types: 2D, 3D, 4D
 - **Matrix** types: 2x2, 3x2, 3x3, 3x4, 4x3, and 4x4
 - **Quaternion** math operations
@@ -135,7 +137,7 @@ Matrices     | Stored in column-major order, as with GL.
 Quaternions  | Stored in `<W, X, Y, Z>` order.
 
 # Community
-The `#sh4zam` channel within the [Simulant Discord Server](https://discord.gg/G2Ay9kxec2) for Dreamcast development is the best place to ask questions, get help, give feedback, or discuss anything relating to SH4ZAM.
+The `#sh4zam` channel within the [Simulant Discord Server](https://discord.gg/G2Ay9kxec2) for Dreamcast development is the best place to ask questions, get help, give feedback, or discuss anything relating to SH4ZAM. Also, feel free to open tickets for any issues or feature requests!
 
 # Contributors
 Special thanks to the following individuals who have either directly or indirectly contributed to SH4ZAM:

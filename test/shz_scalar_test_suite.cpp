@@ -12,27 +12,23 @@ GBL_TEST_INIT_NONE
 GBL_TEST_FINAL_NONE
 
 GBL_TEST_CASE(min)
-    GBL_TEST_VERIFY((shz::min(-3.0f, 12.0f)) == -3.0f);
-    GBL_TEST_VERIFY((shz::min('b', 'a')) == 'a');
-    GBL_TEST_VERIFY((shz::min(8, 8)) == 8);
+    GBL_TEST_VERIFY((shz::fminf(-3.0f, 12.0f)) == -3.0f);
+    GBL_TEST_VERIFY((shz::fminf(8, 8)) == 8);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(max)
-    GBL_TEST_VERIFY(shz::max(-3.0f, 12.0f) == 12.0f);
-    GBL_TEST_VERIFY(shz::max('b', 'a') == 'b');
-    GBL_TEST_VERIFY(shz::max(8, 8) == 8);
+    GBL_TEST_VERIFY(shz::fmaxf(-3.0f, 12.0f) == 12.0f);
+    GBL_TEST_VERIFY(shz::fmaxf(8, 8) == 8);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(clamp)
-    GBL_TEST_VERIFY(shz::clamp(-3.0f, 0.0f, 1.0f) == 0.0f);
-    GBL_TEST_VERIFY(shz::clamp('g', 'a', 'c') == 'c');
-    GBL_TEST_VERIFY(shz::clamp(12, -13, 33) == 12);
+    GBL_TEST_VERIFY(shz::clampf(-3.0f, 0.0f, 1.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::clampf(12, -13, 33) == 12);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(norm)
-    GBL_TEST_VERIFY(shz::norm(-3.0f, 0.0f, 1.0f) == 0.0f);
-    GBL_TEST_VERIFY(shz::norm('g', 'a', 'c') == 1.0f);
-    GBL_TEST_VERIFY(gblFloatEquals(shz::norm(12.0f, -12.0f, 24.0f), 0.66666666666f, FLT_EPSILON));
+    GBL_TEST_COMPARE(shz::normalizef(-3.0f, 0.0f, 1.0f), -3.0f);
+    GBL_TEST_VERIFY(shz::equalf(shz::normalizef(12.0f, -12.0f, 24.0f), 0.66666666666f));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(floorf)

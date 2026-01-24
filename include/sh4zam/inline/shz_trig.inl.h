@@ -6,7 +6,7 @@
  *  This file provides providest the inlined function implementations for the
  *  trigonometry API.
  *
- *  \author 202, 2026 Falco Girgis
+ *  \author 2025, 2026 Falco Girgis
  *  \author 2025 Paul Cercueil
  *
  *  \copyright MIT License
@@ -37,16 +37,10 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16(uint16_t radians16) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) SHZ_NOEXCEPT {
     if(__builtin_constant_p(radians))
-        return (shz_sincos_t) {
-            __builtin_sinf(radians),
-            __builtin_cosf(radians)
-        };
+        return (shz_sincos_t) { __builtin_sinf(radians), __builtin_cosf(radians) };
 
 #ifdef __FAST_MATH__
-    float rsin, rcos;
-
-    __builtin_sincosf(radians, &rsin, &rcos);
-
+    return (shz_sincos_t) { __builtin_sinf(radians), __builtin_cosf(radians) };
 #else
     register float rsin asm("fr8");
     register float rcos asm("fr9");
@@ -60,22 +54,17 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) SHZ_NOEXCEPT {
     : "=f" (rsin), "=f" (rcos)
     : "f" (radians)
     : "fpul");
-#endif
 
     return (shz_sincos_t){ rsin, rcos };
+#endif
 }
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) SHZ_NOEXCEPT {
     if(__builtin_constant_p(degrees))
-        return (shz_sincos_t) {
-            __builtin_sinf(SHZ_DEG_TO_RAD(degrees)),
-            __builtin_cosf(SHZ_DEG_TO_RAD(degrees))
-        };
+        return (shz_sincos_t) { __builtin_sinf(SHZ_DEG_TO_RAD(degrees)), __builtin_cosf(SHZ_DEG_TO_RAD(degrees)) };
 
 #ifdef __FAST_MATH__
-    float rsin, rcos;
-
-    __builtin_sincosf(SHZ_DEG_TO_RAD(degrees), &rsin, &rcos);
+    return (shz_sincos_t) { __builtin_sinf(SHZ_DEG_TO_RAD(degrees)), __builtin_cosf(SHZ_DEG_TO_RAD(degrees)) };
 #else
     register float rsin asm("fr8");
     register float rcos asm("fr9");
@@ -89,9 +78,9 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) SHZ_NOEXCEPT {
     : "=&f" (rsin), "=&f" (rcos)
     : "f" (degrees)
     : "fpul");
-#endif
 
     return (shz_sincos_t){ rsin, rcos };
+#endif
 }
 
 SHZ_FORCE_INLINE float shz_sincos_tanf(shz_sincos_t sincos) SHZ_NOEXCEPT {

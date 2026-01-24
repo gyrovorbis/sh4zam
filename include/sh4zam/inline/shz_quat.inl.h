@@ -120,15 +120,10 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_inverse(shz_quat_t quat) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE shz_quat_t shz_quat_from_rotated_axis(shz_vec3_t v1, shz_vec3_t v2) SHZ_NOEXCEPT {
-	shz_vec3_t a = shz_vec3_cross(v1, v2);
-	shz_quat_t q = shz_quat_init(
-		shz_sqrtf_fsrra(shz_vec3_magnitude_sqr(v1) * shz_vec3_magnitude_sqr(v2)),
-		a.x,
-		a.y,
-		a.z
-	);
+    shz_vec3_t a = shz_vec3_cross(v1, v2);
+    float      m = shz_sqrtf_fsrra(shz_vec3_magnitude_sqr(v1) * shz_vec3_magnitude_sqr(v2));
 
-	return shz_quat_normalize(q);
+    return shz_quat_normalize(shz_quat_init(m, a.x, a.y, a.z));
 }
 
 // \todo Some kind of shz_vec3_dot4() pattern.

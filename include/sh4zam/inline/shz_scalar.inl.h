@@ -13,6 +13,26 @@
 
  #include <assert.h>
 
+SHZ_FORCE_INLINE float shz_fminf(float a, float b) SHZ_NOEXCEPT {
+    return __builtin_fminf(a, b);
+}
+
+SHZ_FORCE_INLINE float shz_fmaxf(float a, float b) SHZ_NOEXCEPT {
+    return __builtin_fmaxf(a, b);
+}
+
+SHZ_FORCE_INLINE bool shz_equalf(float a, float b) SHZ_NOEXCEPT {
+    return shz_equalf_abs(a, b) || shz_equalf_rel(a, b);
+}
+
+SHZ_FORCE_INLINE bool shz_equalf_abs(float a, float b) SHZ_NOEXCEPT {
+    return shz_fabsf(a - b) < SHZ_FLT_EPSILON;
+}
+
+SHZ_FORCE_INLINE bool shz_equalf_rel(float a, float b) SHZ_NOEXCEPT {
+    return shz_fabsf(a - b) < (SHZ_FLT_EPSILON * shz_fmaxf(shz_fabsf(a), shz_fabsf(b)));
+}
+
  SHZ_FORCE_INLINE float shz_floorf(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
         return __builtin_floorf(x);
@@ -110,10 +130,14 @@ SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEX
     return num - *quot * denom;
 }
 
-SHZ_FORCE_INLINE float shz_normalizef(float from, float to, float current) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE float shz_clampf(float value, float min, float max) SHZ_NOEXCEPT {
+    return shz_fminf(shz_fmaxf(value, min), max);
+}
+
+SHZ_FORCE_INLINE float shz_normalizef(float current, float from, float to) SHZ_NOEXCEPT {
     float t;
 
-    if((t = to - from) <= 0.0f) {
+    if((t = (to - from)) <= 0.0f) {
         if(t == 0.0f)
             return 1.0f;
         else
@@ -123,7 +147,7 @@ SHZ_FORCE_INLINE float shz_normalizef(float from, float to, float current) SHZ_N
     return shz_divf_fsrra(current - from, t);
 }
 
-SHZ_FORCE_INLINE float shz_normalizef_fsrra(float from, float to, float current) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE float shz_normalizef_fsrra(float current, float from, float to) SHZ_NOEXCEPT {
     return shz_divf_fsrra(current - from, to - from);
 }
 
@@ -154,7 +178,7 @@ SHZ_FORCE_INLINE float shz_fabsf(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
         return __builtin_fabsf(x);
 
-    return fabsf(x);
+    return __builtin_fabsf(x);
 }
 
 /* Compiler is smart enough to do the right thing regardless of flags for SH4.
