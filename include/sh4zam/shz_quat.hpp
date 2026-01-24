@@ -117,8 +117,7 @@ namespace shz {
 
         //! Overloaded comparison operator, checks for quaternion equality.
         friend constexpr auto operator==(quat lhs, quat rhs) noexcept {
-            return std::equal(lhs.begin(), lhs.end(),
-                              rhs.begin(), rhs.end());
+            return shz_quat_equal(lhs, rhs);
         }
 
         //! Returns true if \p lhs is lexicographically less than \p rhs.
@@ -137,15 +136,34 @@ namespace shz {
             return shz_quat_axis(*this);
         }
 
+        //! Returns the angle of rotation about the X axis represented by the given quaternion.
+        SHZ_FORCE_INLINE float angle_x() const noexcept {
+            return shz_quat_angle_x(*this);
+        }
+
+        //! Returns the angle of rotation about the Y axis represented by the given quaternion.
+        SHZ_FORCE_INLINE float angle_y() const noexcept {
+            return shz_quat_angle_y(*this);
+        }
+
+        //! Returns the angle of rotation about the Z axis represented by the given quaternion.
+        SHZ_FORCE_INLINE float angle_z() const noexcept {
+            return shz_quat_angle_z(*this);
+        }
+
+        SHZ_FORCE_INLINE vec3 to_angles_xyz() const noexcept {
+            return shz_quat_to_angles_xyz(*this);
+        }
+
         //! Returns both the axis and angle of rotation through the pointer arguments.
-        SHZ_FORCE_INLINE void axis_angle(shz_vec3_t* axis, float* angle) const noexcept {
-            shz_quat_axis_angle(*this, axis, angle);
+        SHZ_FORCE_INLINE void to_axis_angle(shz_vec3_t* axis, float* angle) const noexcept {
+            shz_quat_to_axis_angle(*this, axis, angle);
         }
 
         //! Returns both the axis and angle of rotation as a std::pair.
-        SHZ_FORCE_INLINE auto axis_angle() const noexcept -> std::pair<vec3, float> {
+        SHZ_FORCE_INLINE auto to_axis_angle() const noexcept -> std::pair<vec3, float> {
             std::pair<vec3, float> aa;
-            shz_quat_axis_angle(*this, &std::get<0>(aa), &std::get<1>(aa));
+            shz_quat_to_axis_angle(*this, &std::get<0>(aa), &std::get<1>(aa));
             return aa;
         }
 
@@ -196,12 +214,12 @@ namespace shz {
 
         //! Inverts the given quaternion.
         SHZ_FORCE_INLINE void invert() noexcept {
-            *this = shz_quat_inverse(*this);
+            *this = shz_quat_inv(*this);
         }
 
         //! Returns the inverse of the given quaternion.
-        SHZ_FORCE_INLINE quat inverted() const noexcept {
-            return shz_quat_inverse(*this);
+        SHZ_FORCE_INLINE quat inverse() const noexcept {
+            return shz_quat_inv(*this);
         }
 
         //! Returns a new quaternion from adding the given quaterion to \p rhs.

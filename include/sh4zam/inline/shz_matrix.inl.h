@@ -715,50 +715,54 @@ SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_point3_transpose(const shz_mat4
 }
 
 SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
-	float f, s, m;
+    float f, s, m;
 
-	if((f = mat->up.y + mat->left.x + mat->pos.z) >= 0.0f) {
-		s = shz_inv_sqrtf_fsrra(f + 1.0f);
-		m = 0.5f * s;
-		return shz_quat_init(
-			shz_divf_fsrra(0.5f, s),
-			(mat->up.z - mat->pos.y) * m,
-			(mat->pos.x - mat->left.z) * m,
-			(mat->left.y - mat->up.x) * m
-		);
-	}
+    if((f = mat->up.y + mat->left.x + mat->pos.z) >= 0.0f) {
+        s = shz_inv_sqrtf_fsrra(f + 1.0f);
+        m = 0.5f * s;
 
-	if((f = mat->left.x - mat->up.y - mat->pos.z) >= 0.0f) {
-		s = shz_inv_sqrtf_fsrra(f + 1.0f);
-		m = 0.5f * s;
-		return shz_quat_init(
-			(mat->up.z - mat->pos.y) * m,
-			shz_divf_fsrra(0.5f, s),
-			(mat->up.x + mat->left.y) * m,
+        return shz_quat_init(
+            shz_divf_fsrra(0.5f, s),
+            (mat->up.z   - mat->pos.y ) * m,
+            (mat->pos.x  - mat->left.z) * m,
+            (mat->left.y - mat->up.x  ) * m
+        );
+    }
+
+    if((f = mat->left.x - mat->up.y - mat->pos.z) >= 0.0f) {
+        s = shz_inv_sqrtf_fsrra(f + 1.0f);
+        m = 0.5f * s;
+
+        return shz_quat_init(
+            (mat->up.z - mat->pos.y ) * m,
+             shz_divf_fsrra(0.5f,  s),
+            (mat->up.x + mat->left.y) * m,
             (mat->up.x + mat->left.z) * m
-		);
-	}
+        );
+    }
 
-	if ((f = mat->up.y - mat->left.x - mat->pos.z) >= 0.0f) {
-		s = shz_inv_sqrtf_fsrra(f + 1.0f);
-		m = 0.5f * s;
-		return shz_quat_init(
-			(mat->pos.x - mat->left.z) * m,
-			(mat->up.x - mat->left.y) * m,
-			shz_divf_fsrra(0.5f, s),
-			(mat->pos.y + mat->up.z) * m
-		);
-	}
+    if ((f = mat->up.y - mat->left.x - mat->pos.z) >= 0.0f) {
+        s = shz_inv_sqrtf_fsrra(f + 1.0f);
+        m = 0.5f * s;
 
-	f = mat->pos.z - (mat->up.y + mat->left.x);
-	s = shz_inv_sqrtf(f + 1.0f);
-	m = 0.5f * s;
-	return shz_quat_init(
-		(mat->left.y - mat->up.x) * m,
-		(mat->pos.x + mat->left.z) * m,
-		(mat->pos.y + mat->up.z) * m,
-		shz_divf_fsrra(0.5f, s)
-	);
+        return shz_quat_init(
+            (mat->pos.x - mat->left.z) * m,
+            (mat->up.x  - mat->left.y) * m,
+            shz_divf_fsrra(0.5f,    s),
+            (mat->pos.y + mat->up.z  ) * m
+        );
+    }
+
+    f = mat->pos.z - (mat->up.y + mat->left.x);
+    s = shz_inv_sqrtf(f + 1.0f);
+    m = 0.5f * s;
+
+    return shz_quat_init(
+        (mat->left.y - mat->up.x  ) * m,
+        (mat->pos.x  + mat->left.z) * m,
+        (mat->pos.y  + mat->up.z  ) * m,
+        shz_divf_fsrra(0.5f,     s)
+    );
 }
 
 SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* mat, shz_mat4x4_t* out) SHZ_NOEXCEPT {

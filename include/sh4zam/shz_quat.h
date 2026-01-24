@@ -27,7 +27,7 @@
 */
 
 //! Minimum epsilon below which shz_quat_slerp() performs no interpolation.
-#define SHZ_QUAT_SLERP_PHI_EPSILON FLT_EPSILON
+#define SHZ_QUAT_SLERP_PHI_EPSILON SHZ_FLT_EPSILON
 
 SHZ_DECLS_BEGIN
 
@@ -66,6 +66,8 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_init(float w, float x, float y, float z) SH
 
 //! Initializes and returns an identity quaternion.
 SHZ_FORCE_INLINE shz_quat_t shz_quat_identity(void) SHZ_NOEXCEPT;
+
+SHZ_FORCE_INLINE bool shz_quat_equal(shz_quat_t a, shz_quat_t b) SHZ_NOEXCEPT;
 
 /*! Initializes and returns a quaternion with the given X-Y-Z rotations in radians.
 
@@ -112,8 +114,20 @@ SHZ_INLINE float shz_quat_angle(shz_quat_t q) SHZ_NOEXCEPT;
 //! Returns the axis of rotation from the given quaternion.
 SHZ_INLINE shz_vec3_t shz_quat_axis(shz_quat_t q) SHZ_NOEXCEPT;
 
-//! Returns both the axis and angle of rotation from the given quaternion.
-SHZ_INLINE void shz_quat_axis_angle(shz_quat_t q, shz_vec3_t* vec, float* angle) SHZ_NOEXCEPT;
+// Returns the angle of rotation the quaternion represents about the X axis in radians.
+SHZ_INLINE float shz_quat_angle_x(shz_quat_t q) SHZ_NOEXCEPT;
+
+// Returns the angle of rotation the quaternion represents about the Y axis in radians.
+SHZ_INLINE float shz_quat_angle_y(shz_quat_t q) SHZ_NOEXCEPT;
+
+// Returns the angle of rotation the quaternion represents about the Z axis in radians.
+SHZ_INLINE float shz_quat_angle_z(shz_quat_t q) SHZ_NOEXCEPT;
+
+//! Returns both the axis and angle of rotation simultaneously (faster if both are needed) from the given quaternion.
+SHZ_INLINE void shz_quat_to_axis_angle(shz_quat_t q, shz_vec3_t* vec, float* angle) SHZ_NOEXCEPT;
+
+//! Returns the roll, pitch, and yaw angles of rotation represented by the given quaternion.
+SHZ_INLINE shz_vec3_t shz_quat_to_angles_xyz(shz_quat_t q) SHZ_NOEXCEPT;
 
 //! Returns the squared magnitude of the given quaternion.
 SHZ_FORCE_INLINE float shz_quat_magnitude_sqr(shz_quat_t quat) SHZ_NOEXCEPT;
@@ -144,7 +158,7 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_normalize_safe(shz_quat_t quat) SHZ_NOEXCEP
 SHZ_FORCE_INLINE shz_quat_t shz_quat_conjugate(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! Returns the inverse of the given quaternion
-SHZ_FORCE_INLINE shz_quat_t shz_quat_inverse(shz_quat_t quat) SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE shz_quat_t shz_quat_inv(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! @}
 
