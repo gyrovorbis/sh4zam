@@ -11,6 +11,7 @@
 */
 
 #include <stdalign.h>
+#include <assert.h>
 
 SHZ_INLINE void shz_mat4x4_init_identity(shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     shz_xmtrx_init_identity();
@@ -373,7 +374,43 @@ SHZ_INLINE void shz_mat4x4_mult_unaligned(shz_mat4x4_t* mat, const shz_mat4x4_t*
     shz_xmtrx_store_4x4(mat);
 }
 
-SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3(const shz_mat4x4_t* m, shz_vec3_t v) SHZ_NOEXCEPT {
+SHZ_INLINE shz_vec4_t shz_mat4x4_row(const shz_mat4x4_t* mat, size_t row) SHZ_NOEXCEPT {
+    assert(row < 4);
+
+    return shz_vec4_init(mat->elem2D[0][row], mat->elem2D[1][row], mat->elem2D[2][row], mat->elem2D[3][row]);
+}
+
+SHZ_INLINE shz_vec4_t shz_mat4x4_col(const shz_mat4x4_t* mat, size_t col) SHZ_NOEXCEPT {
+    assert(col < 4);
+
+    return mat->col[col];
+}
+
+SHZ_INLINE shz_vec2_t shz_mat4x4_transform_vec2(const shz_mat4x4_t* mat, shz_vec2_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_dot2(vec,
+                         shz_mat4x4_row(mat, 0).xy,
+                         shz_mat4x4_row(mat, 1).xy);
+}
+
+SHZ_INLINE shz_vec2_t shz_mat4x4_transform_point2(const shz_mat4x4_t* mat, shz_vec2_t pt) SHZ_NOEXCEPT {
+    return shz_vec4_dot2(shz_vec2_vec4(pt, 0.0f, 1.0f),
+                         shz_mat4x4_row(mat, 0),
+                         shz_mat4x4_row(mat, 1));
+}
+
+SHZ_INLINE shz_vec2_t shz_mat4x4_transform_vec2_transpose(const shz_mat4x4_t* mat, shz_vec2_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_dot2(vec,
+                         shz_mat4x4_col(mat, 0).xy,
+                         shz_mat4x4_col(mat, 1).xy);
+}
+
+SHZ_INLINE shz_vec2_t shz_mat4x4_transform_point2_transpose(const shz_mat4x4_t* mat, shz_vec2_t pt) SHZ_NOEXCEPT {
+    return shz_vec4_dot2(shz_vec2_vec4(pt, 0.0f, 1.0f),
+                         shz_mat4x4_col(mat, 0),
+                         shz_mat4x4_col(mat, 1));
+}
+
+SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3(const shz_mat4x4_t* mat, shz_vec3_t v) SHZ_NOEXCEPT {
     shz_vec3_t out;
 
     register float fr0 asm("fr0") = v.x;
@@ -381,9 +418,9 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3(const shz_mat4x4_t* m, shz_vec3_
     register float fr2 asm("fr2") = v.z;
     register float fr3 asm("fr3") = 0.0f;
 
-    register float fr4 asm("fr4") = m->elem2D[0][0];
-    register float fr5 asm("fr5") = m->elem2D[1][0];
-    register float fr6 asm("fr6") = m->elem2D[2][0];
+    register float fr4 asm("fr4") = mat->elem2D[0][0];
+    register float fr5 asm("fr5") = mat->elem2D[1][0];
+    register float fr6 asm("fr6") = mat->elem2D[2][0];
     register float fr7 asm("fr7");
 
     asm volatile("fipr fv0, fv4"
@@ -393,9 +430,9 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3(const shz_mat4x4_t* m, shz_vec3_
 
     __atomic_thread_fence(1);
 
-    register float fr8  asm("fr8")  = m->elem2D[0][1];
-    register float fr9  asm("fr9")  = m->elem2D[1][1];
-    register float fr10 asm("fr10") = m->elem2D[2][1];
+    register float fr8  asm("fr8")  = mat->elem2D[0][1];
+    register float fr9  asm("fr9")  = mat->elem2D[1][1];
+    register float fr10 asm("fr10") = mat->elem2D[2][1];
     register float fr11 asm("fr11");
 
     asm volatile("fipr fv0, fv8"
@@ -409,9 +446,9 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3(const shz_mat4x4_t* m, shz_vec3_
 
     __atomic_thread_fence(1);
 
-    fr4 = m->elem2D[0][2];
-    fr5 = m->elem2D[1][2];
-    fr6 = m->elem2D[2][2];
+    fr4 = mat->elem2D[0][2];
+    fr5 = mat->elem2D[1][2];
+    fr6 = mat->elem2D[2][2];
 
     asm volatile("fipr fv0, fv4"
         : "=f" (fr7)
@@ -444,24 +481,102 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4(const shz_mat4x4_t* mat, shz_vec
         ! Prefetch the second half of the matrix
         pref    @%[c2]
 
-        ! Load first column int FV0
+        ! Load first row into FV0
         fmov.s  @%[c0]+, fr0
         fmov.s  @%[c1]+, fr1
         fmov.s  @%[c2]+, fr2
         fmov.s  @%[c3]+, fr3
-        ! Start loading next column
+        ! Start loading next row
         fmov.s  @%[c0]+, fr4   ! Vector instructions need 3 cycles between
         fmov.s  @%[c1]+, fr5   ! loading arguments and using them.
 
         ! Calculate output vector's X component
         fipr    fv12, fv0
 
-        ! Finish loading second column vector
+        ! Finish loading second row vector
         fmov.s  @%[c2]+, fr6
         fmov.s  @%[c3]+, fr7
-        ! Begin loading third column vector
+        ! Begin loading third row vector
         fmov.s  @%[c0]+, fr8
         fmov.s  @%[c1]+, fr9
+
+        ! Calculate output vector's Y componennt
+        fipr    fv12, fv4
+
+        ! Finish loading third row vector
+        fmov.s  @%[c2]+, fr10
+        add     #-16, %[v]      ! Point v back to the beginning of the input vector
+        fmov.s  @%[c3]+, fr11
+        fmov.s  fr3, @%[v]      ! Store output vector X component
+        ! Start loading fourth row vector
+        fmov.s  @%[c0]+, fr0
+
+        ! Calculate output vector's Z component
+        fipr    fv12, fv8
+
+        ! Finish loading the fourth row vector
+        fmov.s  @%[c1]+, fr1
+        fmov.s  @%[c2]+, fr2
+        fmov.s  @%[c3]+, fr3
+        add     #4, %[v]        ! Advance output vector pointer
+        fmov.s  fr7, @%[v]      ! Store output vector Y component
+
+        ! Calculate output vector's W component
+        fipr    fv12, fv0       ! FUCKING STALL - 4th row vector is still loading (3 cycle delay)
+
+        ! Store output vector's Z component
+        add     #4, %[v]        ! Advance output vector pointer
+        fmov.s  fr11, @%[v]
+
+        ! Store output vector's W component
+        add     #4, %[v]        ! Advance output vector pointer
+        fmov.s  fr3, @%[v]      ! FUCKING STALL - previous FIPR still in pipeline!
+    )"
+    : [v] "+r" (v), "=m" (in),
+      [c0] "+r" (c[0]), [c1] "+r" (c[1]), [c2] "+r" (c[2]), [c3] "+r" (c[3])
+    : "m" (in), "m" (*c[0]), "m" (*c[1]), "m" (*c[2]), "m" (*c[3])
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+
+    return in;
+}
+
+SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4_transpose(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {
+    SHZ_PREFETCH(mat);
+
+    shz_vec4_t* v = &in;
+    const shz_vec4_t* c[4] = {
+        &mat->col[0], &mat->col[1], &mat->col[2], &mat->col[3]
+    };
+
+    asm volatile(R"(
+        ! Load input vector into FV12
+        fmov.s  @%[v]+, fr12
+        fmov.s  @%[v]+, fr13
+        fmov.s  @%[v]+, fr14
+        fmov.s  @%[v]+, fr15
+
+        ! Prefetch the second half of the matrix
+        pref    @%[c2]
+
+        ! Load first column into FV0
+        fmov.s  @%[c0]+, fr0
+        fmov.s  @%[c0]+, fr1
+        fmov.s  @%[c0]+, fr2
+        fmov.s  @%[c0]+, fr3
+        ! Start loading next column
+        fmov.s  @%[c1]+, fr4   ! Vector instructions need 3 cycles between
+        fmov.s  @%[c1]+, fr5   ! loading arguments and using them.
+
+        ! Calculate output vector's X component
+        fipr    fv12, fv0
+
+        ! Finish loading second column vector
+        fmov.s  @%[c1]+, fr6
+        fmov.s  @%[c1]+, fr7
+        ! Begin loading third column vector
+        fmov.s  @%[c2]+, fr8
+        fmov.s  @%[c2]+, fr9
 
         ! Calculate output vector's Y componennt
         fipr    fv12, fv4
@@ -469,17 +584,17 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4(const shz_mat4x4_t* mat, shz_vec
         ! Finish loading third column vector
         fmov.s  @%[c2]+, fr10
         add     #-16, %[v]      ! Point v back to the beginning of the input vector
-        fmov.s  @%[c3]+, fr11
+        fmov.s  @%[c2]+, fr11
         fmov.s  fr3, @%[v]      ! Store output vector X component
         ! Start loading fourth column vector
-        fmov.s  @%[c0]+, fr0
+        fmov.s  @%[c3]+, fr0
 
         ! Calculate output vector's Z component
         fipr    fv12, fv8
 
         ! Finish loading the fourth column vector
-        fmov.s  @%[c1]+, fr1
-        fmov.s  @%[c2]+, fr2
+        fmov.s  @%[c3]+, fr1
+        fmov.s  @%[c3]+, fr2
         fmov.s  @%[c3]+, fr3
         add     #4, %[v]        ! Advance output vector pointer
         fmov.s  fr7, @%[v]      ! Store output vector Y component
@@ -490,7 +605,7 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4(const shz_mat4x4_t* mat, shz_vec
         ! Store output vector's Z component
         add     #4, %[v]        ! Advance output vector pointer
         fmov.s  fr11, @%[v]
-        
+
         ! Store output vector's W component
         add     #4, %[v]        ! Advance output vector pointer
         fmov.s  fr3, @%[v]      ! FUCKING STALL - previous FIPR still in pipeline!
@@ -559,6 +674,13 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3_transpose(const shz_mat4x4_t* m,
 
 SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_point3(const shz_mat4x4_t* mat, shz_vec3_t pt) SHZ_NOEXCEPT {
     return shz_mat4x4_transform_vec4(mat, shz_vec3_vec4(pt, 1.0f)).xyz;
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_point3_transpose(const shz_mat4x4_t* mat, shz_vec3_t pt) SHZ_NOEXCEPT {
+    return shz_vec4_dot3(shz_vec3_vec4(pt, 1.0f),
+                         shz_mat4x4_col(mat, 0),
+                         shz_mat4x4_col(mat, 1),
+                         shz_mat4x4_col(mat, 2));
 }
 
 SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
@@ -640,12 +762,11 @@ SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     float s4 = s345.y;
     float s5 = s345.z;
 #endif
-	shz_vec4_t coeff = shz_vec4_init(
-		+ shz_dot6f(m[1][1], -m[1][2], m[1][3], s0, s1, s2),
-		- shz_dot6f(m[1][0], -m[1][2], m[1][3], s0, s3, s4),
-		+ shz_dot6f(m[1][0], -m[1][1], m[1][3], s1, s3, s5),
-		- shz_dot6f(m[1][0], -m[1][1], m[1][2], s2, s4, s5)
-	);
+    shz_vec4_t coeff =
+        shz_vec4_init(+shz_dot6f(m[1][1], -m[1][2], m[1][3], s0, s1, s2),
+                      -shz_dot6f(m[1][0], -m[1][2], m[1][3], s0, s3, s4),
+                      +shz_dot6f(m[1][0], -m[1][1], m[1][3], s1, s3, s5),
+                      -shz_dot6f(m[1][0], -m[1][1], m[1][2], s2, s4, s5));
 
     return shz_dot8f(   m[0][0],    m[0][1],    m[0][2],    m[0][3],
                      coeff.e[0], coeff.e[1], coeff.e[2], coeff.e[3]);

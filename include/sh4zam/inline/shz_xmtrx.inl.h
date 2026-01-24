@@ -3260,18 +3260,18 @@ SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4(shz_vec4_t vec) SHZ_NOEXCEP
     register float rz asm("fr10") = vec.z;
     register float rw asm("fr11") = vec.w;
 
-    asm volatile("ftrv xmtrx, fv8"
-                 : "+f" (rx), "+f" (ry), "+f" (rz), "+f" (rw));
+    asm("ftrv xmtrx, fv8"
+        : "+f" (rx), "+f" (ry), "+f" (rz), "+f" (rw));
 
     return shz_vec4_init(rx, ry, rz, rw);
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_vec3(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_xmtrx_transform_vec4((shz_vec4_t) { .xyz = vec }).xyz;
+    return shz_xmtrx_transform_vec4(shz_vec3_vec4(vec, 0.0f)).xyz;
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_vec2(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return shz_xmtrx_transform_vec3((shz_vec3_t) { .xy = vec }).xy;
+    return shz_xmtrx_transform_vec3(shz_vec2_vec3(vec, 0.0f)).xy;
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_point2(shz_vec2_t pt) SHZ_NOEXCEPT {

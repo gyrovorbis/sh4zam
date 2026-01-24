@@ -168,7 +168,24 @@ namespace shz {
 
         //! @}
 
-        /*! \name Setting
+        /*! \name  Getting
+            \brief Routines for getting specific values within a matrix
+            @{
+        */
+
+        //! C++ wrapper for shz_mat4x4_row().
+        SHZ_FORCE_INLINE vec4 row(size_t index) const noexcept {
+            return shz_mat4x4_row(this, index);
+        }
+
+        //! C++ wrapper for shz_mat4x4_col().
+        SHZ_FORCE_INLINE vec4 col(size_t index) const noexcept {
+            return shz_mat4x4_col(this, index);
+        }
+
+        //! @}
+
+        /*! \name  Setting
             \brief Routines for setting specific values within a matrix
             @{
         */
@@ -342,6 +359,10 @@ namespace shz {
             shz_mat4x4_mult_unaligned(dst, &lhs, rhs);
         }
 
+        SHZ_FORCE_INLINE vec2 transform(vec2 in) const noexcept {
+            return shz_mat4x4_transform_vec2(this, in);
+        }
+
         SHZ_FORCE_INLINE vec3 transform(vec3 in) const noexcept {
             return shz_mat4x4_transform_vec3(this, in);
         }
@@ -350,12 +371,32 @@ namespace shz {
             return shz_mat4x4_transform_vec4(this, in);
         }
 
+        SHZ_FORCE_INLINE vec2 transform_point(vec2 pt) const noexcept {
+            return shz_mat4x4_transform_point2(this, pt);
+        }
+
         SHZ_FORCE_INLINE vec3 transform_point(vec3 pt) const noexcept {
             return shz_mat4x4_transform_point3(this, pt);
         }
 
+        SHZ_FORCE_INLINE vec2 transform_transpose(vec2 in) const noexcept {
+            return shz_mat4x4_transform_vec2_transpose(this, in);
+        }
+
         SHZ_FORCE_INLINE vec3 transform_transpose(vec3 in) const noexcept {
             return shz_mat4x4_transform_vec3_transpose(this, in);
+        }
+
+        SHZ_FORCE_INLINE vec4 transform_transpose(vec4 in) const noexcept {
+            return shz_mat4x4_transform_vec4_transpose(this, in);
+        }
+
+        SHZ_FORCE_INLINE vec2 transform_point_transpose(vec2 pt) const noexcept {
+            return shz_mat4x4_transform_point2_transpose(this, pt);
+        }
+
+        SHZ_FORCE_INLINE vec3 transform_point_transpose(vec3 pt) const noexcept {
+            return shz_mat4x4_transform_point3_transpose(this, pt);
         }
 
         //! @}

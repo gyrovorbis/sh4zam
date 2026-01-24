@@ -247,6 +247,19 @@ SHZ_INLINE void shz_mat4x4_init_screen(shz_mat4x4_t* mat, float width, float hei
 
 //! @}
 
+/*! \name Getting
+    \brief Routines for getting specific values within a matrix.
+    @{
+*/
+
+//! Extracts the \p row index as a 4D row vector from the given matrix.
+SHZ_INLINE shz_vec4_t shz_mat4x4_row(const shz_mat4x4_t* mat, size_t row) SHZ_NOEXCEPT;
+
+//! Extracts the \p col index as a 4D column vector from the given matrix.
+SHZ_INLINE shz_vec4_t shz_mat4x4_col(const shz_mat4x4_t* mat, size_t col) SHZ_NOEXCEPT;
+
+//! @}
+
 /*! \name Setting
     \brief Routines for setting specific values within a matrix
     @{
@@ -502,6 +515,20 @@ SHZ_INLINE void shz_mat4x4_mult(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, cons
 */
 SHZ_INLINE void shz_mat4x4_mult_unaligned(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, const float rhs[16]) SHZ_NOEXCEPT;
 
+/*! Transforms a 2D vector by a 4x4 matrix.
+
+    This is a routine specializing in one-off transforms of a **single**
+    2D vector by a **single** 4x4 matrix. It should be faster than going
+    through XMTRX.
+
+    \note
+    For batch transforming multiple 2D vectors against the same 4x4 matrix,
+    preload the matrix into XMTRX, then use shz_xmtrx_trans_vec2().
+
+    \sa shz_mat4x4_transform_vec2(), shz_xmtrx_transform_vec3()
+*/
+SHZ_INLINE shz_vec2_t shz_mat4x4_transform_vec2(const shz_mat4x4_t* m, shz_vec2_t v) SHZ_NOEXCEPT;
+
 /*! Transforms a 3D vector by a 4x4 matrix.
 
     This is a routine specializing in one-off transforms of a **single**
@@ -530,15 +557,64 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3(const shz_mat4x4_t* m, shz_vec3_
 */
 SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT;
 
-/*! Transforms a 3D vector by the transpose of a a 4x4 matrix.
+/*! Transforms a 2D vector the the transpose of a 4x4 matrix.
 
     This is a routine specializing in one-off transforms of a **single**
-    3D vector (such as a normal, without a W component) by the transpose
-    of a **single** 4x4 matrix. It should be faster than going through XMTRX.
+    2D vector by the transpose of a **single** 4x4 matrix. It should be
+    faster than going through XMTRX.
 
-    \sa shz_mat4x4_transform_vec4_transpose(), shz_mat4x4_transform_vec3()
+    \note
+    For batch transforming multiple 2D vectors against the transpose of
+    the same 4x4 matrix, preload the matrix into XMTRX, take its transpose
+    with shz_xmtrx_transpose(), then use shz_xmtrx_transform_vec2().
+
+    \sa shz_xmtrx_transpose(), shz_xmtrx_transform_vec2().
+*/
+SHZ_INLINE shz_vec2_t shz_mat4x4_transform_vec2_transpose(const shz_mat4x4_t* m, shz_vec2_t v) SHZ_NOEXCEPT;
+
+/*! Transforms a 3D vector the the transpose of a 4x4 matrix.
+
+    This is a routine specializing in one-off transforms of a **single**
+    3D vector by the transpose of a **single** 4x4 matrix. It should be
+    faster than going through XMTRX.
+
+    \note
+    For batch transforming multiple 3D vectors against the transpose of
+    the same 4x4 matrix, preload the matrix into XMTRX, take its transpose
+    with shz_xmtrx_transpose(), then use shz_xmtrx_transform_vec3().
+
+    \sa shz_xmtrx_transpose(), shz_xmtrx_transform_vec3().
 */
 SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3_transpose(const shz_mat4x4_t* m, shz_vec3_t v) SHZ_NOEXCEPT;
+
+/*! Transforms a 4D vector the the transpose of a 4x4 matrix.
+
+    This is a routine specializing in one-off transforms of a **single**
+    4D vector by the transpose of a **single** 4x4 matrix. It should be
+    faster than going through XMTRX.
+
+    \note
+    For batch transforming multiple 4D vectors against the transpose of
+    the same 4x4 matrix, preload the matrix into XMTRX, take its transpose
+    with shz_xmtrx_transpose(), then use shz_xmtrx_transform_vec4().
+
+    \sa shz_xmtrx_transpose(), shz_xmtrx_transform_vec4().
+*/
+SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4_transpose(const shz_mat4x4_t* m, shz_vec4_t v) SHZ_NOEXCEPT;
+
+/*! Transforms a 2D point by a 4x4 matrix.
+
+    This is a routine specializing in one-off transforms of a *single*
+    2D point by a *single* 4x4 matrix. It should be faster than going
+    through XMTRX.
+
+    \note
+    For batch transforming multiple 2D points against the same 4x4 matrix,
+    preload the matrix into XMTRX, then use shz_xmtrx_transform_point2().
+
+    \sa shz_xmtrx_transform_point2()
+*/
+SHZ_FORCE_INLINE shz_vec2_t shz_mat4x4_transform_point2(const shz_mat4x4_t* mat, shz_vec2_t pt) SHZ_NOEXCEPT;
 
 /*! Transforms a 3D point by a 4x4 matrix.
 
@@ -553,6 +629,36 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3_transpose(const shz_mat4x4_t* m,
     \sa shz_xmtrx_transform_point3()
 */
 SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_point3(const shz_mat4x4_t* mat, shz_vec3_t pt) SHZ_NOEXCEPT;
+
+/*! Transforms a 2D point by the transpose of a 4x4 matrix.
+
+    This is a routine specializing in one-off transforms of a *single*
+    2D point by the transpose of a a *single* 4x4 matrix. It should be
+    faster than going through XMTRX.
+
+    \note
+    For batch transforming multiple 2D points against the same 4x4 matrix,
+    preload the matrix into XMTRX, use shz_xmtrx_transpose(), then use
+    shz_xmtrx_transform_point2().
+
+    \sa shz_xmtrx_transpose(), shz_xmtrx_transform_point2()
+*/
+SHZ_FORCE_INLINE shz_vec2_t shz_mat4x4_transform_point2_transpose(const shz_mat4x4_t* mat, shz_vec2_t pt) SHZ_NOEXCEPT;
+
+/*! Transforms a 3D point by the transpose of a 4x4 matrix.
+
+    This is a routine specializing in one-off transforms of a *single*
+    3D point by the transpose of a a *single* 4x4 matrix. It should be
+    faster than going through XMTRX.
+
+    \note
+    For batch transforming multiple 3D points against the same 4x4 matrix,
+    preload the matrix into XMTRX, use shz_xmtrx_transpose(), then use
+    shz_xmtrx_transform_point2().
+
+    \sa shz_xmtrx_transpose(), shz_xmtrx_transform_point3()
+*/
+SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_point3_transpose(const shz_mat4x4_t* mat, shz_vec3_t pt) SHZ_NOEXCEPT;
 
 //! @}
 
