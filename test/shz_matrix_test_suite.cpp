@@ -13,6 +13,8 @@ GBL_TEST_FINAL_NONE
 
 namespace {
 
+#define TEST_MAT4x4_INVERSE_HAS_FAST_PATH 0
+
 void test_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) {
     assert(mtrx != out &&
            "shz_mat4x4_inverse: in-place inversion is not supported");
@@ -27,8 +29,10 @@ void test_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SH
         inv(A) = [ inv(M)        -inv(M) * b / w ]
                  [   0                 1/w       ]
     */
-    if (mtrx->col[0].w == 0.0f && mtrx->col[1].w == 0.0f &&
-        mtrx->col[2].w == 0.0f && mtrx->col[3].w != 0.0) {
+    if (TEST_MAT4x4_INVERSE_HAS_FAST_PATH &&
+        mtrx->col[0].w == 0.0f && mtrx->col[1].w == 0.0f &&
+        mtrx->col[2].w == 0.0f && mtrx->col[3].w != 0.0)
+    {
         alignas(32) shz_mat3x3_t invM;
         shz_mat3x3_t mat;
         mat.col[0] = mtrx->col[0].xyz;

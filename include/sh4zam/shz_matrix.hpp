@@ -54,8 +54,7 @@ namespace shz {
 
         //! Overloaded equality operator, for comparing vectors.
         friend constexpr auto operator==(const mat4x4& lhs, const mat4x4& rhs) noexcept {
-            return lhs.col(0) == rhs.col(0) && lhs.col(1) == rhs.col(1) &&
-                   lhs.col(2) == rhs.col(2) && lhs.col(3) == rhs.col(3);
+            return shz_mat4x4_equal(&lhs, &rhs);
         }
 
         //! Overloaded "less-than" operator, for comparing vectors.
@@ -439,7 +438,11 @@ namespace shz {
         }
 
         SHZ_FORCE_INLINE void inverse(mat4x4* out) const noexcept {
-            return shz_mat4x4_inverse(this, out);
+            shz_mat4x4_inverse(this, out);
+        }
+
+        SHZ_FORCE_INLINE void inverse_block_triangular(mat4x4* out) const noexcept {
+            shz_mat4x4_inverse_block_triangular(this, out);
         }
 
         //! @}

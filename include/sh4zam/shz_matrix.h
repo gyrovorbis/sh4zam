@@ -715,6 +715,31 @@ SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* mat, shz_mat4x4_t* out)
 */
 void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) SHZ_NOEXCEPT;
 
+/*! Computes the inverse of a 4x4 matrix in block-triangular form.
+
+    This is a special-case faster optimization for 4x4 matrices which take the form:
+
+        A = [ M   b ]
+            [ 0   w ]
+
+    Where A is 4x4, M is 3x3, b is 3x1, and the bottom row is (0, 0, 0, w) with
+    w != 0. For this block-triangular form, det(A) = det(M) * w. Then
+
+        inv(A) = [ inv(M)        -inv(M) * b / w ]
+                 [   0                 1/w       ]
+    \note
+    A regular 3D transform matrix is already in this form.
+    \note
+    shz_mat4x4_inverse() will dynamically check whether to use this optimization.
+*/
+void shz_mat4x4_inverse_block_triangular(const shz_mat4x4_t* mtx, shz_mat4x4_t* out) SHZ_NOEXCEPT;
+
+//! Returns true if the two matrices are equal, based on either absolute or relative tolerance.
+SHZ_INLINE bool shz_mat4x4_equal(const shz_mat4x4_t* SHZ_RESTRICT mat1, const shz_mat4x4_t* mat2) SHZ_NOEXCEPT;
+
+//! Returns true if the given matrix is in block-triangular form: having a bottom row in the form of `<0.0f, 0.0f, 0.0f, w>`.
+SHZ_INLINE bool shz_mat4x4_is_block_triangular(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
 /*! Copies the given \p src 4x4 matrix into the given \p dst 4x4 matrix.
 
     \warning This routine clobbers XMTRX!

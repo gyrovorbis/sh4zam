@@ -380,6 +380,27 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_row(const shz_mat4x4_t* mat, size_t row) SHZ_NO
     return shz_vec4_init(mat->elem2D[0][row], mat->elem2D[1][row], mat->elem2D[2][row], mat->elem2D[3][row]);
 }
 
+SHZ_INLINE bool shz_mat4x4_equal(const shz_mat4x4_t* mat1, const shz_mat4x4_t* mat2) SHZ_NOEXCEPT {
+    return shz_vec4_equal(shz_mat4x4_col(mat1, 0), shz_mat4x4_col(mat2, 0)) &&
+           shz_vec4_equal(shz_mat4x4_col(mat1, 1), shz_mat4x4_col(mat2, 1)) &&
+           shz_vec4_equal(shz_mat4x4_col(mat1, 2), shz_mat4x4_col(mat2, 2)) &&
+           shz_vec4_equal(shz_mat4x4_col(mat1, 3), shz_mat4x4_col(mat2, 3));
+}
+
+SHZ_INLINE bool shz_mat4x4_is_block_triangular(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+#if 0
+    return  shz_equalf(mat->col[0].w, 0.0f) &&
+            shz_equalf(mat->col[1].w, 0.0f) &&
+            shz_equalf(mat->col[2].w, 0.0f) &&
+           !shz_equalf(mat->col[3].w, 0.0f);
+#else
+    return mat->col[0].w == 0.0f &&
+           mat->col[1].w == 0.0f &&
+           mat->col[2].w == 0.0f &&
+           mat->col[3].w != 0.0f;
+#endif
+}
+
 // \todo idk, some baller-ass 'sembly copying? FMOV.D at least first 2 elements of cols?
 SHZ_INLINE void shz_mat4x4_3x3(const shz_mat4x4_t* mat4, shz_mat3x3_t* mat3) SHZ_NOEXCEPT {
     mat3->col[0] = mat4->col[0].xyz;

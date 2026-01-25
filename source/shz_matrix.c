@@ -13,39 +13,39 @@
 #include "sh4zam/shz_matrix.h"
 #include "sh4zam/shz_mem.h"
 
+void shz_mat4x4_inverse_block_triangular(const shz_mat4x4_t* mtrx, shz_mat4x4_t* out) {
+    alignas(32) shz_mat3x3_t invM;
+    shz_vec3_t out3xyz;
+    float inv_w;
+
+    //shz_dcache_alloc_line(&invM);
+    //SHZ_MEMORY_BARRIER_SOFT();
+
+    shz_mat4x4_3x3_inverse(mtrx, &invM);
+    inv_w = shz_invf(mtrx->col[3].w);
+
+    out->col[0] = shz_vec3_vec4(invM.col[0], 0.0f);
+    out->col[1] = shz_vec3_vec4(invM.col[1], 0.0f);
+    out->col[2] = shz_vec3_vec4(invM.col[2], 0.0f);
+
+    out3xyz = shz_mat3x3_trans_vec3(&invM, mtrx->col[3].xyz);
+    out3xyz = shz_vec3_scale(out3xyz, -inv_w);
+
+    out->col[3] = shz_vec3_vec4(out3xyz, inv_w);
+}
+
 SHZ_HOT
 void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) {
     assert(mtrx != out && "shz_mat4x4_inverse: in-place inversion is not supported");
-    //SHZ_PREFETCH_VOLATILE(mtrx);
-    /**
-      If your matrix looks like this
-        A = [ M   b ]
-            [ 0   w ]
+    //SHZ_PREFETCH(mtrx);
 
-      where A is 4x4, M is 3x3, b is 3x1, and the bottom row is (0,0,0,w) with
-      w != 0. For this block-triangular form, det(A) = det(M) * w. Then
-
-        inv(A) = [ inv(M)        -inv(M) * b / w ]
-                 [   0                 1/w       ]
-    */
-    if(mtrx->col[0].w == 0.0f && mtrx->col[1].w == 0.0f &&
-       mtrx->col[2].w == 0.0f && mtrx->col[3].w != 0.0f)
+    // Check for fast-path.
+    if(mtrx->col[0].w == 0.0f &&
+       mtrx->col[1].w == 0.0f &&
+       mtrx->col[2].w == 0.0f &&
+       mtrx->col[3].w != 0.0f)
     {
-        alignas(32) shz_mat3x3_t invM;
-        shz_vec3_t out3xyz;
-        float inv_w;
-
-        shz_mat4x4_3x3_inverse(mtrx, &invM);
-        inv_w = shz_invf(mtrx->col[3].w);
-
-        out->col[0] = shz_vec3_vec4(invM.col[0], 0.0f);
-        out->col[1] = shz_vec3_vec4(invM.col[1], 0.0f);
-        out->col[2] = shz_vec3_vec4(invM.col[2], 0.0f);
-
-        out3xyz = shz_mat3x3_trans_vec3(&invM, mtrx->col[3].xyz);
-        out3xyz = shz_vec3_scale(out3xyz, -inv_w);
-
-        out->col[3] = shz_vec3_vec4(out3xyz, inv_w);
+        shz_mat4x4_inverse_block_triangular(mtrx, out);
         return;
     }
 
