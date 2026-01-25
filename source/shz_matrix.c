@@ -6,14 +6,17 @@
  *  the matrix API which have been declared out-of-line.
  *
  *  \author    2025 Daniel Fairchild
+ *  \author    2026 Falco Girgis
  *  \copyright MIT License
  */
 
 #include "sh4zam/shz_matrix.h"
+#include "sh4zam/shz_mem.h"
 
+SHZ_HOT
 void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) {
-    assert(mtrx != out &&
-           "shz_mat4x4_inverse: in-place inversion is not supported");
+    assert(mtrx != out && "shz_mat4x4_inverse: in-place inversion is not supported");
+    //SHZ_PREFETCH_VOLATILE(mtrx);
     /**
       If your matrix looks like this
         A = [ M   b ]
@@ -25,111 +28,119 @@ void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ
         inv(A) = [ inv(M)        -inv(M) * b / w ]
                  [   0                 1/w       ]
     */
-    if (mtrx->col[0].w == 0.0f && mtrx->col[1].w == 0.0f &&
-        mtrx->col[2].w == 0.0f && mtrx->col[3].w != 0.0f) {
+    if(mtrx->col[0].w == 0.0f && mtrx->col[1].w == 0.0f &&
+       mtrx->col[2].w == 0.0f && mtrx->col[3].w != 0.0f)
+    {
         alignas(32) shz_mat3x3_t invM;
-        shz_mat3x3_inverse(&(shz_mat3x3_t){.col[0] = mtrx->col[0].xyz,
-                                           .col[1] = mtrx->col[1].xyz,
-                                           .col[2] = mtrx->col[2].xyz},
-                           &invM);
+        shz_vec3_t out3xyz;
+        float inv_w;
 
-        float inv_w = mtrx->col[3].w;
-        if (inv_w != 1.0f) {
-            inv_w = shz_invf(inv_w);
-        }
-        out->col[0] = (shz_vec4_t){.xyz = invM.col[0], .w = 0.0f};
-        out->col[1] = (shz_vec4_t){.xyz = invM.col[1], .w = 0.0f};
-        out->col[2] = (shz_vec4_t){.xyz = invM.col[2], .w = 0.0f};
-        out->col[3] = (shz_vec4_t){
-            .xyz = shz_vec3_scale(
-                shz_mat3x3_trans_vec3(&invM, mtrx->col[3].xyz), -inv_w),
-            .w = inv_w};
+        shz_mat4x4_3x3_inverse(mtrx, &invM);
+        inv_w = shz_invf(mtrx->col[3].w);
+
+        out->col[0] = shz_vec3_vec4(invM.col[0], 0.0f);
+        out->col[1] = shz_vec3_vec4(invM.col[1], 0.0f);
+        out->col[2] = shz_vec3_vec4(invM.col[2], 0.0f);
+
+        out3xyz = shz_mat3x3_trans_vec3(&invM, mtrx->col[3].xyz);
+        out3xyz = shz_vec3_scale(out3xyz, -inv_w);
+
+        out->col[3] = shz_vec3_vec4(out3xyz, inv_w);
         return;
     }
 
-    // General case for full 4x4 matrix inversion, roughly ported from cglm
-    const float c1 = shz_fmaf(mtrx->elem2D[2][2], mtrx->elem2D[3][3],
-                              -mtrx->elem2D[2][3] * mtrx->elem2D[3][2]),
-                c2 = shz_fmaf(mtrx->elem2D[0][2], mtrx->elem2D[1][3],
-                              -mtrx->elem2D[0][3] * mtrx->elem2D[1][2]),
-                c3 = shz_fmaf(mtrx->elem2D[2][0], mtrx->elem2D[3][3],
-                              -mtrx->elem2D[2][3] * mtrx->elem2D[3][0]),
-                c4 = shz_fmaf(mtrx->elem2D[0][0], mtrx->elem2D[1][3],
-                              -mtrx->elem2D[0][3] * mtrx->elem2D[1][0]),
-                c5 = shz_fmaf(mtrx->elem2D[2][1], mtrx->elem2D[3][3],
-                              -mtrx->elem2D[2][3] * mtrx->elem2D[3][1]),
-                c6 = shz_fmaf(mtrx->elem2D[0][1], mtrx->elem2D[1][3],
-                              -mtrx->elem2D[0][3] * mtrx->elem2D[1][1]),
-                c7 = shz_fmaf(mtrx->elem2D[2][0], mtrx->elem2D[3][1],
-                              -mtrx->elem2D[2][1] * mtrx->elem2D[3][0]),
-                c8 = shz_fmaf(mtrx->elem2D[0][0], mtrx->elem2D[1][1],
-                              -mtrx->elem2D[0][1] * mtrx->elem2D[1][0]),
-                c9 = shz_fmaf(mtrx->elem2D[2][1], mtrx->elem2D[3][2],
-                              -mtrx->elem2D[2][2] * mtrx->elem2D[3][1]),
-                c10 = shz_fmaf(mtrx->elem2D[0][1], mtrx->elem2D[1][2],
-                               -mtrx->elem2D[0][2] * mtrx->elem2D[1][1]),
-                c11 = shz_fmaf(mtrx->elem2D[2][0], mtrx->elem2D[3][2],
-                               -mtrx->elem2D[2][2] * mtrx->elem2D[3][0]),
-                c12 = shz_fmaf(mtrx->elem2D[0][0], mtrx->elem2D[1][2],
-                               -mtrx->elem2D[0][2] * mtrx->elem2D[1][0]),
-                inv_det = shz_invf(c8 * c1 + c4 * c9 + c10 * c3 + c2 * c7 -
-                                   c12 * c5 - c6 * c11);
+        // General case for full 4x4 matrix inversion, roughly ported from cglm
+    const float c[12] = {
+        [ 0] = shz_fmaf(mtrx->elem2D[2][2],  mtrx->elem2D[3][3],
+                       -mtrx->elem2D[2][3] * mtrx->elem2D[3][2]),
+        [ 1] = shz_fmaf(mtrx->elem2D[0][2],  mtrx->elem2D[1][3],
+                       -mtrx->elem2D[0][3] * mtrx->elem2D[1][2]),
+        [ 2] = shz_fmaf(mtrx->elem2D[2][0],  mtrx->elem2D[3][3],
+                       -mtrx->elem2D[2][3] * mtrx->elem2D[3][0]),
+        [ 3] = shz_fmaf(mtrx->elem2D[0][0],  mtrx->elem2D[1][3],
+                       -mtrx->elem2D[0][3] * mtrx->elem2D[1][0]),
+        [ 4] = shz_fmaf(mtrx->elem2D[2][1],  mtrx->elem2D[3][3],
+                       -mtrx->elem2D[2][3] * mtrx->elem2D[3][1]),
+        [ 5] = shz_fmaf(mtrx->elem2D[0][1],  mtrx->elem2D[1][3],
+                       -mtrx->elem2D[0][3] * mtrx->elem2D[1][1]),
+        [ 6] = shz_fmaf(mtrx->elem2D[2][0],  mtrx->elem2D[3][1],
+                       -mtrx->elem2D[2][1] * mtrx->elem2D[3][0]),
+        [ 7] = shz_fmaf(mtrx->elem2D[0][0],  mtrx->elem2D[1][1],
+                       -mtrx->elem2D[0][1] * mtrx->elem2D[1][0]),
+        [ 8] = shz_fmaf(mtrx->elem2D[2][1],  mtrx->elem2D[3][2],
+                       -mtrx->elem2D[2][2] * mtrx->elem2D[3][1]),
+        [ 9] = shz_fmaf(mtrx->elem2D[0][1],  mtrx->elem2D[1][2],
+                       -mtrx->elem2D[0][2] * mtrx->elem2D[1][1]),
+        [10] = shz_fmaf(mtrx->elem2D[2][0],  mtrx->elem2D[3][2],
+                       -mtrx->elem2D[2][2] * mtrx->elem2D[3][0]),
+        [11] = shz_fmaf(mtrx->elem2D[0][0],  mtrx->elem2D[1][2],
+                       -mtrx->elem2D[0][2] * mtrx->elem2D[1][0])
+    };
 
-    /* Introduce inner function to break into multiple functions,
-       in order to prevent GCC15's register allocator from ICEing. */
-    void store(void) {
-        out->elem2D[0][0] = +(mtrx->elem2D[1][1] * c1 - mtrx->elem2D[1][2] * c5 +
-                              mtrx->elem2D[1][3] * c9) *
-                            inv_det;
-        out->elem2D[0][1] = -(mtrx->elem2D[0][1] * c1 - mtrx->elem2D[0][2] * c5 +
-                              mtrx->elem2D[0][3] * c9) *
-                            inv_det;
-        out->elem2D[0][2] = +(mtrx->elem2D[3][1] * c2 - mtrx->elem2D[3][2] * c6 +
-                              mtrx->elem2D[3][3] * c10) *
-                            inv_det;
-        out->elem2D[0][3] = -(mtrx->elem2D[2][1] * c2 - mtrx->elem2D[2][2] * c6 +
-                              mtrx->elem2D[2][3] * c10) *
-                            inv_det;
+    const float inv_det = shz_invf(shz_dot6f(c[7],  c[ 3],  c[9], c[0], c[8], c[ 2]) +
+                                   shz_dot6f(c[1], -c[11], -c[5], c[6], c[4], c[10]));
 
-        out->elem2D[1][0] = -(mtrx->elem2D[1][0] * c1 - mtrx->elem2D[1][2] * c3 +
-                              mtrx->elem2D[1][3] * c11) *
-                            inv_det;
-        out->elem2D[1][1] = +(mtrx->elem2D[0][0] * c1 - mtrx->elem2D[0][2] * c3 +
-                              mtrx->elem2D[0][3] * c11) *
-                            inv_det;
-        out->elem2D[1][2] = -(mtrx->elem2D[3][0] * c2 - mtrx->elem2D[3][2] * c4 +
-                              mtrx->elem2D[3][3] * c12) *
-                            inv_det;
-        out->elem2D[1][3] = +(mtrx->elem2D[2][0] * c2 - mtrx->elem2D[2][2] * c4 +
-                              mtrx->elem2D[2][3] * c12) *
-                            inv_det;
+    shz_vec2_t c1c5c9 =
+        shz_vec3_dot2(shz_vec3_init(c[0], c[4], c[8]),
+                      shz_vec3_init(mtrx->elem2D[1][1], mtrx->elem2D[1][2], mtrx->elem2D[1][3]),
+                      shz_vec3_init(mtrx->elem2D[0][1], mtrx->elem2D[0][2], mtrx->elem2D[0][3]));
 
-        out->elem2D[2][0] = +(mtrx->elem2D[1][0] * c5 - mtrx->elem2D[1][1] * c3 +
-                              mtrx->elem2D[1][3] * c7) *
-                            inv_det;
-        out->elem2D[2][1] = -(mtrx->elem2D[0][0] * c5 - mtrx->elem2D[0][1] * c3 +
-                              mtrx->elem2D[0][3] * c7) *
-                            inv_det;
-        out->elem2D[2][2] = +(mtrx->elem2D[3][0] * c6 - mtrx->elem2D[3][1] * c4 +
-                              mtrx->elem2D[3][3] * c8) *
-                            inv_det;
-        out->elem2D[2][3] = -(mtrx->elem2D[2][0] * c6 - mtrx->elem2D[2][1] * c4 +
-                              mtrx->elem2D[2][3] * c8) *
-                            inv_det;
+    out->elem2D[0][0] = +c1c5c9.x * inv_det;
+    out->elem2D[0][1] = -c1c5c9.y * inv_det;
 
-        out->elem2D[3][0] = -(mtrx->elem2D[1][0] * c9 - mtrx->elem2D[1][1] * c11 +
-                              mtrx->elem2D[1][2] * c7) *
-                            inv_det;
-        out->elem2D[3][1] = +(mtrx->elem2D[0][0] * c9 - mtrx->elem2D[0][1] * c11 +
-                              mtrx->elem2D[0][2] * c7) *
-                            inv_det;
-        out->elem2D[3][2] = -(mtrx->elem2D[3][0] * c10 - mtrx->elem2D[3][1] * c12 +
-                              mtrx->elem2D[3][2] * c8) *
-                            inv_det;
-        out->elem2D[3][3] = +(mtrx->elem2D[2][0] * c10 - mtrx->elem2D[2][1] * c12 +
-                              mtrx->elem2D[2][2] * c8) *
-                            inv_det;
-    }
+    shz_vec2_t c2c6c10 =
+        shz_vec3_dot2(shz_vec3_init(c[1], c[5], c[9]),
+                      shz_vec3_init(mtrx->elem2D[3][1], mtrx->elem2D[3][2], mtrx->elem2D[3][3]),
+                      shz_vec3_init(mtrx->elem2D[2][1], mtrx->elem2D[2][2], mtrx->elem2D[2][3]));
 
-    store();
+    out->elem2D[0][2] = +c2c6c10.x * inv_det;
+    out->elem2D[0][3] = -c2c6c10.y * inv_det;
+
+    shz_vec2_t c1c3c11 =
+        shz_vec3_dot2(shz_vec3_init(c[0], c[2], c[10]),
+                      shz_vec3_init(mtrx->elem2D[1][0], mtrx->elem2D[1][2], mtrx->elem2D[1][3]),
+                      shz_vec3_init(mtrx->elem2D[0][0], mtrx->elem2D[0][2], mtrx->elem2D[0][3]));
+
+    out->elem2D[1][0] = -c1c3c11.x * inv_det;
+    out->elem2D[1][1] = +c1c3c11.y * inv_det;
+
+    shz_vec2_t c2c4c12 =
+        shz_vec3_dot2(shz_vec3_init(c[1], c[3], c[11]),
+                      shz_vec3_init(mtrx->elem2D[3][0], mtrx->elem2D[3][2], mtrx->elem2D[3][3]),
+                      shz_vec3_init(mtrx->elem2D[2][0], mtrx->elem2D[2][2], mtrx->elem2D[2][3]));
+
+    out->elem2D[1][2] = -c2c4c12.x * inv_det;
+    out->elem2D[1][3] = +c2c4c12.y * inv_det;
+
+    shz_vec2_t c5c3c7 =
+        shz_vec3_dot2(shz_vec3_init(c[4], c[2], c[6]),
+                      shz_vec3_init(mtrx->elem2D[1][0], mtrx->elem2D[1][1], mtrx->elem2D[1][3]),
+                      shz_vec3_init(mtrx->elem2D[0][0], mtrx->elem2D[0][1], mtrx->elem2D[0][3]));
+
+    out->elem2D[2][0] = +c5c3c7.x * inv_det;
+    out->elem2D[2][1] = -c5c3c7.y * inv_det;
+
+    shz_vec2_t c6c4c8 =
+        shz_vec3_dot2(shz_vec3_init(c[5], c[3], c[7]),
+                      shz_vec3_init(mtrx->elem2D[3][0], mtrx->elem2D[3][1], mtrx->elem2D[3][3]),
+                      shz_vec3_init(mtrx->elem2D[2][0], mtrx->elem2D[2][1], mtrx->elem2D[2][3]));
+
+    out->elem2D[2][2] = +c6c4c8.x * inv_det;
+    out->elem2D[2][3] = -c6c4c8.y * inv_det;
+
+    shz_vec2_t c9c11c7 =
+        shz_vec3_dot2(shz_vec3_init(c[8], c[10], c[6]),
+                      shz_vec3_init(mtrx->elem2D[1][0], mtrx->elem2D[1][1], mtrx->elem2D[1][2]),
+                      shz_vec3_init(mtrx->elem2D[0][0], mtrx->elem2D[0][1], mtrx->elem2D[0][2]));
+
+    out->elem2D[3][0] = -c9c11c7.x * inv_det;
+    out->elem2D[3][1] = +c9c11c7.y * inv_det;
+
+    shz_vec2_t c10c12c8 =
+        shz_vec3_dot2(shz_vec3_init(c[9], c[11], c[7]),
+                      shz_vec3_init(mtrx->elem2D[3][0], mtrx->elem2D[3][1], mtrx->elem2D[3][2]),
+                      shz_vec3_init(mtrx->elem2D[2][0], mtrx->elem2D[2][1], mtrx->elem2D[2][2]));
+
+    out->elem2D[3][2] = -c10c12c8.x * inv_det;
+    out->elem2D[3][3] = +c10c12c8.y * inv_det;
 }

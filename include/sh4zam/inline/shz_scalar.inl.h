@@ -404,7 +404,7 @@ SHZ_FORCE_INLINE float shz_log2f(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
         return __builtin_log2f(x);
 
-    assert(x >= 0.0f);
+    //assert(x >= 0.0f);
 
     const union { float f; uint32_t i; } vx = { x };
     const float y = (float) (vx.i) * 1.1920928955078125e-7f;

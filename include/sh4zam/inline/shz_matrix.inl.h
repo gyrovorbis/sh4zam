@@ -380,13 +380,20 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_row(const shz_mat4x4_t* mat, size_t row) SHZ_NO
     return shz_vec4_init(mat->elem2D[0][row], mat->elem2D[1][row], mat->elem2D[2][row], mat->elem2D[3][row]);
 }
 
-SHZ_INLINE shz_vec4_t shz_mat4x4_col(const shz_mat4x4_t* mat, size_t col) SHZ_NOEXCEPT {
+// \todo idk, some baller-ass 'sembly copying? FMOV.D at least first 2 elements of cols?
+SHZ_INLINE void shz_mat4x4_3x3(const shz_mat4x4_t* mat4, shz_mat3x3_t* mat3) SHZ_NOEXCEPT {
+    mat3->col[0] = mat4->col[0].xyz;
+    mat3->col[1] = mat4->col[1].xyz;
+    mat3->col[2] = mat4->col[2].xyz;
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_col(const shz_mat4x4_t* mat, size_t col) SHZ_NOEXCEPT {
     assert(col < 4);
 
     return mat->col[col];
 }
 
-SHZ_INLINE void shz_mat4x4_set_row(shz_mat4x4_t* mat, size_t row, shz_vec4_t values) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_mat4x4_set_row(shz_mat4x4_t* mat, size_t row, shz_vec4_t values) SHZ_NOEXCEPT {
     assert(row < 4);
 
     mat->elem2D[0][row] = values.x;
@@ -395,7 +402,7 @@ SHZ_INLINE void shz_mat4x4_set_row(shz_mat4x4_t* mat, size_t row, shz_vec4_t val
     mat->elem2D[3][row] = values.w;
 }
 
-SHZ_INLINE void shz_mat4x4_set_col(shz_mat4x4_t* mat, size_t col, shz_vec4_t values) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_mat4x4_set_col(shz_mat4x4_t* mat, size_t col, shz_vec4_t values) SHZ_NOEXCEPT {
     assert(col < 4);
 
     mat->col[col] = values;
@@ -902,6 +909,33 @@ SHZ_INLINE shz_vec3_t shz_mat3x3_trans_vec3(const shz_mat3x3_t* m, shz_vec3_t v)
     out.z = fr7;
 
     return out;
+}
+
+SHZ_INLINE float shz_mat4x4_3x3_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+    return shz_vec3_dot(mat->col[0].xyz, shz_vec3_cross(mat->col[1].xyz, mat->col[2].xyz));
+}
+
+SHZ_INLINE void shz_mat4x4_3x3_inverse_unscaled(const shz_mat4x4_t* mat4, shz_mat3x3_t* mat3) SHZ_NOEXCEPT {
+    mat3->col[0] = shz_vec3_cross(shz_mat4x4_row(mat4, 1).xyz, shz_mat4x4_row(mat4, 2).xyz);
+    mat3->col[1] = shz_vec3_cross(shz_mat4x4_row(mat4, 2).xyz, shz_mat4x4_row(mat4, 0).xyz);
+    mat3->col[2] = shz_vec3_cross(shz_mat4x4_row(mat4, 0).xyz, shz_mat4x4_row(mat4, 1).xyz);
+}
+
+SHZ_INLINE void shz_mat4x4_3x3_inverse(const shz_mat4x4_t* mat4, shz_mat3x3_t* invmat3) SHZ_NOEXCEPT {
+    const float determinant = shz_mat4x4_3x3_determinant(mat4);
+
+    assert(determinant != 0.0f && "shz_mat4x4_3x3_inverse(): matrix is singular, noninvertible!");
+
+    const float inv_det = shz_invf(determinant);
+
+    shz_mat4x4_3x3_inverse_unscaled(mat4, invmat3);
+    shz_mat3x3_scale(invmat3, invmat3, inv_det);
+}
+
+SHZ_INLINE void shz_mat3x3_scale(shz_mat3x3_t* dst, const shz_mat3x3_t* src, float value) SHZ_NOEXCEPT {
+    dst->col[0] = shz_vec3_scale(src->col[0], value);
+    dst->col[1] = shz_vec3_scale(src->col[1], value);
+    dst->col[2] = shz_vec3_scale(src->col[2], value);
 }
 
 SHZ_INLINE void shz_mat3x3_transpose(const shz_mat3x3_t* mtrx,

@@ -54,8 +54,8 @@ namespace shz {
 
         //! Overloaded equality operator, for comparing vectors.
         friend constexpr auto operator==(const mat4x4& lhs, const mat4x4& rhs) noexcept {
-            return std::equal(lhs.begin(), lhs.end(),
-                              rhs.begin(), rhs.end());
+            return lhs.col(0) == rhs.col(0) && lhs.col(1) == rhs.col(1) &&
+                   lhs.col(2) == rhs.col(2) && lhs.col(3) == rhs.col(3);
         }
 
         //! Overloaded "less-than" operator, for comparing vectors.
