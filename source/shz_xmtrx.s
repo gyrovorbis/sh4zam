@@ -5,12 +5,12 @@
 !  This file contains the out-of-line assembly implementation(s) of
 !  the XMTRX API.
 !
-!  \author    2026, 2025 Falco Girgis
+!  \author    2025, 2026 Falco Girgis
 !  \copyright MIT License
 !!
 
 .text
-    .globl _shz_xmtrx_load_apply_store_unaligned_4x4
+    .globl _shz_xmtrx_load_apply_store_aligned4_4x4
 
 !
 ! void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16], const float matrix1[16], const float matrix2[16])
@@ -20,7 +20,7 @@
 ! r6: matrix2 : Second input matrix which is applied onto XMTRX.
 !
     .align 2
-_shz_xmtrx_load_apply_store_unaligned_4x4:
+_shz_xmtrx_load_apply_store_aligned4_4x4:
     frchg
     
     fmov.s  @r5, fr0

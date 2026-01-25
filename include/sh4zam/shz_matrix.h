@@ -729,6 +729,7 @@ void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ
                  [   0                 1/w       ]
     \note
     A regular 3D transform matrix is already in this form.
+
     \note
     shz_mat4x4_inverse() will dynamically check whether to use this optimization.
 */

@@ -70,6 +70,11 @@ SHZ_INLINE void shz_xmtrx_write(shz_xmtrx_reg_t xf, float value) SHZ_NOEXCEPT {
     SHZ_FRCHG();
 }
 
+// Out-of-line 'semblies, if someone has ALL SHIT known to have worst alignment. lolz.
+void shz_xmtrx_load_apply_store_aligned4_4x4(float out[16],
+                                             const float mat1[16],
+                                             const float mat2[16]);
+
 SHZ_INLINE shz_vec4_t shz_xmtrx_read_row(unsigned int index) SHZ_NOEXCEPT {
     assert(index < 4);
 
@@ -363,7 +368,7 @@ SHZ_INLINE void shz_xmtrx_load_wxyz_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT
     : "m" (*matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_load_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_load_aligned4_4x4(const float matrix[16]) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         fmov.s  @%[mtx]+, fr0
@@ -389,6 +394,13 @@ SHZ_INLINE void shz_xmtrx_load_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEP
     )"
     : [mtx] "+r" (matrix)
     :  "m" (*matrix));
+}
+
+SHZ_INLINE void shz_xmtrx_load_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
+    if(!((uintptr_t)matrix & 7))
+        shz_xmtrx_load_4x4((const shz_mat4x4_t*)matrix);
+    else
+        shz_xmtrx_load_aligned4_4x4(matrix);
 }
 
 SHZ_INLINE void shz_xmtrx_load_cols_4x4(const shz_vec4_t* c1,
@@ -551,8 +563,8 @@ SHZ_INLINE void shz_xmtrx_load_apply_4x4(const shz_mat4x4_t* matrix1,
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_load_apply_unaligned_4x4(const float matrix1[16],
-                                                   const float matrix2[16]) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_load_apply_aligned4_4x4(const float matrix1[16],
+                                                  const float matrix2[16]) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
 
@@ -614,6 +626,62 @@ SHZ_INLINE void shz_xmtrx_load_apply_unaligned_4x4(const float matrix1[16],
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
+SHZ_INLINE void shz_xmtrx_apply_aligned4_4x4(const float matrix[16]) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        pref    @%[mtx]
+        mov     r15, r0
+        or      #0x0f, r0
+        mov     r15, r7
+        xor     #0x0f, r0
+        mov     r0, r15
+
+        fschg
+        add     #32, %[mtx]
+        fmov.d  dr14, @-r15
+        pref    @%[mtx]
+        fmov.d  dr12, @-r15
+        add     #-32, %[mtx]
+        fschg
+
+        fmov.s  @%[mtx]+, fr0
+        fmov.s  @%[mtx]+, fr1
+        fmov.s  @%[mtx]+, fr2
+        fmov.s  @%[mtx]+, fr3
+        fmov.s  @%[mtx]+, fr4
+        fmov.s  @%[mtx]+, fr5
+        fmov.s  @%[mtx]+, fr6
+        fmov.s  @%[mtx]+, fr7
+
+        ftrv    xmtrx, fv0
+
+        fmov.s  @%[mtx]+, fr8
+        fmov.s  @%[mtx]+, fr9
+        fmov.s  @%[mtx]+, fr10
+        fmov.s  @%[mtx]+, fr11
+
+        ftrv    xmtrx, fv4
+
+        fmov.s  @%[mtx]+, fr12
+        fmov.s  @%[mtx]+, fr13
+        fmov.s  @%[mtx]+, fr14
+        fmov.s  @%[mtx]+, fr15
+
+        ftrv    xmtrx, fv8
+        fschg
+        ftrv    xmtrx, fv12
+
+        frchg
+        fmov.d  @r15+, dr12
+        fmov.d  @r15+, dr14
+        mov     r7, r15
+        fschg
+    )"
+    : [mtx] "+r" (matrix)
+    :  "m" (*matrix)
+    : "r0", "r7", "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6",
+      "fr7", "fr8", "fr9", "fr10", "fr11");
+}
+
 SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
                                                const shz_mat4x4_t* matrix1,
                                                const shz_mat4x4_t* matrix2) SHZ_NOEXCEPT {
@@ -671,6 +739,19 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
     : "m" (*matrix1), "m" (*matrix2)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+}
+
+SHZ_INLINE void shz_xmtrx_load_apply_unaligned_4x4(const float matrix1[16],
+                                                   const float matrix2[16]) SHZ_NOEXCEPT {
+    shz_xmtrx_load_unaligned_4x4(matrix1);
+    shz_xmtrx_apply_unaligned_4x4(matrix2);
+}
+
+SHZ_INLINE void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
+                                                        const float mat1[16],
+                                                        const float mat2[16]) SHZ_NOEXCEPT {
+    shz_xmtrx_load_apply_unaligned_4x4(mat1, mat2);
+    shz_xmtrx_store_unaligned_4x4(out);
 }
 
 SHZ_INLINE void shz_xmtrx_load_4x3(const shz_mat4x3_t* matrix) SHZ_NOEXCEPT {
@@ -880,7 +961,7 @@ SHZ_INLINE void shz_xmtrx_store_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     : [mtx] "+&r" (matrix), "=m" (*matrix));
 }
 
-SHZ_INLINE void shz_xmtrx_store_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_store_aligned4_4x4(float matrix[16]) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         add     #64, %[mtx]
@@ -907,6 +988,13 @@ SHZ_INLINE void shz_xmtrx_store_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT {
     )"
     : "=m" (*matrix)
     : [mtx] "r" (matrix));
+}
+
+SHZ_INLINE void shz_xmtrx_store_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT {
+    if(!((uintptr_t)matrix & 7))
+        shz_xmtrx_store_4x4((shz_mat4x4_t*)matrix);
+    else
+        shz_xmtrx_store_aligned4_4x4(matrix);
 }
 
 SHZ_INLINE void shz_xmtrx_store_transpose_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
@@ -1655,60 +1743,12 @@ SHZ_INLINE void shz_xmtrx_apply_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE void shz_xmtrx_apply_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
-    asm volatile(R"(
-        pref    @%[mtx]
-        mov     r15, r0
-        or      #0x0f, r0
-        mov     r15, r7
-        xor     #0x0f, r0
-        mov     r0, r15
-
-        fschg
-        add     #32, %[mtx]
-        fmov.d  dr14, @-r15
-        pref    @%[mtx]
-        fmov.d  dr12, @-r15
-        add     #-32, %[mtx]
-        fschg
-
-        fmov.s  @%[mtx]+, fr0
-        fmov.s  @%[mtx]+, fr1
-        fmov.s  @%[mtx]+, fr2
-        fmov.s  @%[mtx]+, fr3
-        fmov.s  @%[mtx]+, fr4
-        fmov.s  @%[mtx]+, fr5
-        fmov.s  @%[mtx]+, fr6
-        fmov.s  @%[mtx]+, fr7
-
-        ftrv    xmtrx, fv0
-
-        fmov.s  @%[mtx]+, fr8
-        fmov.s  @%[mtx]+, fr9
-        fmov.s  @%[mtx]+, fr10
-        fmov.s  @%[mtx]+, fr11
-
-        ftrv    xmtrx, fv4
-
-        fmov.s  @%[mtx]+, fr12
-        fmov.s  @%[mtx]+, fr13
-        fmov.s  @%[mtx]+, fr14
-        fmov.s  @%[mtx]+, fr15
-
-        ftrv    xmtrx, fv8
-        fschg
-        ftrv    xmtrx, fv12
-
-        frchg
-        fmov.d  @r15+, dr12
-        fmov.d  @r15+, dr14
-        mov     r7, r15
-        fschg
-    )"
-    : [mtx] "+r" (matrix)
-    :  "m" (*matrix)
-    : "r0", "r7", "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6",
-      "fr7", "fr8", "fr9", "fr10", "fr11");
+    if(!((uintptr_t)matrix & 0x7))
+        shz_xmtrx_apply_4x4((const shz_mat4x4_t*)matrix);
+    else
+        shz_xmtrx_apply_aligned4_4x4(matrix);
 }
+
 
 SHZ_INLINE void shz_xmtrx_apply_transpose_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
@@ -1783,7 +1823,7 @@ SHZ_INLINE void shz_xmtrx_apply_reverse_4x4(const shz_mat4x4_t* matrix) SHZ_NOEX
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_reverse_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_apply_reverse_aligned4_4x4(const float matrix[16]) SHZ_NOEXCEPT {
     asm volatile(R"(
         fmov.s  @%[mtx]+, fr0
         add     #28, %[mtx]
@@ -1816,6 +1856,13 @@ SHZ_INLINE void shz_xmtrx_apply_reverse_unaligned_4x4(const float matrix[16]) SH
     : "m" (*matrix)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+}
+
+SHZ_INLINE void shz_xmtrx_apply_reverse_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
+    if(!((uintptr_t)matrix & 0x7))
+        shz_xmtrx_apply_reverse_4x4((const shz_mat4x4_t*)matrix);
+    else
+        shz_xmtrx_apply_reverse_aligned4_4x4(matrix);
 }
 
 SHZ_INLINE void shz_xmtrx_apply_reverse_transpose_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {

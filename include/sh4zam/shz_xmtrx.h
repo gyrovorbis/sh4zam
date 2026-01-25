@@ -565,9 +565,9 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
 
     \sa shz_xmtrx_load_apply_store_4x4()
 */
-void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
-                                              const float matrix1[16],
-                                              const float matrix2[16]) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
+                                                         const float matrix1[16],
+                                                         const float matrix2[16]) SHZ_NOEXCEPT;
 
 //! @}
 
