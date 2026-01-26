@@ -562,7 +562,6 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p,
 
     SHZ_MEMORY_BARRIER_HARD();
     float d01 = fr7;
-    SHZ_MEMORY_BARRIER_HARD();
     fr7 = 0.0f;
     SHZ_MEMORY_BARRIER_HARD();
 

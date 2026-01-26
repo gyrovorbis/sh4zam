@@ -282,31 +282,38 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE shz_vec3_t shz_quat_transform_vec3(shz_quat_t q, shz_vec3_t v) SHZ_NOEXCEPT {
-    register float vx asm("fr8")  = v.x;
-    register float vy asm("fr9")  = v.y;
-    register float vz asm("fr10") = v.z;
-    register float vw asm("fr11");
-
     register float qx asm("fr4") = q.x;
     register float qy asm("fr5") = q.y;
     register float qz asm("fr6") = q.z;
     register float qw asm("fr7") = 0.0f;
+
+    register float vx asm("fr8");
+    register float vy asm("fr9");
+    register float vz asm("fr10");
+    register float vw asm("fr11");
+
+    SHZ_MEMORY_BARRIER_HARD();
+    vx = v.x;
+    vy = v.y;
+    vz = v.z;
+    vw = 0.0f;
+    SHZ_MEMORY_BARRIER_HARD();
+
+    asm("fipr   fv4, fv4"
+        : "+f" (qw)
+        : "f" (qx), "f" (qy), "f" (qz));
 
     asm("fipr   fv4, fv8"
         : "=f" (vw)
         : "f" (qx), "f" (qy), "f" (qz), "f" (qw),
           "f" (vx), "f" (vy), "f" (vz));
 
-    asm("fipr   fv4, fv4"
-        : "+f" (qw)
-        : "f" (qx), "f" (qy), "f" (qz));
-
     shz_vec3_t cross_qv = shz_vec3_cross(q.axis, v);
 
     return shz_vec3_dot3(shz_vec3_init(2.0f * vw, (q.w * q.w) - qw, 2.0f * q.w),
-                         shz_vec3_init(q.x, v.x, cross_qv.x),
-                         shz_vec3_init(q.y, v.y, cross_qv.y),
-                         shz_vec3_init(q.z, v.z, cross_qv.z));
+                         shz_vec3_init(qx, vx, cross_qv.x),
+                         shz_vec3_init(qy, vy, cross_qv.y),
+                         shz_vec3_init(qz, vz, cross_qv.z));
 }
 
 //! \endcond
