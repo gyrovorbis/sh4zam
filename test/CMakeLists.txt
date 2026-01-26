@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(Sh4zamTest
         VERSION     ${SHZ_VERSION}
         DESCRIPTION "Unit tests for SH4ZAM"
-        LANGUAGES   ASM C CXX)
+        LANGUAGES   C CXX ASM)
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)

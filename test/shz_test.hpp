@@ -12,21 +12,32 @@
 #define BENCHMARK_ITERATION_COUNT   100
 #define SHZ_MEMORY_BARRIER_HARD() __sync_synchronize()
 
+#define PMCR_PMENABLE   0x8000  /* Enable */
+#define PMCR_PMST       0x4000  /* Start */
+#define PMCR_RUN        0xc000  /* Run: Enable | Start */
+#define PMCR_CLR        0x2000  /* Clear */
+#define PMCR_PMCLK      0x0100  /* Clock Type */
+#define PMCR_PMMODE     0x003f  /* Event Mode */
+
+/* PMCR count type field position */
+#define PMCR_PMCLK_SHIFT 8
+
+/* 5ns per count in 1 cycle = 1 count mode(PMCR_COUNT_CPU_CYCLES) */
+#define NS_PER_CYCLE      5
+
 #define PMCR_CTRL(o)  ( *((volatile uint16_t *)(0xff000084) + (o << 1)) )
 #define PMCTR_HIGH(o) ( *((volatile uint32_t *)(0xff100004) + (o << 1)) )
 #define PMCTR_LOW(o)  ( *((volatile uint32_t *)(0xff100008) + (o << 1)) )
 
-SHZ_FORCE_INLINE uint64_t PERF_CNTR(bool* valid) {
-        uint32_t lo, hi, hi2;
-        /* Read the high part twice, before and after reading the high part,
-         * to make sure that the low counter didn't overflow. We can detect an
-         * overflow by the two reads of the high part returning different
-         * values. */
-        hi = PMCTR_HIGH(PRFC0);
-        lo = PMCTR_LOW(PRFC0);
-        hi2 = PMCTR_HIGH(PRFC0);
-        *valid = (hi == hi2);
-        return (((uint64_t)hi << 32) | lo) * 5;
+SHZ_FORCE_INLINE void PERF_CNTR_START() {
+    PMCR_CTRL(0) &= ~PMCR_RUN;
+    PMCR_CTRL(0) |= PMCR_CLR;
+    PMCR_CTRL(0) |= PMCR_RUN;
+}
+
+SHZ_FORCE_INLINE uint64_t PERF_CNTR_STOP() {
+    PMCR_CTRL(0) &= ~PMCR_RUN;
+    return (((uint64_t)PMCTR_HIGH(PRFC0) << 32) | PMCTR_LOW(PRFC0));
 }
 
 template<typename F, typename... Args>
@@ -35,7 +46,6 @@ void benchmark(auto res, const char* name, F &&function, Args&&... args) {
     perf_cntr_timer_enable();
 
     auto inner = [&]<bool CacheFlush>() {
-        uint64_t iterations = 0;
         uint64_t sum = 0;
         uint64_t tmu_sum = 0;
 
@@ -52,11 +62,10 @@ void benchmark(auto res, const char* name, F &&function, Args&&... args) {
                     }
 
                     SHZ_MEMORY_BARRIER_SOFT();
-                    bool valid_start;
                     uint64_t tmu_start = timer_ns_gettime64();
-                    uint64_t start = PERF_CNTR(&valid_start);
                     SHZ_MEMORY_BARRIER_SOFT();
-
+                    PERF_CNTR_START();
+                    SHZ_MEMORY_BARRIER_SOFT();
                     [&] SHZ_HOT {
                         if constexpr(!std::same_as<decltype(res), std::nullptr_t>)
                             *res = function(std::forward<Args>(args)...);
@@ -64,16 +73,11 @@ void benchmark(auto res, const char* name, F &&function, Args&&... args) {
                             function(std::forward<Args>(args)...);
                     }();
                     SHZ_MEMORY_BARRIER_SOFT();
-                    bool valid_stop;
-                    uint64_t stop = PERF_CNTR(&valid_stop);
+                    uint64_t pfctr_time = PERF_CNTR_STOP();
+                    SHZ_MEMORY_BARRIER_SOFT();
                     uint64_t tmu_stop = timer_ns_gettime64();
                     SHZ_MEMORY_BARRIER_SOFT();
-
-                    if(valid_stop && valid_start) {
-                        sum += stop - start;
-                        ++iterations;
-                    }
-
+                    sum += pfctr_time;
                     tmu_sum += tmu_stop - tmu_start;
             }();
             SHZ_MEMORY_BARRIER_SOFT();
@@ -81,9 +85,10 @@ void benchmark(auto res, const char* name, F &&function, Args&&... args) {
 
         irq_restore(state);
 
-        printf("\t%20s[%s] : %llu ns, %llu ns\n", name, (CacheFlush)? "UNCACHED" : "CACHED", sum / iterations, tmu_sum / BENCHMARK_ITERATION_COUNT);
-        if(iterations != BENCHMARK_ITERATION_COUNT)
-            printf("\tReested: %llu\n", BENCHMARK_ITERATION_COUNT - iterations);
+        printf("\t%20s[%s] : %llu cc, %llu ns\n", name,
+              (CacheFlush)? "UNCACHED" : "CACHED",
+              (uint64_t)((double)sum / (double)BENCHMARK_ITERATION_COUNT),
+              (uint64_t)((double)tmu_sum / (double)BENCHMARK_ITERATION_COUNT));
     };
 
     inner.template operator()<true>();

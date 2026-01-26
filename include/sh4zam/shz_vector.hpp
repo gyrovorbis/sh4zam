@@ -148,6 +148,7 @@ struct vecN: C {
         return &self[Rows];
     }
 
+    //! Swizzle oeprator which takes a compile-time list of indices as non-type template arguments for the index each element should use as its new value.
     template<unsigned... Indices>
     SHZ_FORCE_INLINE CppType swizzle() const noexcept {
         return shz_vec_swizzle(*this, Indices...);
@@ -229,17 +230,24 @@ struct vecN: C {
         *this = shz_vec_normalize_safe(*this);
     }
 
+    //! Returns the magnitude of the difference between two vectors as their distance.
     SHZ_FORCE_INLINE float distance(this const CppType& self, const CppType& other) noexcept {
         return shz_vec_distance(self, other);
     }
 
+    //! Returns the value of the distance between two vectors squared (faster than actual distance)
     SHZ_FORCE_INLINE float distance_sqr(this const CppType& self, const CppType& other) noexcept {
         return shz_vec_distance_sqr(self, other);
     }
 
+    //! Moves the given vector towards the target by the given \p maxdist.
+    SHZ_FORCE_INLINE CppType move(CppType target, float maxdist) const noexcept {
+        return shz_vec_move(*reinterpret_cast<const CppType*>(this), target, maxdist);
+    }
+
     //! Returns the vector created from reflecting the given vector over the normal of a surface.
     SHZ_FORCE_INLINE CppType reflect(CppType normal) const noexcept {
-        return shz_vec_reflect(*this, normal);
+        return shz_vec_reflect(*reinterpret_cast<const CppType*>(this), normal);
     }
 
     //! Returns the vector create from refracting the given incidence vector over the normal of a surface, using the given refraction ratio index.
@@ -418,6 +426,11 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
     //! Returns 2 3D vectors which are normalized and orthogonal to the two input vectors via output pointers.
     SHZ_FORCE_INLINE static void orthonormalize(vec3 in1, vec3 in2, vec3* out1, vec3* out2) noexcept {
         shz_vec3_orthonormalize(in1, in2, out1, out2);
+    }
+
+    //! Calculates the cubic hermite interpolation between two vectors and their tangents.
+    SHZ_FORCE_INLINE static vec3 cubic_hermite(vec3 v1, vec3 tangent1, vec3 v2, vec3 tangent2, float amount) noexcept {
+        return shz_vec3_cubic_hermite(v1, tangent1, v2, tangent2, amount);
     }
 
     // Returns the inner 2D vector, <X, Y>, as a C++ vector.

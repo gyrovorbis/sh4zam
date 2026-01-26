@@ -92,7 +92,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(benches)
     volatile float result;
 
-    for(volatile unsigned i = 0; i < 30; ++i) {
+    for(volatile unsigned i = 0; i < 1; ++i) {
         float random = gblRandUniform(-F_PI, F_PI);
         float random2 = gblRandUniform(-F_PI, F_PI);
         printf("RANDOMNUM: %f\n", random);

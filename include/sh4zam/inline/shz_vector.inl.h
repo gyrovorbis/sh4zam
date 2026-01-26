@@ -503,16 +503,40 @@ SHZ_INLINE float shz_vec3_triple(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_N
     return -(dotPQ + dotRS);
 }
 
-SHZ_INLINE shz_vec2_t shz_vec2_move(shz_vec2_t vec, shz_vec2_t target, float max_distance) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_move(shz_vec2_t vec, shz_vec2_t target, float max_distance) SHZ_NOEXCEPT {
     shz_vec2_t delta   = shz_vec2_sub(target, vec);
     float      sqrdist = shz_vec2_magnitude_sqr(delta);
 
-    if(sqrdist <= max_distance * max_distance)
+    if((max_distance >= 0.0f) && (sqrdist <= max_distance * max_distance))
         return target;
 
     float scaled_dist = shz_inv_sqrtf(sqrdist) * max_distance;
 
     return shz_vec2_add(vec, shz_vec2_scale(delta, scaled_dist));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_move(shz_vec3_t vec, shz_vec3_t target, float max_distance) SHZ_NOEXCEPT {
+    shz_vec3_t delta   = shz_vec3_sub(target, vec);
+    float      sqrdist = shz_vec3_magnitude_sqr(delta);
+
+    if((max_distance >= 0.0f) && (sqrdist <= max_distance * max_distance))
+        return target;
+
+    float scaled_dist = shz_inv_sqrtf(sqrdist) * max_distance;
+
+    return shz_vec3_add(vec, shz_vec3_scale(delta, scaled_dist));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_move(shz_vec4_t vec, shz_vec4_t target, float max_distance) SHZ_NOEXCEPT {
+    shz_vec4_t delta   = shz_vec4_sub(target, vec);
+    float      sqrdist = shz_vec4_magnitude_sqr(delta);
+
+    if((max_distance >= 0.0f) && (sqrdist <= max_distance * max_distance))
+        return target;
+
+    float scaled_dist = shz_inv_sqrtf(sqrdist) * max_distance;
+
+    return shz_vec4_add(vec, shz_vec4_scale(delta, scaled_dist));
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p,
@@ -637,6 +661,88 @@ SHZ_INLINE void shz_vec3_orthonormalize(shz_vec3_t   in1, shz_vec3_t   in2,
       tmp = shz_vec3_normalize_safe(shz_vec3_cross(*out1, in2));
     *out2 = shz_vec3_cross(tmp, *out1);
 }
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cubic_hermite(shz_vec3_t vec1, shz_vec3_t tangent1, shz_vec3_t vec2, shz_vec3_t tangent2, float t) SHZ_NOEXCEPT {
+    shz_vec3_t result;
+
+    float t2 = t * t;
+    float t3 = t * t * t;
+
+    float b0 =  2.0f * t3 - 3.0f * t2 + 1.0f;
+    float b1 = t3 - 2.0f * t2 + t;
+    float b2 = -2.0f * t3 + 3.0f * t2;
+    float b3 = t3 - t2;
+
+    // Basis vector
+    register float h00 asm("fr4");
+    register float h10 asm("fr5");
+    register float h01 asm("fr6");
+    register float h11 asm("fr7");
+
+    // Control X component
+    register float v0_0 asm("fr8");
+    register float v0_1 asm("fr9");
+    register float v0_2 asm("fr10");
+    register float v0_3 asm("fr11");
+
+    register float v1_0 asm("fr0");
+    register float v1_1 asm("fr1");
+    register float v1_2 asm("fr2");
+    register float v1_3 asm("fr3");
+
+    SHZ_MEMORY_BARRIER_HARD();
+    h00 = b0;
+    h10 = b1;
+    h01 = b2;
+    h11 = b3;
+    SHZ_MEMORY_BARRIER_HARD();
+    v0_0 = vec1.x;
+    v0_1 = tangent1.x;
+    v0_2 = vec2.x;
+    v0_3 = tangent2.x;
+    SHZ_MEMORY_BARRIER_HARD();
+    v1_0 = vec1.y;
+    v1_1 = tangent1.y;
+    SHZ_MEMORY_BARRIER_HARD();
+
+    asm("fipr   fv4, fv8"
+        : "+f" (v0_3)
+        : "f" (h00 ),  "f" (h10),  "f" (h01), "f" (h11),
+          "f" (v0_0), "f" (v0_1), "f" (v0_2));
+
+    SHZ_MEMORY_BARRIER_HARD();
+    v1_2 = vec2.y;
+    v1_3 = tangent2.y;
+    v0_0 = vec1.z;
+    v0_1 = tangent1.z;
+    SHZ_MEMORY_BARRIER_HARD();
+    v0_2 = vec2.z;
+    SHZ_MEMORY_BARRIER_HARD();
+    result.x = v0_3;
+    SHZ_MEMORY_BARRIER_HARD();
+    v0_3 = tangent2.z;
+    SHZ_MEMORY_BARRIER_HARD();
+
+    asm("fipr   fv4, fv0"
+        : "+f" (v1_3)
+        : "f" (h00 ),  "f" (h10),  "f" (h01), "f" (h11),
+          "f" (v1_0), "f" (v1_1), "f" (v1_2));
+
+    SHZ_MEMORY_BARRIER_HARD();
+
+    asm("fipr   fv4, fv8"
+        : "+f" (v0_3)
+        : "f" (h00 ),  "f" (h10),  "f" (h01), "f" (h11),
+          "f" (v0_0), "f" (v0_1), "f" (v0_2));
+
+    SHZ_MEMORY_BARRIER_HARD();
+    result.y = v1_3;
+    SHZ_MEMORY_BARRIER_HARD();
+    result.z = v0_3;
+
+    return result;
+}
+
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_dot2(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2) SHZ_NOEXCEPT {
     shz_vec2_t res;

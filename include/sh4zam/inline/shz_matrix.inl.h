@@ -469,6 +469,7 @@ SHZ_INLINE shz_vec2_t shz_mat4x4_transform_point2_transpose(const shz_mat4x4_t* 
                          shz_mat4x4_col(mat, 1));
 }
 
+
 SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3(const shz_mat4x4_t* mat, shz_vec3_t v) SHZ_NOEXCEPT {
     shz_vec3_t out;
 
@@ -796,6 +797,10 @@ SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* mat, shz_mat4x4_t* out) SHZ_NOEXCEPT {
     shz_xmtrx_load_transpose_4x4(mat);
     shz_xmtrx_store_4x4(out);
+}
+
+SHZ_FORCE_INLINE float shz_mat4x4_trace(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+    return mat->elem2D[0][0] + mat->elem2D[1][1] + mat->elem2D[2][2] + mat->elem2D[3][3];
 }
 
 SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {

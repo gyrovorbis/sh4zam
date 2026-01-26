@@ -258,6 +258,12 @@ SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_row(const shz_mat4x4_t* mat, size_t row) 
 //! Extracts the \p col index as a 4D column vector from the given matrix.
 SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_col(const shz_mat4x4_t* mat, size_t col) SHZ_NOEXCEPT;
 
+//! Returns the determinant of the given 4x4 matrix.
+SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
+//! Returns the trace of the given 4x4 matrix.
+SHZ_FORCE_INLINE float shz_mat4x4_trace(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
 //! Extracts the top-left 3x3 of the given 4D matrix.
 SHZ_INLINE void shz_mat4x4_3x3(const shz_mat4x4_t* mat4, shz_mat3x3_t* mat3) SHZ_NOEXCEPT;
 
@@ -266,9 +272,6 @@ SHZ_INLINE void shz_mat4x4_3x3_inverse_unscaled(const shz_mat4x4_t* mat4, shz_ma
 
 //! Extracts and inverts the top-level 3x3 (which may be scaled) of the given 4x4 matrix.
 SHZ_INLINE void shz_mat4x4_3x3_inverse(const shz_mat4x4_t* mat4, shz_mat3x3_t* invmat3) SHZ_NOEXCEPT;
-
-//! Returns the determinant of the given 4x4 matrix.
-SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
 //! Returns the determinant of the given 4x4 matrix's internal top-level 3x3 matrix.
 SHZ_INLINE float shz_mat4x4_3x3_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;

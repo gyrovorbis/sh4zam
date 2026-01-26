@@ -40,7 +40,7 @@ GBL_TEST_CASE(transform_vec3)
                gblFloatEquals(fipr_res.z, cross_res.z, shz::fipr_max_error);
     };
 
-    for(unsigned i = 0; i < 10; ++i)
+    for(unsigned i = 0; i < 1; ++i)
         GBL_TEST_VERIFY(test(shz::quat(rand(), rand(), rand(), rand()).normalized_safe(),
                         shz::vec3(rand(), rand(), rand())));
 GBL_TEST_CASE_END

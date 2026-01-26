@@ -449,6 +449,157 @@ GBL_TEST_CASE(vec3Barycenter)
                          { 0.0f, 1.0f, 0.0f }));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(vec2Move)
+   auto test = [&](shz::vec2 v, shz::vec2 target, float maxDistance)
+    {
+        // Written by yours truly
+        shz::vec2 shzResult;
+        (benchmark)(&shzResult, "shz::vec2::move()", [&] {
+            return v.move(target, maxDistance);
+        });
+
+        //warezed straight from raymath. :mink:
+        struct Vector2 { float x, y; } rayResult;
+        (benchmark)(&rayResult, "Vec2MoveTowards()", [&] {
+            Vector2 result = { 0 };
+
+            float dx = target.x - v.x;
+            float dy = target.y - v.y;
+            float value = (dx*dx) + (dy*dy);
+
+            if ((value == 0) || ((maxDistance >= 0) && (value <= maxDistance*maxDistance)))
+                return Vector2 { target.x, target.y };
+
+            float dist = sqrtf(value);
+
+            result.x = v.x + dx/dist*maxDistance;
+            result.y = v.y + dy/dist*maxDistance;
+
+            return result;
+        });
+
+        return shzResult == shz::vec2::from(rayResult);
+    };
+
+    GBL_TEST_VERIFY(test({ 0.0f, 0.0f }, { 1.0f, 1.0f }, 0.5f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Move)
+   auto test = [&](shz::vec3 v, shz::vec3 target, float maxDistance)
+    {
+        // Written by yours truly
+        shz::vec3 shzResult;
+        (benchmark)(&shzResult, "shz::vec3::move()", [&] {
+            return v.move(target, maxDistance);
+        });
+
+        //warezed straight from raymath. :mink:
+        struct Vector3 { float x, y, z; } rayResult;
+        (benchmark)(&rayResult, "Vec3MoveTowards()", [&] {
+            Vector3 result = { 0 };
+
+            float dx = target.x - v.x;
+            float dy = target.y - v.y;
+            float dz = target.z - v.z;
+            float value = (dx*dx) + (dy*dy) + (dz*dz);
+
+            if ((value == 0) || ((maxDistance >= 0) && (value <= maxDistance*maxDistance)))
+                return target.to<Vector3>();
+
+            float dist = sqrtf(value);
+
+            result.x = v.x + dx/dist*maxDistance;
+            result.y = v.y + dy/dist*maxDistance;
+            result.z = v.z + dz/dist*maxDistance;
+
+            return result;
+        });
+
+        return shzResult == shz::vec3::from(rayResult);
+    };
+
+    GBL_TEST_VERIFY(test({ 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, 0.5f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4Move)
+   auto test = [&](shz::vec4 v, shz::vec4 target, float maxDistance)
+    {
+        // Written by yours truly
+        shz::vec4 shzResult;
+        (benchmark)(&shzResult, "shz::vec4::move()", [&] {
+            return v.move(target, maxDistance);
+        });
+
+        //warezed straight from raymath. :mink:
+        struct Vector4 { float x, y, z, w; } rayResult;
+        (benchmark)(&rayResult, "Vec4MoveTowards()", [&] {
+            Vector4 result = { 0 };
+
+            float dx = target.x - v.x;
+            float dy = target.y - v.y;
+            float dz = target.z - v.z;
+            float dw = target.w - v.w;
+            float value = (dx*dx) + (dy*dy) + (dz*dz) + (dw*dw);
+
+            if ((value == 0) || ((maxDistance >= 0) && (value <= maxDistance*maxDistance)))
+                return target.to<Vector4>();
+
+            float dist = sqrtf(value);
+
+            result.x = v.x + dx/dist*maxDistance;
+            result.y = v.y + dy/dist*maxDistance;
+            result.z = v.z + dz/dist*maxDistance;
+            result.w = v.w + dw/dist*maxDistance;
+
+            return result;
+        });
+
+        return shzResult == shz::vec4::from(rayResult);
+    };
+
+    GBL_TEST_VERIFY(test({ 0.0f, 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3CubicHermite)
+   auto test = [&](shz::vec3 v1, shz::vec3 tangent1,
+                   shz::vec3 v2, shz::vec3 tangent2, float amount)
+    {
+
+
+        //warezed straight from raymath. :mink:
+        struct Vector3 { float x, y, z; } rayResult;
+        (benchmark)(&rayResult, "Vec3CubicHermite()", [&] SHZ_NO_INLINE {
+            Vector3 result = { 0 };
+
+            float amountPow2 = amount*amount;
+            float amountPow3 = amount*amount*amount;
+
+            result.x = (2*amountPow3 - 3*amountPow2 + 1)*v1.x + (amountPow3 - 2*amountPow2 + amount)*tangent1.x + (-2*amountPow3 + 3*amountPow2)*v2.x + (amountPow3 - amountPow2)*tangent2.x;
+            result.y = (2*amountPow3 - 3*amountPow2 + 1)*v1.y + (amountPow3 - 2*amountPow2 + amount)*tangent1.y + (-2*amountPow3 + 3*amountPow2)*v2.y + (amountPow3 - amountPow2)*tangent2.y;
+            result.z = (2*amountPow3 - 3*amountPow2 + 1)*v1.z + (amountPow3 - 2*amountPow2 + amount)*tangent1.z + (-2*amountPow3 + 3*amountPow2)*v2.z + (amountPow3 - amountPow2)*tangent2.z;
+
+            return result;
+        });
+
+        // Written by yours truly
+        shz::vec3 shzResult;
+        (benchmark)(&shzResult, "shz::vec3::cubic_hermite()", [&] SHZ_NO_INLINE {
+            return shz::vec3::cubic_hermite(v1, tangent1, v2, tangent2, amount);
+        });
+
+        std::println("<{}, {}, {}> vs <{}, {}, {}>",
+                     rayResult.x, rayResult.y, rayResult.z,
+                     shzResult.x, shzResult.y, shzResult.z);
+
+        return shzResult == shz::vec3::from(rayResult);
+    };
+
+    shz::vec3 p0 = {0.0f, 0.0f, 0.0f}, m0 = {1.0f, 0.0f, 0.0f};
+    shz::vec3 p1 = {1.0f, 1.0f, 1.0f}, m1 = {1.0f, 0.0f, 0.0f};
+
+    GBL_TEST_VERIFY(test(m0, p0, m1, p1, 0.3f));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(vec2Construct,
                   vec2Set,
                   vec2Lerp,
@@ -474,4 +625,8 @@ GBL_TEST_REGISTER(vec2Construct,
                   vec4Dot3,
                   vec2Rotate,
                   vec3Orthonormalize,
-                  vec3Barycenter)
+                  vec3Barycenter,
+                  vec2Move,
+                  vec3Move,
+                  vec4Move,
+                  vec3CubicHermite)

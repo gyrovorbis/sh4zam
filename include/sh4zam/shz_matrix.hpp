@@ -172,6 +172,11 @@ namespace shz {
             @{
         */
 
+        //! Returns a pointer to the internal floating-point array held by the matrix.
+        SHZ_FORCE_INLINE auto data(this auto&& self) noexcept {
+            return &self[0];
+        }
+
         //! C++ wrapper for shz_mat4x4_row().
         SHZ_FORCE_INLINE vec4 row(size_t index) const noexcept {
             return shz_mat4x4_row(this, index);
@@ -435,6 +440,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE float determinant() const noexcept {
             return shz_mat4x4_determinant(this);
+        }
+
+        SHZ_FORCE_INLINE float trace() const noexcept {
+            return shz_mat4x4_trace(this);
         }
 
         SHZ_FORCE_INLINE void inverse(mat4x4* out) const noexcept {

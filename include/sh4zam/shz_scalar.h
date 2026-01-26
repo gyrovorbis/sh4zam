@@ -50,7 +50,7 @@ SHZ_FORCE_INLINE float shz_fminf(float a, float b) SHZ_NOEXCEPT;
 //! Returns the maximum value of two given floats.
 SHZ_FORCE_INLINE float shz_fmaxf(float a, float b) SHZ_NOEXCEPT;
 
-//! Checks for equality based on EITHER the absolute toerance or relative tolerance, using SHZ_FLT_EPSILON.
+//! Checks for equality based on EITHER the absolute tolerance or relative tolerance, using SHZ_FLT_EPSILON.
 SHZ_FORCE_INLINE bool shz_equalf(float a, float b) SHZ_NOEXCEPT;
 
 //! Checks for equality based on the absolute tolerance using SHZ_FLT_EPSILON.

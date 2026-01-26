@@ -58,9 +58,9 @@ SHZ_DECLS_BEGIN
 /*! \cond Forward Declarations */
 SHZ_DECLARE_STRUCT_ALIGNED(shz_mat2x2, shz_mat2x2_t, 8);
 SHZ_DECLARE_STRUCT_ALIGNED(shz_mat4x4, shz_mat4x4_t, 8);
-SHZ_DECLARE_STRUCT(shz_mat3x3, shz_mat3x3_t);
-SHZ_DECLARE_STRUCT(shz_mat4x3, shz_mat4x3_t);
-SHZ_DECLARE_STRUCT(shz_mat3x4, shz_mat3x4_t);
+SHZ_DECLARE_STRUCT        (shz_mat3x3, shz_mat3x3_t);
+SHZ_DECLARE_STRUCT        (shz_mat4x3, shz_mat4x3_t);
+SHZ_DECLARE_STRUCT        (shz_mat3x4, shz_mat3x4_t);
 /*! \endcond */
 
 //! Registers comprising XMTRX, in the FPU back-bank.

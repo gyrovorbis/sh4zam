@@ -6,7 +6,7 @@
     This file contains the implementation of the inline functions declared
     within the Quaternion API.
 
-    \author 2025 Falco Girgis
+    \author 2025, 2026 Falco Girgis
     \author 2025 Oleg Endo
 
     \copyright MIT License
@@ -21,8 +21,8 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_identity(void) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE bool shz_quat_equal(shz_quat_t a, shz_quat_t b) SHZ_NOEXCEPT {
-    return shz_equalf(a.w, b.w) && shz_equalf(a.x, b.x)
-        && shz_equalf(a.y, b.y) && shz_equalf(a.z, b.z);
+    return shz_equalf(a.w, b.w) && shz_equalf(a.x, b.x) &&
+           shz_equalf(a.y, b.y) && shz_equalf(a.z, b.z);
 }
 
 SHZ_INLINE shz_quat_t shz_quat_from_angles_xyz(float xangle, float yangle, float zangle) SHZ_NOEXCEPT {
@@ -125,13 +125,13 @@ SHZ_FORCE_INLINE float shz_quat_dot(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_quat_dot2(shz_quat_t l, shz_quat_t r1, shz_quat_t r2) SHZ_NOEXCEPT {
-    return shz_vec4_dot2(shz_vec3_vec4( l.axis, l.w),
+    return shz_vec4_dot2(shz_vec3_vec4( l.axis,  l.w),
                          shz_vec3_vec4(r1.axis, r1.w),
                          shz_vec3_vec4(r2.axis, r2.w));
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_quat_dot3(shz_quat_t l, shz_quat_t r1, shz_quat_t r2, shz_quat_t r3) SHZ_NOEXCEPT {
-    return shz_vec4_dot3(shz_vec3_vec4( l.axis, l.w),
+    return shz_vec4_dot3(shz_vec3_vec4( l.axis,  l.w),
                          shz_vec3_vec4(r1.axis, r1.w),
                          shz_vec3_vec4(r2.axis, r2.w),
                          shz_vec3_vec4(r3.axis, r3.w));

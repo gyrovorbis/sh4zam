@@ -362,8 +362,14 @@ SHZ_FORCE_INLINE float shz_vec3_distance_sqr(shz_vec3_t vec1, shz_vec3_t vec2) S
 //! Returns the squared-distance between the two given 4D vectors.
 SHZ_FORCE_INLINE float shz_vec4_distance_sqr(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
 
-//! Returns the given vector, translated towards the \p target by the given \p max_distance.
+//! Returns the given 2D vector, translated towards the \p target by the given \p max_distance.
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_move(shz_vec2_t vec, shz_vec2_t target, float max_distance) SHZ_NOEXCEPT;
+
+//! Returns the given 3D vector, translated towards the \p target by the given \p max_distance.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_move(shz_vec3_t vec, shz_vec3_t target, float max_distance) SHZ_NOEXCEPT;
+
+//! Returns the given 4D vector, translated towards the \p target by the given \p max_distance.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_move(shz_vec4_t vec, shz_vec4_t target, float max_distance) SHZ_NOEXCEPT;
 
 //! Returns a 2D vector that is linearly interpolated from \p a to \p b by the given `0.0f-1.0f` factor, \p t.
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_lerp(shz_vec2_t a, shz_vec2_t b, float t) SHZ_NOEXCEPT;
@@ -455,6 +461,9 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p, shz_vec3_t a, shz_
 
 //! Returns 2 3D vectors which are normalized and orthogonal to the two input vectors.
 SHZ_INLINE void shz_vec3_orthonormalize(shz_vec3_t in1, shz_vec3_t in2, shz_vec3_t* out1, shz_vec3_t* out2) SHZ_NOEXCEPT;
+
+//! Calculates the cubic hermite interpolation between two vectors and their tangents.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cubic_hermite(shz_vec3_t vec, shz_vec3_t tangent1, shz_vec3_t vec2, shz_vec3_t tangent2, float amounht) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -719,6 +728,13 @@ SHZ_DECLS_END
                  shz_vec2_t: shz_vec2_distance, \
                  shz_vec3_t: shz_vec3_distance, \
                  shz_vec4_t: shz_vec4_distance)(vec1, vec2)
+
+    //! C type-generic vector move.
+#   define shz_vec_move(vec, target, maxdist) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_move, \
+                 shz_vec3_t: shz_vec3_move, \
+                 shz_vec4_t: shz_vec4_move)(vec, target, maxdist)
 
     //! C type-generic vector squared distance.
 #   define shz_vec_distance_sqr(vec1, vec2) \
@@ -1052,6 +1068,18 @@ SHZ_DECLS_END
             return shz_vec3_distance_sqr(vec1, vec2);
         else if constexpr(std::convertible_to<T, shz_vec4_t>)
             return shz_vec4_distance_sqr(vec1, vec2);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic moving of one vector to the position of another.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_move(T vec, T target, float maxdist) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_move(vec, target, maxdist);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_move(vec, target, maxdist);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_move(vec, target, maxdist);
         else static_assert(false, "Incompatible type!");
     }
 
