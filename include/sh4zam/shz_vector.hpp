@@ -75,67 +75,15 @@ struct vecN: C {
         return shz_vec_lerp(start, end, t);
     }
 
+#ifdef SHZ_CPP23
     //! Overloaded subscript operator -- allows for indexing vectors like an array.
     SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) noexcept {
         return std::forward<decltype(self)>(self).e[index];
     }
 
     //! Overloaded space-ship operator, for generic lexicographical comparison of vectors.
-    friend constexpr auto operator<=>(CppType lhs, CppType rhs) noexcept {
-        return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(),
-                                                      rhs.begin(), rhs.end());
-    }
-
-    //! Overloaded equality operator, for comparing vectors.
-    friend constexpr auto operator==(CppType lhs, CppType rhs) noexcept {
-        return shz_vec_equal(lhs, rhs);
-    }
-
-    //! Overloaded "less-than" operator, for comparing vectors.
-    friend constexpr auto operator<(CppType lhs, CppType rhs) noexcept {
-        return std::lexicographical_compare(lhs.begin(), lhs.end(),
-                                            rhs.begin(), rhs.end());
-    }
-
-    //! Overloaded unary negation operator, returns the negated vector.
-    friend CppType operator-(CppType vec) noexcept {
-        return vec.neg();
-    }
-
-    //! Overloaded operator for adding and accumulating a vector onto another.
-    SHZ_FORCE_INLINE CppType& operator+=(this CppType &self, CppType other) noexcept {
-        self = self + other;
-        return self;
-    }
-
-    //! Overloaded subtraction assignment operator, subtracts a vector from the left-hand vector.
-    SHZ_FORCE_INLINE CppType& operator-=(this CppType &self, CppType other) noexcept {
-        self = self - other;
-        return self;
-    }
-
-    //! Overloaded multiplication assignment operator, multiplies and accumulates a vector onto the left-hand vector.
-    SHZ_FORCE_INLINE CppType& operator*=(this CppType &self, CppType other) noexcept {
-        self = self * other;
-        return self;
-    }
-
-    //! Overloaded division assignment operator, divides the left vector by the right, assigning the left to the result.
-    SHZ_FORCE_INLINE CppType& operator/=(this CppType &self, CppType other) noexcept {
-        self = self / other;
-        return self;
-    }
-
-    //! Overloaded multiplication assignment operator, multiplies and accumulates each vector component by the given scalar.
-    SHZ_FORCE_INLINE CppType& operator*=(this CppType &self, float other) noexcept {
-        self = self * other;
-        return self;
-    }
-
-    //! Overloaded division assignment operator, dividing and assigning each vector component by the given scalar value.
-    SHZ_FORCE_INLINE CppType& operator/=(this CppType &self, float other) noexcept {
-        self = self / other;
-        return self;
+    friend auto operator<=>(CppType lhs, CppType rhs) noexcept {
+        return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
     }
 
     //! Returns an iterator to the beginning of the vector -- For STL support.
@@ -146,6 +94,58 @@ struct vecN: C {
     //! Returns an iterator to the end of the vector -- For STL support.
     SHZ_FORCE_INLINE auto end(this auto&& self) noexcept {
         return &self[Rows];
+    }
+
+    //! Overloaded "less-than" operator, for comparing vectors.
+    friend auto operator<(CppType lhs, CppType rhs) noexcept {
+        return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+    }    
+#endif
+
+    //! Overloaded equality operator, for comparing vectors.
+    friend auto operator==(CppType lhs, CppType rhs) noexcept {
+        return shz_vec_equal(lhs, rhs);
+    }
+
+    //! Overloaded unary negation operator, returns the negated vector.
+    friend CppType operator-(CppType vec) noexcept {
+        return vec.neg();
+    }
+
+    //! Overloaded operator for adding and accumulating a vector onto another.
+    SHZ_FORCE_INLINE CppType& operator+=(CppType other) noexcept {
+        *static_cast<CppType*>(this) = *static_cast<CppType*>(this) + other;
+        return *static_cast<CppType*>(this);
+    }
+
+    //! Overloaded subtraction assignment operator, subtracts a vector from the left-hand vector.
+    SHZ_FORCE_INLINE CppType& operator-=(CppType other) noexcept {
+        *static_cast<CppType*>(this) = *static_cast<CppType*>(this) - other;
+        return *static_cast<CppType*>(this);
+    }
+
+    //! Overloaded multiplication assignment operator, multiplies and accumulates a vector onto the left-hand vector.
+    SHZ_FORCE_INLINE CppType& operator*=(CppType other) noexcept {
+        *static_cast<CppType*>(this) = *static_cast<CppType*>(this) * other;
+        return *static_cast<CppType*>(this);
+    }
+
+    //! Overloaded division assignment operator, divides the left vector by the right, assigning the left to the result.
+    SHZ_FORCE_INLINE CppType& operator/=(CppType other) noexcept {
+        *static_cast<CppType*>(this) = *static_cast<CppType*>(this) / other;
+        return *static_cast<CppType*>(this);
+    }
+
+    //! Overloaded multiplication assignment operator, multiplies and accumulates each vector component by the given scalar.
+    SHZ_FORCE_INLINE CppType& operator*=(float other) noexcept {
+        *static_cast<CppType*>(this) = *static_cast<CppType*>(this) * other;
+        return *static_cast<CppType*>(this);
+    }
+
+    //! Overloaded division assignment operator, dividing and assigning each vector component by the given scalar value.
+    SHZ_FORCE_INLINE CppType& operator/=(float other) noexcept {
+        *static_cast<CppType*>(this) = *static_cast<CppType*>(this) / other;
+        return *static_cast<CppType*>(this);
     }
 
     //! Swizzle oeprator which takes a compile-time list of indices as non-type template arguments for the index each element should use as its new value.
@@ -185,15 +185,15 @@ struct vecN: C {
     }
 
     //! Returns the dot product of the given vector and another.
-    SHZ_FORCE_INLINE float dot(this const CppType& self, CppType other) noexcept {
-        return shz_vec_dot(self, other);
+    SHZ_FORCE_INLINE float dot(CppType other) const noexcept {
+        return shz_vec_dot(*static_cast<const CppType*>(this), other);
     }
 
     //! Returns the dot product of the given vector against two others.
-    SHZ_FORCE_INLINE vec2 dot(this const CppType& self, CppType v1, CppType v2) noexcept;
+    SHZ_FORCE_INLINE vec2 dot(CppType v1, CppType v2) const noexcept;
 
     //! Returns the dot product of the given vector against three others.
-    SHZ_FORCE_INLINE vec3 dot(this const CppType& self, CppType v1, CppType v2, CppType v3) noexcept;
+    SHZ_FORCE_INLINE vec3 dot(CppType v1, CppType v2, CppType v3) const noexcept;
 
     //! Returns the magnitude of the given vector.
     SHZ_FORCE_INLINE float magnitude() const noexcept {
@@ -231,23 +231,23 @@ struct vecN: C {
     }
 
     //! Returns the magnitude of the difference between two vectors as their distance.
-    SHZ_FORCE_INLINE float distance(this const CppType& self, const CppType& other) noexcept {
-        return shz_vec_distance(self, other);
+    SHZ_FORCE_INLINE float distance(const CppType& other) const noexcept {
+        return shz_vec_distance(*static_cast<CppType*>(this), other);
     }
 
     //! Returns the value of the distance between two vectors squared (faster than actual distance)
-    SHZ_FORCE_INLINE float distance_sqr(this const CppType& self, const CppType& other) noexcept {
-        return shz_vec_distance_sqr(self, other);
+    SHZ_FORCE_INLINE float distance_sqr(const CppType& other) const noexcept {
+        return shz_vec_distance_sqr(*static_cast<CppType*>(this), other);
     }
 
     //! Moves the given vector towards the target by the given \p maxdist.
     SHZ_FORCE_INLINE CppType move(CppType target, float maxdist) const noexcept {
-        return shz_vec_move(*reinterpret_cast<const CppType*>(this), target, maxdist);
+        return shz_vec_move(*static_cast<const CppType*>(this), target, maxdist);
     }
 
     //! Returns the vector created from reflecting the given vector over the normal of a surface.
     SHZ_FORCE_INLINE CppType reflect(CppType normal) const noexcept {
-        return shz_vec_reflect(*reinterpret_cast<const CppType*>(this), normal);
+        return shz_vec_reflect(*static_cast<const CppType*>(this), normal);
     }
 
     //! Returns the vector create from refracting the given incidence vector over the normal of a surface, using the given refraction ratio index.
@@ -545,17 +545,17 @@ struct vec4: vecN<vec4, shz_vec4_t, 4> {
     }
 };
 
-//! C++ alias for vec4 for those who like POSIX-style.
+//! C++ alias for vec4 for those who like POSIX-style.s
 using vec4_t = vec4;
 
 template<typename CRTP, typename C, size_t R>
-SHZ_FORCE_INLINE vec2 vecN<CRTP, C, R>::dot(this const CppType& self, CppType v1, CppType v2) noexcept {
-    return shz_vec_dot2(self, v1, v2);
+SHZ_FORCE_INLINE vec2 vecN<CRTP, C, R>::dot(CppType v1, CppType v2) const noexcept {
+    return shz_vec_dot2(*reinterpret_cast<const CRTP*>(this), v1, v2);
 }
 
 template<typename CRTP, typename C, size_t R>
-SHZ_FORCE_INLINE vec3 vecN<CRTP, C, R>::dot(this const CppType& self, CppType v1, CppType v2, CppType v3) noexcept {
-    return shz_vec_dot3(self, v1, v2, v3);
+SHZ_FORCE_INLINE vec3 vecN<CRTP, C, R>::dot(CppType v1, CppType v2, CppType v3) const noexcept {
+    return shz_vec_dot3(*reinterpret_cast<const CRTP*>(this), v1, v2, v3);
 }
 
 }

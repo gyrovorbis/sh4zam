@@ -3,7 +3,7 @@
  *
  *  This file contains the C++ API around the C preprocessor and macro API.
  *
- *  \author    2025 Falco Girgis
+ *  \author    2025, 2026 Falco Girgis
  *  \copyright MIT License
  */
 
@@ -11,6 +11,11 @@
 #define SHZ_CDEFS_HPP
 
 #include "shz_cdefs.h"
+
+#if __cplusplus > 202002L
+    //! Defined if building with C++23 to enable optional features.
+#   define SHZ_CPP23    1
+#endif
 
 //! Namespace enclosing the SH4ZAM C++ API.
 namespace shz {

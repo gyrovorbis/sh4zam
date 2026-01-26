@@ -94,6 +94,7 @@ namespace shz {
             return shz_quat_slerp(q, p, t);
         }
 
+#ifdef SHZ_CPP23
         //! Overloaded subscript operator for indexing into the quaternion like an array.
         SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) noexcept {
             return std::forward<decltype(self)>(self).e[index];
@@ -115,15 +116,14 @@ namespace shz {
                                                 rhs.begin(), rhs.end());
         }
 
-        //! Overloaded comparison operator, checks for quaternion equality.
-        friend constexpr auto operator==(quat lhs, quat rhs) noexcept {
-            return shz_quat_equal(lhs, rhs);
-        }
-
         //! Returns true if \p lhs is lexicographically less than \p rhs.
-        friend constexpr auto operator<(quat lhs, quat rhs) noexcept {
-            return std::lexicographical_compare(lhs.begin(), lhs.end(),
-                                                rhs.begin(), rhs.end());
+        friend auto operator<(quat lhs, quat rhs) noexcept {
+            return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+        }
+#endif
+        //! Overloaded comparison operator, checks for quaternion equality.
+        friend auto operator==(quat lhs, quat rhs) noexcept {
+            return shz_quat_equal(lhs, rhs);
         }
 
         //! Returns the angle of rotation represented by the given quaternion.

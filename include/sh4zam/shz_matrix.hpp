@@ -31,6 +31,12 @@ namespace shz {
 
         mat4x4() noexcept = default;
 
+#ifdef SHZ_CPP23
+        //! Returns a pointer to the internal floating-point array held by the matrix.
+        SHZ_FORCE_INLINE auto data(this auto&& self) noexcept {
+            return &self[0];
+        }
+
         //! Overloaded subscript operator -- allows for indexing vectors like an array.
         SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) noexcept {
             return std::forward<decltype(self)>(self).elem[index];
@@ -52,15 +58,15 @@ namespace shz {
                                                           rhs.begin(), rhs.end());
         }
 
-        //! Overloaded equality operator, for comparing vectors.
-        friend constexpr auto operator==(const mat4x4& lhs, const mat4x4& rhs) noexcept {
-            return shz_mat4x4_equal(&lhs, &rhs);
-        }
-
         //! Overloaded "less-than" operator, for comparing vectors.
         friend constexpr auto operator<(const mat4x4& lhs, const mat4x4& rhs) noexcept {
             return std::lexicographical_compare(lhs.begin(), lhs.end(),
                                                 rhs.begin(), rhs.end());
+        }
+#endif
+        //! Overloaded equality operator, for comparing vectors.
+        friend auto operator==(const mat4x4& lhs, const mat4x4& rhs) noexcept {
+            return shz_mat4x4_equal(&lhs, &rhs);
         }
 
         /*! \name  Initialization
@@ -171,11 +177,6 @@ namespace shz {
             \brief Routines for getting specific values within a matrix
             @{
         */
-
-        //! Returns a pointer to the internal floating-point array held by the matrix.
-        SHZ_FORCE_INLINE auto data(this auto&& self) noexcept {
-            return &self[0];
-        }
 
         //! C++ wrapper for shz_mat4x4_row().
         SHZ_FORCE_INLINE vec4 row(size_t index) const noexcept {
