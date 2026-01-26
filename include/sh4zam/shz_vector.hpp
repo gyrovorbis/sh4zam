@@ -242,6 +242,11 @@ struct vecN: C {
         return shz_vec_reflect(*this, normal);
     }
 
+    //! Returns the vector create from refracting the given incidence vector over the normal of a surface, using the given refraction ratio index.
+    SHZ_FORCE_INLINE CppType refract(CppType normal, float eta) const noexcept {
+        return shz_vec_refract(*this, normal, eta);
+    }
+
     //! Returns the vector created from projecting the given vector onto another.
     SHZ_FORCE_INLINE CppType project(CppType onto) const noexcept {
         return shz_vec_project(*this, onto);
@@ -403,6 +408,18 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
     SHZ_FORCE_INLINE vec3(sincos azimuth, sincos elevation) noexcept:
         vecN(shz_vec3_from_sincos(azimuth, elevation)) {}
 
+    //! Returns 2 3D vectors which are normalized and orthogonal to the two input vectors as a std::pair<>.
+    SHZ_FORCE_INLINE static auto orthonormalize(vec3 in1, vec3 in2) noexcept {
+        vec3 out1, out2;
+        shz_vec3_orthonormalize(in1, in2, &out1, &out2);
+        return std::make_pair(out1, out2);
+    }
+
+    //! Returns 2 3D vectors which are normalized and orthogonal to the two input vectors via output pointers.
+    SHZ_FORCE_INLINE static void orthonormalize(vec3 in1, vec3 in2, vec3* out1, vec3* out2) noexcept {
+        shz_vec3_orthonormalize(in1, in2, out1, out2);
+    }
+
     // Returns the inner 2D vector, <X, Y>, as a C++ vector.
     SHZ_FORCE_INLINE vec2 xy() const noexcept {
         return shz_vec3_t::xy;
@@ -426,6 +443,16 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
     //! Returns the 3D vector "triple product" between the given vector and vectors \p a and \p b.
     SHZ_FORCE_INLINE float triple(vec3 b, vec3 c) const noexcept {
         return shz_vec3_triple(*this, b, c);
+    }
+
+    //! Returns a 3D vector which is perpendicular to this vector.
+    SHZ_FORCE_INLINE vec3 perp() const noexcept {
+        return shz_vec3_perp(*this);
+    }
+
+    //! Returns the 3D reject vector of the given vector and another.
+    SHZ_FORCE_INLINE vec3 reject(vec3 onto) const noexcept {
+        return shz_vec3_reject(*this, onto);
     }
 
     //! Computes the barycentric coordinates `<u, v, w>` for the given 3D vector, within the plane of the triangle formed by the given vertices, \p a, \p b, and \p c.

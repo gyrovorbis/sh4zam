@@ -515,49 +515,128 @@ SHZ_INLINE shz_vec2_t shz_vec2_move(shz_vec2_t vec, shz_vec2_t target, float max
     return shz_vec2_add(vec, shz_vec2_scale(delta, scaled_dist));
 }
 
-//! \todo The FIPR-y can still be better pipelined and optimized here.
-SHZ_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p,
-                                          shz_vec3_t a,
-                                          shz_vec3_t b,
-                                          shz_vec3_t c) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p,
+                                                shz_vec3_t a,
+                                                shz_vec3_t b,
+                                                shz_vec3_t c) SHZ_NOEXCEPT {
     shz_vec3_t result;
 
-    shz_vec3_t v0 = shz_vec3_sub(b, a);
-    shz_vec3_t v1 = shz_vec3_sub(c, a);
-    shz_vec3_t v2 = shz_vec3_sub(p, a);
+    // Assign v0 immediately to FV0.
+    register float fr0  asm("fr0") = b.x - a.x; // v0.x
+    register float fr1  asm("fr1") = b.y - a.y; // v0.y
+    register float fr2  asm("fr2") = b.z - a.z; // v0.z
+    register float fr3  asm("fr3") = 0.0f;
+    register float fr4  asm("fr4");             // v1.x
+    register float fr5  asm("fr5");             // v1.y
+    register float fr6  asm("fr6");             // v1.z
+    register float fr7  asm("fr7");
+    register float fr8  asm("fr8");             // v2.x
+    register float fr9  asm("fr9");             // v2.y
+    register float fr10 asm("fr10");            // v2.z
+    register float fr11 asm("fr11");
 
-    register float rx asm ("fr8")  = v0.x;
-    register float ry asm ("fr9")  = v0.y;
-    register float rz asm ("fr10") = v0.z;
+    // Load v1 into FV4
+    SHZ_MEMORY_BARRIER_HARD();
+    fr4 = c.x - a.x;
+    fr5 = c.y - a.y;
+    fr6 = c.z - a.z;
+    SHZ_MEMORY_BARRIER_HARD();
 
-    float d00 = shz_mag_sqr3f(rx, ry, rz);
-    float d01 = shz_dot6f(rx, ry, rz, v1.x, v1.y, v1.z);
-    float d02 = shz_dot6f(rx, ry, rz, v2.x, v2.y, v2.z);
+    // Begin calculating d01
+    asm("fipr fv0, fv4"
+        : "=f" (fr7)
+        : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
+          "f" (fr4), "f" (fr5), "f" (fr6));
 
-    // Now hold V1 constant within the FV8 regs.
-    rx = v1.x;
-    ry = v1.y;
-    rz = v1.z;
+    // Load v2 into FV4
+    SHZ_MEMORY_BARRIER_HARD();
+    fr8  = p.x - a.x;
+    fr9  = p.y - a.y;
+    fr10 = p.z - a.z;
+    SHZ_MEMORY_BARRIER_HARD();;
 
-    float d11 = shz_mag_sqr3f(rx, ry, rz);
-    float d12 = shz_dot6f(rx, ry, rz, v2.x, v2.y, v2.z);
+    // Begin calculating d00.
+    asm("fipr fv0, fv0"
+        : "=f" (fr3)
+        : "f" (fr0), "f" (fr1), "f" (fr2));
 
-    float denom = (d00 * d11) - (d01 * d01);
+    SHZ_MEMORY_BARRIER_HARD();
+    float d01 = fr7;
+    SHZ_MEMORY_BARRIER_HARD();
+    fr7 = 0.0f;
+    SHZ_MEMORY_BARRIER_HARD();
 
-    /* Protect against divide-by-zero only in debug builds for now,
-       cuz ain't nobody got the cycles to spare.*/
-    assert(denom > 0.0f);
+    // Begin calculating d12
+    asm("fipr fv4, fv8"
+        : "=f" (fr11)
+        : "f" (fr4), "f" (fr5), "f" (fr6), "f" (fr7),
+          "f" (fr8), "f" (fr9), "f" (fr10));
 
-    /* We can mathematically prove that "denom" is guaranteed to be
-       positive here, so we can abuse the fast reciprocal square root
-       approximation instruction (FSRRA) to do a fast inversion. */
-    float inv_denom = shz_invf_fsrra(denom);
+    SHZ_MEMORY_BARRIER_HARD();
+    float d00 = fr3;
+    fr3 = 0.0f;
+    SHZ_MEMORY_BARRIER_HARD();
+
+    // Begin calculating d11
+    asm("fipr fv4, fv4"
+        : "+f" (fr7)
+        : "f" (fr4), "f" (fr5), "f" (fr6));
+
+    SHZ_MEMORY_BARRIER_HARD();
+    float d12 = fr11;
+    SHZ_MEMORY_BARRIER_HARD();
+
+    // Begin calculating d02
+    asm("fipr fv0, fv8"
+        : "=f" (fr11)
+        : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
+          "f" (fr8), "f" (fr9), "f" (fr10));
+
+    SHZ_MEMORY_BARRIER_HARD();
+    float d02 = fr11;
+    SHZ_MEMORY_BARRIER_HARD();
+    float d11 = fr7;
+
+    float inv_denom = shz_invf_fsrra((d00 * d11) - (d01 * d01));
 
     result.y = ((d11 * d02) - (d01 * d12)) * inv_denom;
     result.z = ((d00 * d12) - (d01 * d02)) * inv_denom;
     result.x = 1.0f - (result.z + result.y);
 
     return result;
+}
+
+SHZ_INLINE shz_vec3_t shz_vec3_perp(shz_vec3_t vec) SHZ_NOEXCEPT {
+    shz_vec3_t cardinal_axis = shz_vec3_init(1.0f, 0.0f, 0.0f);
+    float min = shz_fabsf(vec.x);
+    float maybe_min;
+
+    if ((maybe_min = shz_fabsf(vec.y)) < min) {
+        min = maybe_min;
+        cardinal_axis = shz_vec3_init(0.0f, 1.0f, 0.0f);
+    }
+
+    if((maybe_min = shz_fabsf(vec.z)) < min)
+        cardinal_axis = shz_vec3_init(0.0f, 0.0f, 1.0f);
+
+    return shz_vec3_cross(vec, cardinal_axis);
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_reject(shz_vec3_t v1, shz_vec3_t v2) SHZ_NOEXCEPT {
+    float v1dv2 = shz_vec3_dot(v1, v2);
+    float v2dv2 = shz_vec3_magnitude_sqr(v2);
+    float   mag = shz_divf_fsrra(v1dv2, v2dv2);
+
+    return shz_vec3_sub(v1, shz_vec3_scale(v2, mag));
+}
+
+SHZ_INLINE void shz_vec3_orthonormalize(shz_vec3_t   in1, shz_vec3_t   in2,
+                                        shz_vec3_t* out1, shz_vec3_t* out2) SHZ_NOEXCEPT {
+    shz_vec3_t tmp;
+
+    *out1 = shz_vec3_normalize_safe(in1);
+      tmp = shz_vec3_normalize_safe(shz_vec3_cross(*out1, in2));
+    *out2 = shz_vec3_cross(tmp, *out1);
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_dot2(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2) SHZ_NOEXCEPT {

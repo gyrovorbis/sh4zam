@@ -5,10 +5,7 @@
  *  This file provides types and mathematical routines for representing and
  *  operating on vectors.
  *
- *  \todo
- *      - shz_vec_rotate(): for one-off rotations
- *
- *  \author 2025 Falco Girgis
+ *  \author 2025, 2026 Falco Girgis
  *  \author 2025 Paul Cercueil
  *
  *  \copyright MIT License
@@ -437,6 +434,9 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_project_safe(shz_vec3_t vec, shz_vec3_t ont
 */
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_project_safe(shz_vec4_t vec, shz_vec4_t onto) SHZ_NOEXCEPT;
 
+//! Returns the rejection of the given vector, \p vec, onto another vector, \p onto.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_reject(shz_vec3_t vec, shz_vec3_t onto) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Miscellaneous
@@ -447,8 +447,14 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_project_safe(shz_vec4_t vec, shz_vec4_t ont
 //! Returns the 3D vector "triple product" between vector's \p a, \p b, and \p c.
 SHZ_INLINE float shz_vec3_triple(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT;
 
+//! Returns a vector which is perpendicular to the given vector.
+SHZ_INLINE shz_vec3_t shz_vec3_perp(shz_vec3_t vec) SHZ_NOEXCEPT;
+
 //! Computes barycentric coordinates `<u, v, w>` for point p, within the plane of the triangle with vertices \p a, \p b, and \p c.
-SHZ_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p, shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p, shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT;
+
+//! Returns 2 3D vectors which are normalized and orthogonal to the two input vectors.
+SHZ_INLINE void shz_vec3_orthonormalize(shz_vec3_t in1, shz_vec3_t in2, shz_vec3_t* out1, shz_vec3_t* out2) SHZ_NOEXCEPT;
 
 //! @}
 

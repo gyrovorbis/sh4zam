@@ -390,8 +390,63 @@ GBL_TEST_CASE(vec2Rotate)
         return shz_rotated == c_rotated;
     };
 
-    test({1.0f, 2.0f }, SHZ_F_PI);
-    test({gblRandf(), gblRandf()}, gblRandf());
+    GBL_TEST_VERIFY(test({1.0f, 2.0f }, SHZ_F_PI));
+    GBL_TEST_VERIFY(test({gblRandf(), gblRandf()}, gblRandf()));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Orthonormalize)
+   auto test = [&](shz::vec3 v1, shz::vec3 v2,
+                   shz::vec3 e1, shz::vec3 e2) {
+        shz::vec3 out1, out2;
+
+        benchmark(nullptr, [&]{
+            std::tie(out1, out2) = shz::vec3::orthonormalize(v1, v2);
+        });
+
+        return out1 == e1 && out2 == e2;
+    };
+
+    GBL_TEST_VERIFY(test({ 1.0f, 2.0f, 3.0f }, { 4.0f, 5.0f, 6.0f },
+                         { 0.267261241912424f, 0.534522483824849f, 0.801783725737273f },
+                         { 0.87287156094397f,  0.218217890235992f, -0.436435780471985f }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Barycenter)
+
+   auto test = [&](shz::vec3 p, shz::vec3 a, shz::vec3 b, shz::vec3 c)
+    {
+        // Written by yours truly
+        shz::vec3 shzResult;
+        benchmark(&shzResult, [&] {
+            return p.barycenter(a, b, c);
+        });
+
+        //warezed straight from raymath. :mink:
+        struct Vector3 { float x, y, z;} rayResult;
+        benchmark(&rayResult, [&] {
+            Vector3 result = { 0 };
+            Vector3 v0 = { b.x - a.x, b.y - a.y, b.z - a.z };   // Vector3Subtract(b, a)
+            Vector3 v1 = { c.x - a.x, c.y - a.y, c.z - a.z };   // Vector3Subtract(c, a)
+            Vector3 v2 = { p.x - a.x, p.y - a.y, p.z - a.z };   // Vector3Subtract(p, a)
+            float d00 = (v0.x*v0.x + v0.y*v0.y + v0.z*v0.z);    // Vector3DotProduct(v0, v0)
+            float d01 = (v0.x*v1.x + v0.y*v1.y + v0.z*v1.z);    // Vector3DotProduct(v0, v1)
+            float d11 = (v1.x*v1.x + v1.y*v1.y + v1.z*v1.z);    // Vector3DotProduct(v1, v1)
+            float d20 = (v2.x*v0.x + v2.y*v0.y + v2.z*v0.z);    // Vector3DotProduct(v2, v0)
+            float d21 = (v2.x*v1.x + v2.y*v1.y + v2.z*v1.z);    // Vector3DotProduct(v2, v1)
+            float denom = d00*d11 - d01*d01;
+            result.y = (d11*d20 - d01*d21)/denom;
+            result.z = (d00*d21 - d01*d20)/denom;
+            result.x = 1.0f - (result.z + result.y);
+            return result;
+        });
+
+        return shzResult == shz::vec3::from(rayResult);
+    };
+
+    GBL_TEST_VERIFY(test({ 1.0f/3.0f, 1.0f/3.0f, 1.0f/3.0f },
+                         { 0.0f, 0.0f, 0.0f },
+                         { 1.0f, 0.0f, 0.0f },
+                         { 0.0f, 1.0f, 0.0f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(vec2Construct,
@@ -417,4 +472,6 @@ GBL_TEST_REGISTER(vec2Construct,
                   vec4Dot,
                   vec4Dot2,
                   vec4Dot3,
-                  vec2Rotate)
+                  vec2Rotate,
+                  vec3Orthonormalize,
+                  vec3Barycenter)
