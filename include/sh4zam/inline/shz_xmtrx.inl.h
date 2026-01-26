@@ -942,13 +942,11 @@ SHZ_INLINE void shz_xmtrx_load_2x2(const shz_mat2x2_t* matrix) SHZ_NOEXCEPT  {
 }
 
 SHZ_INLINE void shz_xmtrx_store_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
-    asm volatile(R"(
-        fschg
-        add     #64, %[mtx]
-        fmov.d  xd14, @-%[mtx]
-        add     #-32, %[mtx]
+    asm(R"(
         pref    @%[mtx]
-        add     #32, %[mtx]
+        add     #64, %[mtx]
+        fschg
+        fmov.d  xd14, @-%[mtx]
         fmov.d  xd12, @-%[mtx]
         fmov.d  xd10, @-%[mtx]
         fmov.d  xd8, @-%[mtx]
@@ -958,7 +956,8 @@ SHZ_INLINE void shz_xmtrx_store_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
         fmov.d  xd0, @-%[mtx]
         fschg
     )"
-    : [mtx] "+&r" (matrix), "=m" (*matrix));
+    : "=m" (*matrix)
+    : [mtx] "r" (matrix));
 }
 
 SHZ_INLINE void shz_xmtrx_store_aligned4_4x4(float matrix[16]) SHZ_NOEXCEPT {

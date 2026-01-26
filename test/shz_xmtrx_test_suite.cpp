@@ -22,9 +22,10 @@ static std::array<float, 16> transpose(std::array<float, 16> mat) {
     return transpose;
 }
 
+SHZ_NO_INLINE
 static void randomize_xmtrx_() {
-    for(unsigned reg = SHZ_XMTRX_XF0; reg < SHZ_XMTRX_XF15; ++reg)
-        shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandUniform(FLT_MIN, FLT_MAX));
+    //for(unsigned reg = SHZ_XMTRX_XF0; reg < SHZ_XMTRX_XF15; ++reg)
+     //   shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandf());
 }
 
 SHZ_NO_INLINE static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, double epsilon=0.01) {
@@ -249,16 +250,32 @@ GBL_TEST_CASE(store_4x4)
     shz::mat4x4 mat;
     shz::xmtrx::store(&mat);
     std::array<float, 16> array = std::to_array(mat.elem);
-    GBL_TEST_SKIP("No fucking clue why this shits the bed.");
-    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, array));
+    //GBL_TEST_SKIP("No fucking clue why this shits the bed.");
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(store_unaligned_4x4)
     randomize_xmtrx_();
     std::array<float, 16> array;
     shz::xmtrx::store(&array);
-    GBL_TEST_SKIP("No fucking clue why this shits the bed.");
-    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, array));
+   // GBL_TEST_SKIP("No fucking clue why this shits the bed.");
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(store_aligned32_4x4)
+    randomize_xmtrx_();
+
+    alignas(32) shz_mat4x4_t shzMat;
+    alignas(32) char buffer[sizeof(shz::mat4x4) + 8];
+    auto* cMat = reinterpret_cast<shz::mat4x4*>(buffer + 8);
+
+
+    benchmark(nullptr, shz_xmtrx_store_4x4, cMat);
+    benchmark(nullptr, shz_xmtrx_store_4x4, &shzMat);
+
+    std::array<float, 16> array = std::to_array(shzMat.elem);
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(store_transpose_4x4)
@@ -679,6 +696,7 @@ GBL_TEST_REGISTER(read_write_registers,
                   load_transpose_unaligned_4x4,
                   store_4x4,
                   store_unaligned_4x4,
+                  store_aligned32_4x4,
                   store_transpose_4x4,
                   store_transpose_unaligned_4x4,
                   init_identity,

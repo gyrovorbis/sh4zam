@@ -30,10 +30,11 @@ SHZ_FORCE_INLINE uint64_t PERF_CNTR(bool* valid) {
 }
 
 template<typename F, typename... Args>
+SHZ_NO_INLINE
 void benchmark(auto res, const char* name, F &&function, Args&&... args) {
     perf_cntr_timer_enable();
 
-    auto inner = [&]<bool CacheFlush>() SHZ_HOT {
+    auto inner = [&]<bool CacheFlush>() {
         uint64_t iterations = 0;
         uint64_t sum = 0;
         uint64_t tmu_sum = 0;
@@ -44,7 +45,7 @@ void benchmark(auto res, const char* name, F &&function, Args&&... args) {
         for(unsigned i = 0; i < BENCHMARK_ITERATION_COUNT; ++i) {
             SHZ_MEMORY_BARRIER_SOFT();
 
-            [&] SHZ_HOT {
+            [&] SHZ_NO_INLINE SHZ_COLD {
                     if constexpr(CacheFlush) {
                         icache_flush_range(_executable_start, (_etext  -_executable_start));
                         dcache_purge_all();
@@ -56,11 +57,12 @@ void benchmark(auto res, const char* name, F &&function, Args&&... args) {
                     uint64_t start = PERF_CNTR(&valid_start);
                     SHZ_MEMORY_BARRIER_SOFT();
 
-                    if constexpr(!std::same_as<decltype(res), std::nullptr_t>)
-                        *res = function(std::forward<Args>(args)...);
-                    else
-                        function(std::forward<Args>(args)...);
-
+                    [&] SHZ_HOT {
+                        if constexpr(!std::same_as<decltype(res), std::nullptr_t>)
+                            *res = function(std::forward<Args>(args)...);
+                        else
+                            function(std::forward<Args>(args)...);
+                    }();
                     SHZ_MEMORY_BARRIER_SOFT();
                     bool valid_stop;
                     uint64_t stop = PERF_CNTR(&valid_stop);
