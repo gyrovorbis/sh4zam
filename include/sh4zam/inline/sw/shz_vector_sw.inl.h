@@ -398,7 +398,8 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_sincos_sw(shz_sincos_t azimuth, shz_si
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_angle_sw(float radians) SHZ_NOEXCEPT {
-    return shz_vec2_from_sincos(shz_sincosf(radians));
+    shz_sincos_t sc = shz_sincosf(radians);
+    return shz_vec2_init(sc.cos, sc.sin);
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles_sw(float azimuth, float elevation) SHZ_NOEXCEPT {
@@ -406,7 +407,8 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles_sw(float azimuth, float elevati
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_from_angle_deg_sw(float degrees) SHZ_NOEXCEPT {
-    return shz_vec2_from_sincos(shz_sincosf_deg(degrees));
+    shz_sincos_t sc = shz_sincosf_deg(degrees);
+    return shz_vec2_init(sc.cos, sc.sin);
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles_deg_sw(float azimuth, float elevation) SHZ_NOEXCEPT {
