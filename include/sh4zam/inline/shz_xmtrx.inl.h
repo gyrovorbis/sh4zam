@@ -942,7 +942,7 @@ SHZ_INLINE void shz_xmtrx_load_2x2(const shz_mat2x2_t* matrix) SHZ_NOEXCEPT  {
 }
 
 SHZ_INLINE void shz_xmtrx_store_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
-    asm(R"(
+    asm volatile(R"(
         pref    @%[mtx]
         add     #64, %[mtx]
         fschg

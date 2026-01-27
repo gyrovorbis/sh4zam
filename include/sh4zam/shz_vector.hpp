@@ -151,37 +151,37 @@ struct vecN: C {
     //! Swizzle oeprator which takes a compile-time list of indices as non-type template arguments for the index each element should use as its new value.
     template<unsigned... Indices>
     SHZ_FORCE_INLINE CppType swizzle() const noexcept {
-        return shz_vec_swizzle(*this, Indices...);
+        return shz_vec_swizzle(*static_cast<const CppType*>(this), Indices...);
     }
 
     //! Returns a new vector whose components are the absolute value of the given vector.
     SHZ_FORCE_INLINE CppType abs() const noexcept {
-        return shz_vec_abs(*this);
+        return shz_vec_abs(*static_cast<const CppType*>(this));
     }
 
     //! Returns a new vector whose components are the negative values of the given vector.
     SHZ_FORCE_INLINE CppType neg() const noexcept {
-        return shz_vec_neg(*this);
+        return shz_vec_neg(*static_cast<const CppType*>(this));
     }
 
     //! Returns a new vector whose components are the reciprocal values of the given vector.
     SHZ_FORCE_INLINE CppType inv() const noexcept {
-        return shz_vec_inv(*this);
+        return shz_vec_inv(*static_cast<const CppType*>(this));
     }
 
     //! Returns the maximum value of every element within the vector.
     SHZ_FORCE_INLINE float max() const noexcept {
-        return shz_vec_max(*this);
+        return shz_vec_max(*static_cast<const CppType*>(this));
     }
 
     //! Returns the minimum value of every element within the vector.
     SHZ_FORCE_INLINE float min() const noexcept {
-        return shz_vec_min(*this);
+        return shz_vec_min(*static_cast<const CppType*>(this));
     }
 
     //! Returns a new vector whose values are the clamped components of the given vector.
     SHZ_FORCE_INLINE CppType clamp(float min, float max) const noexcept {
-        return shz_vec_clamp(*this, min, max);
+        return shz_vec_clamp(*static_cast<const CppType*>(this), min, max);
     }
 
     //! Returns the dot product of the given vector and another.
@@ -197,37 +197,37 @@ struct vecN: C {
 
     //! Returns the magnitude of the given vector.
     SHZ_FORCE_INLINE float magnitude() const noexcept {
-        return shz_vec_magnitude(*this);
+        return shz_vec_magnitude(*static_cast<const CppType*>(this));
     }
 
     //! Returns the squared magnitude of the given vector.
     SHZ_FORCE_INLINE float magnitude_sqr() const noexcept {
-        return shz_vec_magnitude_sqr(*this);
+        return shz_vec_magnitude_sqr(*static_cast<const CppType*>(this));
     }
 
     //! Returns the inverse magnitude of the given vector.
     SHZ_FORCE_INLINE float magnitude_inv() const noexcept {
-        return shz_vec_magnitude_inv(*this);
+        return shz_vec_magnitude_inv(*static_cast<const CppType*>(this));
     }
 
     //! Returns the direction vector resulting from normalizing the given vector.
     SHZ_FORCE_INLINE CppType direction() const noexcept {
-        return shz_vec_normalize(*this);
+        return shz_vec_normalize(*static_cast<const CppType*>(this));
     }
 
     //! Normalizes the given vector.
     SHZ_FORCE_INLINE void normalize() noexcept {
-        *this = shz_vec_normalize(*this);
+        *static_cast<CppType*>(this) = shz_vec_normalize(*static_cast<const CppType*>(this));
     }
 
     //! Returns the direction vector of a given vector, safely protecting against division-by-zero.
     SHZ_FORCE_INLINE CppType direction_safe() const noexcept {
-        return shz_vec_normalize_safe(*this);
+        return shz_vec_normalize_safe(*static_cast<const CppType*>(this));
     }
 
     //! Normalizes the given vector, safely protecting against division-by-zero.
     SHZ_FORCE_INLINE void normalize_safe() noexcept {
-        *this = shz_vec_normalize_safe(*this);
+        *static_cast<CppType*>(this) = shz_vec_normalize_safe(*static_cast<const CppType*>(this));
     }
 
     //! Returns the magnitude of the difference between two vectors as their distance.
@@ -252,27 +252,27 @@ struct vecN: C {
 
     //! Returns the vector create from refracting the given incidence vector over the normal of a surface, using the given refraction ratio index.
     SHZ_FORCE_INLINE CppType refract(CppType normal, float eta) const noexcept {
-        return shz_vec_refract(*this, normal, eta);
+        return shz_vec_refract(*static_cast<const CppType*>(this), normal, eta);
     }
 
     //! Returns the vector created from projecting the given vector onto another.
     SHZ_FORCE_INLINE CppType project(CppType onto) const noexcept {
-        return shz_vec_project(*this, onto);
+        return shz_vec_project(*static_cast<const CppType*>(this), onto);
     }
 
     //! Returns the vector created from projecting the given vector onto another, safely protecting against division-by-zero.
     SHZ_FORCE_INLINE CppType project_safe(CppType onto) const noexcept {
-        return shz_vec_project_safe(*this, onto);
+        return shz_vec_project_safe(*static_cast<const CppType*>(this), onto);
     }
 
     //! Returns the angle between the given vector and another, in radians.
     SHZ_FORCE_INLINE float angle_between(CppType other) const noexcept {
-        return shz_vec_angle_between(*this, other);
+        return shz_vec_angle_between(*static_cast<const CppType*>(this), other);
     }
 
     //! Returns the angle(s) created between the given vector axis and the +X axis, in radians.
     SHZ_FORCE_INLINE auto angles() const noexcept {
-        return shz_vec_angles(*this);
+        return shz_vec_angles(*static_cast<const CppType*>(this));
     }
 };
 
@@ -550,12 +550,12 @@ using vec4_t = vec4;
 
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE vec2 vecN<CRTP, C, R>::dot(CppType v1, CppType v2) const noexcept {
-    return shz_vec_dot2(*reinterpret_cast<const CRTP*>(this), v1, v2);
+    return shz_vec_dot2(*static_cast<const CRTP*>(this), v1, v2);
 }
 
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE vec3 vecN<CRTP, C, R>::dot(CppType v1, CppType v2, CppType v3) const noexcept {
-    return shz_vec_dot3(*reinterpret_cast<const CRTP*>(this), v1, v2, v3);
+    return shz_vec_dot3(*static_cast<const CRTP*>(this), v1, v2, v3);
 }
 
 }

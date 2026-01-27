@@ -20,6 +20,17 @@
 #   include <type_traits>
 #endif
 
+#define SHZ_DREAMCAST   1
+#define SHZ_SOFTWARE    2
+
+#ifndef SHZ_BACKEND
+#   ifdef __DREAMCAST__
+#       define SHZ_BACKEND SHZ_DREAMCAST
+#   else
+#       define SHZ_BACKEND SHZ_SOFTWARE
+#   endif
+#endif
+
 /*! \name   Utilities
  *  \brief  Miscellaneous function-like macros
  *  @{
@@ -136,7 +147,6 @@
                 return reinterpret_cast<To&>(value); \
             } \
         }.operator()<type>(from)
-    
 #endif
 //! @}
 //! \endcond

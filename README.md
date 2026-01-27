@@ -15,8 +15,9 @@
 `SH4ZAM` is a hand-optimized, general-purpose math and linear algebra library for harnessing the floating-point power of the SH4 processor in the Sega Dreamcast. It originally began as a collection of inline assembly routines developed specifically to accelerate the math in the Grand Theft Auto 3 and Vice City DC ports. These routines, along with many others from various contributors, have been separated and combined into a single standalone library, which can be leveraged to bring gainz to the Dreamcast and SuperH communities at large.
 
 # Features
-- Dual, modern, interoperable C23 and C++23 APIs
-- Ergonomic, overhead-free composition from C or C++
+- Dual, modern, interoperable C17 and C++20 APIs
+- Extra API features supported for C23 and C++23
+- Ergonomic, overhead-free composition from either C or C++
 - Clean header files, separating interface from implementation
 - Constexpr evaluation handled for both C and C++
 - Zero-cost conversion operators for interop with other APIs

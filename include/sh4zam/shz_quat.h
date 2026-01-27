@@ -10,7 +10,7 @@
         - shz_quat_to_angles_xyz()
         - shz_quat_angle_between()
 
-    \author 2025 Falco Girgis
+    \author 2025, 2026 Falco Girgis
     \author 2025 Oleg Endo
 
     \copyright MIT License
@@ -67,6 +67,7 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_init(float w, float x, float y, float z) SH
 //! Initializes and returns an identity quaternion.
 SHZ_FORCE_INLINE shz_quat_t shz_quat_identity(void) SHZ_NOEXCEPT;
 
+//! Returns true if the two given quaternions are considered equal based on either absolute or relative tolerance.
 SHZ_FORCE_INLINE bool shz_quat_equal(shz_quat_t a, shz_quat_t b) SHZ_NOEXCEPT;
 
 /*! Initializes and returns a quaternion with the given X-Y-Z rotations in radians.
