@@ -886,52 +886,69 @@ SHZ_INLINE void shz_mat4x4_copy_unaligned(shz_mat4x4_t* dst, const float src[16]
 SHZ_INLINE shz_vec3_t shz_mat3x3_trans_vec3(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT {
     shz_vec3_t out;
 
-    register float fr0 asm("fr0") = v.x;
-    register float fr1 asm("fr1") = v.y;
-    register float fr2 asm("fr2") = v.z;
-    register float fr3 asm("fr3") = 0.0f;
+    register float fr0 asm("fr0");
+    register float fr1 asm("fr1");
+    register float fr2 asm("fr2");
+    register float fr3 asm("fr3");
 
-    register float fr4 asm("fr4") = m->elem2D[0][0];
-    register float fr5 asm("fr5") = m->elem2D[0][1];
-    register float fr6 asm("fr6") = m->elem2D[0][2];
-    register float fr7 asm("fr7") = 0.0f;
+    register float fr4 asm("fr4");
+    register float fr5 asm("fr5");
+    register float fr6 asm("fr6");
+    register float fr7 asm("fr7");
 
-    asm volatile("fipr fv0, fv4"
-        : "+f" (fr7)
+    register float fr8  asm("fr8");
+    register float fr9  asm("fr9");
+    register float fr10 asm("fr10");
+    register float fr11 asm("fr11");
+
+    SHZ_MEMORY_BARRIER_HARD();
+    fr0 = v.x;
+    fr4 = m->elem2D[0][0];
+    SHZ_MEMORY_BARRIER_HARD();
+    fr1 = v.y;
+    fr5 = m->elem2D[1][0];
+    SHZ_MEMORY_BARRIER_HARD();
+    fr2 = v.z;
+    fr6 = m->elem2D[2][0];
+    SHZ_MEMORY_BARRIER_HARD();
+    fr3 = 0.0f;
+    SHZ_MEMORY_BARRIER_HARD();
+    fr8  = m->elem2D[0][1];
+    fr9  = m->elem2D[1][1];
+    SHZ_MEMORY_BARRIER_HARD();
+
+    asm("fipr fv0, fv4"
+        : "=f" (fr7)
         : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
           "f" (fr4), "f" (fr5), "f" (fr6));
 
-    __atomic_thread_fence(1);
+    SHZ_MEMORY_BARRIER_HARD();
+    fr10 = m->elem2D[2][1];
+    SHZ_MEMORY_BARRIER_HARD();
+    fr4 = m->elem2D[0][1];
+    fr5 = m->elem2D[1][1];
+    SHZ_MEMORY_BARRIER_HARD();
 
-    register float fr8  asm("fr8")  = m->elem2D[1][0];
-    register float fr9  asm("fr9")  = m->elem2D[1][1];
-    register float fr10 asm("fr10") = m->elem2D[1][2];
-    register float fr11 asm("fr11") = 0.0f;
-
-    asm volatile("fipr fv0, fv8"
-        : "+f" (fr11)
+    asm("fipr fv0, fv8"
+        : "=f" (fr11)
         : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
           "f" (fr8), "f" (fr9), "f" (fr10));
 
-    __atomic_thread_fence(1);
-
-    out.x = fr7;
-
-    __atomic_thread_fence(1);
-
-    fr4 = m->elem2D[2][0];
-    fr5 = m->elem2D[2][1];
-    fr6 = m->elem2D[2][2];
+    SHZ_MEMORY_BARRIER_HARD();
+    fr6 = m->elem2D[2][1];
     fr7 = 0.0f;
+    SHZ_MEMORY_BARRIER_HARD();;
+    out.x = fr7;
+    SHZ_MEMORY_BARRIER_HARD();
 
-    asm volatile("fipr fv0, fv4"
-        : "+f" (fr7)
+    asm("fipr fv0, fv4"
+        : "=f" (fr7)
         : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
           "f" (fr4), "f" (fr5), "f" (fr6));
 
-    __atomic_thread_fence(1);
-
+    SHZ_MEMORY_BARRIER_HARD();
     out.y = fr11;
+    SHZ_MEMORY_BARRIER_HARD();
     out.z = fr7;
 
     return out;
