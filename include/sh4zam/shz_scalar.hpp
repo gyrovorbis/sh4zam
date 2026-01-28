@@ -97,6 +97,11 @@ namespace shz {
     constexpr auto randf             = shz_randf;
     //! C++ alias for shz_randf_range()
     constexpr auto randf_range       = shz_randf_range;
+    //! C++ alias for shz_stepf()
+    constexpr auto stepf             = shz_stepf;
+    //! C++ alias for shz_smoothstepf()
+    constexpr auto smoothstepf       = shz_smoothstepf;
+
     //! @}
 
     /*! \name  FSRRA

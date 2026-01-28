@@ -329,4 +329,12 @@ SHZ_FORCE_INLINE float shz_randf_range(int* seed, float min, float max) SHZ_NOEX
     return shz_randf_range_sw(seed, min, max);
 }
 
+SHZ_FORCE_INLINE float shz_stepf(float edge, float x) SHZ_NOEXCEPT {
+    return shz_stepf_sw(edge, x);
+}
+
+SHZ_FORCE_INLINE float shz_smoothstepf(float edge0, float edge1, float x) SHZ_NOEXCEPT {
+    return shz_smoothstepf_sw(edge0, edge1, x);
+}
+
 //! \endcond

@@ -75,6 +75,18 @@ struct vecN: C {
         return shz_vec_lerp(start, end, t);
     }
 
+    //! Compares each component of the vector to the edge. 0 returned in that component if x[i] < edge. Otherwise the component is 1.
+    template<typename T>
+    SHZ_FORCE_INLINE static CppType step(T edge, CppType vec) noexcept {
+        return shz_vec_step(edge, vec);
+    }
+
+    //! Returns a vector where each component is smoothly interpolated from 0 to 1 between edge0 and edge1.
+    template<typename T>
+    SHZ_FORCE_INLINE static CppType smoothstep(T edge0, T edge1, CppType vec) noexcept {
+        return shz_vec_smoothstep(edge0, edge1, vec);
+    }
+
 #ifdef SHZ_CPP23
     //! Overloaded subscript operator -- allows for indexing vectors like an array.
     SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) noexcept {

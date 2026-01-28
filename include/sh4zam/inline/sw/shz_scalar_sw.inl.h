@@ -310,4 +310,22 @@ SHZ_FORCE_INLINE float shz_randf_range_sw(int* seed, float min, float max) SHZ_N
 }
 //! \endcond
 
+SHZ_FORCE_INLINE float shz_stepf_sw(float edge, float x) SHZ_NOEXCEPT {
+    return (x < edge) ? 0.0f : 1.0f;
+}
+
+SHZ_FORCE_INLINE float shz_smoothstepf_sw(float edge0, float edge1, float x) SHZ_NOEXCEPT {
+    const float diff = edge1 - edge0;
+    const float diff_sq = diff * diff;
+    if (shz_equalf(diff, 0.0f))
+        return shz_stepf(edge0, x);
+
+    float inv_ad = shz_inv_sqrtf(diff_sq);
+    inv_ad *= inv_ad;
+
+    float t = (x - edge0) * diff * inv_ad;
+    t = shz_clampf(t, 0.0f, 1.0f);
+    return t * t * shz_fmaf(t, -2.0f, 3.0f);
+}
+
 #endif

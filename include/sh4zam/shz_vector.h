@@ -197,6 +197,42 @@ SHZ_FORCE_INLINE bool shz_vec3_equal(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT;
 //! Returns true if the values of each element within the two 4D vectors are approximately equal based on relative or absolute tolerance.
 SHZ_FORCE_INLINE bool shz_vec4_equal(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT;
 
+//! For each component: returns 0.0f if vec[i] < edge[i], otherwise 1.0f
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_stepv(shz_vec2_t edge, shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! For each component: returns 0.0f if vec[i] < edge[i], otherwise 1.0f
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_stepv(shz_vec3_t edge, shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! For each component: returns 0.0f if vec[i] < edge[i], otherwise 1.0f
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_stepv(shz_vec4_t edge, shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! For each component: returns 0.0f if vec[i] < edge, otherwise 1.0f
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_step(float edge, shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! For each component: returns 0.0f if vec[i] < edge, otherwise 1.0f
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_step(float edge, shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! For each component: returns 0.0f if vec[i] < edge, otherwise 1.0f
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_step(float edge, shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! For each component: returns 0.0f at/below edge0[i], 1.0f at/above edge1[i], smoothly varying in-between.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_smoothstepv(shz_vec2_t edge0, shz_vec2_t edge1, shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! For each component i: returns 0.0f at/below edge0[i], 1.0f at/above edge1[i], smoothly varying in-between.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_smoothstepv(shz_vec3_t edge0, shz_vec3_t edge1, shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! For each component i: returns 0.0f at/below edge0[i], 1.0f at/above edge1[i], smoothly varying in-between.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_smoothstepv(shz_vec4_t edge0, shz_vec4_t edge1, shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! For each component: returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_smoothstep(float edge0, float edge1, shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! For each component: returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_smoothstep(float edge0, float edge1, shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! For each component: returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_smoothstep(float edge0, float edge1, shz_vec4_t vec) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name   Arithmetic
@@ -803,6 +839,30 @@ SHZ_DECLS_END
                  shz_vec3_t: shz_vec3_swizzle, \
                  shz_vec4_t: shz_vec4_swizzle)(vec, __VA_ARGS__)
 
+#   define shz_vec_stepv(edge, vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_stepv, \
+                 shz_vec3_t: shz_vec3_stepv, \
+                 shz_vec4_t: shz_vec4_stepv)(edge, vec)
+
+#   define shz_vec_step(edge, vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_step, \
+                 shz_vec3_t: shz_vec3_step, \
+                 shz_vec4_t: shz_vec4_step)(edge, vec)
+
+#   define shz_vec_smoothstepv(edge0, edge1, vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_smoothstepv, \
+                 shz_vec3_t: shz_vec3_smoothstepv, \
+                 shz_vec4_t: shz_vec4_smoothstepv)(edge0, edge1, vec)
+
+#   define shz_vec_smoothstep(edge0, edge1, vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_smoothstep, \
+                 shz_vec3_t: shz_vec3_smoothstep, \
+                 shz_vec4_t: shz_vec4_smoothstep)(edge0, edge1, vec)
+
 #else // C++ generics (because it's too dumb to support _Generic()).
 
 #   include <concepts>
@@ -1187,6 +1247,58 @@ SHZ_DECLS_END
     SHZ_FORCE_INLINE shz_vec4_t shz_vec_swizzle(shz_vec4_t vec, unsigned x_idx, unsigned y_idx, unsigned z_idx, unsigned w_idx) SHZ_NOEXCEPT {
         return shz_vec4_swizzle(vec, x_idx, y_idx, z_idx, w_idx);
     }
+
+    //! 
+    template<typename T, typename V>
+    SHZ_FORCE_INLINE V shz_vec_step(T edge, V vec) SHZ_NOEXCEPT {
+        constexpr bool scalar = std::is_same_v<T, float>;
+        constexpr bool vector = std::is_same_v<T, V>;
+
+        static_assert(scalar || vector, "Incompatible type!");
+
+        if constexpr(std::convertible_to<V, shz_vec2_t>) {
+            if constexpr(scalar)
+                return shz_vec2_step(edge, vec);
+            else
+                return shz_vec2_stepv(edge, vec);
+        } else if constexpr(std::convertible_to<V, shz_vec3_t>) {
+            if constexpr(scalar)
+                return shz_vec3_step(edge, vec);
+            else
+                return shz_vec3_stepv(edge, vec);
+        } else if constexpr(std::convertible_to<V, shz_vec4_t>) {
+            if constexpr(scalar)
+                return shz_vec4_step(edge, vec);
+            else
+                return shz_vec4_stepv(edge, vec);
+        } else static_assert(false, "Incompatible type!");
+    }
+
+    template<typename T, typename V>
+    SHZ_FORCE_INLINE V shz_vec_smoothstep(T edge0, T edge1, V vec) SHZ_NOEXCEPT {
+        constexpr bool scalar = std::is_same_v<T, float>;
+        constexpr bool vector = std::is_same_v<T, V>;
+
+        static_assert(scalar || vector, "Incompatible type!");
+
+        if constexpr (std::convertible_to<V, shz_vec2_t>) {
+            if constexpr (scalar)
+                return shz_vec2_smoothstep(edge0, edge1, vec);
+            else
+                return shz_vec2_smoothstepv(edge0, edge1, vec);
+        } else if constexpr (std::convertible_to<V, shz_vec3_t>) {
+            if constexpr (scalar)
+                return shz_vec3_smoothstep(edge0, edge1, vec);
+            else
+                return shz_vec3_smoothstepv(edge0, edge1, vec);
+        } else if constexpr (std::convertible_to<V, shz_vec4_t>) {
+            if constexpr (scalar)
+                return shz_vec4_smoothstep(edge0, edge1, vec);
+            else
+                return shz_vec4_smoothstepv(edge0, edge1, vec);
+        } else static_assert(false, "Incompatible type!");
+    }
+
 #endif
 
 #include "inline/shz_vector.inl.h"
