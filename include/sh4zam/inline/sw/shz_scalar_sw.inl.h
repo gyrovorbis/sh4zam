@@ -315,15 +315,11 @@ SHZ_FORCE_INLINE float shz_stepf_sw(float edge, float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_smoothstepf_sw(float edge0, float edge1, float x) SHZ_NOEXCEPT {
-    const float diff = edge1 - edge0;
-    const float diff_sq = diff * diff;
-    if (shz_equalf(diff, 0.0f))
+    if(edge0 == edge1) {
         return shz_stepf(edge0, x);
+    }
 
-    float inv_ad = shz_inv_sqrtf(diff_sq);
-    inv_ad *= inv_ad;
-
-    float t = (x - edge0) * diff * inv_ad;
+    float t = (x - edge0) / (edge1 - edge0);
     t = shz_clampf(t, 0.0f, 1.0f);
     return t * t * shz_fmaf(t, -2.0f, 3.0f);
 }
