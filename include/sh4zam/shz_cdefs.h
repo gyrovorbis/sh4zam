@@ -146,7 +146,7 @@
                 static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes."); \
                 return reinterpret_cast<To&>(value); \
             } \
-        }.operator()<type>(from)
+        }.template operator()<type>(from)
 #endif
 //! @}
 //! \endcond
