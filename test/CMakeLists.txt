@@ -27,7 +27,8 @@ add_executable(Sh4zamTests
     shz_matrix_test_suite.cpp
     shz_mem_test_suite.cpp)
 
-set_property(TARGET Sh4zamTests PROPERTY CXX_STANDARD 23)
+# Breaks with older CMake versions, fml.
+#set_property(TARGET Sh4zamTests PROPERTY CXX_STANDARD 23)
 
 target_include_directories(Sh4zamTests
     PRIVATE ..)

@@ -65,7 +65,8 @@ set(SHZ_INCLUDES
 
 add_library(sh4zam STATIC ${SHZ_SOURCES})
 
-target_compile_features(sh4zam PUBLIC c_std_23 cxx_std_23)
+# Breaks with older CMake versions, fml.
+#target_compile_features(sh4zam PUBLIC c_std_23 cxx_std_23)
 
 set_target_properties(sh4zam PROPERTIES
                       PUBLIC_HEADER "${SHZ_INCLUDES}")
