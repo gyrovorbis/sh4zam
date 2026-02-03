@@ -226,80 +226,80 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(stepf)
     GBL_TEST_VERIFY(shz::stepf(1.0f, 1.0f) == 1.0f);
-    GBL_TEST_VERIFY(shz::stepf(1.0f, 0.0f) == 0.0f);
-    GBL_TEST_VERIFY(shz::stepf(0.0f, 1.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::stepf(0.0f, 1.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::stepf(1.0f, 0.0f) == 1.0f);
 
-    GBL_TEST_VERIFY(shz::stepf(1.0f, 0.5f) == 0.0f);
-    GBL_TEST_VERIFY(shz::stepf(0.5f, 1.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::stepf(0.5f, 1.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::stepf(1.0f, 0.5f) == 1.0f);
 
     GBL_TEST_VERIFY(shz::stepf(0.0001f, 0.0001f) == 1.0f);
-    GBL_TEST_VERIFY(shz::stepf(0.0001f, 0.0002f) == 1.0f);
-    GBL_TEST_VERIFY(shz::stepf(0.0002f, 0.0001f) == 0.0f);
+    GBL_TEST_VERIFY(shz::stepf(0.0002f, 0.0001f) == 1.0f);
+    GBL_TEST_VERIFY(shz::stepf(0.0001f, 0.0002f) == 0.0f);
 
     // Negatives
-    GBL_TEST_VERIFY(shz::stepf(-1.0f, -2.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::stepf(-2.0f, -1.0f) == 0.0f);
     GBL_TEST_VERIFY(shz::stepf(-1.0f, -1.0f) == 1.0f);
-    GBL_TEST_VERIFY(shz::stepf(-1.0f,  0.0f) == 1.0f);
-    GBL_TEST_VERIFY(shz::stepf( 0.0f, -1.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::stepf(0.0f, -1.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::stepf(-1.0f, 0.0f) == 0.0f);
 
     // Signed Zero
-    GBL_TEST_VERIFY(shz::stepf( 0.0f, -0.0f) == 1.0f);
-    GBL_TEST_VERIFY(shz::stepf(-0.0f,  0.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::stepf(-0.0f, 0.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::stepf(0.0f, -0.0f) == 1.0f);
     GBL_TEST_VERIFY(shz::stepf(-0.0f, -0.0f) == 1.0f);
 
     // Denormals
-    GBL_TEST_VERIFY(shz::stepf(0.0f, std::numeric_limits<float>::denorm_min()) == 1.0f);
-    GBL_TEST_VERIFY(shz::stepf(std::numeric_limits<float>::denorm_min(), 0.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::stepf(std::numeric_limits<float>::denorm_min(), 0.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::stepf(0.0f, std::numeric_limits<float>::denorm_min()) == 0.0f);
     GBL_TEST_VERIFY(shz::stepf(std::numeric_limits<float>::denorm_min(), std::numeric_limits<float>::denorm_min()) == 1.0f);
 
     // NaN and INFINITE
 #if !defined(__FAST_MATH__) && (!defined(__FINITE_MATH_ONLY__) || (__FINITE_MATH_ONLY__ == 0))
     GBL_TEST_VERIFY(shz::stepf(NAN, NAN) == 1.0f);
-    GBL_TEST_VERIFY(shz::stepf(0.1f, NAN) == 1.0f);
     GBL_TEST_VERIFY(shz::stepf(NAN, 0.1f) == 1.0f);
+    GBL_TEST_VERIFY(shz::stepf(0.1f, NAN) == 1.0f);
     GBL_TEST_VERIFY(shz::stepf(INFINITY, INFINITY));
-    GBL_TEST_VERIFY(shz::stepf(0.1f, INFINITY));
     GBL_TEST_VERIFY(shz::stepf(INFINITY, 0.1f));
+    GBL_TEST_VERIFY(shz::stepf(0.1f, INFINITY));
 #endif
 
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(smoothstepf)
-    GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 1.0f, -1.0f) == 0.0f);
-    GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 1.0f,  0.0f) == 0.0f);
-    GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 1.0f,  1.0f) == 1.0f);
-    GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 1.0f,  2.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf(-1.0f, 0.0f, 1.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf( 0.0f, 0.0f, 1.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf( 1.0f, 0.0f, 1.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf( 2.0f, 0.0f, 1.0f) == 1.0f);
 
-    GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 1.0f, 0.5f) == 0.5f);
-    GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 1.0f, 0.25f) == 0.15625f);// 5/32
-    GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 1.0f, 0.75f) == 0.84375f);// 27/32
+    GBL_TEST_VERIFY(shz::smoothstepf(0.5f, 0.0f, 1.0f) == 0.5f);
+    GBL_TEST_VERIFY(shz::smoothstepf(0.25f, 0.0f, 1.0f) == 0.15625f); // 5/32
+    GBL_TEST_VERIFY(shz::smoothstepf(0.75f, 0.0f, 1.0f) == 0.84375f); // 27/32
 
     // Reversed edges (undefined in spec)
-    GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 0.0f, -1.0f) == 1.0f);
-    GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 0.0f,  0.0f) == 1.0f);
-    GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 0.0f,  1.0f) == 0.0f);
-    GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 0.0f,  2.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf(-1.0f, 1.0f, 0.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf( 0.0f, 1.0f, 0.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf( 1.0f, 1.0f, 0.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf( 2.0f, 1.0f, 0.0f) == 0.0f);
 
-    GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 0.0f, 0.5f)  == 0.5f);
-    GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 0.0f, 0.25f) == 0.84375f); // 27/32
-    GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 0.0f, 0.75f) == 0.15625f); // 5/32
+    GBL_TEST_VERIFY(shz::smoothstepf(0.5f, 1.0f, 0.0f) == 0.5f);
+    GBL_TEST_VERIFY(shz::smoothstepf(0.25f, 1.0f, 0.0f) == 0.84375f); // 27/32
+    GBL_TEST_VERIFY(shz::smoothstepf(0.75f, 1.0f, 0.0f) == 0.15625f); // 5/32
 
     // Degenerate edges
-    GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 1.0f, 0.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 1.0f, 1.0f) == 0.0f);
     GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 1.0f, 1.0f) == 1.0f);
 
     // Test edges and midpoint
-    GBL_TEST_VERIFY(shz::smoothstepf(2.0f, 6.0f, 2.0f) == 0.0f);
-    GBL_TEST_VERIFY(shz::smoothstepf(2.0f, 6.0f, 4.0f) == 0.5f);
-    GBL_TEST_VERIFY(shz::smoothstepf(2.0f, 6.0f, 6.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf(2.0f, 2.0f, 6.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf(4.0f, 2.0f, 6.0f) == 0.5f);
+    GBL_TEST_VERIFY(shz::smoothstepf(6.0f, 2.0f, 6.0f) == 1.0f);
 
     // Ensure monotonic
-    GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 1.0f, 0.25f) < shz::smoothstepf(0.0f, 1.0f, 0.5f));
-    GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 1.0f, 0.5f)  < shz::smoothstepf(0.0f, 1.0f, 0.75f));
+    GBL_TEST_VERIFY(shz::smoothstepf(0.25f, 0.0f, 1.0f) < shz::smoothstepf(0.5f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::smoothstepf(0.5f, 0.0f, 1.0f) < shz::smoothstepf(0.75f, 0.0f, 1.0f));
 
     // Mirrored monotonic
-    GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 0.0f, 0.25f) > shz::smoothstepf(1.0f, 0.0f, 0.5f));
-    GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 0.0f, 0.5f)  > shz::smoothstepf(1.0f, 0.0f, 0.75f));
+    GBL_TEST_VERIFY(shz::smoothstepf(0.25f, 1.0f, 0.0f) > shz::smoothstepf(0.5f, 1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::smoothstepf(0.5f, 1.0f, 0.0f) > shz::smoothstepf(0.75f, 1.0f, 0.0f));
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(min,

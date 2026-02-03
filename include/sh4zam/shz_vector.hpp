@@ -77,14 +77,14 @@ struct vecN: C {
 
     //! Compares each component of the vector to the edge. 0 returned in that component if x[i] < edge. Otherwise the component is 1.
     template<typename T>
-    SHZ_FORCE_INLINE static CppType step(T edge, CppType vec) noexcept {
-        return shz_vec_step(edge, vec);
+    SHZ_FORCE_INLINE static CppType step(CppType vec, T edge) noexcept {
+        return shz_vec_step(vec, edge);
     }
 
     //! Returns a vector where each component is smoothly interpolated from 0 to 1 between edge0 and edge1.
     template<typename T>
-    SHZ_FORCE_INLINE static CppType smoothstep(T edge0, T edge1, CppType vec) noexcept {
-        return shz_vec_smoothstep(edge0, edge1, vec);
+    SHZ_FORCE_INLINE static CppType smoothstep(CppType vec, T edge0, T edge1) noexcept {
+        return shz_vec_smoothstep(vec, edge0, edge1);
     }
 
 #ifdef SHZ_CPP23

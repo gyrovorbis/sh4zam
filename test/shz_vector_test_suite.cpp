@@ -602,167 +602,180 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Step)
     // Edge == 0, scalar version
-    GBL_TEST_VERIFY(shz::vec2::step(0.0f, shz::vec2(-1.0f, 0.0f)) == shz::vec2(0.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec2::step(0.0f, shz::vec2(0.0f, 1.0f)) == shz::vec2(1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec2::step(0.0f, shz::vec2(-0.001f, 0.001f)) == shz::vec2(0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(-1.0f, 0.0f), 0.0f) == shz::vec2(0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(0.0f, 1.0f), 0.0f) == shz::vec2(1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(-0.001f, 0.001f), 0.0f) == shz::vec2(0.0f, 1.0f));
 
     // Edge == 1, scalar version
-    GBL_TEST_VERIFY(shz::vec2::step(1.0f, shz::vec2(0.0f, 1.0f)) == shz::vec2(0.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec2::step(1.0f, shz::vec2(1.0f, 2.0f)) == shz::vec2(1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec2::step(1.0f, shz::vec2(0.999f,1.001f)) == shz::vec2(0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(0.0f, 1.0f), 1.0f) == shz::vec2(0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(1.0f, 2.0f), 1.0f) == shz::vec2(1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(0.999f,1.001f), 1.0f) == shz::vec2(0.0f, 1.0f));
 
     // Edges for vector version, per component
-    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(0.0f, 0.0f), shz::vec2(-1.0f, 1.0f)) == shz::vec2(0.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(0.0f, 1.0f), shz::vec2(0.0f, 0.0f)) == shz::vec2(1.0f, 0.0f));
-    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(1.0f, 0.0f), shz::vec2(0.0f, 0.0f)) == shz::vec2(0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(-1.0f, 1.0f), shz::vec2(0.0f, 0.0f)) == shz::vec2(0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(0.0f, 0.0f), shz::vec2(0.0f, 1.0f)) == shz::vec2(1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(0.0f, 0.0f), shz::vec2(1.0f, 0.0f)) == shz::vec2(0.0f, 1.0f));
 
     // Vector with mixed signs
-    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(1.0f, 1.0f), shz::vec2(2.0f, -2.0f)) == shz::vec2(1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(2.0f, -2.0f), shz::vec2(1.0f, 1.0f)) == shz::vec2(1.0f, 0.0f));
     GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(-2.0f, 2.0f), shz::vec2(-2.0f, 2.0f)) == shz::vec2(1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(-2.0f, 2.0f), shz::vec2(-3.0f, 3.0f)) == shz::vec2(0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(-3.0f, 3.0f), shz::vec2(-2.0f, 2.0f)) == shz::vec2(0.0f, 1.0f));
 
     // Vector verison with fractional values
-    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(0.5f, 0.5f), shz::vec2(0.49f, 0.50f)) == shz::vec2(0.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(0.5f, 0.5f), shz::vec2(0.50f, 0.51f)) == shz::vec2(1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(0.5f, 1.5f), shz::vec2(1.5f, 0.5f)) == shz::vec2(1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(0.49f, 0.50f), shz::vec2(0.5f, 0.5f)) == shz::vec2(0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(0.50f, 0.51f), shz::vec2(0.5f, 0.5f)) == shz::vec2(1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::step(shz::vec2(1.5f, 0.5f), shz::vec2(0.5f, 1.5f)) == shz::vec2(1.0f, 0.0f));
 
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3Step)
     // Edge == 0, scalar version
-    GBL_TEST_VERIFY(shz::vec3::step(0.0f, shz::vec3(-1.0f, 0.0f, 1.0f)) == shz::vec3(0.0f, 1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec3::step(0.0f, shz::vec3(0.0f, 1.0f, -1.0f)) == shz::vec3(1.0f, 1.0f, 0.0f));
-    GBL_TEST_VERIFY(shz::vec3::step(0.0f, shz::vec3(-0.001f, 0.001f, 0.0f)) == shz::vec3(0.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(-1.0f, 0.0f, 1.0f), 0.0f) == shz::vec3(0.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(0.0f, 1.0f, -1.0f), 0.0f) == shz::vec3(1.0f, 1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(-0.001f, 0.001f, 0.0f), 0.0f) == shz::vec3(0.0f, 1.0f, 1.0f));
 
     // Edge == 1, scalar version
-    GBL_TEST_VERIFY(shz::vec3::step(1.0f, shz::vec3(0.0f, 1.0f, 2.0f)) == shz::vec3(0.0f, 1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec3::step(1.0f, shz::vec3(1.0f, 2.0f, 0.0f)) == shz::vec3(1.0f, 1.0f, 0.0f));
-    GBL_TEST_VERIFY(shz::vec3::step(1.0f, shz::vec3(0.999f, 1.001f, 1.0f)) == shz::vec3(0.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(0.0f, 1.0f, 2.0f), 1.0f) == shz::vec3(0.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(1.0f, 2.0f, 0.0f), 1.0f) == shz::vec3(1.0f, 1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(0.999f, 1.001f, 1.0f), 1.0f) == shz::vec3(0.0f, 1.0f, 1.0f));
 
     // Edges for vector version, per component
-    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(0.0f, 0.0f, 0.0f), shz::vec3(-1.0f, 1.0f, 0.0f)) == shz::vec3(0.0f, 1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(0.0f, 1.0f, 0.0f), shz::vec3(0.0f, 0.0f, 1.0f)) == shz::vec3(1.0f, 0.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(1.0f, 0.0f, 1.0f), shz::vec3(0.0f, 0.0f, 0.0f)) == shz::vec3(0.0f, 1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(-1.0f, 1.0f, 0.0f), shz::vec3(0.0f, 0.0f, 0.0f)) == shz::vec3(0.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(0.0f, 0.0f, 1.0f), shz::vec3(0.0f, 1.0f, 0.0f)) == shz::vec3(1.0f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(0.0f, 0.0f, 0.0f), shz::vec3(1.0f, 0.0f, 1.0f)) == shz::vec3(0.0f, 1.0f, 0.0f));
 
     // Vector with mixed signs
-    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(1.0f, 1.0f, 1.0f), shz::vec3(2.0f, -2.0f, 1.0f)) == shz::vec3(1.0f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(2.0f, -2.0f, 1.0f), shz::vec3(1.0f, 1.0f, 1.0f)) == shz::vec3(1.0f, 0.0f, 1.0f));
     GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(-2.0f, 2.0f, 0.0f), shz::vec3(-2.0f, 2.0f, 0.0f)) == shz::vec3(1.0f, 1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(-2.0f, 2.0f, 0.0f), shz::vec3(-3.0f, 3.0f, -1.0f)) == shz::vec3(0.0f, 1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(-3.0f, 3.0f, -1.0f), shz::vec3(-2.0f, 2.0f, 0.0f)) == shz::vec3(0.0f, 1.0f, 0.0f));
 
     // Vector version with fractional values
-    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(0.5f, 0.5f, 0.5f), shz::vec3(0.49f, 0.50f, 0.51f)) == shz::vec3(0.0f, 1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(0.5f, 0.5f, 0.5f), shz::vec3(0.50f, 0.51f, 0.49f)) == shz::vec3(1.0f, 1.0f, 0.0f));
-    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(0.5f, 1.5f, 0.5f), shz::vec3(1.5f, 0.5f, 0.5f)) == shz::vec3(1.0f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(0.49f, 0.50f, 0.51f), shz::vec3(0.5f, 0.5f, 0.5f)) == shz::vec3(0.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(0.50f, 0.51f, 0.49f), shz::vec3(0.5f, 0.5f, 0.5f)) == shz::vec3(1.0f, 1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec3::step(shz::vec3(1.5f, 0.5f, 0.5f), shz::vec3(0.5f, 1.5f, 0.5f)) == shz::vec3(1.0f, 0.0f, 1.0f));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec4Step)
     // Edge == 0, scalar version
-    GBL_TEST_VERIFY(shz::vec4::step(0.0f, shz::vec4(-1.0f, 0.0f, 1.0f, -0.001f)) == shz::vec4(0.0f, 1.0f, 1.0f, 0.0f));
-    GBL_TEST_VERIFY(shz::vec4::step(0.0f, shz::vec4(0.0f, 1.0f, -1.0f, 0.001f)) == shz::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec4::step(0.0f, shz::vec4(-0.001f, 0.001f, 0.0f, 0.0f)) == shz::vec4(0.0f, 1.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(-1.0f, 0.0f, 1.0f, -0.001f), 0.0f) == shz::vec4(0.0f, 1.0f, 1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(0.0f, 1.0f, -1.0f, 0.001f), 0.0f) == shz::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(-0.001f, 0.001f, 0.0f, 0.0f), 0.0f) == shz::vec4(0.0f, 1.0f, 1.0f, 1.0f));
 
     // Edge == 1, scalar version
-    GBL_TEST_VERIFY(shz::vec4::step(1.0f, shz::vec4(0.0f, 1.0f, 2.0f, 0.999f)) == shz::vec4(0.0f, 1.0f, 1.0f, 0.0f));
-    GBL_TEST_VERIFY(shz::vec4::step(1.0f, shz::vec4(1.0f, 2.0f, 0.0f, 1.001f)) == shz::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec4::step(1.0f, shz::vec4(0.999f, 1.001f, 1.0f, 2.0f)) == shz::vec4(0.0f, 1.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(0.0f, 1.0f, 2.0f, 0.999f), 1.0f) == shz::vec4(0.0f, 1.0f, 1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(1.0f, 2.0f, 0.0f, 1.001f), 1.0f) == shz::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(0.999f, 1.001f, 1.0f, 2.0f), 1.0f) == shz::vec4(0.0f, 1.0f, 1.0f, 1.0f));
 
     // Edges for vector version, per component
-    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(0.0f, 0.0f, 0.0f, 0.0f), shz::vec4(-1.0f, 1.0f, 0.0f, 2.0f)) == shz::vec4(0.0f, 1.0f, 1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(0.0f, 1.0f, 0.0f, 1.0f), shz::vec4( 0.0f, 0.0f, 1.0f, 1.0f)) == shz::vec4(1.0f, 0.0f, 1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(1.0f, 0.0f, 1.0f, 0.0f), shz::vec4( 0.0f, 0.0f, 0.0f, 0.0f)) == shz::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(-1.0f, 1.0f, 0.0f, 2.0f), shz::vec4(0.0f, 0.0f, 0.0f, 0.0f)) == shz::vec4(0.0f, 1.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4( 0.0f, 0.0f, 1.0f, 1.0f), shz::vec4(0.0f, 1.0f, 0.0f, 1.0f)) == shz::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4( 0.0f, 0.0f, 0.0f, 0.0f), shz::vec4(1.0f, 0.0f, 1.0f, 0.0f)) == shz::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
     // Vector with mixed signs
-    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(1.0f, 1.0f, 1.0f, 1.0f), shz::vec4(2.0f, -2.0f, 1.0f, -1.0f)) == shz::vec4(1.0f, 0.0f, 1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(2.0f, -2.0f, 1.0f, -1.0f), shz::vec4(1.0f, 1.0f, 1.0f, 1.0f)) == shz::vec4(1.0f, 0.0f, 1.0f, 0.0f));
     GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(-2.0f, 2.0f, 0.0f, -1.0f), shz::vec4(-2.0f, 2.0f, 0.0f, -1.0f)) == shz::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(-2.0f, 2.0f, 0.0f, -1.0f), shz::vec4(-3.0f, 3.0f, -1.0f, 0.0f)) == shz::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(-3.0f, 3.0f, -1.0f, 0.0f), shz::vec4(-2.0f, 2.0f, 0.0f, -1.0f)) == shz::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
     // Vector version with fractional values
-    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(0.5f, 0.5f, 0.5f, 0.5f), shz::vec4(0.49f, 0.50f, 0.51f, 0.50f)) == shz::vec4(0.0f, 1.0f, 1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(0.5f, 0.5f, 0.5f, 0.5f), shz::vec4(0.50f, 0.51f, 0.49f, 0.49f)) == shz::vec4(1.0f, 1.0f, 0.0f, 0.0f));
-    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(0.5f, 1.5f, 0.5f, 1.5f), shz::vec4(1.5f, 0.5f, 0.5f, 1.5f)) == shz::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(0.49f, 0.50f, 0.51f, 0.50f), shz::vec4(0.5f, 0.5f, 0.5f, 0.5f)) == shz::vec4(0.0f, 1.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(0.50f, 0.51f, 0.49f, 0.49f), shz::vec4(0.5f, 0.5f, 0.5f, 0.5f)) == shz::vec4(1.0f, 1.0f, 0.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec4::step(shz::vec4(1.5f, 0.5f, 0.5f, 1.5f), shz::vec4(0.5f, 1.5f, 0.5f, 1.5f)) == shz::vec4(1.0f, 0.0f, 1.0f, 1.0f));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Smoothstep)
     // Edge == (0,1), scalar-edge overload, per-component clamping
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(0.0f, 1.0f, shz::vec2(-1.0f, 0.0f)) == shz::vec2(0.0f, 0.0f));
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(0.0f, 1.0f, shz::vec2(1.0f, 2.0f)) == shz::vec2(1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(-1.0f, 0.0f), 0.0f, 1.0f) == shz::vec2(0.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(1.0f, 2.0f), 0.0f, 1.0f) == shz::vec2(1.0f, 1.0f));
 
     // Edge == (0,1), exact values
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(0.0f, 1.0f, shz::vec2(0.5f, 0.25f)) == shz::vec2(0.5f, 0.15625f));   // 1/2, 5/32
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(0.0f, 1.0f, shz::vec2(0.75f, 0.5f))  == shz::vec2(0.84375f, 0.5f));    // 27/32, 1/2
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(0.5f, 0.25f), 0.0f, 1.0f) == shz::vec2(0.5f, 0.15625f));   // 1/2, 5/32
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(0.75f, 0.5f), 0.0f, 1.0f)  == shz::vec2(0.84375f, 0.5f));    // 27/32, 1/2
 
     // Reversed edges (undefined in spec)
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(1.0f, 0.0f, shz::vec2(-1.0f, 0.0f)) == shz::vec2(1.0f, 1.0f));
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(1.0f, 0.0f, shz::vec2(1.0f, 2.0f)) == shz::vec2(0.0f, 0.0f));
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(1.0f, 0.0f, shz::vec2(0.25f, 0.75f)) == shz::vec2(0.84375f, 0.15625f)); // 27/32, 5/32
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(1.0f, 0.0f, shz::vec2(0.5f, 0.5f))  == shz::vec2(0.5f, 0.5f));
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(-1.0f, 0.0f), 1.0f, 0.0f) == shz::vec2(1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(1.0f, 2.0f),  1.0f, 0.0f) == shz::vec2(0.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(0.25f, 0.75f), 1.0f, 0.0f) == shz::vec2(0.84375f, 0.15625f)); // 27/32, 5/32
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(0.5f, 0.5f), 1.0f, 0.0f)  == shz::vec2(0.5f, 0.5f));
 
     // Different edges, test edges and midpoint (2..6 => midpoint at 4 gives 0.5)
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(2.0f, 6.0f, shz::vec2(2.0f, 4.0f)) == shz::vec2(0.0f, 0.5f));
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(2.0f, 6.0f, shz::vec2(6.0f, 8.0f)) == shz::vec2(1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(2.0f, 4.0f), 2.0f, 6.0f) == shz::vec2(0.0f, 0.5f));
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(6.0f, 8.0f), 2.0f, 6.0f) == shz::vec2(1.0f, 1.0f));
 
     // Ensure monotonic per component (forward edges)
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(0.0f, 1.0f, shz::vec2(0.25f, 0.25f)).x < shz::vec2::smoothstep(0.0f, 1.0f, shz::vec2(0.5f, 0.5f)).x);
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(0.0f, 1.0f, shz::vec2(0.5f, 0.5f)).y  < shz::vec2::smoothstep(0.0f, 1.0f, shz::vec2(0.75f, 0.75f)).y);
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(0.25f, 0.25f), 0.0f, 1.0f).x < shz::vec2::smoothstep(shz::vec2(0.5f, 0.5f), 0.0f, 1.0f).x);
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(0.5f, 0.5f), 0.0f, 1.0f).y  < shz::vec2::smoothstep(shz::vec2(0.75f, 0.75f), 0.0f, 1.0f).y);
 
     // Mirrored monotonic per component (reversed edges)
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(1.0f, 0.0f, shz::vec2(0.25f, 0.25f)).x > shz::vec2::smoothstep(1.0f, 0.0f, shz::vec2(0.5f, 0.5f)).x);
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(1.0f, 0.0f, shz::vec2(0.5f, 0.5f)).y  > shz::vec2::smoothstep(1.0f, 0.0f, shz::vec2(0.75f, 0.75f)).y);
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(0.25f, 0.25f), 1.0f, 0.0f).x > shz::vec2::smoothstep(shz::vec2(0.5f, 0.5f), 1.0f, 0.0f).x);
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(0.5f, 0.5f), 1.0f, 0.0f).y  > shz::vec2::smoothstep(shz::vec2(0.75f, 0.75f), 1.0f, 0.0f).y);
+
+    // Per component test
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(shz::vec2(1.5f, 0.5f), shz::vec2(1.0f, 0.0f), shz::vec2(2.0f, 1.0f)) == shz::vec2(0.5f, 0.5f));
 
     // Conversion case, sideffect of vector constructor
-    GBL_TEST_VERIFY(shz::vec2::smoothstep(0.0f, 1.0f, 0.5f) == shz::vec2(0.5f, 0.5f));
+    GBL_TEST_VERIFY(shz::vec2::smoothstep(0.5f, 0.0f, 1.0f) == shz::vec2(0.5f, 0.5f));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3Smoothstep)
     // Edge == (0,1), scalar-edge overload, per-component clamping
-    GBL_TEST_VERIFY(shz::vec3::smoothstep(0.0f, 1.0f, shz::vec3(-1.0f, 0.0f, 2.0f)) == shz::vec3(0.0f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec3::smoothstep(shz::vec3(-1.0f, 0.0f, 2.0f), 0.0f, 1.0f) == shz::vec3(0.0f, 0.0f, 1.0f));
 
     // Edge == (0,1), exact values
-    GBL_TEST_VERIFY(shz::vec3::smoothstep(0.0f, 1.0f, shz::vec3(0.25f, 0.5f, 0.75f)) == shz::vec3(0.15625f, 0.5f, 0.84375f)); // 5/32, 1/2, 27/32
+    GBL_TEST_VERIFY(shz::vec3::smoothstep(shz::vec3(0.25f, 0.5f, 0.75f), 0.0f, 1.0f) == shz::vec3(0.15625f, 0.5f, 0.84375f)); // 5/32, 1/2, 27/32
 
     // Reversed edges (undefined in spec)
-    GBL_TEST_VERIFY(shz::vec3::smoothstep(1.0f, 0.0f, shz::vec3(-1.0f, 0.0f, 2.0f)) == shz::vec3(1.0f, 1.0f, 0.0f));
-    GBL_TEST_VERIFY(shz::vec3::smoothstep(1.0f, 0.0f, shz::vec3(0.25f, 0.5f, 0.75f)) == shz::vec3(0.84375f, 0.5f, 0.15625f)); // 27/32, 1/2, 5/32
+    GBL_TEST_VERIFY(shz::vec3::smoothstep(shz::vec3(-1.0f, 0.0f, 2.0f), 1.0f, 0.0f) == shz::vec3(1.0f, 1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec3::smoothstep(shz::vec3(0.25f, 0.5f, 0.75f), 1.0f, 0.0f) == shz::vec3(0.84375f, 0.5f, 0.15625f)); // 27/32, 1/2, 5/32
 
     // Different edges, test edges and midpoint (2..6 => midpoint at 4 gives 0.5)
-    GBL_TEST_VERIFY(shz::vec3::smoothstep(2.0f, 6.0f, shz::vec3(2.0f, 4.0f, 6.0f)) == shz::vec3(0.0f, 0.5f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec3::smoothstep(shz::vec3(2.0f, 4.0f, 6.0f), 2.0f, 6.0f) == shz::vec3(0.0f, 0.5f, 1.0f));
 
     // Ensure monotonic per component (forward edges)
-    GBL_TEST_VERIFY(shz::vec3::smoothstep(0.0f, 1.0f, shz::vec3(0.25f, 0.25f, 0.25f)).x < shz::vec3::smoothstep(0.0f, 1.0f, shz::vec3(0.5f, 0.5f, 0.5f)).x);
-    GBL_TEST_VERIFY(shz::vec3::smoothstep(0.0f, 1.0f, shz::vec3(0.5f, 0.5f, 0.5f)).y  < shz::vec3::smoothstep(0.0f, 1.0f, shz::vec3(0.75f, 0.75f, 0.75f)).y);
+    GBL_TEST_VERIFY(shz::vec3::smoothstep(shz::vec3(0.25f, 0.25f, 0.25f), 0.0f, 1.0f).x < shz::vec3::smoothstep(shz::vec3(0.5f, 0.5f, 0.5f), 0.0f, 1.0f).x);
+    GBL_TEST_VERIFY(shz::vec3::smoothstep(shz::vec3(0.5f, 0.5f, 0.5f), 0.0f, 1.0f).y  < shz::vec3::smoothstep(shz::vec3(0.75f, 0.75f, 0.75f), 0.0f, 1.0f).y);
 
     // Mirrored monotonic per component (reversed edges)
-    GBL_TEST_VERIFY(shz::vec3::smoothstep(1.0f, 0.0f, shz::vec3(0.25f, 0.25f, 0.25f)).x > shz::vec3::smoothstep(1.0f, 0.0f, shz::vec3(0.5f, 0.5f, 0.5f)).x);
-    GBL_TEST_VERIFY(shz::vec3::smoothstep(1.0f, 0.0f, shz::vec3(0.5f, 0.5f, 0.5f)).z  > shz::vec3::smoothstep(1.0f, 0.0f, shz::vec3(0.75f, 0.75f, 0.75f)).z);
+    GBL_TEST_VERIFY(shz::vec3::smoothstep(shz::vec3(0.25f, 0.25f, 0.25f), 1.0f, 0.0f).x > shz::vec3::smoothstep(shz::vec3(0.5f, 0.5f, 0.5f), 1.0f, 0.0f).x);
+    GBL_TEST_VERIFY(shz::vec3::smoothstep(shz::vec3(0.5f, 0.5f, 0.5f), 1.0f, 0.0f).z  > shz::vec3::smoothstep(shz::vec3(0.75f, 0.75f, 0.75f), 1.0f, 0.0f).z);
+
+    // Per component test
+    GBL_TEST_VERIFY(shz::vec3::smoothstep(shz::vec3(1.5f, 0.5f, 3.0f),
+                                          shz::vec3(1.0f, 0.0f, 2.0f),
+                                          shz::vec3(2.0f, 1.0f, 4.0f)) == shz::vec3(0.5f, 0.5f, 0.5f));
 
     // Conversion case, sideffect of vector constructor
-    GBL_TEST_VERIFY(shz::vec3::smoothstep(0.0f, 1.0f, 0.5f) == shz::vec3(0.5f, 0.5f, 0.5f));
+    GBL_TEST_VERIFY(shz::vec3::smoothstep(0.5f, 0.0f, 1.0f) == shz::vec3(0.5f, 0.5f, 0.5f));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec4Smoothstep)
     // Edge == (0,1), scalar-edge overload, per-component clamping
-    GBL_TEST_VERIFY(shz::vec4::smoothstep(0.0f, 1.0f, shz::vec4(-1.0f, 0.0f, 1.0f, 2.0f)) == shz::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4::smoothstep(shz::vec4(-1.0f, 0.0f, 1.0f, 2.0f), 0.0f, 1.0f) == shz::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
     // Edge == (0,1), exact values
-    GBL_TEST_VERIFY(shz::vec4::smoothstep(0.0f, 1.0f, shz::vec4(0.25f, 0.5f, 0.75f, 0.0f)) == shz::vec4(0.15625f, 0.5f, 0.84375f, 0.0f)); // 5/32, 1/2, 27/32, 0
+    GBL_TEST_VERIFY(shz::vec4::smoothstep(shz::vec4(0.25f, 0.5f, 0.75f, 0.0f), 0.0f, 1.0f) == shz::vec4(0.15625f, 0.5f, 0.84375f, 0.0f)); // 5/32, 1/2, 27/32, 0
 
     // Reversed edges (undefined in spec)
-    GBL_TEST_VERIFY(shz::vec4::smoothstep(1.0f, 0.0f, shz::vec4(-1.0f, 0.0f, 1.0f, 2.0f)) == shz::vec4(1.0f, 1.0f, 0.0f, 0.0f));
-    GBL_TEST_VERIFY(shz::vec4::smoothstep(1.0f, 0.0f, shz::vec4(0.25f, 0.5f, 0.75f, 0.5f)) == shz::vec4(0.84375f, 0.5f, 0.15625f, 0.5f)); // 27/32, 1/2, 5/32, 1/2
+    GBL_TEST_VERIFY(shz::vec4::smoothstep(shz::vec4(-1.0f, 0.0f, 1.0f, 2.0f), 1.0f, 0.0f) == shz::vec4(1.0f, 1.0f, 0.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec4::smoothstep(shz::vec4(0.25f, 0.5f, 0.75f, 0.5f), 1.0f, 0.0f) == shz::vec4(0.84375f, 0.5f, 0.15625f, 0.5f)); // 27/32, 1/2, 5/32, 1/2
 
     // Different edges, test edges and midpoint (2..6 => midpoint at 4 gives 0.5)
-    GBL_TEST_VERIFY(shz::vec4::smoothstep(2.0f, 6.0f, shz::vec4(2.0f, 4.0f, 6.0f, 8.0f)) == shz::vec4(0.0f, 0.5f, 1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4::smoothstep(shz::vec4(2.0f, 4.0f, 6.0f, 8.0f), 2.0f, 6.0f) == shz::vec4(0.0f, 0.5f, 1.0f, 1.0f));
 
     // Ensure monotonic per component (forward edges)
-    GBL_TEST_VERIFY(shz::vec4::smoothstep(0.0f, 1.0f, shz::vec4(0.25f, 0.25f, 0.25f, 0.25f)).x < shz::vec4::smoothstep(0.0f, 1.0f, shz::vec4(0.5f, 0.5f, 0.5f, 0.5f)).x);
-    GBL_TEST_VERIFY(shz::vec4::smoothstep(0.0f, 1.0f, shz::vec4(0.5f, 0.5f, 0.5f, 0.5f)).w  < shz::vec4::smoothstep(0.0f, 1.0f, shz::vec4(0.75f, 0.75f, 0.75f, 0.75f)).w);
+    GBL_TEST_VERIFY(shz::vec4::smoothstep(shz::vec4(0.25f, 0.25f, 0.25f, 0.25f), 0.0f, 1.0f).x < shz::vec4::smoothstep(shz::vec4(0.5f, 0.5f, 0.5f, 0.5f), 0.0f, 1.0f).x);
+    GBL_TEST_VERIFY(shz::vec4::smoothstep(shz::vec4(0.5f, 0.5f, 0.5f, 0.5f), 0.0f, 1.0f).w  < shz::vec4::smoothstep(shz::vec4(0.75f, 0.75f, 0.75f, 0.75f), 0.0f, 1.0f).w);
 
     // Mirrored monotonic per component (reversed edges)
-    GBL_TEST_VERIFY(shz::vec4::smoothstep(1.0f, 0.0f, shz::vec4(0.25f, 0.25f, 0.25f, 0.25f)).x > shz::vec4::smoothstep(1.0f, 0.0f, shz::vec4(0.5f, 0.5f, 0.5f, 0.5f)).x);
-    GBL_TEST_VERIFY(shz::vec4::smoothstep(1.0f, 0.0f, shz::vec4(0.5f, 0.5f, 0.5f, 0.5f)).w  > shz::vec4::smoothstep(1.0f, 0.0f, shz::vec4(0.75f, 0.75f, 0.75f, 0.75f)).w);
+    GBL_TEST_VERIFY(shz::vec4::smoothstep(shz::vec4(0.25f, 0.25f, 0.25f, 0.25f), 1.0f, 0.0f).x > shz::vec4::smoothstep(shz::vec4(0.5f, 0.5f, 0.5f, 0.5f), 1.0f, 0.0f).x);
+    GBL_TEST_VERIFY(shz::vec4::smoothstep(shz::vec4(0.5f, 0.5f, 0.5f, 0.5f), 1.0f, 0.0f).w  > shz::vec4::smoothstep(shz::vec4(0.75f, 0.75f, 0.75f, 0.75f), 1.0f, 0.0f).w);
+
+    // Per component test
+    GBL_TEST_VERIFY(shz::vec4::smoothstep(shz::vec4(1.5f, 0.5f, 3.0f, 0.25f),
+                                          shz::vec4(1.0f, 0.0f, 2.0f, 0.0f),
+                                          shz::vec4(2.0f, 1.0f, 4.0f, 0.5f)) == shz::vec4(0.5f, 0.5f, 0.5f, 0.5f));
 
     // Conversion case, sideffect of vector constructor
-    GBL_TEST_VERIFY(shz::vec4::smoothstep(0.0f, 1.0f, 0.5f) == shz::vec4(0.5f, 0.5f, 0.5f, 0.5f));
+    GBL_TEST_VERIFY(shz::vec4::smoothstep(0.5f, 0.0f, 1.0f) == shz::vec4(0.5f, 0.5f, 0.5f, 0.5f));
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(vec2Construct,
