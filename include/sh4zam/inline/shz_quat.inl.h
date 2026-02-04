@@ -143,7 +143,7 @@ SHZ_INLINE shz_vec3_t shz_quat_transform_vec3(shz_quat_t q, shz_vec3_t v) SHZ_NO
 #if SHZ_BACKEND == SHZ_DREAMCAST
     return shz_quat_transform_vec3_dc(q, v);
 #else
-    return shz_quat_transform_vec3_sw(q1, q2);
+    return shz_quat_transform_vec3_sw(q, v);
 #endif
 }
 
