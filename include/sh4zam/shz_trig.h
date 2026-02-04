@@ -165,6 +165,56 @@ SHZ_INLINE float shz_acotf(float x) SHZ_NOEXCEPT;
 
 //! @}
 
+/*! \name  Hyperbolic Functions
+    \brief Trigonometric functions for hyperbolas
+    @{
+*/
+
+//! Fast hyperbolic sine function.
+SHZ_INLINE float shz_sinhf(float x) SHZ_NOEXCEPT;
+
+//! Fast hyperbolic cosine function.
+SHZ_INLINE float shz_coshf(float x) SHZ_NOEXCEPT;
+
+//! Fast hyperbolic tangent function.
+SHZ_INLINE float shz_tanhf(float x) SHZ_NOEXCEPT;
+
+//! Fast hyperbolic cosecant function.
+SHZ_INLINE float shz_cschf(float x) SHZ_NOEXCEPT;
+
+//! Fast hyperbolic secant function.
+SHZ_INLINE float shz_sechf(float x) SHZ_NOEXCEPT;
+
+//! Fast hyperbolic cotangent function.
+SHZ_INLINE float shz_cothf(float x) SHZ_NOEXCEPT;
+
+//! @}
+
+/*! \name  Inverse Hyperbolic Functions
+    \brief Inverse trigonometric functions for hyperbolas
+    @{
+*/
+
+//! Fast hyperbolic arcsine function.
+SHZ_INLINE float shz_asinhf(float x) SHZ_NOEXCEPT;
+
+//! Fast hyperbolic arccosine function.
+SHZ_INLINE float shz_acoshf(float x) SHZ_NOEXCEPT;
+
+//! Fast hyperbolic arctangent function.
+SHZ_INLINE float shz_atanhf(float x) SHZ_NOEXCEPT;
+
+//! Fast hyperbolic arccosecant function.
+SHZ_INLINE float shz_acschf(float x) SHZ_NOEXCEPT;
+
+//! Fast hyperbolic arcsecant function.
+SHZ_INLINE float shz_asechf(float x) SHZ_NOEXCEPT;
+
+//! Fast hyperbolic arccotangent function.
+SHZ_INLINE float shz_acothf(float x) SHZ_NOEXCEPT;
+
+//! @}
+
 #include "inline/shz_trig.inl.h"
 
 SHZ_DECLS_END
