@@ -601,6 +601,115 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec4_dot3_sw(shz_vec4_t l, shz_vec4_t r1, shz_ve
                                    shz_vec4_dot(l, r3));
     return res;
 }
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_stepv_sw(shz_vec2_t vec, shz_vec2_t edge) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_stepf(vec.x, edge.x),
+                         shz_stepf(vec.y, edge.y));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_stepv_sw(shz_vec3_t vec, shz_vec3_t edge) SHZ_NOEXCEPT {
+    return shz_vec3_init(shz_stepf(vec.x, edge.x),
+                         shz_stepf(vec.y, edge.y),
+                         shz_stepf(vec.z, edge.z));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_stepv_sw(shz_vec4_t vec, shz_vec4_t edge) SHZ_NOEXCEPT {
+    return shz_vec4_init(shz_stepf(vec.x, edge.x),
+                         shz_stepf(vec.y, edge.y),
+                         shz_stepf(vec.z, edge.z),
+                         shz_stepf(vec.w, edge.w));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_step_sw(shz_vec2_t vec, float edge) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_stepf(vec.x, edge),
+                         shz_stepf(vec.y, edge));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_step_sw(shz_vec3_t vec, float edge) SHZ_NOEXCEPT {
+    return shz_vec3_init(shz_stepf(vec.x, edge),
+                         shz_stepf(vec.y, edge),
+                         shz_stepf(vec.z, edge));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_step_sw(shz_vec4_t vec, float edge) SHZ_NOEXCEPT {
+    return shz_vec4_init(shz_stepf(vec.x, edge),
+                         shz_stepf(vec.y, edge),
+                         shz_stepf(vec.z, edge),
+                         shz_stepf(vec.w, edge));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_smoothstepv_sw(shz_vec2_t vec, shz_vec2_t edge0, shz_vec2_t edge1) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_smoothstepf(vec.x, edge0.x, edge1.x),
+                         shz_smoothstepf(vec.y, edge0.y, edge1.y));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_smoothstepv_sw(shz_vec3_t vec, shz_vec3_t edge0, shz_vec3_t edge1) SHZ_NOEXCEPT {
+    return shz_vec3_init(shz_smoothstepf(vec.x, edge0.x, edge1.x),
+                         shz_smoothstepf(vec.y, edge0.y, edge1.y),
+                         shz_smoothstepf(vec.z, edge0.z, edge1.z));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_smoothstepv_sw(shz_vec4_t vec, shz_vec4_t edge0, shz_vec4_t edge1) SHZ_NOEXCEPT {
+    return shz_vec4_init(shz_smoothstepf(vec.x, edge0.x, edge1.x),
+                         shz_smoothstepf(vec.y, edge0.y, edge1.y),
+                         shz_smoothstepf(vec.z, edge0.z, edge1.z),
+                         shz_smoothstepf(vec.w, edge0.w, edge1.w));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_smoothstep_sw(shz_vec2_t vec, float edge0, float edge1) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_smoothstepf(vec.x, edge0, edge1),
+                         shz_smoothstepf(vec.y, edge0, edge1));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_smoothstep_sw(shz_vec3_t vec, float edge0, float edge1) SHZ_NOEXCEPT {
+    return shz_vec3_init(shz_smoothstepf(vec.x, edge0, edge1),
+                         shz_smoothstepf(vec.y, edge0, edge1),
+                         shz_smoothstepf(vec.z, edge0, edge1));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_smoothstep_sw(shz_vec4_t vec, float edge0, float edge1) SHZ_NOEXCEPT {
+    return shz_vec4_init(shz_smoothstepf(vec.x, edge0, edge1),
+                         shz_smoothstepf(vec.y, edge0, edge1),
+                         shz_smoothstepf(vec.z, edge0, edge1),
+                         shz_smoothstepf(vec.w, edge0, edge1));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_smoothstepv_safe_sw(shz_vec2_t vec, shz_vec2_t edge0, shz_vec2_t edge1) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_smoothstepf_safe(vec.x, edge0.x, edge1.x),
+                         shz_smoothstepf_safe(vec.y, edge0.y, edge1.y));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_smoothstepv_safe_sw(shz_vec3_t vec, shz_vec3_t edge0, shz_vec3_t edge1) SHZ_NOEXCEPT {
+    return shz_vec3_init(shz_smoothstepf_safe(vec.x, edge0.x, edge1.x),
+                         shz_smoothstepf_safe(vec.y, edge0.y, edge1.y),
+                         shz_smoothstepf_safe(vec.z, edge0.z, edge1.z));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_smoothstepv_safe_sw(shz_vec4_t vec, shz_vec4_t edge0, shz_vec4_t edge1) SHZ_NOEXCEPT {
+    return shz_vec4_init(shz_smoothstepf_safe(vec.x, edge0.x, edge1.x),
+                         shz_smoothstepf_safe(vec.y, edge0.y, edge1.y),
+                         shz_smoothstepf_safe(vec.z, edge0.z, edge1.z),
+                         shz_smoothstepf_safe(vec.w, edge0.w, edge1.w));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_smoothstep_safe_sw(shz_vec2_t vec, float edge0, float edge1) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_smoothstepf_safe(vec.x, edge0, edge1),
+                         shz_smoothstepf_safe(vec.y, edge0, edge1));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_smoothstep_safe_sw(shz_vec3_t vec, float edge0, float edge1) SHZ_NOEXCEPT {
+    return shz_vec3_init(shz_smoothstepf_safe(vec.x, edge0, edge1),
+                         shz_smoothstepf_safe(vec.y, edge0, edge1),
+                         shz_smoothstepf_safe(vec.z, edge0, edge1));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_smoothstep_safe_sw(shz_vec4_t vec, float edge0, float edge1) SHZ_NOEXCEPT {
+    return shz_vec4_init(shz_smoothstepf_safe(vec.x, edge0, edge1),
+                         shz_smoothstepf_safe(vec.y, edge0, edge1),
+                         shz_smoothstepf_safe(vec.z, edge0, edge1),
+                         shz_smoothstepf_safe(vec.w, edge0, edge1));
+}
+
 //! \endcond
 
 #endif
