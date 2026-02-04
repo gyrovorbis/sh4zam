@@ -4,7 +4,7 @@
  *
  *  This file provides an API offering fast versions of trigonometry functions.
  *
- *  \author 2025 Falco Girgis
+ *  \author 2025, 2026 Falco Girgis
  *  \author 2025 Paul Cercueil
  *
  *  \copyright MIT License
