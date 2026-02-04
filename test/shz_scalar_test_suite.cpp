@@ -265,41 +265,78 @@ GBL_TEST_CASE(stepf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(smoothstepf)
-    GBL_TEST_VERIFY(shz::smoothstepf(-1.0f, 0.0f, 1.0f) == 0.0f);
+    auto test = [&](float x, float edge0, float edge1, float expect) {
+        volatile float res;
+        benchmark(&res, shz::smoothstepf, x, edge0, edge1);
+        return gblFloatEquals(res, expect);
+    };
+
+    GBL_TEST_VERIFY(test(-1.0f, 0.0f, 1.0f, 0.0f)); // Below edge0
+    GBL_TEST_VERIFY(test( 2.0f, 0.0f, 1.0f, 1.0f)); // Above edge1
     GBL_TEST_VERIFY(shz::smoothstepf( 0.0f, 0.0f, 1.0f) == 0.0f);
     GBL_TEST_VERIFY(shz::smoothstepf( 1.0f, 0.0f, 1.0f) == 1.0f);
-    GBL_TEST_VERIFY(shz::smoothstepf( 2.0f, 0.0f, 1.0f) == 1.0f);
 
     GBL_TEST_VERIFY(shz::smoothstepf(0.5f, 0.0f, 1.0f) == 0.5f);
     GBL_TEST_VERIFY(shz::smoothstepf(0.25f, 0.0f, 1.0f) == 0.15625f); // 5/32
     GBL_TEST_VERIFY(shz::smoothstepf(0.75f, 0.0f, 1.0f) == 0.84375f); // 27/32
 
-    // Reversed edges (undefined in spec)
-    GBL_TEST_VERIFY(shz::smoothstepf(-1.0f, 1.0f, 0.0f) == 1.0f);
-    GBL_TEST_VERIFY(shz::smoothstepf( 0.0f, 1.0f, 0.0f) == 1.0f);
-    GBL_TEST_VERIFY(shz::smoothstepf( 1.0f, 1.0f, 0.0f) == 0.0f);
-    GBL_TEST_VERIFY(shz::smoothstepf( 2.0f, 1.0f, 0.0f) == 0.0f);
-
-    GBL_TEST_VERIFY(shz::smoothstepf(0.5f, 1.0f, 0.0f) == 0.5f);
-    GBL_TEST_VERIFY(shz::smoothstepf(0.25f, 1.0f, 0.0f) == 0.84375f); // 27/32
-    GBL_TEST_VERIFY(shz::smoothstepf(0.75f, 1.0f, 0.0f) == 0.15625f); // 5/32
-
     // Degenerate edges
-    GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 1.0f, 1.0f) == 0.0f);
+    GBL_TEST_VERIFY(test(0.0f, 1.0f, 1.0f, 0.0f)); // edge0==edge1
     GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 1.0f, 1.0f) == 1.0f);
 
     // Test edges and midpoint
     GBL_TEST_VERIFY(shz::smoothstepf(2.0f, 2.0f, 6.0f) == 0.0f);
-    GBL_TEST_VERIFY(shz::smoothstepf(4.0f, 2.0f, 6.0f) == 0.5f);
+    GBL_TEST_VERIFY(test(4.0f, 2.0f, 6.0f, 0.5f)); // in range
     GBL_TEST_VERIFY(shz::smoothstepf(6.0f, 2.0f, 6.0f) == 1.0f);
 
     // Ensure monotonic
     GBL_TEST_VERIFY(shz::smoothstepf(0.25f, 0.0f, 1.0f) < shz::smoothstepf(0.5f, 0.0f, 1.0f));
     GBL_TEST_VERIFY(shz::smoothstepf(0.5f, 0.0f, 1.0f) < shz::smoothstepf(0.75f, 0.0f, 1.0f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(smoothstepf_safe)
+    auto test = [&](float x, float edge0, float edge1, float expect) {
+        volatile float res;
+        benchmark(&res, shz::smoothstepf_safe,x, edge0, edge1);
+
+        return gblFloatEquals(res, expect);
+    };
+
+    GBL_TEST_VERIFY(test(-1.0f, 0.0f, 1.0f, 0.0f)); // below edge0
+    GBL_TEST_VERIFY(test( 2.0f, 0.0f, 1.0f, 1.0f)); // above edge1
+    GBL_TEST_VERIFY(shz::smoothstepf_safe( 0.0f, 0.0f, 1.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf_safe( 1.0f, 0.0f, 1.0f) == 1.0f);
+
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(0.5f, 0.0f, 1.0f) == 0.5f);
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(0.25f, 0.0f, 1.0f) == 0.15625f); // 5/32
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(0.75f, 0.0f, 1.0f) == 0.84375f); // 27/32
+
+    // Reversed edges (undefined in spec)
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(-1.0f, 1.0f, 0.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf_safe( 0.0f, 1.0f, 0.0f) == 1.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf_safe( 1.0f, 1.0f, 0.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::smoothstepf_safe( 2.0f, 1.0f, 0.0f) == 0.0f);
+
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(0.5f, 1.0f, 0.0f) == 0.5f);
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(0.25f, 1.0f, 0.0f) == 0.84375f); // 27/32
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(0.75f, 1.0f, 0.0f) == 0.15625f); // 5/32
+
+    // Degenerate edges
+    GBL_TEST_VERIFY(test(0.0f, 1.0f, 1.0f, 0.0f)); // edge0==edge1
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(1.0f, 1.0f, 1.0f) == 1.0f);
+
+    // Test edges and midpoint
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(2.0f, 2.0f, 6.0f) == 0.0f);
+    GBL_TEST_VERIFY(test(4.0f, 2.0f, 6.0f, 0.5f)); // in range
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(6.0f, 2.0f, 6.0f) == 1.0f);
+
+    // Ensure monotonic
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(0.25f, 0.0f, 1.0f) < shz::smoothstepf_safe(0.5f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(0.5f, 0.0f, 1.0f) < shz::smoothstepf_safe(0.75f, 0.0f, 1.0f));
 
     // Mirrored monotonic
-    GBL_TEST_VERIFY(shz::smoothstepf(0.25f, 1.0f, 0.0f) > shz::smoothstepf(0.5f, 1.0f, 0.0f));
-    GBL_TEST_VERIFY(shz::smoothstepf(0.5f, 1.0f, 0.0f) > shz::smoothstepf(0.75f, 1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(0.25f, 1.0f, 0.0f) > shz::smoothstepf_safe(0.5f, 1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::smoothstepf_safe(0.5f, 1.0f, 0.0f) > shz::smoothstepf_safe(0.75f, 1.0f, 0.0f));
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(min,
@@ -320,4 +357,5 @@ GBL_TEST_REGISTER(min,
                   mag_sqr3f,
                   mag_sqr4f,
                   stepf,
-                  smoothstepf)
+                  smoothstepf,
+                  smoothstepf_safe)
