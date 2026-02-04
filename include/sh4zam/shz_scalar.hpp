@@ -101,6 +101,8 @@ namespace shz {
     constexpr auto stepf             = shz_stepf;
     //! C++ alias for shz_smoothstepf()
     constexpr auto smoothstepf       = shz_smoothstepf;
+    //! C++ alias for shz_smoothstepf_safe()
+    constexpr auto smoothstepf_safe  = shz_smoothstepf_safe;
 
     //! @}
 

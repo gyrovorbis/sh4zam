@@ -87,6 +87,12 @@ struct vecN: C {
         return shz_vec_smoothstep(vec, edge0, edge1);
     }
 
+    //! Returns a vector where each component is smoothly interpolated from 0 to 1 between edge0 and edge1.
+    template<typename T>
+    SHZ_FORCE_INLINE static CppType smoothstep_safe(CppType vec, T edge0, T edge1) noexcept {
+        return shz_vec_smoothstep_safe(vec, edge0, edge1);
+    }
+
 #ifdef SHZ_CPP23
     //! Overloaded subscript operator -- allows for indexing vectors like an array.
     SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) noexcept {

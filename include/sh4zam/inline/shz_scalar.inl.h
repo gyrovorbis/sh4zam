@@ -337,4 +337,8 @@ SHZ_FORCE_INLINE float shz_smoothstepf(float x, float edge0, float edge1) SHZ_NO
     return shz_smoothstepf_sw(x, edge0, edge1);
 }
 
+SHZ_FORCE_INLINE float shz_smoothstepf_safe(float x, float edge0, float edge1) SHZ_NOEXCEPT {
+    return shz_smoothstepf_safe_sw(x, edge0, edge1);
+}
+
 //! \endcond
