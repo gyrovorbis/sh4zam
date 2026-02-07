@@ -114,7 +114,7 @@ SHZ_FORCE_INLINE float shz_secf_deg(float degrees) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE float shz_cscf(float radians) SHZ_NOEXCEPT {
     if(__builtin_constant_p(radians))
-        return __builtin_sinf(radians);
+        return 1.0f / __builtin_sinf(radians);
 
     return shz_cscf_sw(radians);
 }
@@ -187,6 +187,99 @@ SHZ_INLINE float shz_acotf(float x) SHZ_NOEXCEPT {
         return __builtin_atanf(1.0f / x);
 
     return shz_acotf_sw(x);
+}
+
+SHZ_FORCE_INLINE float shz_sinhf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_sinhf(x);
+
+    return (shz_expf(x) - shz_expf(-x)) * 0.5f;
+}
+
+SHZ_FORCE_INLINE float shz_coshf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_coshf(x);
+
+    return (shz_expf(x) + shz_expf(-x)) * 0.5f;
+}
+
+SHZ_FORCE_INLINE float shz_tanhf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_tanhf(x);
+
+    float ex = shz_expf(x);     // e^x
+    float enx = shz_expf(-x);   // e^-x
+    return shz_divf_fsrra(ex - enx, ex + enx);
+}
+
+SHZ_FORCE_INLINE float shz_cschf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return 1.0f / __builtin_sinhf(x);
+
+    return shz_divf(2.0f, shz_expf(x) - shz_expf(-x));
+}
+
+SHZ_FORCE_INLINE float shz_sechf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return 1.0f / __builtin_coshf(x);
+
+    return shz_divf_fsrra(2.0f, shz_expf(x) + shz_expf(-x));
+}
+
+SHZ_FORCE_INLINE float shz_cothf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return 1.0f / __builtin_tanhf(x);
+
+    float ex = shz_expf(x);
+    float e_neg_x = shz_expf(-x);
+
+    float sinh_val = ex - e_neg_x;
+    float cosh_val = ex + e_neg_x;
+
+    return shz_divf(cosh_val, sinh_val);
+}
+
+SHZ_FORCE_INLINE float shz_asinhf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_asinhf(x);
+
+    return shz_logf(x + shz_sqrtf_fsrra(x * x + 1.0f));
+}
+
+SHZ_FORCE_INLINE float shz_acoshf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_acoshf(x);
+
+    return shz_logf(x + shz_sqrtf(x * x - 1.0f));
+}
+
+SHZ_FORCE_INLINE float shz_atanhf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_atanhf(x);
+
+    return 0.5f * shz_logf(shz_divf(1.0f + x, 1.0f - x));
+}
+
+SHZ_FORCE_INLINE float shz_acschf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_asinhf(1.0f / x);
+
+    float inv_x = shz_invf(x);
+    return shz_logf(inv_x + shz_sqrtf_fsrra(inv_x * inv_x + 1.0));
+}
+
+SHZ_FORCE_INLINE float shz_asechf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_acoshf(1.0f / x);
+
+    return shz_logf(shz_divf(1.0f + shz_sqrtf(1.0f - (x * x)), x));
+}
+
+SHZ_FORCE_INLINE float shz_acothf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_atanhf(1.0f / x);
+
+    return 0.5f * shz_logf(shz_divf(x + 1.0f, x - 1.0f));
 }
 
  //! \endcond
