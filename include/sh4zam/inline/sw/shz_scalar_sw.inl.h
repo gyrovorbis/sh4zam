@@ -316,9 +316,6 @@ SHZ_FORCE_INLINE float shz_stepf_sw(float x, float edge) SHZ_NOEXCEPT {
 SHZ_FORCE_INLINE float shz_smoothstepf_sw(float x, float edge0, float edge1) SHZ_NOEXCEPT {
     if (x >= edge1) return 1.0f;
     if (x <= edge0) return 0.0f;
-    if (edge0 == edge1) {
-        return shz_stepf(x, edge0);
-    }
 
     float diff = edge1 - edge0;
 
