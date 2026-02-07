@@ -292,6 +292,12 @@ GBL_TEST_CASE(smoothstepf)
     // Ensure monotonic
     GBL_TEST_VERIFY(shz::smoothstepf(0.25f, 0.0f, 1.0f) < shz::smoothstepf(0.5f, 0.0f, 1.0f));
     GBL_TEST_VERIFY(shz::smoothstepf(0.5f, 0.0f, 1.0f) < shz::smoothstepf(0.75f, 0.0f, 1.0f));
+
+    // Ensure edge behavior matches safe variants.
+    GBL_TEST_VERIFY(shz::smoothstepf(-1.0f, 0.0f, 1.0f) == shz::smoothstepf_safe(-1.0f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::smoothstepf(2.0f, 0.0f, 1.0f) == shz::smoothstepf_safe(2.0f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 0.0f, 1.0f) == shz::smoothstepf_safe(0.0f, 0.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 0.0f, 1.0f) == shz::smoothstepf_safe(1.0f, 0.0f, 1.0f));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(smoothstepf_safe)
