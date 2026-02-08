@@ -40,7 +40,7 @@ SHZ_FORCE_INLINE bool shz_equalf_rel(float a, float b) SHZ_NOEXCEPT {
     return shz_equalf_rel_sw(a, b);
 }
 
- SHZ_FORCE_INLINE float shz_floorf(float x) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE float shz_floorf(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
         return __builtin_floorf(x);
 
