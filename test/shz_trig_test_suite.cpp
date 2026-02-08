@@ -89,6 +89,211 @@ GBL_TEST_CASE(acosf)
     GBL_TEST_ERROR(shz_acosf(-2.0f), acosf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
 GBL_TEST_CASE_END
 
+GBL_FP_PRECISE
+GBL_TEST_CASE(sinhf)
+    auto test = [&](volatile float value) {
+        float shz_result, c_result;
+
+        benchmark(&shz_result, shz_sinhf, value);
+        benchmark(&c_result, sinhf, value);
+
+        std::println("{} vs {}", shz_result, c_result);
+        return fabsf(shz_result - c_result) <= 0.05f;
+    };
+
+    GBL_TEST_VERIFY(test(0.0f));
+    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_VERIFY(test(-1.0f));
+GBL_TEST_CASE_END
+
+GBL_FP_PRECISE
+GBL_TEST_CASE(coshf)
+    auto test = [&](volatile float value) {
+        float shz_result, c_result;
+
+        benchmark(&shz_result, shz_coshf, value);
+        benchmark(&c_result, coshf, value);
+
+        std::println("{} vs {}", shz_result, c_result);
+        return fabsf(shz_result - c_result) <= 0.05f;
+    };
+
+    GBL_TEST_VERIFY(test(0.0f));
+    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_VERIFY(test(-1.0f));
+GBL_TEST_CASE_END
+
+GBL_FP_PRECISE
+GBL_TEST_CASE(tanhf)
+    auto test = [&](volatile float value) {
+        float shz_result, c_result;
+
+        benchmark(&shz_result, shz_tanhf, value);
+        benchmark(&c_result, tanhf, value);
+
+        std::println("{} vs {}", shz_result, c_result);
+        return fabsf(shz_result - c_result) <= 0.05f;
+    };
+
+    GBL_TEST_VERIFY(test(0.0f));
+    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_VERIFY(test(-1.0f));
+GBL_TEST_CASE_END
+
+GBL_FP_PRECISE
+GBL_TEST_CASE(cschf)
+    auto test = [&](volatile float value) {
+        float shz_result, c_result;
+
+        benchmark(&shz_result, shz_cschf, value);
+        benchmark(&c_result, [](float val) { return 1.0f / sinhf(val); }, value);;
+
+        std::println("{} vs {}", shz_result, c_result);
+        return fabsf(shz_result - c_result) <= 0.05f;
+    };
+
+    GBL_TEST_VERIFY(test(0.0f));
+    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_VERIFY(test(-1.0f));
+GBL_TEST_CASE_END
+
+GBL_FP_PRECISE
+GBL_TEST_CASE(sechf)
+    auto test = [&](volatile float value) {
+        float shz_result, c_result;
+
+        benchmark(&shz_result, shz_sechf, value);
+        benchmark(&c_result, [](float val) { return 1.0f / coshf(val); }, value);
+
+        std::println("{} vs {}", shz_result, c_result);
+        return fabsf(shz_result - c_result) <= 0.05f;
+    };
+
+    GBL_TEST_VERIFY(test(0.0f));
+    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_VERIFY(test(-1.0f));
+GBL_TEST_CASE_END
+
+GBL_FP_PRECISE
+GBL_TEST_CASE(cothf)
+    auto test = [&](volatile float value) {
+        float shz_result, c_result;
+
+        benchmark(&shz_result, shz_cothf, value);
+        benchmark(&c_result, [](float val) { return 1.0f / tanhf(val); }, value);
+
+        std::println("{} vs {}", shz_result, c_result);
+        return fabsf(shz_result - c_result) <= 0.05f;
+    };
+
+    GBL_TEST_VERIFY(test(0.0f));
+    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_VERIFY(test(-1.0f));
+GBL_TEST_CASE_END
+
+GBL_FP_PRECISE
+GBL_TEST_CASE(asinhf)
+    auto test = [&](volatile float value) {
+        float shz_result, c_result;
+
+        benchmark(&shz_result, shz_asinhf, value);
+        benchmark(&c_result, asinhf, value);
+
+        std::println("{} vs {}", shz_result, c_result);
+        return fabsf(shz_result - c_result) <= 0.05f;
+    };
+
+    GBL_TEST_VERIFY(test(0.0f));
+    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_VERIFY(test(-1.0f));
+GBL_TEST_CASE_END
+
+GBL_FP_PRECISE
+GBL_TEST_CASE(acoshf)
+    auto test = [&](volatile float value) {
+        float shz_result, c_result;
+
+        benchmark(&shz_result, shz_acoshf, value);
+        benchmark(&c_result, acoshf, value);
+
+        std::println("{} vs {}", shz_result, c_result);
+        return fabsf(shz_result - c_result) <= 0.05f;
+    };
+
+    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_VERIFY(test(1.5430806f));
+    GBL_TEST_VERIFY(test(2.0f));
+GBL_TEST_CASE_END
+
+GBL_FP_PRECISE
+GBL_TEST_CASE(atanhf)
+    auto test = [&](volatile float value) {
+        float shz_result, c_result;
+
+        benchmark(&shz_result, shz_atanhf, value);
+        benchmark(&c_result, atanhf, value);
+
+        std::println("{} vs {}", shz_result, c_result);
+        return fabsf(shz_result - c_result) <= 0.05f;
+    };
+
+    GBL_TEST_VERIFY(test(0.01f));
+    GBL_TEST_VERIFY(test(0.99f));
+    GBL_TEST_VERIFY(test(-0.99f));
+GBL_TEST_CASE_END
+
+GBL_FP_PRECISE
+GBL_TEST_CASE(acschf)
+    auto test = [&](volatile float value) {
+        float shz_result, c_result;
+
+        benchmark(&shz_result, shz_acschf, value);
+        benchmark(&c_result, [](float val) { return asinhf(1.0f / val); }, value);
+
+        std::println("{} vs {}", shz_result, c_result);
+        return fabsf(shz_result - c_result) <= 0.05f;
+    };
+
+    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_VERIFY(test(5.5f));
+    GBL_TEST_VERIFY(test(-1.0f));
+GBL_TEST_CASE_END
+
+GBL_FP_PRECISE
+GBL_TEST_CASE(asechf)
+    auto test = [&](volatile float value) {
+        float shz_result, c_result;
+
+        benchmark(&shz_result, shz_asechf, value);
+        benchmark(&c_result, [](float val) { return acoshf(1.0f / val); }, value);
+
+        std::println("{} vs {}", shz_result, c_result);
+        return fabsf(shz_result - c_result) <= 0.05f;
+    };
+
+    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_VERIFY(test(0.5f));
+    GBL_TEST_VERIFY(test(0.001f));
+GBL_TEST_CASE_END
+
+GBL_FP_PRECISE
+GBL_TEST_CASE(acothf)
+    auto test = [&](volatile float value) {
+        float shz_result, c_result;
+
+        benchmark(&shz_result, shz_acothf, value);
+        benchmark(&c_result, [](float val) { return atanhf(1.0f / val); }, value);
+
+        std::println("{} vs {}", shz_result, c_result);
+        return fabsf(shz_result - c_result) <= 0.05f;
+    };
+
+    GBL_TEST_VERIFY(test(2.0f));
+    GBL_TEST_VERIFY(test(-2.0f));
+    GBL_TEST_VERIFY(test(1.0001f));
+GBL_TEST_CASE_END
+
+
 GBL_TEST_CASE(benches)
     volatile float result;
 
@@ -117,4 +322,16 @@ GBL_TEST_REGISTER(sincos_from_radians,
                   atanf,
                   asinf,
                   acosf,
+                  sinhf,
+                  coshf,
+                  tanhf,
+                  cschf,
+                  sechf,
+                  cothf,
+                  asinhf,
+                  acoshf,
+                  atanhf,
+                  acschf,
+                  asechf,
+                  acothf,
                   benches)
