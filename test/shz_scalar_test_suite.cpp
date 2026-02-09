@@ -345,6 +345,25 @@ GBL_TEST_CASE(smoothstepf_safe)
     GBL_TEST_VERIFY(shz::smoothstepf_safe(0.5f, 1.0f, 0.0f) > shz::smoothstepf_safe(0.75f, 1.0f, 0.0f));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(cbrt)
+    auto test = [&](volatile float value) {
+        float pow_res, cbrt_res, c_res;
+
+                benchmark(&c_res,    shz::cbrtf, value);
+        benchmark(&pow_res,  powf,       value, 1.0f / 3.0f);
+        benchmark(&cbrt_res, cbrtf,      value);
+
+        std::println("{} vs {} vs {}", pow_res, cbrt_res, c_res);
+
+        return gblFloatEquals(cbrt_res, c_res, 0.00001f);
+    };
+
+    GBL_TEST_VERIFY(test(27.0f));
+    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_VERIFY(test(-27.0f));
+    GBL_TEST_VERIFY(test(-0.125f));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(min,
                   max,
                   clamp,
@@ -364,4 +383,5 @@ GBL_TEST_REGISTER(min,
                   mag_sqr4f,
                   stepf,
                   smoothstepf,
-                  smoothstepf_safe)
+                  smoothstepf_safe,
+                  cbrt)

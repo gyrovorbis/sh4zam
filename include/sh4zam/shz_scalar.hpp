@@ -6,6 +6,7 @@
  *  individual scalar values in C++23.
  *
  *  \author    2025, 2026 Falco Girgis
+ *  \author          2026 Aleios
  *  \copyright MIT License
  */
 
@@ -87,6 +88,8 @@ namespace shz {
     constexpr auto fdimf             = shz_fdimf;
     //! C++ alias for shz_hypotf().
     constexpr auto hypotf            = shz_hypotf;
+    //! C++ wrapper for shz_cbrtf().
+    SHZ_FORCE_INLINE float cbrtf(float x) noexcept { return shz_cbrtf(x); }
     //! C++ alias for shz_lerpf().
     constexpr auto lerpf             = shz_lerpf;
     //! C++ alias for shz_barycentric_lerpf().

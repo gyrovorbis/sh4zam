@@ -8,6 +8,7 @@
     for the SH4 architecture.
 
     \author 2026 Falco Girgis
+    \author 2026 Paul Cercueil
 
     \copyright MIT License
 */
@@ -83,6 +84,19 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f_dc(float x, float y, float z, float w) SHZ_
 
     return rw;
 }
+
+SHZ_FORCE_INLINE float shz_cbrt_magic_dc(float x) SHZ_NOEXCEPT {
+    int32_t eax = *(shz_alias_int32_t*)&x; // mov eax, x (as bits)
+
+    asm inline("shll %0" :"+r"(eax) :: "t");
+
+    eax = ((eax - 0x7f000000) >> 10) * 341 + 0x7f000000;
+
+    asm inline("rotcr %0" :"+r"(eax) :: "t");
+
+    return *(shz_alias_float_t*)&eax; // z as float
+}
+
 //! \endcond
 
 #endif

@@ -9,6 +9,8 @@
     SW back-end.
 
     \author 2026 Falco Girgis
+    \author 2026 Aleios
+    \author 2026 jnmartin64
 
     \copyright MIT License
 */
@@ -334,6 +336,23 @@ SHZ_FORCE_INLINE float shz_smoothstepf_safe_sw(float x, float edge0, float edge1
     float t = (x - edge0) / (edge1 - edge0);
     t = shz_clampf(t, 0.0f, 1.0f);
     return t * t * shz_fmaf(t, -2.0f, 3.0f);
+}
+
+SHZ_FORCE_INLINE float shz_cbrt_magic_sw(float x) SHZ_NOEXCEPT {
+    uint32_t eax = *(shz_alias_uint32_t *)&x; // mov eax, x (as bits)
+    uint32_t ecx = eax;                       // mov ecx, eax
+
+    eax &= 0x7FFFFFFFu;                       // clear sign
+    eax -= 0x3F800000u;                       // subtract 1.0f anchor
+    eax = (uint32_t)((int32_t)eax >> 10);     // sar eax, 10  (arithmetic shift)
+    eax = (uint32_t)((int32_t)eax * 341);     // imul eax, 341
+    eax += 0x3F800000u;                       // add anchor back
+    eax &= 0x7FFFFFFFu;                       // remask (keep positive magnitude)
+
+    ecx &= 0x80000000u;                       // keep original sign bit
+    eax |= ecx;                               // combine sign + new magnitude
+
+    return *(shz_alias_float_t*)&eax; // z as float
 }
 
 //! \endcond

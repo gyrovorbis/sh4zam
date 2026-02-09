@@ -8,8 +8,11 @@
  *  \todo
  *      - Use FP rounding modes for rounding functionality.
  *
- *  \author    2025, 2026 Falco Girgis
- *  \author    2025 Paul Cercueil
+ *  \author 2025, 2026 Falco Girgis
+ *  \author 2025, 2026 Paul Cercueil
+ *  \author       2026 Aleios
+ *  \author       2026 jnmartin64
+ *
  *  \copyright MIT License
  */
 
@@ -222,6 +225,12 @@ SHZ_FORCE_INLINE float shz_fdimf(float x, float y) SHZ_NOEXCEPT;
     Unlike hypotf(), this routine has no error or overflow handling.
 */
 SHZ_FORCE_INLINE float shz_hypotf(float x, float y) SHZ_NOEXCEPT;
+
+/*! Replacement for the <math.h> routine, cbrtf().
+
+    Returns the cubed root of \p x, using a fast approximation.
+*/
+SHZ_FORCE_INLINE float shz_cbrtf(float x) SHZ_NOEXCEPT;
 
 //! Returns a value that is linearly interpolated between \p a and \p b by the given ratio, \p t.
 SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) SHZ_NOEXCEPT;

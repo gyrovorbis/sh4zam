@@ -8,8 +8,10 @@
  *  by forwarding the call on to a specific back-end implementation of
  *  the scalar routines.
  *
- *  \author    2025, 2026 Falco Girgis
- *  \author    2025 Paul Cercueil
+ *  \author 2025, 2026 Falco Girgis
+ *  \author 2025, 2026 Paul Cercueil
+ *  \author       2026 Aleios
+ *  \author       2026 jnmartin64
  *
  *  \copyright MIT License
  */
@@ -87,6 +89,35 @@ SHZ_FORCE_INLINE float shz_hypotf(float x, float y) SHZ_NOEXCEPT {
         return __builtin_hypotf(x, y);
 
     return shz_hypotf_sw(x,y);
+}
+
+// https://www.musicdsp.org/en/latest/Other/206-fast-cube-root-square-root-and-reciprocal-for-x86-sse-cpus.html#id2
+// cuberoot_sse_16bits( float x ) -> fast_cbrt_2step(float x)
+SHZ_FORCE_INLINE float shz_cbrt_newton1(float x, float z) SHZ_NOEXCEPT {
+    float z2 = z * z;
+    float z3 = z2 * z;
+    float num = z3 - x;
+    float rden = shz_inv_sqrtf_fsrra(3.0f * z2);
+    return z - (num * rden * rden);
+}
+
+SHZ_FORCE_INLINE float shz_cbrtf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_cbrtf(x);
+
+    if(x == 0.0f)
+        return 0.0f;
+
+#if SHZ_BACKEND == SHZ_DREAMCAST
+    float z = shz_cbrt_magic_dc(x);
+#else
+    float z = shz_cbrt_magic_sw(x);
+#endif
+
+    z = shz_cbrt_newton1(x, z);
+    z = shz_cbrt_newton1(x, z);
+
+    return z;
 }
 
 SHZ_FORCE_INLINE float shz_remainderf(float num, float denom) SHZ_NOEXCEPT {
