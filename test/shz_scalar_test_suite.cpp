@@ -349,7 +349,7 @@ GBL_TEST_CASE(cbrt)
     auto test = [&](volatile float value) {
         float pow_res, cbrt_res, c_res;
 
-                benchmark(&c_res,    shz::cbrtf, value);
+        benchmark(&c_res,    shz::cbrtf, value);
         benchmark(&pow_res,  powf,       value, 1.0f / 3.0f);
         benchmark(&cbrt_res, cbrtf,      value);
 

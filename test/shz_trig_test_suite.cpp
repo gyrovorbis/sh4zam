@@ -94,7 +94,7 @@ GBL_TEST_CASE(sinhf)
     auto test = [&](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz_sinhf, value);
+        benchmark(&shz_result, shz::sinhf, value);
         benchmark(&c_result, sinhf, value);
 
         std::println("{} vs {}", shz_result, c_result);
@@ -111,7 +111,7 @@ GBL_TEST_CASE(coshf)
     auto test = [&](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz_coshf, value);
+        benchmark(&shz_result, shz::coshf, value);
         benchmark(&c_result, coshf, value);
 
         std::println("{} vs {}", shz_result, c_result);
@@ -128,7 +128,7 @@ GBL_TEST_CASE(tanhf)
     auto test = [&](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz_tanhf, value);
+        benchmark(&shz_result, shz::tanhf, value);
         benchmark(&c_result, tanhf, value);
 
         std::println("{} vs {}", shz_result, c_result);
@@ -145,7 +145,7 @@ GBL_TEST_CASE(cschf)
     auto test = [&](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz_cschf, value);
+        benchmark(&shz_result, shz::cschf, value);
         benchmark(&c_result, [](float val) { return 1.0f / sinhf(val); }, value);;
 
         std::println("{} vs {}", shz_result, c_result);
@@ -162,7 +162,7 @@ GBL_TEST_CASE(sechf)
     auto test = [&](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz_sechf, value);
+        benchmark(&shz_result, shz::sechf, value);
         benchmark(&c_result, [](float val) { return 1.0f / coshf(val); }, value);
 
         std::println("{} vs {}", shz_result, c_result);
@@ -179,7 +179,7 @@ GBL_TEST_CASE(cothf)
     auto test = [&](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz_cothf, value);
+        benchmark(&shz_result, shz::cothf, value);
         benchmark(&c_result, [](float val) { return 1.0f / tanhf(val); }, value);
 
         std::println("{} vs {}", shz_result, c_result);
@@ -196,7 +196,7 @@ GBL_TEST_CASE(asinhf)
     auto test = [&](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz_asinhf, value);
+        benchmark(&shz_result, shz::asinhf, value);
         benchmark(&c_result, asinhf, value);
 
         std::println("{} vs {}", shz_result, c_result);
@@ -213,7 +213,7 @@ GBL_TEST_CASE(acoshf)
     auto test = [&](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz_acoshf, value);
+        benchmark(&shz_result, shz::acoshf, value);
         benchmark(&c_result, acoshf, value);
 
         std::println("{} vs {}", shz_result, c_result);
@@ -230,7 +230,7 @@ GBL_TEST_CASE(atanhf)
     auto test = [&](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz_atanhf, value);
+        benchmark(&shz_result, shz::atanhf, value);
         benchmark(&c_result, atanhf, value);
 
         std::println("{} vs {}", shz_result, c_result);
@@ -247,7 +247,7 @@ GBL_TEST_CASE(acschf)
     auto test = [&](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz_acschf, value);
+        benchmark(&shz_result, shz::acschf, value);
         benchmark(&c_result, [](float val) { return asinhf(1.0f / val); }, value);
 
         std::println("{} vs {}", shz_result, c_result);
@@ -264,7 +264,7 @@ GBL_TEST_CASE(asechf)
     auto test = [&](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz_asechf, value);
+        benchmark(&shz_result, shz::asechf, value);
         benchmark(&c_result, [](float val) { return acoshf(1.0f / val); }, value);
 
         std::println("{} vs {}", shz_result, c_result);
@@ -281,7 +281,7 @@ GBL_TEST_CASE(acothf)
     auto test = [&](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz_acothf, value);
+        benchmark(&shz_result, shz::acothf, value);
         benchmark(&c_result, [](float val) { return atanhf(1.0f / val); }, value);
 
         std::println("{} vs {}", shz_result, c_result);

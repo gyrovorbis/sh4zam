@@ -5,7 +5,7 @@
  *  This file provides an API offering fast versions of trigonometry functions
  *  for C++23.
  *
- *  \author    2025 Falco Girgis
+ *  \author    2025, 2026 Falco Girgis
  *  \copyright MIT License
  */
 
@@ -158,6 +158,47 @@ namespace shz {
     constexpr auto acscf      = shz_acscf;
     //! C++ wrapper around shz_acotf().
     constexpr auto acotf      = shz_acotf;
+
+    //! @}
+
+
+    /*! \name  Hyperbolic Functions
+        \brief Trigonometric functions for hyperbolas
+        @{
+    */
+
+    //! C++ wrapper around shz_sinhf().
+    SHZ_FORCE_INLINE float sinhf(float x) noexcept { return shz_sinhf(x); }
+    //! C++ wrapper around shz_coshf().
+    SHZ_FORCE_INLINE float coshf(float x) noexcept { return shz_coshf(x); }
+    //! C++ wrapper around shz_tanhf().
+    SHZ_FORCE_INLINE float tanhf(float x) noexcept { return shz_tanhf(x); }
+    //! C++ wrapper around shz_cschf().
+    SHZ_FORCE_INLINE float cschf(float x) noexcept { return shz_cschf(x); }
+    //! C++ wrapper around shz_sechf().
+    SHZ_FORCE_INLINE float sechf(float x) noexcept { return shz_sechf(x); }
+    //! C++ wrapper around shz_cothf().
+    SHZ_FORCE_INLINE float cothf(float x) noexcept { return shz_cothf(x); }
+
+    //! @}
+
+    /*! \name  Inverse Hyperbolic Functions
+        \brief Inverse trigonometric functions for hyperbolas
+        @{
+    */
+
+    //! C++ wrapper around shz_asinhf().
+    SHZ_FORCE_INLINE float asinhf(float x) noexcept { return shz_asinhf(x); }
+    //! C++ wrapper around shz_acoshf().
+    SHZ_FORCE_INLINE float acoshf(float x) noexcept { return shz_acoshf(x); }
+    //! C++ wrapper around shz_atanhf().
+    SHZ_FORCE_INLINE float atanhf(float x) noexcept { return shz_atanhf(x); }
+    //! C++ wrapper around shz_acscf().
+    SHZ_FORCE_INLINE float acschf(float x) noexcept { return shz_acschf(x); }
+    //! C++ wrapper around shz_asechf().
+    SHZ_FORCE_INLINE float asechf(float x) noexcept { return shz_asechf(x); }
+    //! C++ wrapper around shz_acothf().
+    SHZ_FORCE_INLINE float acothf(float x) noexcept { return shz_acothf(x); }
 
     //! @}
 }
