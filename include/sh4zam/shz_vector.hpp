@@ -250,12 +250,12 @@ struct vecN: C {
 
     //! Returns the magnitude of the difference between two vectors as their distance.
     SHZ_FORCE_INLINE float distance(const CppType& other) const noexcept {
-        return shz_vec_distance(*static_cast<CppType*>(this), other);
+        return shz_vec_distance(*static_cast<const CppType*>(this), other);
     }
 
     //! Returns the value of the distance between two vectors squared (faster than actual distance)
     SHZ_FORCE_INLINE float distance_sqr(const CppType& other) const noexcept {
-        return shz_vec_distance_sqr(*static_cast<CppType*>(this), other);
+        return shz_vec_distance_sqr(*static_cast<const CppType*>(this), other);
     }
 
     //! Moves the given vector towards the target by the given \p maxdist.
