@@ -1806,7 +1806,7 @@ SHZ_INLINE void shz_xmtrx_apply_reverse_4x4(const shz_mat4x4_t* matrix) SHZ_NOEX
         fmov.d  @%[mtx]+, xd4
         fmov.d  @%[mtx]+, xd6
         fmov.d  @%[mtx]+, xd8
-        fmod.d  @%[mtx]+, xd10
+        fmov.d  @%[mtx]+, xd10
         fmov.d  @%[mtx]+, xd12
         fmov.d  @%[mtx]+, xd14
         fschg
@@ -1834,7 +1834,7 @@ SHZ_INLINE void shz_xmtrx_apply_reverse_aligned4_4x4(const float matrix[16]) SHZ
         fmov.s  @%[mtx]+, fr2
         fmov.s  @%[mtx]+, fr3
         fmov.s  @%[mtx]+, fr4
-        fmod.s  @%[mtx]+, fr5
+        fmov.s  @%[mtx]+, fr5
         fmov.s  @%[mtx]+, fr6
         fmov.s  @%[mtx]+, fr7
         fmov.s  @%[mtx]+, fr8
@@ -1876,7 +1876,7 @@ SHZ_INLINE void shz_xmtrx_apply_reverse_transpose_4x4(const shz_mat4x4_t* matrix
         fmov.s  @%[mtx]+, fr8
         fmov.s  @%[mtx]+, fr12
         fmov.s  @%[mtx]+, fr1
-        fmod.s  @%[mtx]+, fr5
+        fmov.s  @%[mtx]+, fr5
         fmov.s  @%[mtx]+, fr9
         fmov.s  @%[mtx]+, fr13
         fmov.s  @%[mtx]+, fr2
@@ -3192,7 +3192,7 @@ SHZ_INLINE void shz_xmtrx_rotate(float angle, float x, float y, float z) SHZ_NOE
         ftrv	xmtrx, fv0
 
         fldi0   fr12
-        fmov    fr0, fr13
+        fldi0   fr13
         fldi0   fr14
         fldi1   fr15
         ftrv    xmtrx, fv12
