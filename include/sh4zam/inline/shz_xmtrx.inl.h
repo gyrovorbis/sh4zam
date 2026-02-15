@@ -2588,6 +2588,46 @@ SHZ_INLINE void shz_xmtrx_apply_lookat(const float* position_3f,
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
+SHZ_INLINE void shz_xmtrx_apply_ortho(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
+    shz_vec3_t box   = shz_vec3_inv(shz_vec3_init(right - left, top - bottom, far - near));
+    shz_vec3_t scale = shz_vec3_mul(shz_vec3_init(2.0f, 2.0f, 1.0f), box);
+    shz_vec3_t trans = shz_vec3_mul(shz_vec3_init(-(right + left), -(top + bottom), -near), box);
+
+    asm volatile(R"(
+        fmov.s  @%[s]+, fr0
+        fldi0   fr1
+        fldi0   fr2
+        fldi0   fr3
+        fldi0   fr4
+        ftrv    xmtrx, fv0
+
+        fmov.s  @%[s]+, fr5
+        fldi0   fr6
+        fldi0   fr7
+        fldi0   fr8
+        ftrv    xmtrx, fv4
+
+        fldi0   fr9
+        fmov.s  @%[s], fr10
+        fldi0   fr11
+        fmov.s  @%[t]+, fr12
+        add     #-8, %[s]
+        ftrv    xmtrx, fv8
+
+        fmov.s  @%[t]+, fr13
+        fmov.s  @%[t], fr14
+        fldi1   fr15
+        add     #-8, %[t]
+        ftrv    xmtrx, fv12
+
+        frchg
+    )"
+    :
+    : [s] "r" (&scale), [t] "r" (&trans),
+          "m"  (scale),     "m" (trans)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+}
 
 // ****************************************************************
 // void shz_xmtrx_apply_perspective(float f, float a, float nz)

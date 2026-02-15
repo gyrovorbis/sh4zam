@@ -5,6 +5,7 @@
 
 #include <gimbal/gimbal_algorithms.h>
 #include <print>
+#include <cglm/clipspace/ortho_lh_zo.h>
 
 #define GBL_SELF_TYPE shz_xmtrx_test_suite
 
@@ -255,6 +256,8 @@ GBL_TEST_CASE(store_4x4)
     std::array<float, 16> array = std::to_array(mat.elem);
     //GBL_TEST_SKIP("No fucking clue why this shits the bed.");
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
+    benchmark(nullptr, [&]{ shz::xmtrx::store(&mat); });
+    benchmark(nullptr, [&]{ mat_store((float (*)[4][4])&mat); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(store_unaligned_4x4)
@@ -701,6 +704,19 @@ GBL_TEST_CASE(translate)
     benchmark(nullptr, mat_translate, 100.0f, 200.0f, 300.0f);
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(apply_ortho)
+    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::apply_ortho(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f);
+    union {
+        alignas(8) mat4 cmat;
+        shz::mat4x4 shzcmat;
+    } cunion;
+    glm_ortho_lh_zo(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f, cunion.cmat);
+    shz::mat4x4 shzmat;
+    shz::xmtrx::store(&shzmat);
+    GBL_TEST_VERIFY(shzmat == cunion.shzcmat);
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(read_write_registers,
                   read_write_rows,
                   read_write_cols,
@@ -759,4 +775,5 @@ GBL_TEST_REGISTER(read_write_registers,
                   load_apply_4x4,
                   load_apply_store_4x4,
                   load_apply_store_unaligned_4x4,
-                  translate)
+                  translate,
+                  apply_ortho)

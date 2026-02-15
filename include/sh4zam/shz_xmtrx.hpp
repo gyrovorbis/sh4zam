@@ -442,6 +442,11 @@ struct xmtrx {
         shz_xmtrx_apply_rotation_quat(quat);
     }
 
+    //! C++ wrapper around shz_xmtrx_apply_ortho().
+    SHZ_FORCE_INLINE static void apply_ortho(float left, float right, float bottom, float top, float near, float far) noexcept {
+        shz_xmtrx_apply_ortho(left, right, bottom, top, near, far);
+    }
+
     //! C++ wrapper around shz_xmtrx_apply_symmetric_skew().
     SHZ_FORCE_INLINE static void apply_symmetric_skew(float x, float y, float z) noexcept {
         shz_xmtrx_apply_symmetric_skew(x, y, z);
