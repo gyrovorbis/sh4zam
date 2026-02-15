@@ -436,7 +436,7 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_quat(shz_quat_t quat) SHZ_NOEXCEPT;
 //! Applies the 3D "lookAt" matrix constructed with the given vector components onto XMTRX.
 SHZ_INLINE void shz_xmtrx_apply_lookat(const float* position_3f, const float* target_3f, const float* up_3f) SHZ_NOEXCEPT;
 
-//! Applies a 2D orthographic projection matrix onto XMTRX, working similarly to glOrtho(), except mapping the Z range into [0, 1] for the DC's PVR.
+//! Applies a 2D orthographic projection matrix onto XMTRX, equivalent to glOrtho().
 SHZ_INLINE void shz_xmtrx_apply_ortho(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the perspective matrix constructed from the given values onto XMTRX.

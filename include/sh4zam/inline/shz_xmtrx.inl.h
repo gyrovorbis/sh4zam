@@ -2590,8 +2590,8 @@ SHZ_INLINE void shz_xmtrx_apply_lookat(const float* position_3f,
 
 SHZ_INLINE void shz_xmtrx_apply_ortho(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
     shz_vec3_t box   = shz_vec3_inv(shz_vec3_init(right - left, top - bottom, far - near));
-    shz_vec3_t scale = shz_vec3_mul(shz_vec3_init(2.0f, 2.0f, 1.0f), box);
-    shz_vec3_t trans = shz_vec3_mul(shz_vec3_init(-(right + left), -(top + bottom), -near), box);
+    shz_vec3_t scale = shz_vec3_mul(shz_vec3_init(2.0f, 2.0f, 2.0f), box);
+    shz_vec3_t trans = shz_vec3_mul(shz_vec3_init(-(right + left), -(top + bottom), -(far + near)), box);
 
     asm volatile(R"(
         fmov.s  @%[s]+, fr0
