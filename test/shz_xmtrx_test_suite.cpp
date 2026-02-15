@@ -170,6 +170,9 @@ GBL_TEST_CASE(load_4x4)
                      4.0f,  -5.0f,  6.0f,  7.0f,
                      7.0f,   8.0f,  9.0f, 10.0f,
                     11.0f, -12.0f, 13.0f, 14.0f })));
+
+    benchmark(nullptr, [&]() { shz::xmtrx::load(mat4); });
+    benchmark(nullptr, mat_load, (const float(*)[4][4])&mat4);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_wxyz_4x4)
@@ -527,6 +530,7 @@ GBL_TEST_CASE(apply_rotation_x)
                    0.0f, cosf(SHZ_F_PI), -sinf(SHZ_F_PI), 0.0f,
                    0.0f, sinf(SHZ_F_PI),  cosf(SHZ_F_PI), 0.0f,
                    0.0f,       0.0f,        0.0f, 1.0f }));
+    benchmark(nullptr, shz::xmtrx::apply_rotation_x, SHZ_F_PI);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_rotation_y)
@@ -538,6 +542,7 @@ GBL_TEST_CASE(apply_rotation_y)
                          0.0f,     1.0f,   0.0f, 0.0f,
                          0.0f,     0.0f,  cosf(SHZ_F_PI), 0.0f,
                   -sinf(SHZ_F_PI), 0.0f,   0.0f, 1.0f }));
+    benchmark(nullptr, shz::xmtrx::apply_rotation_y, SHZ_F_PI);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_rotation_z)
@@ -549,8 +554,8 @@ GBL_TEST_CASE(apply_rotation_z)
                    sinf(SHZ_F_PI),  cosf(SHZ_F_PI), 0.0f, 0.0f,
                          0.0f,        0.0f, 1.0f, 0.0f,
                          0.0f,        0.0f, 0.0f, 1.0f }));
+    benchmark(nullptr, shz::xmtrx::apply_rotation_z, SHZ_F_PI);
 GBL_TEST_CASE_END
-
 
 GBL_TEST_CASE(apply_rotation_xyz)
 GBL_TEST_CASE_END
@@ -683,6 +688,19 @@ GBL_TEST_CASE(load_apply_store_unaligned_4x4)
                                     0.0f, 0.0f, 0.0f, 1.0f }));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(translate)
+    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                            {
+                                1.0f, 0.0f, 0.0f, 1.0f,
+                                0.0f, 1.0f, 0.0f, 2.0f,
+                                0.0f, 0.0f, 1.0f, 3.0f,
+                                0.0f, 0.0f, 0.0f, 1.0f }));
+    benchmark(nullptr, shz::xmtrx::translate, 100.0f, 200.0f, 300.0f);
+    benchmark(nullptr, mat_translate, 100.0f, 200.0f, 300.0f);
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(read_write_registers,
                   read_write_rows,
                   read_write_cols,
@@ -740,4 +758,5 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_rotation_quat,
                   load_apply_4x4,
                   load_apply_store_4x4,
-                  load_apply_store_unaligned_4x4)
+                  load_apply_store_unaligned_4x4,
+                  translate)

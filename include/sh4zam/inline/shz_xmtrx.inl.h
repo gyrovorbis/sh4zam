@@ -12,6 +12,8 @@
  *  \copyright MIT License
  */
 
+ #define SHZ_FRCHG() asm volatile("frchg")
+
 SHZ_INLINE float shz_xmtrx_read(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT {
 #define FP_REG_BACK_TO_FRONT_(reg)    \
     asm volatile(                     \
@@ -2132,20 +2134,21 @@ SHZ_INLINE void shz_xmtrx_apply_scale(float x, float y, float z) SHZ_NOEXCEPT {
 
 SHZ_INLINE void shz_xmtrx_apply_rotation_x(float x) SHZ_NOEXCEPT {
     x *= SHZ_FSCA_RAD_FACTOR;
+
     asm volatile(R"(
         ftrc    %0, fpul
 
-        fldi0   fr8
-        fldi0   fr11
-        fsca    fpul, dr4
-        fmov    fr4, fr9
-        fneg    fr9
-        fmov    fr5, fr10
-        ftrv    xmtrx, fv8
-
-        fmov    fr4, fr6
         fldi0   fr7
+        fsca    fpul, dr4
+        fldi0   fr8
+        fmov    fr4, fr9
+        fmov    fr5, fr10
+        fneg    fr9
+        fmul    fr8, fr11
+        fmov    fr4, fr6
         fldi0   fr4
+
+        ftrv    xmtrx, fv8
         ftrv    xmtrx, fv4
 
         fschg
@@ -2162,6 +2165,7 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_x(float x) SHZ_NOEXCEPT {
 
 SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) SHZ_NOEXCEPT {
     y *= SHZ_FSCA_RAD_FACTOR;
+
     asm volatile(R"(
         ftrc    %0, fpul
 
@@ -2170,10 +2174,10 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) SHZ_NOEXCEPT {
         fldi0   fr11
         fmov    fr6, fr8
         fmov    fr7, fr10
-        ftrv    xmtrx, fv8
-
         fmov    fr7, fr4
         fldi0   fr5
+        ftrv    xmtrx, fv8
+
         fneg    fr6
         fldi0   fr7
         ftrv    xmtrx, fv4
@@ -2192,30 +2196,33 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) SHZ_NOEXCEPT {
 
 SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) SHZ_NOEXCEPT {
     z *= SHZ_FSCA_RAD_FACTOR;
+
     asm volatile(R"(
         ftrc    %0, fpul
 
-        fldi0   fr11
-        fsca    fpul, dr8
-        fldi0   fr10
-        fmov    fr8, fr5
-        fneg    fr8
-        ftrv    xmtrx, fv8
+        fldi0   fr2
+        fsca    fpul, dr4
+        fldi0   fr3
+        fmov    fr4, fr1
+        fmov    fr5, fr0
 
-        fmov    fr9, fr4
-        fschg
-        fmov    dr10, dr6
+        fneg    fr4
+        fldi0   fr6
+        fldi0   fr7
+
+        ftrv    xmtrx, fv0
         ftrv    xmtrx, fv4
 
-        fmov    dr8, xd4
-        fmov    dr10, xd6
-        fmov    dr4, xd0
-        fmov    dr6, xd2
+        fschg
+        fmov    dr0, xd0
+        fmov    dr2, xd2
+        fmov    dr4, xd4
+        fmov    dr6, xd6
         fschg
     )"
     :
     : "f" (z)
-    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
+    : "fr0", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fpul");
 }
 
 SHZ_INLINE void shz_xmtrx_apply_rotation(float angle, float x, float y, float z) SHZ_NOEXCEPT {
@@ -2871,32 +2878,28 @@ SHZ_INLINE void shz_xmtrx_apply_self(void) SHZ_NOEXCEPT {
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEPT {
     asm volatile(R"(
         fldi0   fr1
         fldi1   fr0
-        fldi0   fr2
-        fldi0   fr3
-        fldi0   fr4
-        ftrv    xmtrx, fv0
-
         fldi1   fr5
+        fmul    fr1, fr2
+        fldi0   fr4
+        fmul    fr1, fr3
         fldi0   fr6
-        fldi0   fr7
+        fmul    fr1, fr7
         fldi0   fr8
-        ftrv    xmtrx, fv4
-
-        fldi0   fr9
+        fmul    fr4, fr9
         fldi1   fr10
-        fldi0   fr11
+        ftrv    xmtrx, fv0
         fmov.s  @%[x], fr12
-        ftrv    xmtrx, fv8
-
+        fmul    fr4, fr11
         fmov.s  @%[y], fr13
+        ftrv    xmtrx, fv4
         fmov.s  @%[z], fr14
+        ftrv    xmtrx, fv8
         fldi1   fr15
         ftrv    xmtrx, fv12
-
         frchg
     )"
     :

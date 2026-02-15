@@ -59,7 +59,6 @@ set(SHZ_INCLUDES
     include/sh4zam/shz_mem.h
     include/sh4zam/shz_mem.hpp
     include/sh4zam/inline/shz_mem.inl.h
-    include/sh4zam/shz_fpscr.h
     include/sh4zam/shz_sh4zam.h
     include/sh4zam/shz_sh4zam.hpp)
 

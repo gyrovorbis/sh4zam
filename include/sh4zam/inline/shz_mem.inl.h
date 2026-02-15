@@ -11,6 +11,8 @@
 
 #include <assert.h>
 
+#define SHZ_FSCHG() asm volatile("fschg")
+
 extern void shz_memcpy128_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
 
 SHZ_FORCE_INLINE uint32_t shz_xtrct(uint32_t a, uint32_t b) SHZ_NOEXCEPT {

@@ -13,7 +13,6 @@
 #define SHZ_SH4ZAM_H
 
 #include "shz_cdefs.h"
-#include "shz_fpscr.h"
 #include "shz_mem.h"
 #include "shz_scalar.h"
 #include "shz_trig.h"

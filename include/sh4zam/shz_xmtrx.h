@@ -27,7 +27,6 @@
 #ifndef SHZ_XMTRX_H
 #define SHZ_XMTRX_H
 
-#include "shz_fpscr.h"
 #include "shz_vector.h"
 #include "shz_quat.h"
 

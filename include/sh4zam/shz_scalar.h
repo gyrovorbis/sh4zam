@@ -23,7 +23,6 @@
 #include <stdbool.h>
 
 #include "shz_cdefs.h"
-#include "shz_fpscr.h"
 
 /*! \defgroup scalar Scalar
     \brief    Scalar functions and utilities.

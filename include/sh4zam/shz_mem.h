@@ -20,7 +20,6 @@
 #define SHZ_MEM_H
 
 #include "shz_cdefs.h"
-#include "shz_fpscr.h"
 
 #include <stdbool.h>
 
