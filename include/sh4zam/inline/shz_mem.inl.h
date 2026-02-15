@@ -252,7 +252,7 @@ SHZ_INLINE void* shz_sq_memcpy32(     void* SHZ_RESTRICT dst,
         fmov.d dr4, @-%[dst]
         fmov.d dr2, @-%[dst]
         fmov.d dr0, @-%[dst]
-        add    #32, %[dst]
+        add    #64, %[dst]
         bf.s   1b
         pref   @%[dst]          ! Fire off store queue
     )"
@@ -289,7 +289,7 @@ SHZ_INLINE void* shz_sq_memcpy32_xmtrx(      void* SHZ_RESTRICT dst,
         fmov.d xd4, @-%[dst]
         fmov.d xd2, @-%[dst]
         fmov.d xd0, @-%[dst]
-        add    #32, %[dst]
+        add    #64, %[dst]
         bf.s   1b
         pref   @%[dst]          ! Fire off store queue
     )"
