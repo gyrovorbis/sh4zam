@@ -52,7 +52,7 @@ SHZ_FORCE_INLINE void shz_memcpy32_load_(const uint64_t* SHZ_RESTRICT* src) SHZ_
     )"
     : [src] "+r" (*src)
     : "m" (src[0]), "m" (src[1]), "m" (src[2]), "m" (src[3])
-    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10" "fr11");
+    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
 SHZ_FORCE_INLINE void shz_memcpy64_load_(const uint64_t* SHZ_RESTRICT* src) SHZ_NOEXCEPT {
@@ -516,7 +516,7 @@ SHZ_INLINE void shz_memcpy32_1(      void* SHZ_RESTRICT dst,
           shz_alias_uint64_t* d = (      shz_alias_uint64_t*)dst;
     const shz_alias_uint64_t* s = (const shz_alias_uint64_t*)src;
 
-    assert(!((uintptr_t)dst & 7) && !((uintptr_t)src & 7));
+    assert(!((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
 
     SHZ_PREFETCH(s);
 
@@ -609,7 +609,7 @@ SHZ_INLINE void* shz_sq_memcpy32_1(      void* SHZ_RESTRICT dst,
     const shz_alias_uint32_t* s = (const shz_alias_uint32_t*)src;
           shz_alias_uint32_t* d = (      shz_alias_uint32_t*)dst;
 
-    assert(!((uintptr_t)s & 7) && !((uintptr_t)d & 31));
+    assert(!((uintptr_t)s & 7) && !((uintptr_t)d & 7));
 
     SHZ_FSCHG();
 
@@ -642,7 +642,7 @@ SHZ_INLINE void* shz_sq_memcpy32_1_xmtrx(      void* SHZ_RESTRICT dst,
     const shz_alias_uint32_t* s = (const shz_alias_uint32_t*)src;
           shz_alias_uint32_t* d = (      shz_alias_uint32_t*)dst;
 
-    assert(!((uintptr_t)s & 7) && !((uintptr_t)d & 31));
+    assert(!((uintptr_t)s & 7) && !((uintptr_t)d & 7));
 
     SHZ_FSCHG();
 
