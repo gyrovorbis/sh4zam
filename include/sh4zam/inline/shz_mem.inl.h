@@ -5,7 +5,7 @@
  *
  *  Implementation of inlined memory API routines.
  *
- *  \author    2025 Falco Girgis
+ *  \author    2025, 2026 Falco Girgis
  *  \copyright MIT License
  */
 
@@ -14,24 +14,6 @@
 #define SHZ_FSCHG() asm volatile("fschg")
 
 extern void shz_memcpy128_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
-
-SHZ_FORCE_INLINE uint32_t shz_xtrct(uint32_t a, uint32_t b) SHZ_NOEXCEPT {
-    return (b << 16) | (a >> 16);
-}
-
-SHZ_FORCE_INLINE bool shz_cmp_str(uint32_t a, uint32_t b) SHZ_NOEXCEPT {
-    bool t;
-
-    asm volatile(R"(
-        cmp/str %[a], %[b]
-        movt    %[t]
-    )"
-    : [t] "=r" (t)
-    : [a] "r" (a), [b] "r" (b)
-    : "t");
-
-    return t;
-}
 
 SHZ_FORCE_INLINE void shz_dcache_alloc_line(void* src) SHZ_NOEXCEPT {
     shz_alias_uint32_t *src32 = (shz_alias_uint32_t *)src;
@@ -50,7 +32,7 @@ SHZ_FORCE_INLINE void shz_dcache_alloc_line(void* src) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE void shz_memcpy32_store_(uint64_t* SHZ_RESTRICT* dst) SHZ_NOEXCEPT {
-    asm volatile(R"(
+    asm(R"(
         add       #32, %[dst]
         fmov.d    dr10, @-%[dst]
         fmov.d    dr8,  @-%[dst]
@@ -62,18 +44,19 @@ SHZ_FORCE_INLINE void shz_memcpy32_store_(uint64_t* SHZ_RESTRICT* dst) SHZ_NOEXC
 }
 
 SHZ_FORCE_INLINE void shz_memcpy32_load_(const uint64_t* SHZ_RESTRICT* src) SHZ_NOEXCEPT {
-    asm volatile(R"(
+    asm(R"(
         fmov.d    @%[src]+, dr4
         fmov.d    @%[src]+, dr6
         fmov.d    @%[src]+, dr8
         fmov.d    @%[src]+, dr10
     )"
     : [src] "+r" (*src)
-    : "m" (src[0]), "m" (src[1]), "m" (src[2]), "m" (src[3]));
+    : "m" (src[0]), "m" (src[1]), "m" (src[2]), "m" (src[3])
+    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10" "fr11");
 }
 
 SHZ_FORCE_INLINE void shz_memcpy64_load_(const uint64_t* SHZ_RESTRICT* src) SHZ_NOEXCEPT {
-    asm volatile(R"(
+    asm(R"(
         fmov.d    @%[src]+, dr0
         fmov.d    @%[src]+, dr2
         fmov.d    @%[src]+, dr4
@@ -85,11 +68,13 @@ SHZ_FORCE_INLINE void shz_memcpy64_load_(const uint64_t* SHZ_RESTRICT* src) SHZ_
     )"
     : [src] "+r" (*src)
     : "m" ((*src)[0]), "m" ((*src)[1]), "m" ((*src)[2]), "m" ((*src)[3]),
-      "m" ((*src)[4]), "m" ((*src)[5]), "m" ((*src)[6]), "m" ((*src)[7]));
+      "m" ((*src)[4]), "m" ((*src)[5]), "m" ((*src)[6]), "m" ((*src)[7])
+    : "fr0", "f1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10" "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
 SHZ_FORCE_INLINE void shz_memcpy64_store_(uint64_t* SHZ_RESTRICT* dst) SHZ_NOEXCEPT {
-    asm volatile(R"(
+    asm(R"(
         add       #32, %[dst]
         movca.l   r0, @%[dst]
         add       #32, %[dst]
@@ -122,7 +107,7 @@ SHZ_FORCE_INLINE void* shz_memcpy1(      void* SHZ_RESTRICT dst,
     SHZ_PREFETCH(src);
 
     if(bytes) {
-        asm volatile(R"(
+        asm(R"(
         1:
             mov.b   @%[src]+, %[tmp]
             dt      %[cnt]
@@ -248,6 +233,43 @@ SHZ_INLINE void* shz_sq_memcpy32(     void* SHZ_RESTRICT dst,
                                 size_t                   bytes) SHZ_NOEXCEPT {
     void* ret = dst;
 
+    assert(!(bytes % 32) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
+
+    bytes >>= 5;
+
+    SHZ_FSCHG();
+
+    asm volatile(R"(
+    1:
+        fmov.d @%[src]+, dr0
+        fmov.d @%[src]+, dr2
+        fmov.d @%[src]+, dr4
+        fmov.d @%[src]+, dr6
+        pref   @%[src]          ! Prefetch 32 bytes for next loop
+        dt     %[blks]          ! while(n--)
+        add    #32, %[dst]
+        fmov.d dr6, @-%[dst]
+        fmov.d dr4, @-%[dst]
+        fmov.d dr2, @-%[dst]
+        fmov.d dr0, @-%[dst]
+        add    #32, %[dst]
+        bf.s   1b
+        pref   @%[dst]          ! Fire off store queue
+    )"
+    : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" ((char (*)[])dst)
+    : "m" ((const char (*)[])src)
+    : "fr0", "fr1", "fr2", "fr3" "fr4" "fr5", "fr6", "fr7");
+
+    SHZ_FSCHG();
+
+    return ret;
+}
+
+SHZ_INLINE void* shz_sq_memcpy32_xmtrx(      void* SHZ_RESTRICT dst,
+                                       const void* SHZ_RESTRICT src,
+                                       size_t                   bytes) SHZ_NOEXCEPT {
+    void* ret = dst;
+
     assert(!(bytes % 32) && !((uintptr_t)dst & 7) && !((uintptr_t)src & 7));
 
     bytes >>= 5;
@@ -271,9 +293,8 @@ SHZ_INLINE void* shz_sq_memcpy32(     void* SHZ_RESTRICT dst,
         bf.s   1b
         pref   @%[dst]          ! Fire off store queue
     )"
-    : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes)
-    : "m" ((const char (*)[])src)
-    : "memory");
+    : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" ((char (*)[])dst)
+    : "m" ((const char (*)[])src));
 
     SHZ_FSCHG();
 
@@ -376,7 +397,7 @@ SHZ_INLINE void shz_memcpy2_16(      void* SHZ_RESTRICT dst,
                                const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
     assert(!((uintptr_t)dst & 0x1) && !((uintptr_t)src & 0x1));
 
-    asm volatile(R"(
+    asm(R"(
         mov.w   @%[s]+, r0
         mov.w   @%[s]+, r1
         mov.w   @%[s]+, r2
@@ -412,7 +433,7 @@ SHZ_INLINE void shz_memcpy2_16(      void* SHZ_RESTRICT dst,
         mov.w   r1, @-%[d]
         mov.w   r0, @-%[d]
     )"
-    : [d] "+r"(dst), [s] "+r"(src), "=m" (*((shz_alias_uint16_t (*)[16])dst))
+    : [d] "+r" (dst), [s] "+r" (src), "=m" (*((shz_alias_uint16_t (*)[16])dst))
     : "m" (*((shz_alias_uint16_t (*)[16])src))
     : "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7");
 }
@@ -420,7 +441,7 @@ SHZ_INLINE void shz_memcpy2_16(      void* SHZ_RESTRICT dst,
 SHZ_INLINE void shz_memset2_16(void* dst, uint16_t value) SHZ_NOEXCEPT {
     assert(!((uintptr_t)dst & 0x1));
 
-    asm volatile(R"(
+    asm(R"(
         add     #32 %0
         mov.w   %2, @-%1
         mov.w   %2, @-%1
@@ -495,7 +516,7 @@ SHZ_INLINE void shz_memcpy32_1(      void* SHZ_RESTRICT dst,
           shz_alias_uint64_t* d = (      shz_alias_uint64_t*)dst;
     const shz_alias_uint64_t* s = (const shz_alias_uint64_t*)src;
 
-    assert(!((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
+    assert(!((uintptr_t)dst & 7) && !((uintptr_t)src & 7));
 
     SHZ_PREFETCH(s);
 
@@ -508,9 +529,47 @@ SHZ_INLINE void shz_memcpy32_1(      void* SHZ_RESTRICT dst,
     SHZ_FSCHG();
 }
 
-
 SHZ_INLINE void shz_memswap32_1(void* SHZ_RESTRICT p1,
                                 void* SHZ_RESTRICT p2) SHZ_NOEXCEPT {
+    shz_alias_uint32_t (*a)[8] = (shz_alias_uint32_t (*)[8])p1;
+    shz_alias_uint32_t (*b)[8] = (shz_alias_uint32_t (*)[8])p2;
+
+    assert(!((uintptr_t)p1 & 7) && ((uintptr_t)p2 & 7));
+
+    SHZ_PREFETCH(b);
+    SHZ_FSCHG();
+
+    asm(R"(
+        fmov.d  @%[a]+, dr0
+        fmov.d  @%[a]+, dr2
+        fmov.d  @%[a]+, dr4
+        fmov.d  @%[a]+, dr6
+
+        fmov.d  @%[b]+, dr8
+        fmov.d  @%[b]+, dr10
+        fmov.d  @%[b]+, dr12
+        fmov.d  @%[b]+, dr14
+
+        fmov.d  dr14, @-%[a]
+        fmov.d  dr12, @-%[a]
+        fmov.d  dr10, @-%[a]
+        fmov.d  dr8,  @-%[a]
+
+        fmov.d  dr6, @-%[b]
+        fmov.d  dr4, @-%[b]
+        fmov.d  dr2, @-%[b]
+        fmov.d  dr0, @-%[b]
+    )"
+    : [a] "+r" (a), [b] "+r" (b), "+m" (*a), "+m" (*b)
+    :
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+
+    SHZ_FSCHG();
+}
+
+SHZ_INLINE void shz_memswap32_1_xmtrx(void* SHZ_RESTRICT p1,
+                                      void* SHZ_RESTRICT p2) SHZ_NOEXCEPT {
     shz_alias_uint32_t (*a)[8] = (shz_alias_uint32_t (*)[8])p1;
     shz_alias_uint32_t (*b)[8] = (shz_alias_uint32_t (*)[8])p2;
 
@@ -550,7 +609,40 @@ SHZ_INLINE void* shz_sq_memcpy32_1(      void* SHZ_RESTRICT dst,
     const shz_alias_uint32_t* s = (const shz_alias_uint32_t*)src;
           shz_alias_uint32_t* d = (      shz_alias_uint32_t*)dst;
 
-    assert(!((uintptr_t)s & 7) && !((uintptr_t)d & 7));
+    assert(!((uintptr_t)s & 7) && !((uintptr_t)d & 31));
+
+    SHZ_FSCHG();
+
+    asm volatile(R"(
+        fmov.d @%[src]+, dr0
+        fmov.d @%[src]+, dr2
+        fmov.d @%[src]+, dr4
+        fmov.d @%[src]+, dr6
+        add    #32, %[dst]
+        fmov.d dr6, @-%[dst]
+        fmov.d dr4, @-%[dst]
+        fmov.d dr2, @-%[dst]
+        fmov.d dr0, @-%[dst]
+        pref   @%[dst]          ! Fire off store queue
+    )"
+    : [src] "+r" (s), [dst] "+r" (d),
+      "=m" (d[0]), "=m" (d[1]), "=m" (d[2]), "=m" (d[3]),
+      "=m" (d[4]), "=m" (d[5]), "=m" (d[6]), "=m" (d[7])
+    : "m" (s[0]), "m" (s[1]), "m" (s[2]), "m" (s[3]),
+      "m" (s[4]), "m" (s[5]), "m" (s[6]), "m" (s[7])
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7");
+
+    SHZ_FSCHG();
+
+    return dst;
+}
+
+SHZ_INLINE void* shz_sq_memcpy32_1_xmtrx(      void* SHZ_RESTRICT dst,
+                                         const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
+    const shz_alias_uint32_t* s = (const shz_alias_uint32_t*)src;
+          shz_alias_uint32_t* d = (      shz_alias_uint32_t*)dst;
+
+    assert(!((uintptr_t)s & 7) && !((uintptr_t)d & 31));
 
     SHZ_FSCHG();
 

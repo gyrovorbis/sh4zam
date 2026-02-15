@@ -12,7 +12,7 @@
  *      - shz_memset()
  *      - shz_memmove()
  *
- * \author    2025 Falco Girgis
+ * \author    2025, 2026 Falco Girgis
  * \copyright MIT License
  */
 
@@ -53,27 +53,6 @@
 
 SHZ_DECLS_BEGIN
 
-/*! \name Intrinsics
-    \brief Intrinsics around memory-related SH4 instructions.
-    @{
-*/
-
-/*! Intrinsic around the SH4 `XTRCT` instruction.
-
-    Extracts the middle 32 bits from the 64-bit contents of \p a
-    combined with \p b.
-
-    \author Paul Cercueil
-*/
-SHZ_FORCE_INLINE uint32_t shz_xtrct(uint32_t a, uint32_t b) SHZ_NOEXCEPT;
-
-/*! Instrinsic around the SH4 `CMP/STR` instruction.
-
-    Compares 32-bit values \p a and \p b, returning `true` if any of the 4
-    bytes in \p a are equal to the corresponding byte in \p b.
-*/
-SHZ_FORCE_INLINE bool shz_cmp_str(uint32_t a, uint32_t b) SHZ_NOEXCEPT;
-
 /*! Intrinsic around the SH4 `MOVCA.L` instruction.
 
     Preallocates the cache-line containing \p src.
@@ -82,8 +61,6 @@ SHZ_FORCE_INLINE bool shz_cmp_str(uint32_t a, uint32_t b) SHZ_NOEXCEPT;
     setting the valid bit to `1`.
 */
 SHZ_FORCE_INLINE void shz_dcache_alloc_line(void* src) SHZ_NOEXCEPT;
-
-//! @}
 
 /*! Generic drop-in fast memcpy() replacement.
 
@@ -235,6 +212,17 @@ SHZ_INLINE void* shz_sq_memcpy32(      void* SHZ_RESTRICT dst,
                                  const void* SHZ_RESTRICT src,
                                       size_t              bytes) SHZ_NOEXCEPT;
 
+/*! Copies \p bytes from \p src to \p dst in 32-byte chunks, using the Store Queues and XMTRX.
+
+    Equiavalent to shz_sq_memcpy32(), except copying is done through XMTRX.
+
+    \warning
+    This routine clobbers XMTRX.
+*/
+SHZ_INLINE void* shz_sq_memcpy32_xmtrx(      void* SHZ_RESTRICT dst,
+                                       const void* SHZ_RESTRICT src,
+                                       size_t                   bytes) SHZ_NOEXCEPT;
+
 /*! Specialized memcpy() variant for copying multiples of 64-bytes.
 
     Copies a from an 8-byte aligned buffer to a 32-byte aligned buffer, 64 bytes at a time.
@@ -328,6 +316,16 @@ SHZ_INLINE void shz_memcpy32_1(      void* SHZ_RESTRICT dst,
 SHZ_INLINE void shz_memswap32_1(void* SHZ_RESTRICT p1,
                                 void* SHZ_RESTRICT p2) SHZ_NOEXCEPT;
 
+/*! Swaps the values within the given 32-byte buffers, using XMTRX.
+
+    Equivalent to shz_memcpy32_1(), except copying is done through XMTRX.
+
+    \warning
+    This routine clobbers XMTRX!
+*/
+SHZ_INLINE void shz_memswap32_1_xmtrx(void* SHZ_RESTRICT p1,
+                                      void* SHZ_RESTRICT p2) SHZ_NOEXCEPT;
+
 /*! Copies \p src to \p dst in a single 32-byte transaction using the Store Queues.
 
     \note
@@ -341,6 +339,19 @@ SHZ_INLINE void shz_memswap32_1(void* SHZ_RESTRICT p1,
 */
 SHZ_INLINE void* shz_sq_memcpy32_1(      void* SHZ_RESTRICT dst,
                                    const void* SHZ_RESTRICT src) SHZ_NOEXCEPT;
+
+
+/*! Copies \p src to \p dst in a single 32-byte transaction using the Store Queues and XMTRX.
+
+    Equivalent to shz_sq_memcpy32_1(), except copying is done through XMTRX.
+
+    \warning
+    This routine clobberx XMTRX.
+
+    \sa shz_memcpy32()
+*/
+SHZ_INLINE void* shz_sq_memcpy32_1_xmtrx(      void* SHZ_RESTRICT dst,
+                                        const void* SHZ_RESTRICT src) SHZ_NOEXCEPT;
 
 //! @}
 
