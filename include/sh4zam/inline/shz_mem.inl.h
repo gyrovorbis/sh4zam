@@ -170,7 +170,8 @@ SHZ_INLINE void* shz_memcpy4(void*       SHZ_RESTRICT dst,
     assert(!(bytes % 4) && !((uintptr_t)dst & 3) && !((uintptr_t)src & 3));
 
     bytes >>= 2;
-    size_t blocks = bytes >> 5; // Block size of 32 bytes
+
+    size_t blocks = bytes >> 3;
 
     if(blocks) {
         do {
