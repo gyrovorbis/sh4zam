@@ -482,6 +482,13 @@ GBL_TEST_CASE(init_symmetric_skew)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_screen)
+    randomize_xmtrx_();
+    shz::xmtrx::init_screen(640.0f, 480.0f);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                { 320.0f, 0.0f,    0.0f, 320.0f,
+                 -0.0f,  -240.0f, -0.0f, 240.0f,
+                  0.0f,   0.0f,    1.0f, 0.0f,
+                  0.0f,   0.0f,    0.0f, 1.0f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_permutation_wxyz)
@@ -722,6 +729,41 @@ GBL_TEST_CASE(apply_ortho)
     GBL_TEST_VERIFY(shzmat == cunion.shzcmat);
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(apply_screen)
+    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::apply_screen(640.0f, 480.0f);
+
+    shz::mat4x4 applied_screen_mat;
+    shz::xmtrx::store(&applied_screen_mat);
+
+    // Ensure apply_screen computes
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                { 320.0f, -0.0f,   0.0f, 320.0f,
+                 -0.0f,   -240.0f, 0.0f, 240.0f,
+                  0.0f,   -0.0f,   1.0f, 0.0f,
+                  0.0f,   -0.0f,   0.0f, 1.0f }));
+
+    // Check bruces balls
+    randomize_xmtrx_();
+    shz::xmtrx::init_identity();
+    shz::xmtrx::apply_permutation_wxyz();
+    shz::xmtrx::apply_screen(640.0f, 480.0f);
+    
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+            { 0.0f,   -0.0f,   0.0f, 1.0f,
+              320.0f,  0.0f,   0.0f, 320.0f,
+              0.0f,   -240.0f, 0.0f, 240.0f,
+              0.0f,   -0.0f,   1.0f, 0.0f }));
+
+    // Check parity with init_screen
+    randomize_xmtrx_();
+    shz::xmtrx::init_screen(640.0f, 480.0f);
+    shz::mat4x4 init_screen_mat;
+    shz::xmtrx::store(&init_screen_mat);
+
+    GBL_TEST_VERIFY(applied_screen_mat == init_screen_mat);
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(read_write_registers,
                   read_write_rows,
                   read_write_cols,
@@ -781,4 +823,5 @@ GBL_TEST_REGISTER(read_write_registers,
                   load_apply_store_4x4,
                   load_apply_store_unaligned_4x4,
                   translate,
-                  apply_ortho)
+                  apply_ortho,
+                  apply_screen)
