@@ -2705,9 +2705,9 @@ SHZ_INLINE void shz_xmtrx_init_screen(float width, float height) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
         fldi0   fr1
-        fmov.s  @r5, fr13
+        fmov.s  @%[h], fr13
         fmul    fr1, fr2
-        fmov.s  @r4, fr0
+        fmov.s  @%[w], fr0
         fmul    fr1, fr3
         fldi1   fr15
         fmul    fr1, fr4
@@ -2725,7 +2725,9 @@ SHZ_INLINE void shz_xmtrx_init_screen(float width, float height) SHZ_NOEXCEPT {
     )"
     :
     : [w] "r" (&width), [h] "r" (&height),
-      "m" (width), "m" (height));
+      "m" (width), "m" (height)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
 // ****************************************************************
