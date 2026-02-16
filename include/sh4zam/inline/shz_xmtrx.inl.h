@@ -2698,6 +2698,16 @@ SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float near_
     : "fpul", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
+// ****************************************************************
+// shz_xmtrx_init_screen(float w, float h)
+// ****************************************************************
+//  fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
+// -----------+-----------+-----------+-----------
+//	w*0.5f    | 0.0f      | 0.0f      | w*0.5f
+// 	0.0f      | -h*0.5f   | 0.0f      | h*0.5f
+// 	0.0f      | 0.0f      | 1.0f      | 0.0f
+//  0.0f      | 0.0f      | 0.0f      | 1.0f
+// ****************************************************************
 SHZ_INLINE void shz_xmtrx_init_screen(float width, float height) SHZ_NOEXCEPT {
     width  *= 0.5f;
     height *= 0.5f;
