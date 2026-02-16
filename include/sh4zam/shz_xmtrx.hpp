@@ -305,7 +305,7 @@ struct xmtrx {
         shz_xmtrx_init_outer_product(a, b);
     }
 
-    //! C++ wrapper around shz_xmtx_init_screen().
+    //! C++ wrapper around shz_xmtrx_init_screen().
     SHZ_FORCE_INLINE static void init_screen(float width, float height) noexcept {
         shz_xmtrx_init_screen(width, height);
     }
@@ -450,6 +450,11 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_apply_symmetric_skew().
     SHZ_FORCE_INLINE static void apply_symmetric_skew(float x, float y, float z) noexcept {
         shz_xmtrx_apply_symmetric_skew(x, y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_screen().
+    SHZ_FORCE_INLINE static void apply_screen(float width, float height) noexcept {
+        shz_xmtrx_apply_screen(width, height);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_permutation_wxyz().
