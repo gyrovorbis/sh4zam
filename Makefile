@@ -40,12 +40,13 @@ flycast: tests
 
 # Installs the static library as a KOS addon.
 install: lib
-	$(MAKE) -C $(CMAKE_BUILD_DIR) install
+	ln -sf $(CURDIR)/$(CMAKE_BUILD_DIR)/libsh4zam.a $(KOS_PORTS)/lib/libsh4zam.a
+	ln -sf $(CURDIR)/include/sh4zam $(KOS_PORTS)/include/sh4zam
 
 # Uninstalls the static library from KOS addons.
 uninstall:
-	rm -rf ${KOS_BASE}/addons/include/dreamcast/sh4zam
-	rm -f ${KOS_BASE}/addons/lib/dreamcast/libsh4zam.a
+	rm -f $(KOS_PORTS)/lib/libsh4zam.a
+	rm -f $(KOS_PORTS)/include/sh4zam
 
 # Reinstalls the static library as a KOS addon.
 reinstall: uninstall install

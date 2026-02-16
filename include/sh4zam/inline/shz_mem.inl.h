@@ -6,6 +6,8 @@
  *  Implementation of inlined memory API routines.
  *
  *  \author    2025, 2026 Falco Girgis
+ *  \author    2020 MoopTheHedgehog
+ *
  *  \copyright MIT License
  */
 
@@ -98,30 +100,29 @@ SHZ_FORCE_INLINE void shz_memcpy64_store_(uint64_t* SHZ_RESTRICT* dst) SHZ_NOEXC
       "=m" ((*dst)[4]), "=m" ((*dst)[5]), "=m" ((*dst)[6]), "=m" ((*dst)[7]));
 }
 
+// Based on routine from GLdc from MoopTheHedgehog.
 SHZ_FORCE_INLINE void* shz_memcpy1(      void* SHZ_RESTRICT dst,
                                    const void* SHZ_RESTRICT src,
                                         size_t              bytes) SHZ_NOEXCEPT {
-    void *ret = dst;
-    uint32_t scratch;
-
     SHZ_PREFETCH(src);
 
-    if(bytes) {
-        asm(R"(
-        1:
-            mov.b   @%[src]+, %[tmp]
+    if(SHZ_LIKELY(bytes)) {
+       uint32_t scratch;
+       uint32_t diff = (uintptr_t)dst - (((uintptr_t)src) + 1);
+
+       asm(R"(
+        0:
             dt      %[cnt]
-            mov.b   %[tmp], @%[dst]
-            bf/s    1b;
-            add     #1, %[dst]
+            mov.b   @%[in]+, %[scr]
+            bf.s    0b
+            mov.b   %[scr], @(%[offset], %[in])
         )"
-        : [src] "+&r" (src), [dst] "+&r" (dst),
-          [cnt] "+&r" (bytes), [tmp] "=r" (scratch)
-        : "m" (*((uint8_t (*)[])src))
-        : "t", "memory");
+        : [in] "+&r" (src), [scr] "=&r" (scratch), [cnt] "+&r" (bytes), "=m" (*((uint8_t (*)[])dst))
+        : [offset] "z" (diff), "m" (*((const uint8_t (*)[])src))
+        : "t");
     }
 
-    return ret;
+    return dst;
 }
 
 SHZ_INLINE void* shz_memcpy2(void*       SHZ_RESTRICT dst,
@@ -348,6 +349,7 @@ SHZ_INLINE void* shz_memcpy128(      void* SHZ_RESTRICT dst,
     return dst;
 }
 
+SHZ_COLD
 SHZ_INLINE void* shz_memcpy(      void* SHZ_RESTRICT dst,
                             const void* SHZ_RESTRICT src,
                                 size_t               bytes) SHZ_NOEXCEPT {
@@ -355,37 +357,37 @@ SHZ_INLINE void* shz_memcpy(      void* SHZ_RESTRICT dst,
           uint8_t *d = (      uint8_t *)dst;
     size_t copied;
 
-    if(SHZ_UNLIKELY(!bytes))
-        return dst;
-    else if(SHZ_LIKELY(bytes < 64)) {
+    if(SHZ_LIKELY(bytes < 32))
         shz_memcpy1(d, s, bytes);
-    } else {
-        if((uintptr_t)d & 0x1f) {
-            copied = (((uintptr_t)d + 31) & ~0x1f) - (uintptr_t)d;
+    else {
+        if((uintptr_t)d & 31) {
+            copied = (((uintptr_t)d + 31) & ~31) - (uintptr_t)d;
             shz_memcpy1(d, s, copied);
             bytes -= copied;
             d     += copied;
             s     += copied;
         }
 
-        if(SHZ_LIKELY(bytes >= 32)) {
-            copied = 0;
-
-            if(!(((uintptr_t)s) & 0x7)) {
+        copied = 0;
+        if(!(((uintptr_t)s) & 0x7)) {
+            if(SHZ_LIKELY(bytes >= 32)) {
+                copied = bytes - (bytes & ~31);
+                shz_memcpy32(d, s, copied);
+            } else if(bytes >= 8) {
                 copied = bytes - (bytes & ~7);
                 shz_memcpy8(d, s, copied);
-            } else if(!(((uintptr_t)s) & 0x3)) {
-                copied = bytes - (bytes & ~3);
-                shz_memcpy4(d, s, copied);
-            } else if(!(((uintptr_t)s) & 0x1)) {
-                copied = bytes - (bytes & ~1);
-                shz_memcpy2(d, s, copied);
             }
-
-            bytes -= copied;
-            d     += copied;
-            s     += copied;
+        } else if(bytes >= 4 && !(((uintptr_t)s) & 3)) {
+            copied = bytes - (bytes & ~3);
+            shz_memcpy4(d, s, copied);
+        } else if(bytes >= 2 && !(((uintptr_t)s) & 1)) {
+            copied = bytes - (bytes & ~1);
+            shz_memcpy2(d, s, copied);
         }
+
+        bytes -= copied;
+        d     += copied;
+        s     += copied;
 
         shz_memcpy1(d, s, bytes);
     }
@@ -560,8 +562,8 @@ SHZ_INLINE void shz_memswap32_1(void* SHZ_RESTRICT p1,
         fmov.d  dr2, @-%[b]
         fmov.d  dr0, @-%[b]
     )"
-    : [a] "+r" (a), [b] "+r" (b), "+m" (*a), "+m" (*b)
-    :
+    : "+m" (*a), "+m" (*b)
+    : [a] "r" (a), [b] "r" (b)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 
@@ -599,7 +601,8 @@ SHZ_INLINE void shz_memswap32_1_xmtrx(void* SHZ_RESTRICT p1,
         fmov.d  xd2, @-%[b]
         fmov.d  xd0, @-%[b]
     )"
-    : [a] "+r" (a), [b] "+r" (b), "+m" (*a), "+m" (*b));
+    : "+m" (*a), "+m" (*b)
+    : [a] "r" (a), [b] "r" (b));
 
     SHZ_FSCHG();
 }
