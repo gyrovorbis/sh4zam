@@ -28,7 +28,7 @@ void shz_mat4x4_inverse_block_triangular(const shz_mat4x4_t* mtrx, shz_mat4x4_t*
     out->col[1] = shz_vec3_vec4(invM.col[1], 0.0f);
     out->col[2] = shz_vec3_vec4(invM.col[2], 0.0f);
 
-    out3xyz = shz_mat3x3_trans_vec3(&invM, mtrx->col[3].xyz);
+    out3xyz = shz_mat3x3_transform_vec3(&invM, mtrx->col[3].xyz);
     out3xyz = shz_vec3_scale(out3xyz, -inv_w);
 
     out->col[3] = shz_vec3_vec4(out3xyz, inv_w);

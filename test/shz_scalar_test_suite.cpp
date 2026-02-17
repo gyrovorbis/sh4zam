@@ -261,14 +261,13 @@ GBL_TEST_CASE(stepf)
     GBL_TEST_VERIFY(shz::stepf(INFINITY, 0.1f));
     GBL_TEST_VERIFY(shz::stepf(0.1f, INFINITY));
 #endif
-
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(smoothstepf)
     auto test = [&](float x, float edge0, float edge1, float expect) {
         volatile float res;
         benchmark(&res, shz::smoothstepf, x, edge0, edge1);
-        return gblFloatEquals(res, expect);
+        return shz_equalf(res, expect);
     };
 
     GBL_TEST_VERIFY(test(-1.0f, 0.0f, 1.0f, 0.0f)); // Below edge0
