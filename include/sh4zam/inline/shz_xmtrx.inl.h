@@ -2471,17 +2471,19 @@ SHZ_INLINE void shz_xmtrx_transpose(void) SHZ_NOEXCEPT {
     : "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_lookat(const float* position_3f,
-                                       const float* target_3f,
-                                       const float* up_3f) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_apply_lookat(shz_vec3_t eye,
+                                       shz_vec3_t center,
+                                       shz_vec3_t up) SHZ_NOEXCEPT {
     asm volatile(R"(
         fmov.s  @%[t]+, fr8
         fmov.s  @%[t]+, fr9
         fmov.s  @%[t]+, fr10
+        add     #-12, %[t]
 
         fmov.s  @%[p]+, fr12
         fmov.s  @%[p]+, fr13
         fmov.s  @%[p]+, fr14
+        add     #-12, %[p]
         fldi0   fr15
 
         /* z = position - target */
@@ -2497,6 +2499,7 @@ SHZ_INLINE void shz_xmtrx_apply_lookat(const float* position_3f,
         fmov.s  @%[u]+, fr4
         fmov.s  @%[u]+, fr5
         fmov.s  @%[u]+, fr6
+        add     #-12, %[u]
 
         fsrra   fr11
         fmul    fr11, fr8
@@ -2562,28 +2565,30 @@ SHZ_INLINE void shz_xmtrx_apply_lookat(const float* position_3f,
         fldi1   fr15
         ftrv    xmtrx, fv12
 
-        fmov    fr1, fr7
-        fmov    fr2, fr1
+        fmov    fr1, fr15
+        fmov    fr2, fr3
+        fmov    fr6, fr7
+
         fmov    fr4, fr1
         fmov    fr8, fr2
-        fldi0   fr3
-        ftrv    xmtrx, fv0
-
-        fmov    fr7, fr4
-        fmov    fr6, fr7
-        fmov    fr9, fr6
+        fmov    fr15, fr4
+        fmov    fr3, fr8
         fmov    fr7, fr9
-        fldi0   fr7
-        ftrv    xmtrx, fv4
 
-        fmov    fr11, fr8
+        fldi0   fr3
+        fldi0   fr7
+        ftrv    xmtrx, fv0
+        fmov    fr9, fr6
+        ftrv    xmtrx, fv4
         fldi0   fr11
+        fldi1   fr15
         ftrv    xmtrx, fv8
 
         frchg
     )"
-    : [p] "+&r"(position_3f), [t] "+&r"(target_3f), [u] "+&r"(up_3f)
     :
+    : [p] "r"(&eye), [t] "r"(&center), [u] "r"(&up),
+      "m" (eye), "m" (center), "m" (up)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }

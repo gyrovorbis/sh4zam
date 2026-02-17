@@ -264,7 +264,7 @@ SHZ_INLINE void shz_mat4x4_apply_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SH
 
 SHZ_INLINE void shz_mat4x4_apply_lookat(shz_mat4x4_t* m, shz_vec3_t pos, shz_vec3_t target, shz_vec3_t up) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(m);
-    shz_xmtrx_apply_lookat(&pos.x, &target.x, &up.x);
+    shz_xmtrx_apply_lookat(pos, target, up);
     shz_xmtrx_store_4x4(m);
 }
 

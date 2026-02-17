@@ -442,6 +442,11 @@ struct xmtrx {
         shz_xmtrx_apply_rotation_quat(quat);
     }
 
+    //! C++ wrapper around shz_xmtrx_apply_lookat().
+    SHZ_FORCE_INLINE static void apply_lookat(vec3 eye, vec3 center, vec3 up) noexcept {
+        shz_xmtrx_apply_lookat(eye, center, up);
+    }
+
     //! C++ wrapper around shz_xmtrx_apply_ortho().
     SHZ_FORCE_INLINE static void apply_ortho(float left, float right, float bottom, float top, float near, float far) noexcept {
         shz_xmtrx_apply_ortho(left, right, bottom, top, near, far);

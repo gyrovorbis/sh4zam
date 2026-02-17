@@ -5,7 +5,9 @@
 
 #include <gimbal/gimbal_algorithms.h>
 #include <print>
+#include <cglm/cglm.h>
 #include <cglm/clipspace/ortho_lh_no.h>
+#include <cglm/clipspace/view_rh.h>
 
 #define GBL_SELF_TYPE shz_xmtrx_test_suite
 
@@ -764,6 +766,33 @@ GBL_TEST_CASE(apply_screen)
     GBL_TEST_VERIFY(applied_screen_mat == init_screen_mat);
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(apply_lookat)
+    auto test = [](shz::vec3 eye, shz::vec3 center, shz::vec3 up) {
+        shz::mat4x4 shzMat, cglmMat;
+
+        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::apply_lookat(eye, center, up);
+        shz::xmtrx::store(&shzMat);
+
+        glm_lookat_rh(*(vec3*)&eye, *(vec3*)&center, *(vec3*)&up, *(mat4*)&cglmMat);
+
+        for(unsigned i = 0; i < 4; ++i) {
+            for(unsigned j = 0; j < 4; ++j) {
+                if(!shz_equalf(shzMat.elem2D[i][j], cglmMat.elem2D[i][j]))
+                    std::print("[{}][{}]: {} != {} ", j, i, shzMat.elem2D[i][j], cglmMat.elem2D[i][j]);
+            }
+        }
+
+        return shzMat == cglmMat;
+
+    };
+
+    GBL_TEST_VERIFY(test({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }));
+    GBL_TEST_VERIFY(test({ 0.0f, 0.0f, 5.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }));
+    GBL_TEST_VERIFY(test({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 2.0f, 0.0f }));
+    GBL_TEST_VERIFY(test({ 5.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(read_write_registers,
                   read_write_rows,
                   read_write_cols,
@@ -824,4 +853,5 @@ GBL_TEST_REGISTER(read_write_registers,
                   load_apply_store_unaligned_4x4,
                   translate,
                   apply_ortho,
-                  apply_screen)
+                  apply_screen,
+                  apply_lookat)
