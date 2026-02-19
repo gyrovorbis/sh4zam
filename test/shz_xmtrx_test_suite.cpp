@@ -25,7 +25,7 @@ static std::array<float, 16> transpose(std::array<float, 16> mat) {
     return transpose;
 }
 
-bool compare_glm(const shz::mat4x4& shzmat, const mat4& glmmat) {
+static bool compare_glm(const shz::mat4x4& shzmat, const mat4& glmmat) {
     for(int r = 0; r < 4; r++) {
         for(int c = 0; c < 4; c++) {
             if(!shz_equalf(shzmat.elem2D[r][c], glmmat[r][c])) {
