@@ -25,6 +25,17 @@ static std::array<float, 16> transpose(std::array<float, 16> mat) {
     return transpose;
 }
 
+bool compare_glm(const shz::mat4x4& shzmat, const mat4& glmmat) {
+    for(int r = 0; r < 4; r++) {
+        for(int c = 0; c < 4; c++) {
+            if(!shz_equalf(shzmat.elem2D[r][c], glmmat[r][c])) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 SHZ_NO_INLINE
 static void randomize_xmtrx_() {
     //for(unsigned reg = SHZ_XMTRX_XF0; reg < SHZ_XMTRX_XF15; ++reg)
@@ -587,19 +598,7 @@ GBL_TEST_CASE(apply_translation)
         glm_translate(m_glm, t1);
         glm_translate(m_glm, t2);
 
-        auto test_glm = [](const shz::mat4x4& shzmat, const mat4& glmmat) {
-            for(int r = 0; r < 4; r++) {
-                for(int c = 0; c < 4; c++) {
-                    if(!shz_equalf(shzmat.elem2D[r][c], glmmat[r][c])) {
-                        printf("(%d, %d): SHZ: [%f] -> GLM [%f]\n", r, c, shzmat.elem2D[r][c], glmmat[r][c]);
-                        return false;
-                    }
-                }
-            }
-            return true;
-        };
-
-        GBL_TEST_VERIFY(test_glm(res, m_glm));        
+        GBL_TEST_VERIFY(compare_glm(res, m_glm));        
     }
 
 GBL_TEST_CASE_END
@@ -693,18 +692,7 @@ GBL_TEST_CASE(apply_scale)
         glm_scale(m_glm, scale1);
         glm_scale(m_glm, scale2);
 
-        auto test_glm = [](const shz::mat4x4& shzmat, const mat4& glmmat) {
-            for(int r = 0; r < 4; r++) {
-                for(int c = 0; c < 4; c++) {
-                    if(!shz_equalf(shzmat.elem2D[r][c], glmmat[r][c])) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        };
-
-        GBL_TEST_VERIFY(test_glm(res, m_glm));
+        GBL_TEST_VERIFY(compare_glm(res, m_glm));
     }
 
 GBL_TEST_CASE_END
