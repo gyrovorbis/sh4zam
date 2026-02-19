@@ -25,6 +25,17 @@ static std::array<float, 16> transpose(std::array<float, 16> mat) {
     return transpose;
 }
 
+static bool compare_glm(const shz::mat4x4& shzmat, const mat4& glmmat) {
+    for(int r = 0; r < 4; r++) {
+        for(int c = 0; c < 4; c++) {
+            if(!shz_equalf(shzmat.elem2D[r][c], glmmat[r][c])) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 SHZ_NO_INLINE
 static void randomize_xmtrx_() {
     //for(unsigned reg = SHZ_XMTRX_XF0; reg < SHZ_XMTRX_XF15; ++reg)
@@ -527,9 +538,163 @@ GBL_TEST_CASE(apply_reverse_transpose_unaligned_4x4)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_translation)
+    // Apply against identity.
+    // Expectation: Only touches translation parts of the matrix
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::apply_translation(10.0f, -20.0f, 30.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    { 1.0f, 0.0f, 0.0f, 10.0f,
+                      0.0f, 1.0f, 0.0f, -20.0f,
+                      0.0f, 0.0f, 1.0f, 30.0f,
+                      0.0f, 0.0f, 0.0f, 1.0f }));
+
+    }
+
+    // Apply against pre-filled matrix
+    // Expectation: Only touches the translation parts of the matrix.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_fill(32.0f);
+        shz::xmtrx::apply_translation(20.0f, -100.0f, -60.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        32.0f, 32.0f, 32.0f, 52.0f,
+                        32.0f, 32.0f, 32.0f, -68.0f,
+                        32.0f, 32.0f, 32.0f, -28.0f,
+                        32.0f, 32.0f, 32.0f, 32.0f
+                    }));
+    }
+    // Test compositon of translations
+    // Expectation: Translations added together rather than overwritten.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity_safe();
+
+        shz::xmtrx::apply_translation(2.0f, 3.0f, -4.0f);
+        shz::xmtrx::apply_translation(5.0f, 6.0f,  7.0f);
+
+        shz::mat4x4 res;
+        shz::xmtrx::store(&res);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        1.0f, 0.0f, 0.0f, 7.0f,
+                        0.0f, 1.0f, 0.0f, 9.0f,
+                        0.0f, 0.0f, 1.0f, 3.0f,
+                        0.0f, 0.0f, 0.0f, 1.0f
+                    }));
+
+        // Test composition versus cglm
+        mat4 m_glm = GLM_MAT4_IDENTITY_INIT;
+        vec3 t1, t2;
+
+        glm_vec3_copy((vec3){2.0f, 3.0f, -4.0f}, t1);
+        glm_vec3_copy((vec3){5.0f, 6.0f, 7.0f}, t2);
+
+        glm_translate(m_glm, t1);
+        glm_translate(m_glm, t2);
+
+        GBL_TEST_VERIFY(compare_glm(res, m_glm));        
+    }
+
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_scale)
+    // Apply against identity.
+    // Expectation: Diagonal scale cells filled in the 3x3 part.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::apply_scale(10.0f, -20.0f, 30.0f);
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    { 10.0f, 0.0f, 0.0f, 0.0f,
+                        0.0f, -20.0f, 0.0f, 0.0f,
+                        0.0f, 0.0f, 30.0f, 0.0f,
+                        0.0f, 0.0f, 0.0f, 1.0f }));
+    }
+    // Apply against pre-filled matrix
+    // Expectation: Only touches the scale parts of the matrix.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_fill(32.0f);
+        shz::xmtrx::apply_scale(20.0f, -100.0f, -60.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        640.0f, -3200.0f, -1920.0f, 32.0f,
+                        640.0f, -3200.0f, -1920.0f, 32.0f,
+                        640.0f, -3200.0f, -1920.0f, 32.0f,
+                        32.0f, 32.0f, 32.0f, 32.0f
+                    }));
+    }
+    // Test scale by 0.0f
+    // Expectation: All scale cells of the 3x3 part of the matrix filled with 0.0f
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity_safe();
+
+        shz::xmtrx::apply_scale(0.0f, 0.0f, 0.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        0.0f, 0.0f, 0.0f, 0.0f,
+                        0.0f, 0.0f, 0.0f, 0.0f,
+                        0.0f, 0.0f, 0.0f, 0.0f,
+                        0.0f, 0.0f, 0.0f, 1.0f
+                    }));
+    }
+    // Test scaling by 1.0f
+    // Expectation: Values should remain at their initialized value.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_fill(5.0f);
+        shz::xmtrx::apply_scale(1.0f, 1.0f, 1.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        5.0f, 5.0f, 5.0f, 5.0f,
+                        5.0f, 5.0f, 5.0f, 5.0f,
+                        5.0f, 5.0f, 5.0f, 5.0f,
+                        5.0f, 5.0f, 5.0f, 5.0f
+                    }));
+    }
+    // Test composition of scales
+    // Expectation: Scale values should multiply NOT overwrite
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity_safe();
+
+        shz::xmtrx::apply_scale(2.0f, 3.0f, 4.0f);
+        shz::xmtrx::apply_scale(5.0f, 6.0f, 7.0f);
+
+        shz::mat4x4 res;
+        shz::xmtrx::store(&res);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        10.0f, 0.0f, 0.0f, 0.0f,
+                        0.0f, 18.0f, 0.0f, 0.0f,
+                        0.0f, 0.0f, 28.0f, 0.0f,
+                        0.0f, 0.0f, 0.0f, 1.0f
+                    }));
+
+        // Test composition versus cglm
+        mat4 m_glm = GLM_MAT4_IDENTITY_INIT;
+        vec3 scale1, scale2;
+
+        glm_vec3_copy((vec3){2.0f, 3.0f, 4.0f}, scale1);
+        glm_vec3_copy((vec3){5.0f, 6.0f, 7.0f}, scale2);
+
+        glm_scale(m_glm, scale1);
+        glm_scale(m_glm, scale2);
+
+        GBL_TEST_VERIFY(compare_glm(res, m_glm));
+    }
+
 GBL_TEST_CASE_END
 
 
