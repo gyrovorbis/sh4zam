@@ -57,7 +57,7 @@ void benchmark(auto res, const char* name, F &&function, Args&&... args) {
 
             [&] SHZ_NO_INLINE SHZ_COLD {
                     if constexpr(CacheFlush) {
-                        icache_flush_range(_executable_start, (_etext  -_executable_start));
+                        icache_flush_range((uintptr_t)&_executable_start, (size_t)((uintptr_t)&_etext - (uintptr_t)&_executable_start));
                         dcache_purge_all();
                     }
 
