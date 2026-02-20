@@ -9,7 +9,7 @@
 
 #include <gimbal/algorithms/gimbal_random.h>
 
-#define BENCHMARK_ITERATION_COUNT   100
+#define BENCHMARK_ITERATION_COUNT   10
 #define SHZ_MEMORY_BARRIER_HARD() __sync_synchronize()
 
 #define PMCR_PMENABLE   0x8000  /* Enable */
