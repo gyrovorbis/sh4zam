@@ -2634,6 +2634,51 @@ SHZ_INLINE void shz_xmtrx_apply_ortho(float left, float right, float bottom, flo
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
+SHZ_INLINE void shz_xmtrx_apply_frustum(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
+    const float values[6] = {
+        2.0f * near / (right - left),
+        2.0f * near / (top - bottom),
+        (right + left) / (right - left),
+        (top + bottom) / (top - bottom),
+        -(far + near) / (far - near),
+        -(2.0f * far * near) / (far - near)
+    };
+    const float *p = values;
+
+    asm volatile(R"(
+        fmov.s  @%0+, fr0
+        fldi0   fr1
+        fldi0   fr2
+        fldi0   fr3
+        ftrv    xmtrx, fv0
+
+        fldi0   fr4
+        fmov.s  @%0+, fr5
+        fldi0   fr6
+        fldi0   fr7
+        ftrv    xmtrx, fv4
+
+        fmov.s  @%0+, fr8
+        fmov.s  @%0+, fr9
+        fmov.s  @%0+, fr10
+        fldi1   fr11
+        fneg    fr11
+        ftrv    xmtrx, fv8
+
+        fldi0   fr12
+        fldi0   fr13
+        fmov.s  @%0+, fr14
+        fldi0   fr15
+        ftrv    xmtrx, fv12
+
+        frchg
+    )"
+    : "+&r" (p)
+    : "m" (*(const float (*)[6])values)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+}
+
 // ****************************************************************
 // void shz_xmtrx_apply_perspective(float f, float a, float nz)
 // ****************************************************************

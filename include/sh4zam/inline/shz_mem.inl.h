@@ -53,7 +53,7 @@ SHZ_FORCE_INLINE void shz_memcpy32_load_(const uint64_t* SHZ_RESTRICT* src) SHZ_
         fmov.d    @%[src]+, dr10
     )"
     : [src] "+r" (*src)
-    : "m" (src[0]), "m" (src[1]), "m" (src[2]), "m" (src[3])
+    : "m" ((*src)[0]), "m" ((*src)[1]), "m" ((*src)[2]), "m" ((*src)[3])
     : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
@@ -207,6 +207,7 @@ SHZ_INLINE void* shz_memcpy32(      void* SHZ_RESTRICT dst,
 
     size_t cnt = (bytes >> 5);
 
+    SHZ_PREFETCH(s);
     SHZ_FSCHG();
 
     if(SHZ_LIKELY(cnt >= 8)) {
@@ -239,30 +240,32 @@ SHZ_INLINE void* shz_sq_memcpy32(     void* SHZ_RESTRICT dst,
 
     bytes >>= 5;
 
-    SHZ_FSCHG();
+    if(bytes) {
+        SHZ_FSCHG();
 
-    asm volatile(R"(
-    1:
-        fmov.d @%[src]+, dr0
-        fmov.d @%[src]+, dr2
-        fmov.d @%[src]+, dr4
-        fmov.d @%[src]+, dr6
-        pref   @%[src]          ! Prefetch 32 bytes for next loop
-        dt     %[blks]          ! while(n--)
-        add    #32, %[dst]
-        fmov.d dr6, @-%[dst]
-        fmov.d dr4, @-%[dst]
-        fmov.d dr2, @-%[dst]
-        fmov.d dr0, @-%[dst]
-        pref   @%[dst]          ! Fire off store queue
-        bf.s   1b
-        add    #32, %[dst]
-    )"
-    : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" ((char (*)[])dst)
-    : "m" ((const char (*)[])src)
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "t");
+        asm volatile(R"(
+        1:
+            fmov.d @%[src]+, dr0
+            fmov.d @%[src]+, dr2
+            fmov.d @%[src]+, dr4
+            fmov.d @%[src]+, dr6
+            pref   @%[src]          ! Prefetch 32 bytes for next loop
+            dt     %[blks]          ! while(n--)
+            add    #32, %[dst]
+            fmov.d dr6, @-%[dst]
+            fmov.d dr4, @-%[dst]
+            fmov.d dr2, @-%[dst]
+            fmov.d dr0, @-%[dst]
+            pref   @%[dst]          ! Fire off store queue
+            bf.s   1b
+            add    #32, %[dst]
+        )"
+        : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" ((char (*)[])dst)
+        : "m" ((const char (*)[])src)
+        : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "t");
 
-    SHZ_FSCHG();
+        SHZ_FSCHG();
+    }
 
     return ret;
 }
@@ -276,30 +279,32 @@ SHZ_INLINE void* shz_sq_memcpy32_xmtrx(      void* SHZ_RESTRICT dst,
 
     bytes >>= 5;
 
-    SHZ_FSCHG();
+    if(bytes) {
+        SHZ_FSCHG();
 
-    asm volatile(R"(
-    1:
-        fmov.d @%[src]+, xd0
-        fmov.d @%[src]+, xd2
-        fmov.d @%[src]+, xd4
-        fmov.d @%[src]+, xd6
-        pref   @%[src]          ! Prefetch 32 bytes for next loop
-        add    #32, %[dst]
-        dt     %[blks]          ! while(n--)
-        fmov.d xd6, @-%[dst]
-        fmov.d xd4, @-%[dst]
-        fmov.d xd2, @-%[dst]
-        fmov.d xd0, @-%[dst]
-        pref   @%[dst]          ! Fire off store queue
-        bf.s   1b
-        add    #32, %[dst]
-    )"
-    : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" ((char (*)[])dst)
-    : "m" ((const char (*)[])src)
-    : "t");
+        asm volatile(R"(
+        1:
+            fmov.d @%[src]+, xd0
+            fmov.d @%[src]+, xd2
+            fmov.d @%[src]+, xd4
+            fmov.d @%[src]+, xd6
+            pref   @%[src]          ! Prefetch 32 bytes for next loop
+            add    #32, %[dst]
+            dt     %[blks]          ! while(n--)
+            fmov.d xd6, @-%[dst]
+            fmov.d xd4, @-%[dst]
+            fmov.d xd2, @-%[dst]
+            fmov.d xd0, @-%[dst]
+            pref   @%[dst]          ! Fire off store queue
+            bf.s   1b
+            add    #32, %[dst]
+        )"
+        : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" ((char (*)[])dst)
+        : "m" ((const char (*)[])src)
+        : "t");
 
-    SHZ_FSCHG();
+        SHZ_FSCHG();
+    }
 
     return ret;
 }
@@ -446,7 +451,7 @@ SHZ_INLINE void shz_memset2_16(void* dst, uint16_t value) SHZ_NOEXCEPT {
     assert(!((uintptr_t)dst & 0x1));
 
     asm(R"(
-        add     #32, %0
+        add     #32, %1
         mov.w   %2, @-%1
         mov.w   %2, @-%1
         mov.w   %2, @-%1
