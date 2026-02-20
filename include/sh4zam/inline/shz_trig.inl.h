@@ -265,7 +265,7 @@ SHZ_FORCE_INLINE float shz_acschf(float x) SHZ_NOEXCEPT {
         return __builtin_asinhf(1.0f / x);
 
     float inv_x = shz_invf(x);
-    return shz_logf(inv_x + shz_sqrtf_fsrra(inv_x * inv_x + 1.0));
+    return shz_logf(inv_x + shz_sqrtf_fsrra(inv_x * inv_x + 1.0f));
 }
 
 SHZ_FORCE_INLINE float shz_asechf(float x) SHZ_NOEXCEPT {

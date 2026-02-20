@@ -71,8 +71,8 @@ SHZ_FORCE_INLINE void shz_memcpy64_load_(const uint64_t* SHZ_RESTRICT* src) SHZ_
     : [src] "+r" (*src)
     : "m" ((*src)[0]), "m" ((*src)[1]), "m" ((*src)[2]), "m" ((*src)[3]),
       "m" ((*src)[4]), "m" ((*src)[5]), "m" ((*src)[6]), "m" ((*src)[7])
-    : "fr0", "f1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
-      "fr8", "fr9", "fr10" "fr11", "fr12", "fr13", "fr14", "fr15");
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
 SHZ_FORCE_INLINE void shz_memcpy64_store_(uint64_t* SHZ_RESTRICT* dst) SHZ_NOEXCEPT {
@@ -152,7 +152,7 @@ SHZ_INLINE void* shz_memcpy2(void*       SHZ_RESTRICT dst,
             d += 8;
             s += 8;
         } while(SHZ_LIKELY(--blocks));
-        bytes &= 0xf;
+        bytes &= 0x7;
     }
 
     while(SHZ_LIKELY(bytes--))
@@ -188,7 +188,7 @@ SHZ_INLINE void* shz_memcpy4(void*       SHZ_RESTRICT dst,
             d += 8;
             s += 8;
         } while(SHZ_LIKELY(--blocks));
-        bytes &= 0x1f;
+        bytes &= 0x7;
     }
 
     while(SHZ_LIKELY(bytes--))
@@ -254,13 +254,13 @@ SHZ_INLINE void* shz_sq_memcpy32(     void* SHZ_RESTRICT dst,
         fmov.d dr4, @-%[dst]
         fmov.d dr2, @-%[dst]
         fmov.d dr0, @-%[dst]
-        add    #64, %[dst]
-        bf.s   1b
         pref   @%[dst]          ! Fire off store queue
+        bf.s   1b
+        add    #32, %[dst]
     )"
     : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" ((char (*)[])dst)
     : "m" ((const char (*)[])src)
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7");
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "t");
 
     SHZ_FSCHG();
 
@@ -285,18 +285,19 @@ SHZ_INLINE void* shz_sq_memcpy32_xmtrx(      void* SHZ_RESTRICT dst,
         fmov.d @%[src]+, xd4
         fmov.d @%[src]+, xd6
         pref   @%[src]          ! Prefetch 32 bytes for next loop
-        dt     %[blks]          ! while(n--)
         add    #32, %[dst]
+        dt     %[blks]          ! while(n--)
         fmov.d xd6, @-%[dst]
         fmov.d xd4, @-%[dst]
         fmov.d xd2, @-%[dst]
         fmov.d xd0, @-%[dst]
-        add    #64, %[dst]
-        bf.s   1b
         pref   @%[dst]          ! Fire off store queue
+        bf.s   1b
+        add    #32, %[dst]
     )"
     : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" ((char (*)[])dst)
-    : "m" ((const char (*)[])src));
+    : "m" ((const char (*)[])src)
+    : "t");
 
     SHZ_FSCHG();
 
@@ -372,17 +373,17 @@ SHZ_INLINE void* shz_memcpy(      void* SHZ_RESTRICT dst,
         copied = 0;
         if(!(((uintptr_t)s) & 0x7)) {
             if(SHZ_LIKELY(bytes >= 32)) {
-                copied = bytes - (bytes & ~31);
+                copied = bytes & ~31;
                 shz_memcpy32(d, s, copied);
             } else if(bytes >= 8) {
-                copied = bytes - (bytes & ~7);
+                copied = bytes & ~7;
                 shz_memcpy8(d, s, copied);
             }
         } else if(bytes >= 4 && !(((uintptr_t)s) & 3)) {
-            copied = bytes - (bytes & ~3);
+            copied = bytes & ~3;
             shz_memcpy4(d, s, copied);
         } else if(bytes >= 2 && !(((uintptr_t)s) & 1)) {
-            copied = bytes - (bytes & ~1);
+            copied = bytes & ~1;
             shz_memcpy2(d, s, copied);
         }
 
@@ -445,7 +446,7 @@ SHZ_INLINE void shz_memset2_16(void* dst, uint16_t value) SHZ_NOEXCEPT {
     assert(!((uintptr_t)dst & 0x1));
 
     asm(R"(
-        add     #32 %0
+        add     #32, %0
         mov.w   %2, @-%1
         mov.w   %2, @-%1
         mov.w   %2, @-%1
@@ -537,7 +538,7 @@ SHZ_INLINE void shz_memswap32_1(void* SHZ_RESTRICT p1,
     shz_alias_uint32_t (*a)[8] = (shz_alias_uint32_t (*)[8])p1;
     shz_alias_uint32_t (*b)[8] = (shz_alias_uint32_t (*)[8])p2;
 
-    assert(!((uintptr_t)p1 & 7) && ((uintptr_t)p2 & 7));
+    assert(!((uintptr_t)p1 & 7) && !((uintptr_t)p2 & 7));
 
     SHZ_PREFETCH(b);
     SHZ_FSCHG();
@@ -576,7 +577,7 @@ SHZ_INLINE void shz_memswap32_1_xmtrx(void* SHZ_RESTRICT p1,
     shz_alias_uint32_t (*a)[8] = (shz_alias_uint32_t (*)[8])p1;
     shz_alias_uint32_t (*b)[8] = (shz_alias_uint32_t (*)[8])p2;
 
-    assert(!((uintptr_t)p1 & 7) && ((uintptr_t)p2 & 7));
+    assert(!((uintptr_t)p1 & 7) && !((uintptr_t)p2 & 7));
 
     SHZ_PREFETCH(b);
     SHZ_FSCHG();

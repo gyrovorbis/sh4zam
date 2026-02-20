@@ -6,7 +6,7 @@
 #include <gimbal/gimbal_algorithms.h>
 #include <print>
 #include <cglm/cglm.h>
-#include <cglm/clipspace/ortho_lh_no.h>
+#include <cglm/clipspace/ortho_rh_no.h>
 #include <cglm/clipspace/view_rh.h>
 
 #define GBL_SELF_TYPE shz_xmtrx_test_suite
@@ -885,7 +885,7 @@ GBL_TEST_CASE(apply_ortho)
         alignas(8) mat4 cmat;
         shz::mat4x4 shzcmat;
     } cunion;
-    glm_ortho_lh_no(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f, cunion.cmat);
+    glm_ortho_rh_no(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f, cunion.cmat);
     shz::mat4x4 shzmat;
     shz::xmtrx::store(&shzmat);
 #if 0
