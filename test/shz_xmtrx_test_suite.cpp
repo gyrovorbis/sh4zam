@@ -168,7 +168,6 @@ GBL_TEST_CASE(swap_cols)
     GBL_TEST_VERIFY(cols[3] == shz::xmtrx::read_col(0));
 GBL_TEST_CASE_END
 
-
 GBL_TEST_CASE(load_4x4)
     randomize_xmtrx_();
     shz_mat4x4_t mat4 = {
@@ -694,7 +693,6 @@ GBL_TEST_CASE(apply_scale)
 
         GBL_TEST_VERIFY(compare_glm(res, m_glm));
     }
-
 GBL_TEST_CASE_END
 
 
@@ -958,6 +956,94 @@ GBL_TEST_CASE(apply_lookat)
     GBL_TEST_VERIFY(test({ 5.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(load_3x4)
+    randomize_xmtrx_();
+    shz_mat3x4_t mat = {
+        .left    = { -1.0f,   2.0f,  3.0f },
+        .up      = {  4.0f,  -5.0f,  6.0f },
+        .forward = {  7.0f,   8.0f,  9.0f },
+        .pos     = { 11.0f, -12.0f, 13.0f }
+    };
+    shz::xmtrx::load(mat);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                  transpose({
+                    -1.0f,   2.0f,  3.0f, 0.0f,
+                     4.0f,  -5.0f,  6.0f, 0.0f,
+                     7.0f,   8.0f,  9.0f, 0.0f,
+                    11.0f, -12.0f, 13.0f, 1.0f })));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(store_3x4)
+    randomize_xmtrx_();
+    shz_mat3x4_t mat;
+    shz::mat4x4 mat4;
+    shz::xmtrx::store(&mat);
+    shz::xmtrx::load(mat);
+    shz::xmtrx::store(&mat4);
+    std::array<float, 16> array = std::to_array(mat4.elem);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_3x4)
+    randomize_xmtrx_();
+    shz::xmtrx::init_identity();
+    shz_mat3x4_t mat = {
+        .left    = { -1.0f,   2.0f,  3.0f },
+        .up      = {  4.0f,  -5.0f,  6.0f },
+        .forward = {  7.0f,   8.0f,  9.0f },
+        .pos     = { 11.0f, -12.0f, 13.0f }
+    };
+    shz::xmtrx::apply(mat);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                  transpose({
+                    -1.0f,   2.0f,  3.0f, 0.0f,
+                     4.0f,  -5.0f,  6.0f, 0.0f,
+                     7.0f,   8.0f,  9.0f, 0.0f,
+                    11.0f, -12.0f, 13.0f, 1.0f })));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_apply_store_3x4)
+   shz_mat3x4_t shzRes, q2Res;
+   shz_mat3x4_t mat1 = {
+        .left    = { -13.0f,   2.0f,  3.0f },
+        .up      = {  4.0f,  -5.0f,  6.0f },
+        .forward = {  7.0f,   8.0f,  9.0f },
+        .pos     = { 11.0f, -12.0f, 13.0f }
+   };
+   shz_mat3x4_t mat2 = {
+        .left    = { 11.0f,    2.5f, -3.333f },
+        .up      = { -46.0f,  -5.0f,  0.777f },
+        .forward = { -75.0f, 0.008f, -99.44f },
+        .pos     = { 11.0f,   12.0f, 13.888f }
+   };
+
+   (benchmark)(nullptr, "shz::xmtrx::load_apply_store_3x4", [&] { shz::xmtrx::load_apply_store(&shzRes, mat1, mat2); });
+   (benchmark)(nullptr, "R_ConcatTransforms", [&] {
+        q2Res.elem2D[0][0] = mat1.elem2D[0][0] * mat2.elem2D[0][0] + mat1.elem2D[1][0] * mat2.elem2D[0][1] + mat1.elem2D[2][0] * mat2.elem2D[0][2];
+        q2Res.elem2D[1][0] = mat1.elem2D[0][0] * mat2.elem2D[1][0] + mat1.elem2D[1][0] * mat2.elem2D[1][1] + mat1.elem2D[2][0] * mat2.elem2D[1][2];
+        q2Res.elem2D[2][0] = mat1.elem2D[0][0] * mat2.elem2D[2][0] + mat1.elem2D[1][0] * mat2.elem2D[2][1] + mat1.elem2D[2][0] * mat2.elem2D[2][2];
+        q2Res.elem2D[3][0] = mat1.elem2D[0][0] * mat2.elem2D[3][0] + mat1.elem2D[1][0] * mat2.elem2D[3][1] + mat1.elem2D[2][0] * mat2.elem2D[3][2] + mat1.elem2D[3][0];
+        q2Res.elem2D[0][1] = mat1.elem2D[0][1] * mat2.elem2D[0][0] + mat1.elem2D[1][1] * mat2.elem2D[0][1] + mat1.elem2D[2][1] * mat2.elem2D[0][2];
+        q2Res.elem2D[1][1] = mat1.elem2D[0][1] * mat2.elem2D[1][0] + mat1.elem2D[1][1] * mat2.elem2D[1][1] + mat1.elem2D[2][1] * mat2.elem2D[1][2];
+        q2Res.elem2D[2][1] = mat1.elem2D[0][1] * mat2.elem2D[2][0] + mat1.elem2D[1][1] * mat2.elem2D[2][1] + mat1.elem2D[2][1] * mat2.elem2D[2][2];
+        q2Res.elem2D[3][1] = mat1.elem2D[0][1] * mat2.elem2D[3][0] + mat1.elem2D[1][1] * mat2.elem2D[3][1] + mat1.elem2D[2][1] * mat2.elem2D[3][2] + mat1.elem2D[3][1];
+        q2Res.elem2D[0][2] = mat1.elem2D[0][2] * mat2.elem2D[0][0] + mat1.elem2D[1][2] * mat2.elem2D[0][1] + mat1.elem2D[2][2] * mat2.elem2D[0][2];
+        q2Res.elem2D[1][2] = mat1.elem2D[0][2] * mat2.elem2D[1][0] + mat1.elem2D[1][2] * mat2.elem2D[1][1] + mat1.elem2D[2][2] * mat2.elem2D[1][2];
+        q2Res.elem2D[2][2] = mat1.elem2D[0][2] * mat2.elem2D[2][0] + mat1.elem2D[1][2] * mat2.elem2D[2][1] + mat1.elem2D[2][2] * mat2.elem2D[2][2];
+        q2Res.elem2D[3][2] = mat1.elem2D[0][2] * mat2.elem2D[3][0] + mat1.elem2D[1][2] * mat2.elem2D[3][1] + mat1.elem2D[2][2] * mat2.elem2D[3][2] + mat1.elem2D[3][2];
+    });
+
+#if 0
+   for(unsigned i = 0; i < 4; ++i)
+       for(unsigned j = 0; j < 3; ++j)
+            std::println("[{}][{}]: {} vs {}", i, j, shzRes.elem2D[i][j], q2Res.elem2D[i][j]);
+#endif
+
+    for(unsigned i = 0; i < 4; ++i)
+       for(unsigned j = 0; j < 3; ++j)
+            GBL_TEST_VERIFY(shz_equalf(shzRes.elem2D[i][j], q2Res.elem2D[i][j]));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(read_write_registers,
                   read_write_rows,
                   read_write_cols,
@@ -1019,4 +1105,8 @@ GBL_TEST_REGISTER(read_write_registers,
                   translate,
                   apply_ortho,
                   apply_screen,
-                  apply_lookat)
+                  apply_lookat,
+                  load_3x4,
+                  store_3x4,
+                  apply_3x4,
+                  load_apply_store_3x4)

@@ -756,36 +756,40 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
     shz_xmtrx_store_unaligned_4x4(out);
 }
 
-SHZ_INLINE void shz_xmtrx_load_4x3(const shz_mat4x3_t* matrix) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_load_3x4(const shz_mat3x4_t* mat) SHZ_NOEXCEPT {
+    uintptr_t pref_buff = ((uintptr_t)mat + 32);
+
     asm volatile(R"(
         frchg
 
-        fmov.s  @%[mat]+, fr0
-        fmov.s  @%[mat]+, fr1
-        fmov.s  @%[mat]+, fr2
-        fldi0   fr3
+        fmov.s    @%[mat]+, fr0
+        pref      @%[pref_buff]
+        fmov.s    @%[mat]+, fr1
+        fmov.s    @%[mat]+, fr2
+        fldi0     fr3
 
-        fmov.s  @%[mat]+, fr4
-        fmov.s  @%[mat]+, fr5
-        fmov.s  @%[mat]+, fr6
-        fldi0   fr7
+        fmov.s    @%[mat]+, fr4
+        fmov.s    @%[mat]+, fr5
+        fmov.s    @%[mat]+, fr6
+        fldi0     fr7
 
-        fmov.s  @%[mat]+, fr8
-        fmov.s  @%[mat]+, fr9
-        fmov.s  @%[mat]+, fr10
-        fldi0   fr11
+        fmov.s    @%[mat]+, fr8
+        fmov.s    @%[mat]+, fr9
+        fmov.s    @%[mat]+, fr10
+        fldi0     fr11
 
-        fmov.s  @%[mat]+, fr12
-        fmov.s  @%[mat]+, fr13
-        fmov.s  @%[mat], fr14
-        fldi1   fr15
+        fmov.s    @%[mat]+, fr12
+        fmov.s    @%[mat]+, fr13
+        fmov.s    @%[mat]+, fr14
+        fldi1     fr15
 
         frchg
     )"
-    : [mat] "+r" (matrix));
+    : [mat] "+&r" (mat)
+    : "m" (*mat), [pref_buff] "r" (pref_buff));
 }
 
-SHZ_INLINE void shz_xmtrx_load_cols_3x4(const shz_vec4_t* c1,
+SHZ_INLINE void shz_xmtrx_load_cols_4x3(const shz_vec4_t* c1,
                                         const shz_vec4_t* c2,
                                         const shz_vec4_t* c3) SHZ_NOEXCEPT {
     asm volatile(R"(
@@ -1031,30 +1035,34 @@ SHZ_FORCE_INLINE void shz_xmtrx_store_transpose_unaligned_4x4(float matrix[16]) 
     shz_xmtrx_store_transpose_4x4((shz_mat4x4_t*)matrix);
 }
 
-SHZ_INLINE void shz_xmtrx_store_3x4(shz_mat3x4_t* matrix) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_store_3x4(shz_mat3x4_t* mat) SHZ_NOEXCEPT {
+    uintptr_t pref_scratch = (uintptr_t)mat;
+
     asm volatile(R"(
+        add	#48, %[mat]
         frchg
-        add     #48, %[mtx]
 
-        fmov.s  fr14, @-%[mtx]
-        fmov.s  fr13, @-%[mtx]
-        fmov.s  fr12, @-%[mtx]
+        fmov.s  fr14, @-%[mat]
+        pref    @%[pref_scr]
+        fmov.s  fr13, @-%[mat]
+        fmov.s  fr12, @-%[mat]
 
-        fmov.s  fr10, @-%[mtx]
-        fmov.s  fr9, @-%[mtx]
-        fmov.s  fr8, @-%[mtx]
+        fmov.s  fr10, @-%[mat]
+        fmov.s  fr9,  @-%[mat]
+        fmov.s  fr8,  @-%[mat]
 
-        fmov.s  fr6, @-%[mtx]
-        fmov.s  fr5, @-%[mtx]
-        fmov.s  fr4, @-%[mtx]
+        fmov.s  fr6,  @-%[mat]
+        fmov.s  fr5,  @-%[mat]
+        fmov.s  fr4,  @-%[mat]
 
-        fmov.s  fr2, @-%[mtx]
-        fmov.s  fr1, @-%[mtx]
-        fmov.s  fr0, @%[mtx]
+        fmov.s  fr2,  @-%[mat]
+        fmov.s  fr1,  @-%[mat]
+        fmov.s  fr0,  @-%[mat]
 
         frchg
     )"
-    : [mtx] "+&r" (matrix), "=m" (*matrix));
+    : "=m" (*mat), [pref_scr] "+&r" (pref_scratch)
+    : [mat] "r" (mat));
 }
 
 SHZ_INLINE void shz_xmtrx_store_3x3(shz_mat3x3_t* matrix) SHZ_NOEXCEPT {
@@ -1905,44 +1913,39 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_transpose_unaligned_4x4(const floa
     shz_xmtrx_apply_reverse_transpose_4x4((const shz_mat4x4_t*)matrix);
 }
 
-SHZ_INLINE void shz_xmtrx_apply_3x4(const shz_mat3x4_t* matrix) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_apply_3x4(const shz_mat3x4_t* mat) SHZ_NOEXCEPT {
+    uintptr_t pref_buff = ((uintptr_t)mat + 32);
+
     asm volatile(R"(
-        pref    @%[mtx]
-        fldi0   fr3
-        fldi0   fr7
-        fldi0   fr11
-        fldi1   fr15
+        fmov.s    @%[mat]+, fr0
+        pref      @%[pref_buff]
+        fmov.s    @%[mat]+, fr1
+        fmov.s    @%[mat]+, fr2
+        fldi0     fr3
+        fmov.s    @%[mat]+, fr4
+        fmov.s    @%[mat]+, fr5
+        ftrv      xmtrx, fv0
 
-        fmov.s  @%[mtx], fr0
-        add     #32, %[mtx]
-        pref    @%[mtx]
-        add     #-(32-4), %[mtx]
-        fmov.s  @%[mtx]+, fr1
-        fmov.s  @%[mtx]+, fr2
+        fmov.s    @%[mat]+, fr6
+        fldi0     fr7
+        fmov.s    @%[mat]+, fr8
+        fmov.s    @%[mat]+, fr9
+        ftrv      xmtrx, fv4
 
-        fmov.s  @%[mtx]+, fr4
-        fmov.s  @%[mtx]+, fr5
-        fmov.s  @%[mtx]+, fr6
+        fmov.s    @%[mat]+, fr10
+        fldi0     fr11
+        fmov.s    @%[mat]+, fr12
+        fmov.s    @%[mat]+, fr13
+        fmov.s    @%[mat]+, fr14
+        fldi1     fr15
 
-        ftrv    xmtrx, fv0
-
-        fmov.s  @%[mtx]+, fr8
-        fmov.s  @%[mtx]+, fr9
-        fmov.s  @%[mtx]+, fr10
-
-        ftrv    xmtrx, fv4
-
-        fmov.s  @%[mtx]+, fr12
-        fmov.s  @%[mtx]+, fr13
-        fmov.s  @%[mtx], fr14
-
-        ftrv    xmtrx, fv8
-        ftrv    xmtrx, fv12
+        ftrv      xmtrx, fv8
+        ftrv      xmtrx, fv12
 
         frchg
     )"
-    : [mtx] "+r" (matrix)
-    :
+    : [mat] "+&r" (mat)
+    : "m" (*mat), [pref_buff] "r" (pref_buff)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }

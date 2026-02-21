@@ -9,7 +9,7 @@
 
 #include <gimbal/algorithms/gimbal_random.h>
 
-#define BENCHMARK_ITERATION_COUNT   10
+#define BENCHMARK_ITERATION_COUNT   5
 #define SHZ_MEMORY_BARRIER_HARD() __sync_synchronize()
 
 #define PMCR_PMENABLE   0x8000  /* Enable */
@@ -41,11 +41,11 @@ SHZ_FORCE_INLINE uint64_t PERF_CNTR_STOP() {
 }
 
 template<typename F, typename... Args>
-SHZ_NO_INLINE
+SHZ_NO_INLINE SHZ_COLD
 void benchmark(auto res, const char* name, F &&function, Args&&... args) {
     perf_cntr_timer_enable();
 
-    auto inner = [&]<bool CacheFlush>() {
+    auto inner = [&]<bool CacheFlush>() SHZ_COLD {
         uint64_t sum = 0;
         uint64_t tmu_sum = 0;
 

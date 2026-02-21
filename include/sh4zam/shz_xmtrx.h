@@ -144,8 +144,8 @@ SHZ_INLINE void shz_xmtrx_load_transpose_4x4(const shz_mat4x4_t* matrix) SHZ_NOE
 //! Loads XMTRX with the transpose of the 4x4 matrix created from the given unaligned array of 16 floats.
 SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT;
 
-//! Loads the given 4x3 matrix into XMTRX, initializing its remaining elements to identity.
-SHZ_INLINE void shz_xmtrx_load_4x3(const shz_mat4x3_t* matrix) SHZ_NOEXCEPT;
+//! Loads the given 3x4 matrix into XMTRX, initializing its remaining elements to identity.
+SHZ_INLINE void shz_xmtrx_load_3x4(const shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
 
 /*! Loads the 3x4 matrix formed from the given 3 4D column vectors into XMTRX.
 
@@ -153,7 +153,7 @@ SHZ_INLINE void shz_xmtrx_load_4x3(const shz_mat4x3_t* matrix) SHZ_NOEXCEPT;
 
     \sa shz_xmtrx_load_rows_3x4()
 */
-SHZ_INLINE void shz_xmtrx_load_cols_3x4(const shz_vec4_t* c1,
+SHZ_INLINE void shz_xmtrx_load_cols_4x3(const shz_vec4_t* c1,
                                         const shz_vec4_t* c2,
                                         const shz_vec4_t* c3) SHZ_NOEXCEPT;
 
@@ -542,15 +542,15 @@ SHZ_INLINE void shz_xmtrx_load_apply_4x4(const shz_mat4x4_t* matrix1,
 SHZ_INLINE void shz_xmtrx_load_apply_unaligned_4x4(const float matrix1[16],
                                                    const float matrix2[16]) SHZ_NOEXCEPT;
 
-/*! Loads XMTRX with the result of applying \p matrix2 onto \p matrix1, storing the result.
+/*! Loads XMTRX with the 4x4 result of applying \p matrix2 onto \p matrix1, storing the result.
 
     This operation is equivalent to:
         shz_xmtrx_load_4x4(matrix1);
         shz_xmtrx_apply_4x4(matrix2);
         shz_xmtrx_store_4x4(out);
 
-    However, it has been optimized and pipelined for performing the loads,
-    multiplies, and stores in parallel.
+    However, it has been optimized and pipelined for performing the loads, multiplies, and
+    stores in parallel.
 
     \sa shz_xmtrx_load_apply(), shz_xmtrx_load_apply_store_unaligned_4x4()
 */
@@ -569,6 +569,25 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
 SHZ_INLINE void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
                                                          const float matrix1[16],
                                                          const float matrix2[16]) SHZ_NOEXCEPT;
+
+/*! Loads XMTRX with the 3x4 result of applying \p matrix2 onto \p matrix1, storing the result.
+
+    This operation is equivalent to:
+        shz_xmtrx_load_3x4(matrix1);
+        shz_xmtrx_apply_3x4(matrix2);
+        shz_xmtrx_store_3x4(out);
+
+    However, it has been optimized and pipelined for performing the loads, multiplies,
+    and stores in parallel.
+
+    \note
+    The resulting matrix does not get stored within XMTRX, despite it getting clobbered.
+
+    \sa shz_xmtrx_load_apply(), shz_xmtrx_load_apply_store_unaligned_4x4()
+*/
+void shz_xmtrx_load_apply_store_3x4(shz_mat3x4_t* out,
+                                    const shz_mat3x4_t* matrix1,
+                                    const shz_mat3x4_t* matrix2) SHZ_NOEXCEPT;
 
 //! @}
 

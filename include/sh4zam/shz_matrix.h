@@ -781,10 +781,10 @@ typedef struct shz_mat3x3 {
     };
 } shz_mat3x3_t;
 
-typedef struct shz_mat4x3 {
+typedef struct shz_mat3x4 {
     union {
         float      elem[12];
-        float      elem2D[3][4];
+        float      elem2D[4][3];
         shz_vec3_t col[4];
         struct {
             shz_vec3_t left;
@@ -793,12 +793,12 @@ typedef struct shz_mat4x3 {
             shz_vec3_t pos;
         };
     };
-} shz_mat4x3_t;
+} shz_mat3x4_t;
 
-typedef struct shz_mat3x4 {
+typedef struct shz_mat4x3 {
     union {
         float      elem[12];
-        float      elem2D[4][3];
+        float      elem2D[3][4];
         shz_vec4_t col[3];
         struct {
             shz_vec4_t left;
@@ -806,7 +806,7 @@ typedef struct shz_mat3x4 {
             shz_vec4_t forward;
         };
     };
-} shz_mat3x4_t;
+} shz_mat4x3_t;
 
 /*!
     Stores the transpose of 3x3 matrix \p mat within \p out.

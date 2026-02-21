@@ -161,6 +161,11 @@ struct xmtrx {
         shz_xmtrx_load_rows_4x4(&r1, &r2, &r3, &r4);
     }
 
+    //! C++ wrapper around shz_xmtrx_load_3x4().
+    SHZ_FORCE_INLINE static void load(const shz_mat3x4_t& mat) noexcept {
+        shz_xmtrx_load_3x4(&mat);
+    }
+
 //! @}
 
 /*! \name  Storing
@@ -196,6 +201,11 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_store_transpose_unaligned_4x4().
     SHZ_FORCE_INLINE static void store_transpose(std::array<float, 16>* array) noexcept {
         store_transpose(array->data());
+    }
+
+    //! C++ wrapper around shz_xmtrx_store_3x4().
+    SHZ_FORCE_INLINE static void store(shz_mat3x4_t* mat) noexcept {
+        shz_xmtrx_store_3x4(mat);
     }
 
 //! @}
@@ -387,6 +397,11 @@ struct xmtrx {
         shz_xmtrx_apply_reverse_transpose_unaligned_4x4(array.data());
     }
 
+    //! C++ wrapper around shz_xmtrx_apply_3x4().
+    SHZ_FORCE_INLINE static void apply(const shz_mat3x4_t& mat) noexcept {
+        shz_xmtrx_apply_3x4(&mat);
+    }
+
     //! C++ wrapper around shz_xmtrx_apply_translation().
     SHZ_FORCE_INLINE static void apply_translation(float x, float y, float z) noexcept {
         shz_xmtrx_apply_translation(x, y, z);
@@ -542,7 +557,7 @@ struct xmtrx {
 */
 
     //! C++ wrapper around shz_xmtrx_load_apply_4x4().
-    SHZ_FORCE_INLINE static void load_apply(const shz_mat4x4_t &mat1, const shz_mat4x4_t &mat2) noexcept {
+    SHZ_FORCE_INLINE static void load_apply(const shz_mat4x4_t& mat1, const shz_mat4x4_t& mat2) noexcept {
         shz_xmtrx_load_apply_4x4(&mat1, &mat2);
     }
 
@@ -552,13 +567,18 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_load_apply_store_4x4().
-    SHZ_FORCE_INLINE static void load_apply_store(shz_mat4x4_t* dst, const shz_mat4x4_t &mat1, const shz_mat4x4_t &mat2) noexcept {
+    SHZ_FORCE_INLINE static void load_apply_store(shz_mat4x4_t* dst, const shz_mat4x4_t& mat1, const shz_mat4x4_t& mat2) noexcept {
         shz_xmtrx_load_apply_store_4x4(dst, &mat1, &mat2);
     }
 
     //! C++ wrapper around shz_xmtrx_load_apply_store_unaligned_4x4().
     SHZ_FORCE_INLINE static void load_apply_store(float out[16], const float matrix1[16], const float matrix2[16]) noexcept {
         shz_xmtrx_load_apply_store_unaligned_4x4(out, matrix1, matrix2);
+    }
+
+    //! C++ wrapper around shz_xmtrx_load_apply_store_3x4().
+    SHZ_FORCE_INLINE static void load_apply_store(shz_mat3x4_t* dst, const shz_mat3x4_t& mat1, const shz_mat3x4_t& mat2) noexcept {
+        shz_xmtrx_load_apply_store_3x4(dst, &mat1, &mat2);
     }
 
 //! @}
