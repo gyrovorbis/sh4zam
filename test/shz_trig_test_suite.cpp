@@ -42,12 +42,12 @@ GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
 GBL_TEST_CASE(sincos_from_degrees)
-    auto test = [&](float radians) GBL_FP_PRECISE {
-        float degrees = shz::rad_to_deg(radians);
-        auto  sincos  = shz::sincos::from_degrees(degrees);
+    auto test = [&](volatile float radians) GBL_FP_PRECISE {
+        volatile float degrees = shz::rad_to_deg(radians);
+        auto sincos = shz::sincos::from_degrees(degrees);
 
         GBL_CTX_BEGIN(pCtx);
-        GBL_TEST_CALL([&] GBL_NO_INLINE {
+        GBL_TEST_CALL([&] {
             GBL_CTX_BEGIN(pCtx);
             GBL_TEST_ERROR(sincos.sinf(),          sinf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
             GBL_TEST_ERROR(shz::sinf_deg(degrees), sinf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
@@ -73,6 +73,7 @@ GBL_TEST_CASE(atanf)
     GBL_TEST_ERROR(shz_atanf(0.0f), atanf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_atanf(11.0f), atanf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_atanf(-2.0f), atanf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_VERIFY(benchmark_cmp(float, shz::atanf, atanf, gblRandUniform(-shz::pi_f, shz::pi_f)));
 GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
@@ -80,6 +81,7 @@ GBL_TEST_CASE(asinf)
     GBL_TEST_ERROR(shz_asinf(0.0f), asinf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_asinf(11.0f), asinf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_asinf(-2.0f), asinf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_VERIFY(benchmark_cmp(float, shz::asinf, asinf, gblRandUniform(-shz::pi_f, shz::pi_f)));
 GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
@@ -87,6 +89,7 @@ GBL_TEST_CASE(acosf)
     GBL_TEST_ERROR(shz_acosf(0.0f), acosf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_acosf(11.0f), acosf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_acosf(-2.0f), acosf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_VERIFY(benchmark_cmp(float, shz::acosf, acosf, gblRandUniform(-shz::pi_f, shz::pi_f)));
 GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
@@ -96,8 +99,9 @@ GBL_TEST_CASE(sinhf)
 
         benchmark(&shz_result, shz::sinhf, value);
         benchmark(&c_result, sinhf, value);
-
+#if 0
         std::println("{} vs {}", shz_result, c_result);
+#endif
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
@@ -113,8 +117,9 @@ GBL_TEST_CASE(coshf)
 
         benchmark(&shz_result, shz::coshf, value);
         benchmark(&c_result, coshf, value);
-
+#if 0
         std::println("{} vs {}", shz_result, c_result);
+#endif
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
@@ -130,8 +135,9 @@ GBL_TEST_CASE(tanhf)
 
         benchmark(&shz_result, shz::tanhf, value);
         benchmark(&c_result, tanhf, value);
-
+#if 0
         std::println("{} vs {}", shz_result, c_result);
+#endif
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
@@ -147,8 +153,10 @@ GBL_TEST_CASE(cschf)
 
         benchmark(&shz_result, shz::cschf, value);
         benchmark(&c_result, [](float val) { return 1.0f / sinhf(val); }, value);;
-
+#if 0
         std::println("{} vs {}", shz_result, c_result);
+#endif
+        if(isinf(shz_result) && isinf(c_result)) return true;
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
@@ -164,8 +172,9 @@ GBL_TEST_CASE(sechf)
 
         benchmark(&shz_result, shz::sechf, value);
         benchmark(&c_result, [](float val) { return 1.0f / coshf(val); }, value);
-
+#if 0
         std::println("{} vs {}", shz_result, c_result);
+#endif
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
@@ -181,8 +190,10 @@ GBL_TEST_CASE(cothf)
 
         benchmark(&shz_result, shz::cothf, value);
         benchmark(&c_result, [](float val) { return 1.0f / tanhf(val); }, value);
-
+#if 0
         std::println("{} vs {}", shz_result, c_result);
+#endif
+        if(isinf(shz_result) && isinf(c_result)) return true;
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
@@ -198,8 +209,9 @@ GBL_TEST_CASE(asinhf)
 
         benchmark(&shz_result, shz::asinhf, value);
         benchmark(&c_result, asinhf, value);
-
+#if 0
         std::println("{} vs {}", shz_result, c_result);
+#endif
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
@@ -215,8 +227,9 @@ GBL_TEST_CASE(acoshf)
 
         benchmark(&shz_result, shz::acoshf, value);
         benchmark(&c_result, acoshf, value);
-
+#if 0
         std::println("{} vs {}", shz_result, c_result);
+#endif
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
@@ -232,8 +245,9 @@ GBL_TEST_CASE(atanhf)
 
         benchmark(&shz_result, shz::atanhf, value);
         benchmark(&c_result, atanhf, value);
-
+#if 0
         std::println("{} vs {}", shz_result, c_result);
+#endif
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
@@ -249,8 +263,9 @@ GBL_TEST_CASE(acschf)
 
         benchmark(&shz_result, shz::acschf, value);
         benchmark(&c_result, [](float val) { return asinhf(1.0f / val); }, value);
-
+#if 0
         std::println("{} vs {}", shz_result, c_result);
+#endif
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
@@ -266,8 +281,9 @@ GBL_TEST_CASE(asechf)
 
         benchmark(&shz_result, shz::asechf, value);
         benchmark(&c_result, [](float val) { return acoshf(1.0f / val); }, value);
-
+#if 0
         std::println("{} vs {}", shz_result, c_result);
+#endif
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
@@ -283,8 +299,9 @@ GBL_TEST_CASE(acothf)
 
         benchmark(&shz_result, shz::acothf, value);
         benchmark(&c_result, [](float val) { return atanhf(1.0f / val); }, value);
-
+#if 0
         std::println("{} vs {}", shz_result, c_result);
+#endif
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
@@ -300,13 +317,6 @@ GBL_TEST_CASE(benches)
     for(volatile unsigned i = 0; i < 1; ++i) {
         float random = gblRandUniform(-F_PI, F_PI);
         float random2 = gblRandUniform(-F_PI, F_PI);
-        printf("RANDOMNUM: %f\n", random);
-        benchmark(&result, shz_atanf, random);
-        benchmark(&result, atanf, random);
-        benchmark(&result, shz_asinf, random);
-        benchmark(&result, asinf, random);
-        benchmark(&result, shz_acosf, random);
-        benchmark(&result, acosf, random);
         benchmark(&result, shz::atan2f, random, random2);
         benchmark(&result, atan2f, random, random2);
         printf("\n");

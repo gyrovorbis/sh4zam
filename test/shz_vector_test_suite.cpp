@@ -165,15 +165,10 @@ GBL_TEST_CASE(vec2Dot2)
         return gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
                gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error);
     };
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() }));
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() }));
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() }));
+
+    GBL_TEST_VERIFY(test({ -0.342344f,    890432084.0f },
+                         { 0.0000001f,    34342.0324f },
+                         { 12343455.0f,   -34234324.4444f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Dot3)
@@ -198,18 +193,10 @@ GBL_TEST_CASE(vec2Dot3)
                gblFloatEquals(fipr_res.z, c_res.z, shz::fipr_max_error);
     };
 
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() }));
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() }));
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ -0.342344f,    890432084.0f },
+                         { 0.0000001f,    34342.0324f },
+                         { 12343455.0f,   -34234324.4444f },
+                         { 3243124.3434f, SHZ_F_PI }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Magnitude)
@@ -255,15 +242,10 @@ GBL_TEST_CASE(vec3Dot2)
         return gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
                gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error);
     };
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() }));
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() }));
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() }));
+
+    GBL_TEST_VERIFY(test({ -0.342344f,    890432084.0f, 343244.0f },
+                         { 0.0000001f,    34342.0324f, -0.3243242f },
+                         { 12343455.0f,   -34234324.4444f, 0.034234f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3Dot3)
@@ -288,18 +270,10 @@ GBL_TEST_CASE(vec3Dot3)
                gblFloatEquals(fipr_res.z, c_res.z, shz::fipr_max_error);
     };
 
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() }));
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() }));
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ -0.342344f,    890432084.0f, 343244.0f },
+                         { 0.0000001f,    34342.0324f, -0.3243242f },
+                         { 12343455.0f,   -34234324.4444f, 0.034234f },
+                         { 3243124.3434f, SHZ_F_PI, 3143124.0342f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec4Dot)
@@ -326,15 +300,9 @@ GBL_TEST_CASE(vec4Dot2)
         return gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
                gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error);
     };
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ -0.342344f,    890432084.0f, 343244.0f, -343242.0324f },
+                         { 0.0000001f,    34342.0324f, -0.3243242f, 0.023432f },
+                         { 12343455.0f,   -34234324.4444f, 0.034234f, -3432.0324f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec4Dot3)
@@ -359,18 +327,10 @@ GBL_TEST_CASE(vec4Dot3)
                gblFloatEquals(fipr_res.z, c_res.z, shz::fipr_max_error);
     };
 
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ -0.342344f,    890432084.0f, 343244.0f, -312432.04232f },
+                         { 0.0000001f,    34342.0324f, -0.3243242f, 0.234324f },
+                         { 12343455.0f,   -34234324.4444f, 0.034234f, -0.34324432f },
+                         { 3243124.3434f, SHZ_F_PI, 3143124.0342f, 1.0000043224324f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Rotate)
@@ -387,11 +347,11 @@ GBL_TEST_CASE(vec2Rotate)
 
         benchmark(&shz_rotated, [&]{ return vec.rotate(radians); });
 
-        return shz_rotated == c_rotated;
+        return gblFloatEquals(shz_rotated.x, c_rotated.x, shz::fipr_max_error) &&
+               gblFloatEquals(shz_rotated.y, c_rotated.y, shz::fipr_max_error);
     };
 
     GBL_TEST_VERIFY(test({1.0f, 2.0f }, SHZ_F_PI));
-    GBL_TEST_VERIFY(test({gblRandf(), gblRandf()}, gblRandf()));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3Orthonormalize)

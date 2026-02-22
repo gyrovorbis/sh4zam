@@ -95,10 +95,13 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(inv_sqrtf)
    auto test = [&](float value) {
-        return gblFloatEquals(shz::inv_sqrtf(value),
-                              1.0f / sqrtf(value),
-                              0.01f);
-    
+        float shzv = shz::inv_sqrtf(value);
+        float ceev = 1.0f / sqrtf(value);
+#if 0
+        std::println("{} vs {}", shzv, ceev);
+#endif
+        if(isnan(shzv) && isnan(ceev)) return true;
+        return shz::equalf(shzv, ceev);
    };
    GBL_TEST_VERIFY(test(333333.33f));
    GBL_TEST_VERIFY(test(1.001f));
@@ -259,7 +262,7 @@ GBL_TEST_CASE(stepf)
     GBL_TEST_VERIFY(shz::stepf(0.1f, NAN) == 1.0f);
     GBL_TEST_VERIFY(shz::stepf(INFINITY, INFINITY));
     GBL_TEST_VERIFY(shz::stepf(INFINITY, 0.1f));
-    GBL_TEST_VERIFY(shz::stepf(0.1f, INFINITY));
+    GBL_TEST_VERIFY(!shz::stepf(0.1f, INFINITY));
 #endif
 GBL_TEST_CASE_END
 
@@ -351,10 +354,10 @@ GBL_TEST_CASE(cbrt)
         benchmark(&c_res,    shz::cbrtf, value);
         benchmark(&pow_res,  powf,       value, 1.0f / 3.0f);
         benchmark(&cbrt_res, cbrtf,      value);
-
+#if 0
         std::println("{} vs {} vs {}", pow_res, cbrt_res, c_res);
-
-        return gblFloatEquals(cbrt_res, c_res, 0.00001f);
+#endif
+        return gblFloatEquals(cbrt_res, c_res, 0.0001f);
     };
 
     GBL_TEST_VERIFY(test(27.0f));

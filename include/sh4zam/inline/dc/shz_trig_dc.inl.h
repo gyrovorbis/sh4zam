@@ -59,20 +59,20 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg_dc(float degrees) SHZ_NOEXCEPT {
 #ifdef __FAST_MATH__
     return (shz_sincos_t) { __builtin_sinf(SHZ_DEG_TO_RAD(degrees)), __builtin_cosf(SHZ_DEG_TO_RAD(degrees)) };
 #else
-    register float rsin asm("fr8");
-    register float rcos asm("fr9");
+     degrees *= SHZ_FSCA_DEG_FACTOR;
 
-    degrees *= SHZ_FSCA_DEG_FACTOR;
+     asm(R"(
+         ftrc  %0, fpul
+         fsca  fpul, dr8
+     )"
+     :
+     : "f" (degrees)
+     : "fpul", "fr8", "fr9");
 
-    asm(R"(
-        ftrc  %2, fpul
-        fsca  fpul, dr8
-    )"
-    : "=&f" (rsin), "=&f" (rcos)
-    : "f" (degrees)
-    : "fpul");
+     register float rsin asm("fr8");
+     register float rcos asm("fr9");
 
-    return (shz_sincos_t){ rsin, rcos };
+     return (shz_sincos_t){ rsin, rcos };
 #endif
 }
 //! \endcond

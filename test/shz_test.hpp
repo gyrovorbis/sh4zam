@@ -3,6 +3,7 @@
 
 #include <type_traits>
 #include <concepts>
+#include <print>
 
 #include <kos.h>
 #include <sh4zam/shz_sh4zam.hpp>
@@ -43,7 +44,7 @@ SHZ_FORCE_INLINE uint64_t PERF_CNTR_STOP() {
 
 template<typename F, typename... Args>
 SHZ_NO_INLINE
-void benchmark(auto res, const char* name, F &&function, Args&&... args) {
+std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function, Args&&... args) noexcept {
     alignas(32) uint8_t dcache_buffer[1024 * 16];
 
     perf_cntr_timer_enable();
@@ -95,19 +96,43 @@ void benchmark(auto res, const char* name, F &&function, Args&&... args) {
 
         irq_restore(state);
 
-        printf("\t%20s[%s] : %llu/%llu cc, %llu ns, %d calls\n", name,
+        std::println("\t{:>25} [{:8}] : {:4}/{:4} cc, {:4} ns, {:2} calls",
+              name,
               (CacheFlush)? "UNCACHED" : "CACHED",
               perfctr_prev,
               perfctr_sum / iterations,
               tmu_sum     / iterations,
               iterations);
+
+        return perfctr_prev;
     };
 
-    inner.template operator()<true>();
-    inner.template operator()<false>();
-
+    return std::make_pair(
+        inner.template operator()<true>(),
+        inner.template operator()<false>()
+    );
 }
 
 #define benchmark(res, f, ...) (benchmark)(res, #f, f __VA_OPT__(,) __VA_ARGS__)
+
+template<typename R, typename ShzFn, typename RefFn, typename... Args>
+bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
+                   const char* refName, RefFn&& refFn,
+                   Args&&... args) noexcept
+{
+    volatile R result;
+
+    auto [shzUncacheCyc, shzCacheCyc] = (benchmark)(&result, shzName, std::forward<ShzFn>(shzFn), std::forward<Args...>(args...));
+    auto [refUncacheCyc, refCacheCyc] = (benchmark)(&result, refName, std::forward<RefFn>(refFn), std::forward<Args...>(args...));
+
+    double cacheGainz   = ((double)refCacheCyc  ) / ((double)shzCacheCyc  );
+    double uncacheGainz = ((double)refUncacheCyc) / ((double)shzUncacheCyc);
+
+    std::println("* [   GAINZ   ]:\t{:.4f}x / {:.4f}x [UNCACHED / CACHED]", uncacheGainz, cacheGainz);
+
+    return cacheGainz > 1.0f || uncacheGainz > 1.0f;
+}
+
+#define benchmark_cmp(retType, shzFn, refFn, ...) (benchmark_cmp<retType>)(#shzFn, shzFn, #refFn, refFn __VA_OPT__(,) __VA_ARGS__)
 
 #endif
