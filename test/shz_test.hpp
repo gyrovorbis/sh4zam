@@ -45,6 +45,7 @@ template<typename F, typename... Args>
 SHZ_NO_INLINE
 void benchmark(auto res, const char* name, F &&function, Args&&... args) {
     alignas(32) uint8_t dcache_buffer[1024 * 16];
+
     perf_cntr_timer_enable();
 
     auto inner = [&]<bool CacheFlush>() SHZ_NO_INLINE SHZ_ICACHE_ALIGNED {

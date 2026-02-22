@@ -467,6 +467,16 @@ struct xmtrx {
         shz_xmtrx_apply_ortho(left, right, bottom, top, near, far);
     }
 
+    //! C++ wrapper around shz_xmtrx_apply_frustum().
+    SHZ_FORCE_INLINE static void apply_frustum(float left, float right, float bottom, float top, float near, float far) noexcept {
+        shz_xmtrx_apply_frustum(left, right, bottom, top, near, far);
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_perspective().
+    SHZ_FORCE_INLINE static void apply_perspective(float fov, float aspect, float near_z) noexcept {
+        shz_xmtrx_apply_perspective(fov, aspect, near_z);
+    }
+
     //! C++ wrapper around shz_xmtrx_apply_symmetric_skew().
     SHZ_FORCE_INLINE static void apply_symmetric_skew(float x, float y, float z) noexcept {
         shz_xmtrx_apply_symmetric_skew(x, y, z);

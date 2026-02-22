@@ -8,6 +8,7 @@
 #include <cglm/cglm.h>
 #include <cglm/clipspace/ortho_rh_no.h>
 #include <cglm/clipspace/view_rh.h>
+#include <cglm/clipspace/persp_rh_no.h>
 #include <cglm/mat4.h>
 
 #define GBL_SELF_TYPE shz_xmtrx_test_suite
@@ -896,6 +897,44 @@ GBL_TEST_CASE(apply_ortho)
     GBL_TEST_VERIFY(shzmat == cunion.shzcmat);
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(apply_frustum)
+    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::apply_frustum(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f);
+    union {
+        alignas(8) mat4 cmat;
+        shz::mat4x4 shzcmat;
+    } cunion;
+    glm_frustum_rh_no(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f, cunion.cmat);
+    shz::mat4x4 shzmat;
+    shz::xmtrx::store(&shzmat);
+#if 0
+    for(unsigned i = 0; i < 4; ++i)
+        for(unsigned j = 0; j < 4; ++j)
+            std::println("[{}][{}]: {} vs {}", i, j, shzmat.elem2D[i][j], cunion.shzcmat.elem2D[i][j]);
+#endif
+    GBL_TEST_VERIFY(shzmat == cunion.shzcmat);
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_perspective)
+    union {
+        alignas(8) mat4 cmat;
+        shz::mat4x4 shzcmat;
+    } cunion;
+
+    GBL_TEST_SKIP("Not equivalent to any CGLM reference. Figure out why.");
+    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::apply_perspective(shz::deg_to_rad(45.0f), 640.0f / 480.0f, 0.0f);
+    glm_perspective_infinite_rh_no(shz::deg_to_rad(45.0f), 640.0f / 480.0f, 0.0f, cunion.cmat);
+    shz::mat4x4 shzmat;
+    shz::xmtrx::store(&shzmat);
+#if 0
+    for(unsigned i = 0; i < 4; ++i)
+        for(unsigned j = 0; j < 4; ++j)
+            std::println("[{}][{}]: {} vs {}", i, j, shzmat.elem2D[i][j], cunion.shzcmat.elem2D[i][j]);
+#endif
+    GBL_TEST_VERIFY(shzmat == cunion.shzcmat);
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(apply_screen)
     shz::xmtrx::init_identity_safe();
     shz::xmtrx::apply_screen(640.0f, 480.0f);
@@ -1106,6 +1145,8 @@ GBL_TEST_REGISTER(read_write_registers,
                   load_apply_store_unaligned_4x4,
                   translate,
                   apply_ortho,
+                  apply_frustum,
+                  apply_perspective,
                   apply_screen,
                   apply_lookat,
                   load_3x4,

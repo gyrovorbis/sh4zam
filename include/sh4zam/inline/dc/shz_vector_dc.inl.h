@@ -354,7 +354,7 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec3_dot2_dc(shz_vec3_t l, shz_vec3_t r1, shz_ve
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_dot3_dc(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2, shz_vec3_t r3) SHZ_NOEXCEPT {
-#if 1 // Loss, due to register allocator dipshittery.
+#if 1
      shz_vec3_t res;
 
     register float lx asm("fr8")  = l.x;
@@ -468,7 +468,7 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec4_dot2_dc(shz_vec4_t l, shz_vec4_t r1, shz_ve
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec4_dot3_dc(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2, shz_vec4_t r3) SHZ_NOEXCEPT {
-#if 1 // Fuck my life.
+#if 1
     shz_vec3_t res;
 
     register float lx asm("fr8")  = l.x;
