@@ -8,6 +8,7 @@
 #include <cglm/cglm.h>
 #include <cglm/clipspace/ortho_rh_no.h>
 #include <cglm/clipspace/view_rh.h>
+#include <cglm/mat4.h>
 
 #define GBL_SELF_TYPE shz_xmtrx_test_suite
 
@@ -801,40 +802,41 @@ GBL_TEST_CASE(load_apply_4x4)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_apply_store_4x4)
-    alignas(32) std::array<std::array<float, 16>, 128> matrix1 = {{
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-    }};
-    alignas(32) std::array<std::array<float, 16>, 128> matrix2 = {{
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        1.0f, 2.0f, 3.0f, 1.0f
-    }};
-    alignas(32) std::array<std::array<float, 16>, 128> out;
-    unsigned int count = 0;
+    union shz_glm_mat4_t {
+        shz_mat4x4_t shz;
+        mat4         glm;
+    };
 
-    benchmark(nullptr, [&] {
-        const auto idx = count++ % 128;
-        shz_xmtrx_load_apply_store_4x4(reinterpret_cast<      shz::mat4x4*>(&    out[idx]),
-                                       reinterpret_cast<const shz::mat4x4*>(&matrix2[idx]),
-                                       reinterpret_cast<const shz::mat4x4*>(&matrix1[idx]));
-    });
+   shz_glm_mat4_t shzRes, glmRes;
+   shz_glm_mat4_t mat1 = { .shz = {
+        .left    = { -13.0f,  2.0f,  3.0f, -0.0001f },
+        .up      = {  4.0f,  -5.0f,  6.0f, 12.3232f },
+        .forward = {  7.0f,   8.0f,  9.0f, 882.023f },
+        .pos     = { 11.0f, -12.0f, 13.0f, -0.0435f }
+   }};
+   shz_glm_mat4_t mat2 = { .shz = {
+        .left    = { 11.0f,    2.5f, -3.333f, -4.0343f },
+        .up      = { -46.0f,  -5.0f,  0.777f, 9999.34f,},
+        .forward = { -75.0f, 0.008f, -99.44f, 0.23233f },
+        .pos     = { 11.0f,   12.0f, 13.888f, -345.88f }
+   }};
 
-    shz_xmtrx_load_apply_store_4x4(reinterpret_cast<      shz::mat4x4*>(&    out[0]),
-                                   reinterpret_cast<const shz::mat4x4*>(&matrix2[0]),
-                                   reinterpret_cast<const shz::mat4x4*>(&matrix1[0]));
+    (benchmark)(nullptr, "shz::xmtrx::load_apply_store_4x4()",
+                static_cast<void(*)(shz_mat4x4_t*, const shz_mat4x4_t&, const shz_mat4x4_t&)>(
+                    shz::xmtrx::load_apply_store
+                ), &shzRes.shz, mat1.shz, mat2.shz);
 
-    shz::xmtrx::store(out.data());
-    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                                {
-                                    1.0f, 0.0f, 0.0f, 1.0f,
-                                    0.0f, 1.0f, 0.0f, 2.0f,
-                                    0.0f, 0.0f, 1.0f, 3.0f,
-                                    0.0f, 0.0f, 0.0f, 1.0f }));
+    (benchmark)(nullptr, "glm_mat4_mul",
+                glm_mat4_mul, mat1.glm, mat2.glm, glmRes.glm);
 
+#if 0
+    for(unsigned i = 0; i < 4; ++i)
+        for(unsigned j = 0; j < 4; ++j)
+            std::println("[{}][{}]: {} vs {}", i, j, shzRes.shz.elem2D[i][j], glmRes.shz.elem2D[i][j]);
+#endif
+
+    GBL_TEST_VERIFY(static_cast<const shz::mat4x4&>(shzRes.shz) ==
+                    static_cast<const shz::mat4x4&>(glmRes.shz));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_apply_store_unaligned_4x4)

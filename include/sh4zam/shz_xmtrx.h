@@ -554,9 +554,9 @@ SHZ_INLINE void shz_xmtrx_load_apply_unaligned_4x4(const float matrix1[16],
 
     \sa shz_xmtrx_load_apply(), shz_xmtrx_load_apply_store_unaligned_4x4()
 */
-SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
-                                               const shz_mat4x4_t* matrix1,
-                                               const shz_mat4x4_t* matrix2) SHZ_NOEXCEPT;
+void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
+                                    const shz_mat4x4_t* matrix1,
+                                    const shz_mat4x4_t* matrix2) SHZ_NOEXCEPT;
 
 /*! Loads XMTRX with the result of applying unaligned \p matrix2 onto unaligned \p matrix1, storing the result.
 

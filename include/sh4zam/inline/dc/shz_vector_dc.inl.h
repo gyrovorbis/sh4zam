@@ -16,42 +16,6 @@
 
 #include "../../shz_mem.h"
 
-#if 0
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_rotate_dc(shz_vec2_t vec, float radians) SHZ_NOEXCEPT {
-// GOD DAMNIT, SO CLOSE TO BEATING YOUR ASS, GCC!!
-    shz_vec2_t res;
-
-    register float vx asm("fr4") = vec.x;
-    register float vy asm("fr5") = vec.y;
-    register float rd asm("fr6") = radians * SHZ_FSCA_RAD_FACTOR;
-    register float r2 asm("fr3");
-    register float r1 asm("fr11");
-
-    asm volatile(R"(
-        ftrc    fr6, fpul
-        fldi0   fr6
-        fsca    fpul, dr0
-        fldi0   fr7
-        fmov    fr0, fr9
-        fipr    fv4, fv0
-        fmov    fr1, fr8
-        fneg    fr9
-        fipr    fv4, fv8
-
-    )"
-    : [r1] "=f" (r1), [r2] "=f" (r2), [rd] "+&f" (rd)
-    : [vx] "f" (vx), [vy] "f" (vy)
-    : "fr0", "fr1", "fr7", "fr8", "fr9", "fpul");
-
-    SHZ_MEMORY_BARRIER_SOFT();
-    res.y = r2;
-    SHZ_MEMORY_BARRIER_SOFT();
-    res.x = r1;
-
-    return res;
-}
-#endif
-
 SHZ_INLINE float shz_vec3_triple_dc(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT {
     register float ax asm("fr8")  = a.x;
     register float bx asm("fr9")  = b.x;
@@ -236,6 +200,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cubic_hermite_dc(shz_vec3_t vec1, shz_vec3_
 
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_dot2_dc(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2) SHZ_NOEXCEPT {
+#if 0 // Not a win due to register allocator dumbassery.
     shz_vec2_t res;
 
     register float lx asm("fr0") = l.x;
@@ -247,29 +212,41 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_dot2_dc(shz_vec2_t l, shz_vec2_t r1, shz_ve
     register float r1y asm("fr5") = r1.y;
     register float r1w asm("fr7");
 
-    register float r2x asm("fr8")  = r2.x;
-    register float r2y asm("fr9")  = r2.y;
-    register float r2w asm("fr10");
+    register float r2x asm("fr8");
+    register float r2y asm("fr9");
+    register float r2w asm("fr11");
+
+    SHZ_MEMORY_BARRIER_SOFT();
+    r2x = r2.x;
+    r2y = r2.y;
+    SHZ_MEMORY_BARRIER_SOFT();
 
     asm("fipr   fv0, fv4\n"
         : "=f" (r1w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r1x), "f" (r1y));
 
+    SHZ_MEMORY_BARRIER_SOFT();
+
     asm("fipr   fv0, fv8\n"
         : "=f" (r2w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r2x), "f" (r2y));
 
-    //SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     res.x = r1w;
-    //SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     res.y = r2w;
 
     return res;
+#else
+    return shz_vec2_init(l.x * r1.x + l.y * r1.y,
+                         l.x * r2.x + l.y * r2.y);
+#endif
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec2_dot3_dc(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2, shz_vec2_t r3) SHZ_NOEXCEPT {
+#if 0
     shz_vec3_t res;
 
     register float r1x asm("fr12") = r1.x;
@@ -281,40 +258,56 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec2_dot3_dc(shz_vec2_t l, shz_vec2_t r1, shz_ve
     register float lz asm("fr10") = 0.0f;
     register float lw asm("fr11") = 0.0f;
 
+    register float r2x asm("fr0");
+    register float r2y asm("fr1");
+    register float r2w asm("fr3");
+
+    register float r3x asm("fr4");
+    register float r3y asm("fr5");
+    register float r3w asm("fr7");
+
+    SHZ_MEMORY_BARRIER_SOFT();
+    r2x = r2.x;
+    r2y = r2.y;
+    SHZ_MEMORY_BARRIER_SOFT();
+
     asm("fipr   fv8, fv12\n"
         : "=f" (r1w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r1x), "f" (r1y));
 
-    register float r2x asm("fr0")  = r2.x;
-    register float r2y asm("fr1")  = r2.y;
-    register float r2w asm("fr3");
+    SHZ_MEMORY_BARRIER_SOFT();
+    r3x = r3.x;
+    r3y = r3.y;
+    SHZ_MEMORY_BARRIER_SOFT();
 
     asm("fipr   fv8, fv0\n"
         : "=f" (r2w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r2x), "f" (r2y));
 
-    register float r3x asm("fr4")  = r3.x;
-    register float r3y asm("fr5")  = r3.y;
-    register float r3w asm("fr7");
-
-    res.x = r1w;
-
     asm("fipr   fv8, fv4\n"
         : "=f" (r3w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r3x), "f" (r3y));
 
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
+    res.x = r1w;
+    SHZ_MEMORY_BARRIER_SOFT();
     res.y = r2w;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     res.z = r3w;
 
     return res;
+#else
+    return shz_vec3_init(l.x * r1.x + l.y * r1.y,
+                         l.x * r2.x + l.y * r2.y,
+                         l.x * r3.x + l.y * r3.y);
+#endif
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec3_dot2_dc(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2) SHZ_NOEXCEPT {
+#if 0 // Close, but NOPE.
     shz_vec2_t res;
 
     register float lx asm("fr8")  = l.x;
@@ -333,18 +326,17 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec3_dot2_dc(shz_vec3_t l, shz_vec3_t r1, shz_ve
     register float r2w asm("fr3");
 
     SHZ_MEMORY_BARRIER_SOFT();
-
     r2x = r2.x;
     r2y = r2.y;
     r2z = r2.z;
     SHZ_MEMORY_BARRIER_SOFT();
 
-    asm volatile("fipr   fv8, fv12\n"
+    asm("fipr   fv8, fv12\n"
         : "=f" (r1w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r1x), "f" (r1y), "f" (r1z));
 
-    asm volatile("fipr   fv8, fv0\n"
+    asm("fipr   fv8, fv0\n"
         : "=f" (r2w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r2x), "f" (r2y), "f" (r2z));
@@ -355,10 +347,15 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec3_dot2_dc(shz_vec3_t l, shz_vec3_t r1, shz_ve
     res.y = r2w;
 
     return res;
+#else
+    return shz_vec2_init(l.x * r1.x + l.y * r1.y + l.z * r1.z,
+                         l.x * r2.x + l.y * r2.y + l.z * r2.z);
+#endif
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_dot3_dc(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2, shz_vec3_t r3) SHZ_NOEXCEPT {
-    shz_vec3_t res;
+#if 1 // Loss, due to register allocator dipshittery.
+     shz_vec3_t res;
 
     register float lx asm("fr8")  = l.x;
     register float ly asm("fr9")  = l.y;
@@ -370,41 +367,59 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_dot3_dc(shz_vec3_t l, shz_vec3_t r1, shz_ve
     register float r1z asm("fr14") = r1.z;
     register float r1w asm("fr15");
 
+    register float r2x asm("fr0");
+    register float r2y asm("fr1");
+    register float r2z asm("fr2");
+    register float r2w asm("fr3");
+
+    register float r3x asm("fr4");
+    register float r3y asm("fr5");
+    register float r3z asm("fr6");
+    register float r3w asm("fr7");
+
+    SHZ_MEMORY_BARRIER_SOFT();
+    r2x = r2.x;
+    r2y = r2.y;
+    r2z = r2.z;
+    SHZ_MEMORY_BARRIER_SOFT();
+
     asm("fipr   fv8, fv12\n"
-        : "=f" (r1w)
+        : "+f" (r1w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r1x), "f" (r1y), "f" (r1z));
 
-    register float r2x asm("fr0") = r2.x;
-    register float r2y asm("fr1") = r2.y;
-    register float r2z asm("fr2") = r2.z;
-    register float r2w asm("fr3");
+    SHZ_MEMORY_BARRIER_SOFT();
+    r3x = r3.x;
+    r3y = r3.y;
+    r3z = r3.z;
+    SHZ_MEMORY_BARRIER_SOFT();
 
     asm("fipr   fv8, fv0\n"
-        : "=f" (r2w)
+        : "+f" (r2w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r2x), "f" (r2y), "f" (r2z));
 
-    register float r3x asm("fr4") = r3.x;
-    register float r3y asm("fr5") = r3.y;
-    register float r3z asm("fr6") = r3.z;
-    register float r3w asm("fr7");
-
-    //SHZ_MEMORY_BARRIER_HARD();
-
+    SHZ_MEMORY_BARRIER_SOFT();
     res.x = r1w;
+    SHZ_MEMORY_BARRIER_SOFT();
 
     asm("fipr   fv8, fv4\n"
-        : "=f" (r3w)
+        : "+f" (r3w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r3x), "f" (r3y), "f" (r3z));
 
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     res.y = r2w;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     res.z = r3w;
+    SHZ_MEMORY_BARRIER_SOFT();
 
     return res;
+#else
+    return shz_vec3_init(l.x * r1.x + l.y * r1.y + l.z * r1.z,
+                         l.x * r2.x + l.y * r2.y + l.z * r2.z,
+                         l.x * r3.x + l.y * r3.y + l.z * r3.z);
+#endif
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec4_dot2_dc(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2) SHZ_NOEXCEPT {
@@ -420,30 +435,40 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec4_dot2_dc(shz_vec4_t l, shz_vec4_t r1, shz_ve
     register float r1z asm("fr14") = r1.z;
     register float r1w asm("fr15") = r1.w;
 
-    register float r2x asm("fr0") = r2.x;
-    register float r2y asm("fr1") = r2.y;
-    register float r2z asm("fr2") = r2.z;
-    register float r2w asm("fr3") = r2.w;
+    register float r2x asm("fr0");
+    register float r2y asm("fr1");
+    register float r2z asm("fr2");
+    register float r2w asm("fr3");
+
+    SHZ_MEMORY_BARRIER_SOFT();
+    r2x = r2.x;
+    r2y = r2.y;
+    r2z = r2.z;
+    r2w = r2.w;
+    SHZ_MEMORY_BARRIER_SOFT();
 
     asm("fipr   fv8, fv12\n"
         : "+f" (r1w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r1x), "f" (r1y), "f" (r1z));
 
+    SHZ_MEMORY_BARRIER_SOFT();
+
     asm("fipr   fv8, fv0\n"
         : "+f" (r2w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r2x), "f" (r2y), "f" (r2z));
 
-    //SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     res.x = r1w;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     res.y = r2w;
 
     return res;
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec4_dot3_dc(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2, shz_vec4_t r3) SHZ_NOEXCEPT {
+#if 1 // Fuck my life.
     shz_vec3_t res;
 
     register float lx asm("fr8")  = l.x;
@@ -456,41 +481,62 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec4_dot3_dc(shz_vec4_t l, shz_vec4_t r1, shz_ve
     register float r1z asm("fr14") = r1.z;
     register float r1w asm("fr15") = r1.w;
 
+    register float r2x asm("fr0");
+    register float r2y asm("fr1");
+    register float r2z asm("fr2");
+    register float r2w asm("fr3");
+
+    register float r3x asm("fr4");
+    register float r3y asm("fr5");
+    register float r3z asm("fr6");
+    register float r3w asm("fr7");
+
+    SHZ_MEMORY_BARRIER_SOFT();
+    r2x = r2.x;
+    r2y = r2.y;
+    r2z = r2.z;
+    SHZ_MEMORY_BARRIER_SOFT();
+    r2w = r2.w;
+    SHZ_MEMORY_BARRIER_SOFT();
+
     asm("fipr   fv8, fv12\n"
         : "+f" (r1w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r1x), "f" (r1y), "f" (r1z));
 
-    register float r2x asm("fr0") = r2.x;
-    register float r2y asm("fr1") = r2.y;
-    register float r2z asm("fr2") = r2.z;
-    register float r2w asm("fr3") = r2.w;
+    SHZ_MEMORY_BARRIER_SOFT();
+    r3x = r3.x;
+    r3y = r3.y;
+    r3z = r3.z;
+    SHZ_MEMORY_BARRIER_SOFT();
+    r3w = r3.w;
+    SHZ_MEMORY_BARRIER_SOFT();
 
     asm("fipr   fv8, fv0\n"
         : "+f" (r2w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r2x), "f" (r2y), "f" (r2z));
 
-    register float r3x asm("fr4") = r3.x;
-    register float r3y asm("fr5") = r3.y;
-    register float r3z asm("fr6") = r3.z;
-    register float r3w asm("fr7") = r3.w;
-
-    SHZ_MEMORY_BARRIER_HARD();
-
+    SHZ_MEMORY_BARRIER_SOFT();
     res.x = r1w;
+    SHZ_MEMORY_BARRIER_SOFT();
 
     asm("fipr   fv8, fv4\n"
         : "+f" (r3w)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
           "f" (r3x), "f" (r3y), "f" (r3z));
 
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     res.y = r2w;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     res.z = r3w;
 
     return res;
+#else
+    return shz_vec3_init(l.x * r1.x + l.y + r1.y + l.z * r1.z + l.w * r1.w,
+                         l.x * r2.x + l.y + r2.y + l.z * r2.z + l.w * r2.w,
+                         l.x * r3.x + l.y + r3.y + l.z * r3.z + l.w * r3.w);
+#endif
 }
 //! \endcond
 

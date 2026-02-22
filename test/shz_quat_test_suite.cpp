@@ -35,9 +35,7 @@ GBL_TEST_CASE(transform_vec3)
                      fipr_res.x, fipr_res.y, fipr_res.z,
                      cross_res.x, cross_res.y, cross_res.z);
 #endif
-        return gblFloatEquals(fipr_res.x, cross_res.x, shz::fipr_max_error) &&
-               gblFloatEquals(fipr_res.y, cross_res.y, shz::fipr_max_error) &&
-               gblFloatEquals(fipr_res.z, cross_res.z, shz::fipr_max_error);
+        return fipr_res == cross_res;
     };
 
     for(unsigned i = 0; i < 1; ++i)

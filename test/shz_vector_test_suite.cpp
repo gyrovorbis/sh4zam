@@ -274,14 +274,14 @@ GBL_TEST_CASE(vec3Dot3)
    {
         shz::vec3 fipr_res, c_res;
 
-        benchmark(&fipr_res, [&]{ return vec1.dot(vec2, vec3, vec4); });
-
         benchmark(&c_res, [&]{ return shz::vec3 {
                             vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z,
                             vec1.x * vec3.x + vec1.y * vec3.y + vec1.z * vec3.z,
-                            vec1.x * vec4.x + vec1.y * vec4.y + vec1.z * vec3.z
+                            vec1.x * vec4.x + vec1.y * vec4.y + vec1.z * vec4.z
                         };
                    });
+
+        benchmark(&fipr_res, [&]{ return vec1.dot(vec2, vec3, vec4); });
 
         return gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
                gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error) &&
