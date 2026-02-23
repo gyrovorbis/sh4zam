@@ -3370,7 +3370,7 @@ SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_vec2(shz_vec2_t vec) SHZ_NOEXCEP
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_point2(shz_vec2_t pt) SHZ_NOEXCEPT {
-    return shz_xmtrx_transform_vec3(shz_vec2_vec3(pt, 1.0f)).xy;
+    return shz_xmtrx_transform_vec4(shz_vec2_vec4(pt, 0.0f, 1.0f)).xy;
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_point3(shz_vec3_t pt) SHZ_NOEXCEPT {
