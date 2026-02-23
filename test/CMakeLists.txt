@@ -34,7 +34,7 @@ target_include_directories(Sh4zamTests
     PRIVATE ..)
 
 target_link_libraries(Sh4zamTests
-                      PRIVATE libGimbal sh4zam cglm)
+                      PRIVATE libGimbal sh4zam cglm fastmem)
 
 if(PLATFORM_DREAMCAST)
     include(kallistios REQUIRED)

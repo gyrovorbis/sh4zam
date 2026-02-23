@@ -24,7 +24,11 @@ namespace shz {
     constexpr auto memset8           = shz_memset8;
     constexpr auto memcpy32          = shz_memcpy32;
     constexpr auto memcpy64          = shz_memcpy64;
-    constexpr auto memcpy128         = shz_memcpy128;
+
+    //! C++ wrapper around shz_memcpy128().
+    inline void* memcpy128(void* dst, const void* src, size_t bytes) noexcept {
+        return shz_memcpy128(dst, src, bytes);
+    }
 
     constexpr auto memcpy2_16        = shz_memcpy2_16;
     constexpr auto memset2_16        = shz_memset2_16;

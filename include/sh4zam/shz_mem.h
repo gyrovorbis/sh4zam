@@ -80,9 +80,6 @@ SHZ_FORCE_INLINE void shz_dcache_alloc_line(void* src) SHZ_NOEXCEPT;
     \warning
     \p dst and \p src buffers should not be overlapping.
 
-    \warning
-    This routine may clobber the `XMTRX` matrix back-bank!
-
     \sa shz_memcpy1(), shz_memcpy2(), shz_memcpy4(), shz_memcpy8(), shz_memcpy32(),
     shz_memcpy64(), shz_memcpy128()
 */
@@ -179,9 +176,6 @@ extern void* shz_memset8(void* dst, uint64_t value, size_t bytes) SHZ_NOEXCEPT;
     \warning
     \p src and \p dst buffers must not overlap.
 
-    \warning
-    This routine may clobber the `XMTRX` matrix back-bank.
-
     \note
     This is the quickest way to move 32-byte chunks of data around *within memory*, but
     the shz_sq_memcpy32() will be faster when writing through the cache to external memory.
@@ -234,9 +228,6 @@ SHZ_INLINE void* shz_sq_memcpy32_xmtrx(      void* SHZ_RESTRICT dst,
     \p src and \p dst buffers must not overlap.
 
     \warning
-    This routine may clobber the `XMTRX` matrix back-bank.
-
-    \warning
     \p dst must be 32-byte aligned, while \p src can be only 8-byte aligned. \p bytes must
     be a multiple of 64.
 */
@@ -251,9 +242,6 @@ SHZ_INLINE void* shz_memcpy64(      void* SHZ_RESTRICT dst,
 
     \warning
     \p src and \p dst buffers must not overlap.
-
-    \warning
-    This routine may clobber the `XMTRX` matrix back-bank.
 
     \warning
     \p dst must be 32-byte aligned, while \p src can be only 8-byte aligned. \p bytes must
@@ -300,9 +288,6 @@ SHZ_INLINE void shz_memcpy4_16(      void* SHZ_RESTRICT dst,
                                const void* SHZ_RESTRICT src) SHZ_NOEXCEPT;
 
 /*! Copies 32 bytes from \p p1 to \p p2 as a single chunk.
-
-    \warning
-    This routine may clobber the `XMTRX` matrix back-bank.
 
     \warning
     \p dst must be 32-byte aligned, while \p src can be only 8-byte aligned.

@@ -5,7 +5,7 @@
 !  This file contains the out-of-line assembly implementations of assorted
 !  memcpy() and memset()-like routines.
 !
-!  \author    2025 Falco Girgis
+!  \author    2025, 2026 Falco Girgis
 !  \copyright MIT License
 !!
 
@@ -80,50 +80,48 @@ _shz_memset8:
     rts
     nop     
 
+
 .align 5
 _shz_memcpy128_:
-
-    mov       #-7, r2
-    shld      r2, r6
-    mov       r6, r0  ! counter
-
-    mov       #7, r2
-    shld      r2, r0
-    add       r0, r4 ! dst += (bytes >> 7) << 7
-    add       r0, r5 ! src += (bytes >> 7) << 7
-
-    mov       r5, r7
-    add       #-32, r7 ! r7 = src - 32
-    pref      @r7
-
-    xor       r3, r3
-    add       #64, r3
-    add       #64, r3
-    sub       r3, r5   != src -= 128
-    add       r3, r3   ! r3 = 256
 
     mov       r15, r0
     or        #0x0f, r0
     xor       #0x0f, r0 ! r0 = 8-byte aligned stack
 
+    mov       #-7, r2
+    fmov.d    dr12, @-r0
+    shld      r2, r6
+    fmov.d    xd0, @-r0
+    mov       r6, r1  ! counter
+    fmov.d    xd2, @-r0
+    mov       #7, r2
+    fmov.d    xd4, @-r0
+    shld      r2, r1
+    fmov.d    xd6, @-r0
+    add       r1, r4 ! dst += (bytes >> 7) << 7
+    fmov.d    xd8, @-r0
+    add       r1, r5 ! src += (bytes >> 7) << 7
+    fmov.d    xd10, @-r0
+    mov       r5, r7
+    fmov.d    xd12, @-r0
+    add       #-32, r7 ! r7 = src - 32
+    pref      @r7
+    xor       r3, r3
+    fmov.d    xd14, @-r0
+    add       #64, r3
+    add       #64, r3
+    sub       r3, r5   != src -= 128
+    add       r3, r3   ! r3 = 256
     add       #-32, r7
     pref      @r7
-
-    fmov.d    dr12, @-r0
-    fmov.d    dr14, @-r0
-
     mov       r4, r1
-
     mov       r4, r2
     add       #-32, r2
 
 1:
     add       #-32, r7
-    pref      @r7
-    add       #-32, r7
-    pref      @r7
-
     fmov.d    @r5+, dr0
+    pref      @r7
     fmov.d    @r5+, dr2
     fmov.d    @r5+, dr4
     fmov.d    @r5+, dr6
@@ -133,7 +131,9 @@ _shz_memcpy128_:
     fmov.d    @r5+, dr12
     fmov.d    @r5+, dr14
 
+    add       #-32, r7
     fmov.d    @r5+, xd0
+    pref      @r7
     fmov.d    @r5+, xd2
     fmov.d    @r5+, xd4
     fmov.d    @r5+, xd6
@@ -175,9 +175,17 @@ _shz_memcpy128_:
     fmov.d    dr0, @-r4
     pref      @r7
     add       #-32, r7
-    bf/s      1b
+    bf.s      1b
     pref      @r7
 
+    fmov.d    @r0+, xd14
+    fmov.d    @r0+, xd12
+    fmov.d    @r0+, xd10
+    fmov.d    @r0+, xd8
+    fmov.d    @r0+, xd6
+    fmov.d    @r0+, xd4
+    fmov.d    @r0+, xd2
+    fmov.d    @r0+, xd0
     fmov.d    @r0+, dr14
     fmov.d    @r0+, dr12
 

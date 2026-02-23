@@ -92,9 +92,12 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function
                 perfctr_prev = perfctr_cnt;
                 matches = 0;
             }
+            SHZ_MEMORY_BARRIER_SOFT();
         }
 
+        SHZ_MEMORY_BARRIER_SOFT();
         irq_restore(state);
+        SHZ_MEMORY_BARRIER_SOFT();
 
         std::println("\t{:>25} [{:8}] : {:4}/{:4} cc, {:4} ns, {:2} calls",
               name,
@@ -122,15 +125,17 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
 {
     volatile R result;
 
-    auto [shzUncacheCyc, shzCacheCyc] = (benchmark)(&result, shzName, std::forward<ShzFn>(shzFn), std::forward<Args...>(args...));
-    auto [refUncacheCyc, refCacheCyc] = (benchmark)(&result, refName, std::forward<RefFn>(refFn), std::forward<Args...>(args...));
+    auto [shzUncacheCyc, shzCacheCyc] = (benchmark)(&result, shzName, std::forward<ShzFn>(shzFn), std::forward<Args>(args)...);
+    auto [refUncacheCyc, refCacheCyc] = (benchmark)(&result, refName, std::forward<RefFn>(refFn), std::forward<Args>(args)...);
 
     double cacheGainz   = ((double)refCacheCyc  ) / ((double)shzCacheCyc  );
     double uncacheGainz = ((double)refUncacheCyc) / ((double)shzUncacheCyc);
 
-    std::println("* [   GAINZ   ]:\t{:.4f}x / {:.4f}x [UNCACHED / CACHED]", uncacheGainz, cacheGainz);
+    bool gainz = (cacheGainz > 1.0f || uncacheGainz > 1.0f);
 
-    return cacheGainz > 1.0f || uncacheGainz > 1.0f;
+    std::println("* [   {:6}  ]:\t{:.4f}x / {:.4f}x [UNCACHED / CACHED]", gainz? "GAINZ" : "LOSSEZ", uncacheGainz, cacheGainz);
+
+    return gainz;
 }
 
 #define benchmark_cmp(retType, shzFn, refFn, ...) (benchmark_cmp<retType>)(#shzFn, shzFn, #refFn, refFn __VA_OPT__(,) __VA_ARGS__)
