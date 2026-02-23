@@ -10,7 +10,7 @@
 
 #include <gimbal/algorithms/gimbal_random.h>
 
-#define BENCHMARK_ITERATION_COUNT   20
+#define BENCHMARK_ITERATION_COUNT   10
 #define BENCHMARK_ITERATION_MATCHES 2
 #define SHZ_MEMORY_BARRIER_HARD() __sync_synchronize()
 

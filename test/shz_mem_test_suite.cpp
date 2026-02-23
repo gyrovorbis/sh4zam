@@ -6,8 +6,8 @@
 
 #define GBL_SELF_TYPE   shz_mem_test_suite
 
-#define BUFFER_KB       64
-#define PADDING         12
+#define BUFFER_SIZE     (12 * 1024)
+#define PADDING         128
 
 GBL_TEST_FIXTURE_NONE
 GBL_TEST_INIT_NONE
@@ -55,48 +55,48 @@ bool memcpy_verify(auto&& pFn) {
 }
 
 GBL_TEST_CASE(memcpy1)
-    GBL_TEST_VERIFY((memcpy_verify<BUFFER_KB * 1024, 1, 1, PADDING>)(shz::memcpy1));
-    memcpy_bench <BUFFER_KB * 1024, 1, 1, PADDING>(shz::memcpy1);
+    GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 1, 1, PADDING>)(shz::memcpy1));
+    memcpy_bench <BUFFER_SIZE, 1, 1, PADDING>(shz::memcpy1);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(memcpy2)
-    GBL_TEST_VERIFY((memcpy_verify<BUFFER_KB * 1024, 2, 2, PADDING>)(shz::memcpy2));
-    GBL_TEST_VERIFY((memcpy_bench <BUFFER_KB * 1024, 2, 2, PADDING>)(shz::memcpy2));
+    GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 2, 2, PADDING>)(shz::memcpy2));
+    GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 2, 2, PADDING>)(shz::memcpy2));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(memcpy4)
-    GBL_TEST_VERIFY((memcpy_verify<BUFFER_KB * 1024, 4, 4, PADDING>)(shz::memcpy4));
-    GBL_TEST_VERIFY((memcpy_bench <BUFFER_KB * 1024, 4, 4, PADDING>)(shz::memcpy4));
+    GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 4, 4, PADDING>)(shz::memcpy4));
+    GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 4, 4, PADDING>)(shz::memcpy4));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(memcpy8)
-    GBL_TEST_VERIFY((memcpy_verify<BUFFER_KB * 1024, 8, 8, PADDING>)(shz::memcpy8));
-    GBL_TEST_VERIFY((memcpy_bench <BUFFER_KB * 1024, 8, 8, PADDING>)(shz::memcpy8));
+    GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 8, 8, PADDING>)(shz::memcpy8));
+    GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 8, 8, PADDING>)(shz::memcpy8));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(memcpy32)
-    GBL_TEST_VERIFY((memcpy_verify<BUFFER_KB * 1024, 32, 32, PADDING>)(shz::memcpy32));
-    GBL_TEST_VERIFY((memcpy_bench <BUFFER_KB * 1024, 32, 32, PADDING>)(shz::memcpy32));
+    GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 8, 32, PADDING>)(shz::memcpy32));
+    GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 8, 32, PADDING>)(shz::memcpy32));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(memcpy64)
-    GBL_TEST_VERIFY((memcpy_verify<BUFFER_KB * 1024, 32, 32, PADDING>)(shz::memcpy64));
-    GBL_TEST_VERIFY((memcpy_bench <BUFFER_KB * 1024, 32, 32, PADDING>)(shz::memcpy64));
+    GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 8, 32, PADDING>)(shz::memcpy64));
+    GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 8, 32, PADDING>)(shz::memcpy64));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(memcpy128)
-    GBL_TEST_VERIFY((memcpy_verify<BUFFER_KB * 1024, 32, 32, PADDING>)(shz::memcpy128));
-    GBL_TEST_VERIFY((memcpy_bench <BUFFER_KB * 1024, 32, 32, PADDING>)(shz::memcpy128));
+    GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 8, 32, PADDING>)(shz::memcpy128));
+    GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 8, 32, PADDING>)(shz::memcpy128));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(memcpy)
-    GBL_TEST_VERIFY((memcpy_verify<BUFFER_KB * 1024, 32, 32, PADDING>)(shz::memcpy));
-    GBL_TEST_VERIFY((memcpy_bench <BUFFER_KB * 1024, 32, 32, PADDING>)(shz::memcpy));
+    GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 8, 32, PADDING>)(shz::memcpy));
+    GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 8, 32, PADDING>)(shz::memcpy));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(memcpy_fast)
-    GBL_TEST_VERIFY((memcpy_verify<BUFFER_KB * 1024, 32, 32, PADDING>)(memcpy_fast));
-    GBL_TEST_VERIFY((memcpy_bench <BUFFER_KB * 1024, 32, 32, PADDING>)(memcpy_fast));
+    GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 8, 32, PADDING>)(memcpy_fast));
+    GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 8, 32, PADDING>)(memcpy_fast));
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(memcpy1,

@@ -24,6 +24,7 @@
 #include "shz_cdefs.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 
 /*! \defgroup memory Memory
     \brief    Routines for managing memory.
@@ -152,9 +153,9 @@ SHZ_INLINE void* shz_memcpy4(      void* SHZ_RESTRICT dst,
     \warning
     \p src and \p dst should not overlap.
 */
-extern void* shz_memcpy8(      void* SHZ_RESTRICT dst,
-                         const void* SHZ_RESTRICT src,
-                              size_t              bytes) SHZ_NOEXCEPT;
+SHZ_INLINE void* shz_memcpy8(      void* SHZ_RESTRICT dst,
+                             const void* SHZ_RESTRICT src,
+                                  size_t              bytes) SHZ_NOEXCEPT;
 
 /*! Assigns the given 8-byte \p value to the \p bytes in \p dst.
 
@@ -162,7 +163,7 @@ extern void* shz_memcpy8(      void* SHZ_RESTRICT dst,
     \p dst should be at least 8-byte aligned, and \p bytes should be
     a multiple of 8!
 */
-extern void* shz_memset8(void* dst, uint64_t value, size_t bytes) SHZ_NOEXCEPT;
+SHZ_INLINE void* shz_memset8(void* dst, uint64_t value, size_t bytes) SHZ_NOEXCEPT;
 
 /*! Copies \p bytes from the \p src to the \p dst buffer in 32-byte chunks.
 
