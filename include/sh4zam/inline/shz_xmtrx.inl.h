@@ -1187,7 +1187,7 @@ SHZ_INLINE void shz_xmtrx_init_diagonal(float x, float y, float z, float w) SHZ_
       "m" (x), "m" (y), "m" (z), "m" (w));
 }
 
-SHZ_INLINE void shz_xmtrx_init_upper_diagonal(float col1, shz_vec2_t col2, shz_vec3_t col3, shz_vec4_t col4) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_init_upper_triangular(float col1, shz_vec2_t col2, shz_vec3_t col3, shz_vec4_t col4) SHZ_NOEXCEPT {
     asm volatile(R"(
         flds    %[c1], fpul
         frchg
@@ -1218,7 +1218,7 @@ SHZ_INLINE void shz_xmtrx_init_upper_diagonal(float col1, shz_vec2_t col2, shz_v
     : "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_init_lower_diagonal(shz_vec4_t col1, shz_vec3_t col2, shz_vec2_t col3, float col4) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_init_lower_triangular(shz_vec4_t col1, shz_vec3_t col2, shz_vec2_t col3, float col4) SHZ_NOEXCEPT {
     asm volatile(R"(
         flds    %[c4], fpul
         frchg
@@ -1227,20 +1227,20 @@ SHZ_INLINE void shz_xmtrx_init_lower_diagonal(shz_vec4_t col1, shz_vec3_t col2, 
         fmov.s  @%[c1]+, fr2
         fmov.s  @%[c1]+, fr3
         add     #-16, %[c1]
-        fmov.s  @%[c2]+, fr4
+        fldi0   fr4
         fmov.s  @%[c2]+, fr5
         fmov.s  @%[c2]+, fr6
+        fmov.s  @%[c2]+, fr7
         add     #-12, %[c2]
-        fldi0   fr7
-        fmov.s  @%[c3]+, fr8
-        fmov.s  @%[c3]+, fr9
+        fldi0   fr8
+        fldi0   fr9
+        fmov.s  @%[c3]+, fr10
+        fmov.s  @%[c3]+, fr11
         add     #-8, %[c3]
-        fldi0   fr10
-        fldi0   fr11
-        fsts    fpul, fr12
+        fldi0   fr12
         fldi0   fr13
         fldi0   fr14
-        fldi0   fr15
+        fsts    fpul, fr15
         frchg
     )"
     :

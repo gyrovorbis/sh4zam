@@ -199,17 +199,17 @@ SHZ_INLINE void shz_mat4x4_init_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ
 */
 SHZ_INLINE void shz_mat4x4_init_diagonal(shz_mat4x4_t* mat, float x, float y, float z, float w) SHZ_NOEXCEPT;
 
-/*! Initializes the given matrix to an upper diagonal matrix whose nonzero entries have the given value.
+/*! Initializes the given matrix to an upper triangular matrix whose nonzero entries have the given value.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_init_upper_diagonal(shz_mat4x4_t* mat, float col1, shz_vec2_t col2, shz_vec3_t col3, shz_vec4_t col4) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_init_upper_triangular(shz_mat4x4_t* mat, float col1, shz_vec2_t col2, shz_vec3_t col3, shz_vec4_t col4) SHZ_NOEXCEPT;
 
-/*! Initializes the given matrix to a lower diagonal matrix whose nonzero entries have the given value.
+/*! Initializes the given matrix to a lower triangular matrix whose nonzero entries have the given value.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_init_lower_diagonal(shz_mat4x4_t* mat, shz_vec4_t col1, shz_vec3_t col2, shz_vec2_t col3, float col4) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_init_lower_triangular(shz_mat4x4_t* mat, shz_vec4_t col1, shz_vec3_t col2, shz_vec2_t col3, float col4) SHZ_NOEXCEPT;
 
 /*! Initializes the given matrix to be the symmetric skew of the given 3D vector components.
 

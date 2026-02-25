@@ -11,7 +11,7 @@
 #include <gimbal/algorithms/gimbal_random.h>
 
 #define BENCHMARK_ITERATION_COUNT   10
-#define BENCHMARK_ITERATION_MATCHES 2
+#define BENCHMARK_ITERATION_MATCHES 3
 #define SHZ_MEMORY_BARRIER_HARD() __sync_synchronize()
 
 #define PMCR_PMENABLE   0x8000  /* Enable */
@@ -56,8 +56,9 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function
         int      iterations   = 0;
         unsigned matches      = 0;
 
-        SHZ_MEMORY_BARRIER_HARD();
+        SHZ_MEMORY_BARRIER_SOFT();
         auto state = irq_disable();
+        SHZ_MEMORY_BARRIER_SOFT();
 
  #pragma GCC unroll 0
         for(iterations = 0; iterations < BENCHMARK_ITERATION_COUNT; ++iterations) {
@@ -107,7 +108,7 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function
               tmu_sum     / iterations,
               iterations);
 
-        return perfctr_prev;
+        return (iterations < BENCHMARK_ITERATION_COUNT)? perfctr_prev : (perfctr_sum / iterations);
     };
 
     return std::make_pair(
@@ -123,10 +124,17 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
                    const char* refName, RefFn&& refFn,
                    Args&&... args) noexcept
 {
-    volatile R result;
+    uint64_t shzUncacheCyc, shzCacheCyc, refUncacheCyc, refCacheCyc;
 
-    auto [shzUncacheCyc, shzCacheCyc] = (benchmark)(&result, shzName, std::forward<ShzFn>(shzFn), std::forward<Args>(args)...);
-    auto [refUncacheCyc, refCacheCyc] = (benchmark)(&result, refName, std::forward<RefFn>(refFn), std::forward<Args>(args)...);
+    if constexpr(std::same_as<R, void> || std::same_as<R, std::nullptr_t>) {
+        std::tie(shzUncacheCyc, shzCacheCyc) = (benchmark)(nullptr, shzName, std::forward<ShzFn>(shzFn), std::forward<Args>(args)...);
+        std::tie(refUncacheCyc, refCacheCyc) = (benchmark)(nullptr, refName, std::forward<RefFn>(refFn), std::forward<Args>(args)...);
+    } else {
+        volatile R result;
+
+        std::tie(shzUncacheCyc, shzCacheCyc) = (benchmark)(&result, shzName, std::forward<ShzFn>(shzFn), std::forward<Args>(args)...);
+        std::tie(refUncacheCyc, refCacheCyc) = (benchmark)(&result, refName, std::forward<RefFn>(refFn), std::forward<Args>(args)...);
+    }
 
     double cacheGainz   = ((double)refCacheCyc  ) / ((double)shzCacheCyc  );
     double uncacheGainz = ((double)refUncacheCyc) / ((double)shzUncacheCyc);

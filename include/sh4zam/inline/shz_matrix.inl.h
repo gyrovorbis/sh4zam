@@ -107,13 +107,13 @@ SHZ_INLINE void shz_mat4x4_init_diagonal(shz_mat4x4_t* mat, float x, float y, fl
     shz_xmtrx_store_4x4(mat);
 }
 
-SHZ_INLINE void shz_mat4x4_init_upper_diagonal(shz_mat4x4_t* mat, float col1, shz_vec2_t col2, shz_vec3_t col3, shz_vec4_t col4) SHZ_NOEXCEPT {
-    shz_xmtrx_init_upper_diagonal(col1, col2, col3, col4);
+SHZ_INLINE void shz_mat4x4_init_upper_triangular(shz_mat4x4_t* mat, float col1, shz_vec2_t col2, shz_vec3_t col3, shz_vec4_t col4) SHZ_NOEXCEPT {
+    shz_xmtrx_init_upper_triangular(col1, col2, col3, col4);
     shz_xmtrx_store_4x4(mat);
 }
 
-SHZ_INLINE void shz_mat4x4_init_lower_diagonal(shz_mat4x4_t* mat, shz_vec4_t col1, shz_vec3_t col2, shz_vec2_t col3, float col4) SHZ_NOEXCEPT {
-    shz_xmtrx_init_lower_diagonal(col1, col2, col3, col4);
+SHZ_INLINE void shz_mat4x4_init_lower_triangular(shz_mat4x4_t* mat, shz_vec4_t col1, shz_vec3_t col2, shz_vec2_t col3, float col4) SHZ_NOEXCEPT {
+    shz_xmtrx_init_lower_triangular(col1, col2, col3, col4);
     shz_xmtrx_store_4x4(mat);
 }
 

@@ -12,7 +12,6 @@
  *      - shz_xmtrx_position()
  *      - shz_xmtrx_size()
  *      - shz_xmtrx_angles()
- *      - shz_xmtrx_frustum()
  *      - shz_xmtrx_init_rotation_quat()
  *      - shz_xmtrx_apply_store_4x4()
  *
@@ -296,11 +295,11 @@ SHZ_INLINE void shz_xmtrx_init_rotation(float angle, float xAxis, float yAxis, f
 //! Initializes XMTRX to be a diagonal matrix with the given diagonal values.
 SHZ_INLINE void shz_xmtrx_init_diagonal(float x, float y, float z, float w) SHZ_NOEXCEPT;
 
-//! Initializes XMTRX to be an upper diagonal matrix with the given column values.
-SHZ_INLINE void shz_xmtrx_init_upper_diagonal(float col1, shz_vec2_t col2, shz_vec3_t col3, shz_vec4_t col4) SHZ_NOEXCEPT;
+//! Initializes XMTRX to be an upper triangular matrix with the given column values.
+SHZ_INLINE void shz_xmtrx_init_upper_triangular(float col1, shz_vec2_t col2, shz_vec3_t col3, shz_vec4_t col4) SHZ_NOEXCEPT;
 
-//! Initializes XMTRX to be a lower diagonal matrix with the given column values.
-SHZ_INLINE void shz_xmtrx_init_lower_diagonal(shz_vec4_t col1, shz_vec3_t col2, shz_vec2_t col3, float col4) SHZ_NOEXCEPT;
+//! Initializes XMTRX to be a lower triangular matrix with the given column values.
+SHZ_INLINE void shz_xmtrx_init_lower_triangular(shz_vec4_t col1, shz_vec3_t col2, shz_vec2_t col3, float col4) SHZ_NOEXCEPT;
 
 //! Initializes XMTRX to be the 3D symmetric skew matrix formed from the given vector components.
 SHZ_INLINE void shz_xmtrx_init_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;
@@ -443,9 +442,9 @@ SHZ_INLINE void shz_xmtrx_apply_ortho(float left, float right, float bottom, flo
 
      fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
     -----------|-----------|-----------|-----------
-    cot(f)/a   | 0.0f      | 0.0f      | 0.0f
-     0.0f      | cot(f)    | 0.0f      | 0.0f
-     0.0f      | 0.0f      | 0.0f      | nz
+     cot(f)/a  | 0.0f      |  0.0f     | 0.0f
+     0.0f      | cot(f)    |  0.0f     | 0.0f
+     0.0f      | 0.0f      |  0.0f     | nz
      0.0f      | 0.0f      | -1.0f     | 0.0f
 */
 SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float near_z) SHZ_NOEXCEPT;
@@ -583,11 +582,30 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
     \note
     The resulting matrix does not get stored within XMTRX, despite it getting clobbered.
 
-    \sa shz_xmtrx_load_apply(), shz_xmtrx_load_apply_store_unaligned_4x4()
+    \sa shz_xmtrx_load_3x4(), shz_xmtrx_apply_3x4(), shz_xmtrx_store_3x4()
 */
 void shz_xmtrx_load_apply_store_3x4(shz_mat3x4_t* out,
                                     const shz_mat3x4_t* matrix1,
                                     const shz_mat3x4_t* matrix2) SHZ_NOEXCEPT;
+
+/*! Loads XMTRX with the 3x3 result of applying \p matrix2 onto \p matrix1, storing the result.
+
+    This operation is equivalent to:
+        shz_xmtrx_load_3x3(matrix1);
+        shz_xmtrx_apply_3x3(matrix2);
+        shz_xmtrx_store_3x3(out);
+
+    However, it has been optimized and pipelined for performing the loads, multiplies,
+    and stores in parallel.
+
+    \note
+    The resulting matrix does not get stored within XMTRX, despite it getting clobbered.
+
+    \sa shz_xmtrx_load_3x3(), shz_xmtrx_apply_3x3(), shz_xmtrx_store_3x3()
+*/
+void shz_xmtrx_load_apply_store_3x3(shz_mat3x3_t* out,
+                                    const shz_mat3x3_t* matrix1,
+                                    const shz_mat3x3_t* matrix2) SHZ_NOEXCEPT;
 
 //! @}
 

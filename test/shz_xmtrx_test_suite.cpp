@@ -5,11 +5,13 @@
 
 #include <gimbal/gimbal_algorithms.h>
 #include <print>
+
 #include <cglm/cglm.h>
 #include <cglm/clipspace/ortho_rh_no.h>
 #include <cglm/clipspace/view_rh.h>
 #include <cglm/clipspace/persp_rh_no.h>
 #include <cglm/mat4.h>
+#include <cglm/mat3.h>
 
 #define GBL_SELF_TYPE shz_xmtrx_test_suite
 
@@ -38,13 +40,12 @@ static bool compare_glm(const shz::mat4x4& shzmat, const mat4& glmmat) {
     return true;
 }
 
-SHZ_NO_INLINE
 static void randomize_xmtrx_() {
-    //for(unsigned reg = SHZ_XMTRX_XF0; reg < SHZ_XMTRX_XF15; ++reg)
-     //   shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandf());
+    for(unsigned reg = SHZ_XMTRX_XF0; reg < SHZ_XMTRX_XF15; ++reg)
+       shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandf());
 }
 
-SHZ_NO_INLINE static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, double epsilon=0.01) {
+static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, double epsilon=0.01) {
     mat = transpose(mat);
     GBL_CTX_BEGIN(pSelf);
     GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF0 ), mat[SHZ_XMTRX_XF0 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
@@ -453,36 +454,34 @@ GBL_TEST_CASE(init_diagonal)
                     0.0f, 0.0f, 0.0f, 4.0f}));
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(init_upper_diagonal)
-    GBL_TEST_SKIP("LOL");
+GBL_TEST_CASE(init_upper_triangular)
     randomize_xmtrx_();
-    shz::xmtrx::init_upper_diagonal(  1.0f,
+    shz::xmtrx::init_upper_triangular(  1.0f,
                                     { 2.0f, 3.0f },
                                     { 4.0f, 5.0f, 6.0f },
                                     { 7.0f, 8.0f, 9.0f, 10.0f });
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                                transpose({
+                                {
                                     1.0f, 2.0f, 4.0f, 7.0f,
                                     0.0f, 3.0f, 5.0f, 8.0f,
                                     0.0f, 0.0f, 6.0f, 9.0f,
                                     0.0f, 0.0f, 0.0f, 10.0f
-                                })));
+                                }));
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(init_lower_diagonal)
-    GBL_TEST_SKIP("LOL");
+GBL_TEST_CASE(init_lower_triangular)
     randomize_xmtrx_();
-    shz::xmtrx::init_lower_diagonal({ 7.0f, 8.0f, 9.0f, 10.0f },
+    shz::xmtrx::init_lower_triangular({ 7.0f, 8.0f, 9.0f, 10.0f },
                                     { 4.0f, 5.0f, 6.0f },
                                     { 2.0f, 3.0f },
                                       1.0f);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                                transpose({
+                                {
                                     7.0f, 0.0f, 0.0f, 0.0f,
                                     8.0f, 4.0f, 0.0f, 0.0f,
                                     9.0f, 5.0f, 2.0f, 0.0f,
                                    10.0f, 6.0f, 3.0f, 1.0f
-                                })));
+                                }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_symmetric_skew)
@@ -1085,6 +1084,47 @@ GBL_TEST_CASE(load_apply_store_3x4)
             GBL_TEST_VERIFY(shz_equalf(shzRes.elem2D[i][j], q2Res.elem2D[i][j]));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(load_apply_store_3x3)
+   union shz_glm_mat3x3_t {
+       shz_mat3x3_t shz;
+       mat3         glm;
+   };
+
+   shz_glm_mat3x3_t shzRes, glmRes;
+   shz_glm_mat3x3_t mat1 = { .shz = {
+        .left    = { -13.0f,   2.0f,  3.0f },
+        .up      = {  4.0f,  -5.0f,  6.0f },
+        .forward = {  7.0f,   8.0f,  9.0f }
+   }};
+   shz_glm_mat3x3_t mat2 = { .shz = {
+        .left    = { 11.0f,    2.5f, -3.333f },
+        .up      = { -46.0f,  -5.0f,  0.777f },
+        .forward = { -75.0f, 0.008f, -99.44f }
+   }};
+
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)(
+            "shz::xmtrx::load_apply_store[3x3]", [&] {
+                shz::xmtrx::load_apply_store(&shzRes.shz, mat1.shz, mat2.shz);
+            },
+            "glm_mat3_mul", [&] {
+                glm_mat3_mul(mat1.glm, mat2.glm, glmRes.glm);
+            }
+        )
+    );
+
+#if 0
+   for(unsigned i = 0; i < 3; ++i)
+       for(unsigned j = 0; j < 3; ++j)
+            std::println("[{}][{}]: {} vs {}", i, j, shzRes.shz.elem2D[i][j], glmRes.shz.elem2D[i][j]);
+#endif
+
+    for(unsigned i = 0; i < 3; ++i)
+       for(unsigned j = 0; j < 3; ++j)
+            GBL_TEST_VERIFY(shz_equalf(shzRes.shz.elem2D[i][j], glmRes.shz.elem2D[i][j]));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(read_write_registers,
                   read_write_rows,
                   read_write_cols,
@@ -1116,8 +1156,8 @@ GBL_TEST_REGISTER(read_write_registers,
                   init_rotation_yxz,
                   init_rotation,
                   init_diagonal,
-                  init_upper_diagonal,
-                  init_lower_diagonal,
+                  init_upper_triangular,
+                  init_lower_triangular,
                   init_symmetric_skew,
                   init_outer_product,
                   init_screen,
@@ -1152,4 +1192,5 @@ GBL_TEST_REGISTER(read_write_registers,
                   load_3x4,
                   store_3x4,
                   apply_3x4,
-                  load_apply_store_3x4)
+                  load_apply_store_3x4,
+                  load_apply_store_3x3)

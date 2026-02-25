@@ -295,14 +295,14 @@ struct xmtrx {
         shz_xmtrx_init_diagonal(x, y, z, w);
     }
 
-    //! C++ wrapper around shz_xmtrx_init_upper_diagonal().
-    SHZ_FORCE_INLINE static void init_upper_diagonal(float col1, vec2 col2, vec3 col3, vec4 col4) noexcept {
-        shz_xmtrx_init_upper_diagonal(col1, col2, col3, col4);
+    //! C++ wrapper around shz_xmtrx_init_upper_triangular().
+    SHZ_FORCE_INLINE static void init_upper_triangular(float col1, vec2 col2, vec3 col3, vec4 col4) noexcept {
+        shz_xmtrx_init_upper_triangular(col1, col2, col3, col4);
     }
 
     //! C++ wrapper around shz_xmtrx_init_lower_diagonal().
-    SHZ_FORCE_INLINE static void init_lower_diagonal(vec4 col1, vec3 col2, vec2 col3, float col4) noexcept {
-        shz_xmtrx_init_lower_diagonal(col1, col2, col3, col4);
+    SHZ_FORCE_INLINE static void init_lower_triangular(vec4 col1, vec3 col2, vec2 col3, float col4) noexcept {
+        shz_xmtrx_init_lower_triangular(col1, col2, col3, col4);
     }
 
     //! C++ wrapper around shz_xmtrx_init_symmetric_skew().
@@ -589,6 +589,11 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_load_apply_store_3x4().
     SHZ_FORCE_INLINE static void load_apply_store(shz_mat3x4_t* dst, const shz_mat3x4_t& mat1, const shz_mat3x4_t& mat2) noexcept {
         shz_xmtrx_load_apply_store_3x4(dst, &mat1, &mat2);
+    }
+
+    //! C++ wrapper around shz_xmtrx_load_apply_store_3x3().
+    SHZ_FORCE_INLINE static void load_apply_store(shz_mat3x3_t* dst, const shz_mat3x3_t& mat1, const shz_mat3x3_t& mat2) noexcept {
+        shz_xmtrx_load_apply_store_3x3(dst, &mat1, &mat2);
     }
 
 //! @}

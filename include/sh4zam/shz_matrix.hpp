@@ -143,12 +143,12 @@ namespace shz {
             shz_mat4x4_init_diagonal(this, x, y, z, w);
         }
 
-        SHZ_FORCE_INLINE void init_upper_diagonal(float col1, vec2 col2, vec3 col3, vec4 col4) noexcept{
-            shz_mat4x4_init_upper_diagonal(this, col1, col2, col3, col4);
+        SHZ_FORCE_INLINE void init_upper_triangular(float col1, vec2 col2, vec3 col3, vec4 col4) noexcept{
+            shz_mat4x4_init_upper_triangular(this, col1, col2, col3, col4);
         }
 
-        SHZ_FORCE_INLINE void init_lower_diagonal(vec4 col1, vec3 col2, vec2 col3, float col4) noexcept {
-            shz_mat4x4_init_lower_diagonal(this, col1, col2, col3, col4);
+        SHZ_FORCE_INLINE void init_lower_triangular(vec4 col1, vec3 col2, vec2 col3, float col4) noexcept {
+            shz_mat4x4_init_lower_triangular(this, col1, col2, col3, col4);
         }
 
         SHZ_FORCE_INLINE void init_symmetric_skew(float x, float y, float z) noexcept {
