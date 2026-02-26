@@ -168,8 +168,8 @@ static void render_sphere(float radius,
         every vertex in the current ball has the same color, we might as well only
         set its values a single time.
     */
-    pvr_dr_target(*dr_state)->argb = base_color;
-    pvr_dr_target(*dr_state)->argb = base_color;
+    ((pvr_vertex_t*)pvr_dr_target(*dr_state))->argb = base_color;
+    ((pvr_vertex_t*)pvr_dr_target(*dr_state))->argb = base_color;
 
     // Iterate over each Z stack that we're drawing for a given ball.
     for(unsigned stack = 0; stack < SPHERE_STACKS; stack++) {
@@ -190,8 +190,8 @@ static void render_sphere(float radius,
         /* Warm up the SQs by setting the vertex command, which is held constant until
            the very last vertex is submitted, which needs to send an end-of-list command.
         */
-        pvr_dr_target(*dr_state)->flags = PVR_CMD_VERTEX;
-        pvr_dr_target(*dr_state)->flags = PVR_CMD_VERTEX;
+        ((pvr_vertex_t*)pvr_dr_target(*dr_state))->flags = PVR_CMD_VERTEX;
+        ((pvr_vertex_t*)pvr_dr_target(*dr_state))->flags = PVR_CMD_VERTEX;
 
         // Render each X/Y sphere slice for the given ball.
         for(unsigned slice = 0; slice < SPHERE_SLICES; slice++) {
