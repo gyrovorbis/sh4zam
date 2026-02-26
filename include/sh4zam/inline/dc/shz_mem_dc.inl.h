@@ -431,7 +431,6 @@ SHZ_INLINE void* shz_memcpy128(      void* SHZ_RESTRICT dst,
     return dst;
 }
 
-SHZ_COLD
 SHZ_INLINE void* shz_memcpy(      void* SHZ_RESTRICT dst,
                             const void* SHZ_RESTRICT src,
                                 size_t               bytes) SHZ_NOEXCEPT {

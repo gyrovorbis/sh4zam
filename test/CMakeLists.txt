@@ -40,3 +40,10 @@ if(PLATFORM_DREAMCAST)
     include(kallistios REQUIRED)
     kos_run_target(Sh4zamTests run-sh4zam-tests)
 endif()
+
+option(SHZ_DISABLE_BENCHMARKS "Disable SH4ZAM test benchmarks" OFF)
+
+if(SHZ_DISABLE_BENCHMARKS)
+    target_compile_definitions(Sh4zamTests PRIVATE SHZ_DISABLE_BENCHMARKS)
+endif(SHZ_DISABLE_BENCHMARKS)
+

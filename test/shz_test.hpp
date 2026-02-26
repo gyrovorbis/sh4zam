@@ -10,7 +10,12 @@
 
 #include <gimbal/algorithms/gimbal_random.h>
 
-#define BENCHMARK_ITERATION_COUNT   10
+#ifndef SHZ_DISABLE_BENCHMARKS
+#   define BENCHMARK_ITERATION_COUNT   10
+#else
+#   define BENCHMARK_ITERATION_COUNT    1
+#endif
+
 #define BENCHMARK_ITERATION_MATCHES 3
 #define SHZ_MEMORY_BARRIER_HARD() __sync_synchronize()
 
@@ -45,8 +50,6 @@ SHZ_FORCE_INLINE uint64_t PERF_CNTR_STOP() {
 template<typename F, typename... Args>
 SHZ_NO_INLINE
 std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function, Args&&... args) noexcept {
-    alignas(32) uint8_t dcache_buffer[1024 * 16];
-
     perf_cntr_timer_enable();
 
     auto inner = [&]<bool CacheFlush>() SHZ_NO_INLINE SHZ_ICACHE_ALIGNED {
@@ -62,10 +65,14 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function
 
  #pragma GCC unroll 0
         for(iterations = 0; iterations < BENCHMARK_ITERATION_COUNT; ++iterations) {
+        SHZ_MEMORY_BARRIER_SOFT();
+#ifndef SHZ_DISABLE_BENCHMARKS
             if constexpr(CacheFlush) {
-                icache_flush_range((uintptr_t)&_executable_start, (size_t)((uintptr_t)&_etext - (uintptr_t)&_executable_start));
+                alignas(32) uint8_t dcache_buffer[1024 * 16];
+                icache_inval_range((uintptr_t)&_executable_start, (size_t)((uintptr_t)&_etext - (uintptr_t)&_executable_start));
                 dcache_purge_all_with_buffer((uintptr_t)dcache_buffer, sizeof(dcache_buffer));
             }
+#endif
 
             SHZ_MEMORY_BARRIER_SOFT();
             uint64_t tmu_start = timer_ns_gettime64();
@@ -100,6 +107,7 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function
         irq_restore(state);
         SHZ_MEMORY_BARRIER_SOFT();
 
+ #ifndef SHZ_DISABLE_BENCHMARKS
         std::println("\t{:>25} [{:8}] : {:4}/{:4} cc, {:4} ns, {:2} calls",
               name,
               (CacheFlush)? "UNCACHED" : "CACHED",
@@ -107,7 +115,7 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function
               perfctr_sum / iterations,
               tmu_sum     / iterations,
               iterations);
-
+#endif
         return (iterations < BENCHMARK_ITERATION_COUNT)? perfctr_prev : (perfctr_sum / iterations);
     };
 
@@ -136,6 +144,7 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
         std::tie(refUncacheCyc, refCacheCyc) = (benchmark)(&result, refName, std::forward<RefFn>(refFn), std::forward<Args>(args)...);
     }
 
+#ifndef SHZ_DISABLE_BENCHMARKS
     double cacheGainz   = ((double)refCacheCyc  ) / ((double)shzCacheCyc  );
     double uncacheGainz = ((double)refUncacheCyc) / ((double)shzUncacheCyc);
 
@@ -144,6 +153,9 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
     std::println("* [   {:6}  ]:\t{:.4f}x / {:.4f}x [UNCACHED / CACHED]", gainz? "GAINZ" : "LOSSEZ", uncacheGainz, cacheGainz);
 
     return gainz;
+#else
+    return true;
+#endif
 }
 
 #define benchmark_cmp(retType, shzFn, refFn, ...) (benchmark_cmp<retType>)(#shzFn, shzFn, #refFn, refFn __VA_OPT__(,) __VA_ARGS__)

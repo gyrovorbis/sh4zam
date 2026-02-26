@@ -7,7 +7,7 @@
 #define GBL_SELF_TYPE   shz_mem_test_suite
 
 #define BUFFER_SIZE     (12 * 1024)
-#define PADDING         128
+#define PADDING         1024
 
 GBL_TEST_FIXTURE_NONE
 GBL_TEST_INIT_NONE
