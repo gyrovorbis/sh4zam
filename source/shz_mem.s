@@ -54,11 +54,13 @@ _shz_memcpy128_:
 
     mov       r15, r0
     or        #0x0f, r0
+    mov       #-7, r2
     xor       #0x0f, r0 ! r0 = 8-byte aligned stack
 
-    mov       #-7, r2
     fmov.d    dr12, @-r0
     shld      r2, r6
+    fmov.d    dr14, @-r0
+    xor       r3, r3
     fmov.d    xd0, @-r0
     mov       r6, r1  ! counter
     fmov.d    xd2, @-r0
@@ -74,9 +76,9 @@ _shz_memcpy128_:
     fmov.d    xd12, @-r0
     add       #-32, r7 ! r7 = src - 32
     pref      @r7
-    xor       r3, r3
-    fmov.d    xd14, @-r0
     add       #64, r3
+    fmov.d    xd14, @-r0
+
     add       #64, r3
     sub       r3, r5   != src -= 128
     add       r3, r3   ! r3 = 256
