@@ -753,44 +753,47 @@ SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     float f, s, m;
 
     if((f = mat->up.y + mat->left.x + mat->forward.z) >= 0.0f) {
-        s = shz_inv_sqrtf_fsrra(f + 1.0f);
+        s = shz_inv_sqrtf_fsrra(f += 1.0f);
         m = 0.5f * s;
 
         return shz_quat_init(
-            shz_divf_fsrra(0.5f, s),
+            (0.5f * f *                    s),
             (mat->up.z      - mat->forward.y) * m,
             (mat->forward.x - mat->left.z   ) * m,
             (mat->left.y    - mat->up.x     ) * m
         );
     } else if (mat->left.x >= mat->up.y && mat->left.x >= mat->forward.z) {
-        s = shz_inv_sqrtf(1.0f - mat->up.y - mat->forward.z + mat->left.x);
+        f = 1.0f - mat->up.y - mat->forward.z + mat->left.x;
+        s = shz_inv_sqrtf(f);
         m = 0.5f * s;
 
         return shz_quat_init(
             (mat->up.z      - mat->forward.y) * m,
-             shz_divf(0.5f,                s),
+            (0.5f * f *                    s),
             (mat->up.x      + mat->left.y   ) * m,
             (mat->forward.x + mat->left.z   ) * m
         );
     } else if (mat->up.y >= mat->forward.z) {
-        s = shz_inv_sqrtf(1.0f - mat->left.x - mat->forward.z + mat->up.y);
+        f = 1.0f - mat->left.x - mat->forward.z + mat->up.y;
+        s = shz_inv_sqrtf(f);
         m = 0.5f * s;
 
         return shz_quat_init(
             (mat->forward.x - mat->left.z) * m,
             (mat->up.x      + mat->left.y) * m,
-            shz_divf(0.5f,              s),
+            (0.5f * f *                 s),
             (mat->forward.y + mat->up.z  ) * m
         );
     } else {
-        s = shz_inv_sqrtf(1.0f - mat->left.x - mat->up.y + mat->forward.z);
+        f = 1.0f - mat->left.x - mat->up.y + mat->forward.z;
+        s = shz_inv_sqrtf(f);
         m = 0.5f * s;
 
         return shz_quat_init(
             (mat->left.y    - mat->up.x  ) * m,
             (mat->forward.x + mat->left.z) * m,
             (mat->forward.y + mat->up.z  ) * m,
-            shz_divf(0.5f,              s)
+            (0.5f * f *                 s)
         );
     }
 }

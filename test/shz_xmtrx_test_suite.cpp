@@ -1102,7 +1102,6 @@ GBL_TEST_CASE(load_apply_store_3x3)
         .forward = { -75.0f, 0.008f, -99.44f }
    }};
 
-
     GBL_TEST_VERIFY(
         (benchmark_cmp<void>)(
             "shz::xmtrx::load_apply_store[3x3]", [&] {

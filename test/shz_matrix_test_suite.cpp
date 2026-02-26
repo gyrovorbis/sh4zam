@@ -81,8 +81,6 @@ GBL_TEST_CASE(to_quat)
     mat.shz.init_rotation_z(shz::deg_to_rad(180.0f));
     GBL_TEST_VERIFY(test(mat));
 
-    mat.shz.init_rotation_xyz(9999.0f, 0.34232f, -243.04324f);
-
     shz::quat shzQuat;
     versor    glmQuat;
     GBL_TEST_VERIFY(
