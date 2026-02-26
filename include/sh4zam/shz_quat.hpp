@@ -118,7 +118,7 @@ namespace shz {
 
         //! Returns true if \p lhs is lexicographically less than \p rhs.
         friend auto operator<(quat lhs, quat rhs) noexcept {
-            return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+            return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
         }
 #endif
         //! Overloaded comparison operator, checks for quaternion equality.

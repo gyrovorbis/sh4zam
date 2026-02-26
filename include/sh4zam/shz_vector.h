@@ -198,13 +198,13 @@ SHZ_FORCE_INLINE bool shz_vec3_equal(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT;
 SHZ_FORCE_INLINE bool shz_vec4_equal(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT;
 
 //! For each component: returns 0.0f if vec[i] < edge[i], otherwise 1.0f
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_stepv(shz_vec2_t edge, shz_vec2_t vec) SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_stepv( shz_vec2_t vec, shz_vec2_t edge) SHZ_NOEXCEPT;
 
 //! For each component: returns 0.0f if vec[i] < edge[i], otherwise 1.0f
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_stepv(shz_vec3_t edge, shz_vec3_t vec) SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_stepv(shz_vec3_t vec, shz_vec3_t edge) SHZ_NOEXCEPT;
 
 //! For each component: returns 0.0f if vec[i] < edge[i], otherwise 1.0f
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_stepv(shz_vec4_t edge, shz_vec4_t vec) SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_stepv(shz_vec4_t vec, shz_vec4_t edge) SHZ_NOEXCEPT;
 
 //! For each component: returns 0.0f if vec[i] < edge, otherwise 1.0f
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_step(shz_vec2_t vec, float edge) SHZ_NOEXCEPT;
@@ -683,14 +683,14 @@ SHZ_DECLS_END
 
     //! C type-generic vector multiplication.
 #   define shz_vec_mul(vec1, vec2) \
-        _Generic((vec), \
+        _Generic((vec1), \
                  shz_vec2_t: shz_vec2_mul, \
                  shz_vec3_t: shz_vec3_mul, \
                  shz_vec4_t: shz_vec4_mul)(vec1, vec2)
 
     //! C type-generic vector division.
 #   define shz_vec_div(vec1, vec2) \
-        _Generic((vec), \
+        _Generic((vec1), \
                  shz_vec2_t: shz_vec2_div, \
                  shz_vec3_t: shz_vec3_div, \
                  shz_vec4_t: shz_vec4_div)(vec1, vec2)
@@ -700,7 +700,7 @@ SHZ_DECLS_END
         _Generic((vec), \
                  shz_vec2_t: shz_vec2_scale, \
                  shz_vec3_t: shz_vec3_scale, \
-                 shz_vec4_t: shz_vec4_div)(vec, factor)
+                 shz_vec4_t: shz_vec4_scale)(vec, factor)
 
     //! C type-generic vector dot product.
 #   define shz_vec_dot(vec1, vec2) \
@@ -1199,7 +1199,7 @@ SHZ_DECLS_END
 
     //! Type-generic cross product between the two given vectors returned.
     template<typename T>
-    SHZ_FORCE_INLINE T shz_vec_cross(T vec1, T vec2) SHZ_NOEXCEPT {
+    SHZ_FORCE_INLINE auto shz_vec_cross(T vec1, T vec2) SHZ_NOEXCEPT {
         if constexpr(std::convertible_to<T, shz_vec2_t>)
             return shz_vec2_cross(vec1, vec2);
         else if constexpr(std::convertible_to<T, shz_vec3_t>)

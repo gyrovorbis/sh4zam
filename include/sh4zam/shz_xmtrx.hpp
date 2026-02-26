@@ -195,7 +195,7 @@ struct xmtrx {
 
     //! C++ wrapper around shz_xmtrx_store_transpose_unaligned_4x4().
     SHZ_FORCE_INLINE static void store_transpose(float cArray[16]) noexcept {
-        shz_xmtrx_store_transpose_4x4(reinterpret_cast<shz_mat4x4_t*>(cArray));
+        shz_xmtrx_store_transpose_unaligned_4x4(cArray);
     }
 
     //! C++ wrapper around shz_xmtrx_store_transpose_unaligned_4x4().
@@ -551,7 +551,7 @@ struct xmtrx {
 
     //! C++ wrapper around shz_xmtrx_rotate_yxz().
     SHZ_FORCE_INLINE static void rotate_yxz(float y, float x, float z) noexcept {
-        shz_xmtrx_rotate_zyx(y, x, z);
+        shz_xmtrx_rotate_yxz(y, x, z);
     }
 
     //! C++ wrapper around shz_xmtrx_rotate().

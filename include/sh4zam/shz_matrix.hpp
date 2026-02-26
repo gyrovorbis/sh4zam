@@ -49,7 +49,7 @@ namespace shz {
 
         //! Returns an iterator to the end of the vector -- For STL support.
         SHZ_FORCE_INLINE auto end(this auto&& self) noexcept {
-            return &self[Rows * Cols - 1];
+            return &self[Rows * Cols];
         }
 
         //! Overloaded space-ship operator, for generic lexicographical comparison of vectors.

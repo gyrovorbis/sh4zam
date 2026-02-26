@@ -339,7 +339,7 @@ SHZ_FORCE_INLINE CRTP operator/(vecN<CRTP, C, R> lhs, float rhs) noexcept {
 //! Reverse overloaded division operator for component-wise dividing each element of the given vector by the given scalar.
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE CRTP operator/(float lhs, vecN<CRTP, C, R> rhs) noexcept {
-    return shz_vec_scale(rhs, shz::invf(lhs));
+    return shz_vec_div(CRTP(lhs), rhs);
 }
 
 /*! 2D Vector type

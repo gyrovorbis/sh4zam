@@ -247,13 +247,13 @@ SHZ_FORCE_INLINE float shz_randf(int* seed) SHZ_NOEXCEPT;
 SHZ_FORCE_INLINE float shz_randf_range(int* seed, float min, float max) SHZ_NOEXCEPT;
 
 //! returns 0.0f if x < edge, otherwise 1.0f
-SHZ_FORCE_INLINE float shz_stepf(float edge, float x) SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE float shz_stepf(float x, float edge) SHZ_NOEXCEPT;
 
 //! Returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between. edge0 must be less than edge1 or result is undefined.
-SHZ_FORCE_INLINE float shz_smoothstepf(float edge0, float edge1, float x) SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE float shz_smoothstepf(float x, float edge0, float edge1) SHZ_NOEXCEPT;
 
 //! Returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between. Accepts inverse edges.
-SHZ_FORCE_INLINE float shz_smoothstepf_safe(float edge0, float edge1, float x) SHZ_NOEXCEPT;
+SHZ_FORCE_INLINE float shz_smoothstepf_safe(float x, float edge0, float edge1) SHZ_NOEXCEPT;
 
 //! @}
 

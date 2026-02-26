@@ -57,7 +57,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_barycenter_dc(shz_vec3_t p,
 
     // Begin calculating d01
     asm("fipr fv0, fv4"
-        : "=f" (fr7)
+        : "+f" (fr7)
         : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
           "f" (fr4), "f" (fr5), "f" (fr6));
 
@@ -69,7 +69,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_barycenter_dc(shz_vec3_t p,
 
     // Begin calculating d00.
     asm("fipr fv0, fv0"
-        : "=f" (fr3)
+        : "+f" (fr3)
         : "f" (fr0), "f" (fr1), "f" (fr2));
 
     SHZ_MEMORY_BARRIER_HARD();
@@ -79,7 +79,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_barycenter_dc(shz_vec3_t p,
 
     // Begin calculating d12
     asm("fipr fv4, fv8"
-        : "=f" (fr11)
+        : "+f" (fr11)
         : "f" (fr4), "f" (fr5), "f" (fr6), "f" (fr7),
           "f" (fr8), "f" (fr9), "f" (fr10));
 

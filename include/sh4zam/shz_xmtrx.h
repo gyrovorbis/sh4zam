@@ -413,7 +413,7 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_zyx(float zAngle, float yAngle, float x
 
     \sa shz_xmtrx_apply_rotation_zyx(), shz_xmtrx_apply_rotation_yxz()
 */
-SHZ_INLINE void shz_xmtrx_apply_rotation_zxy(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_apply_rotation_zxy(float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates XMTRX by a 3D Y-X-Z rotation matrix, with the corresponding angles given in radians.
 
