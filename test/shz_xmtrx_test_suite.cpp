@@ -874,8 +874,14 @@ GBL_TEST_CASE(translate)
                                 0.0f, 1.0f, 0.0f, 2.0f,
                                 0.0f, 0.0f, 1.0f, 3.0f,
                                 0.0f, 0.0f, 0.0f, 1.0f }));
-    benchmark(nullptr, shz::xmtrx::translate, 100.0f, 200.0f, 300.0f);
-    benchmark(nullptr, mat_translate, 100.0f, 200.0f, 300.0f);
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)(
+            "shz::xmtrx::translate", shz::xmtrx::translate,
+            "mat_translate",         mat_translate,
+            100.0f, 200.0f, 300.0f
+        )
+    );
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_ortho)
@@ -987,7 +993,6 @@ GBL_TEST_CASE(apply_lookat)
         }
 
         return shzMat == cglmMat;
-
     };
 
     GBL_TEST_VERIFY(test({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }));

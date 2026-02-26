@@ -2925,18 +2925,18 @@ SHZ_FORCE_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEP
         fldi0   fr4
         fmul    fr1, fr3
         fldi0   fr6
-        fmul    fr1, fr7
-        fldi0   fr8
-        fmul    fr4, fr9
-        fldi1   fr10
+        fldi0   fr7
         ftrv    xmtrx, fv0
-        fmov.s  @%[x], fr12
-        fmul    fr4, fr11
-        fmov.s  @%[y], fr13
+        fldi0   fr8
+        fldi0   fr9
+        fldi1   fr10
         ftrv    xmtrx, fv4
+        fmov.s  @%[x], fr12
+        fldi0   fr11
+        fmov.s  @%[y], fr13
         fmov.s  @%[z], fr14
-        ftrv    xmtrx, fv8
         fldi1   fr15
+        ftrv    xmtrx, fv8
         ftrv    xmtrx, fv12
         frchg
     )"
