@@ -311,14 +311,6 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) SHZ_NOE
 #endif
 }
 
-// https://github.com/appleseedhq/appleseed/blob/master/src/appleseed/foundation/math/fastmath.h
-SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT {
-    // Let GCC compute statically if compile-time constant.
-    if(__builtin_constant_p(p))
-        return __builtin_powf(2.0f, p);
-
-    return shz_pow2f_sw(p);
-}
 
 SHZ_FORCE_INLINE float shz_log2f(float x) SHZ_NOEXCEPT {
     // Let GCC compute statically if compile-time constant.
@@ -328,12 +320,35 @@ SHZ_FORCE_INLINE float shz_log2f(float x) SHZ_NOEXCEPT {
     return shz_log2f_sw(x);
 }
 
+SHZ_FORCE_INLINE float shz_log10f(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_log10f(x);
+
+    return shz_log10f_sw(x);
+}
+
 SHZ_FORCE_INLINE float shz_logf(float x) SHZ_NOEXCEPT {
     // Let GCC compute statically if compile-time constant.
     if(__builtin_constant_p(x))
         return __builtin_logf(x);
 
     return shz_logf_sw(x);
+}
+
+// https://github.com/appleseedhq/appleseed/blob/master/src/appleseed/foundation/math/fastmath.h
+SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT {
+    // Let GCC compute statically if compile-time constant.
+    if(__builtin_constant_p(p))
+        return __builtin_powf(2.0f, p);
+
+    return shz_pow2f_sw(p);
+}
+
+SHZ_FORCE_INLINE float shz_pow10f(float p) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(p))
+        return __builtin_pow10f(p);
+
+    return shz_pow10f_sw(p);
 }
 
 SHZ_FORCE_INLINE float shz_powf(float x, float p) SHZ_NOEXCEPT {

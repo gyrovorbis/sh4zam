@@ -9,6 +9,16 @@ GBL_TEST_FIXTURE_NONE
 GBL_TEST_INIT_NONE
 GBL_TEST_FINAL_NONE
 
+union shz_glm_mat4 {
+    shz::mat4x4 shz;
+    mat4        glm;
+};
+
+bool operator==(const shz::quat& shz, const versor& glm) {
+    return (shz_equalf(shz.x, glm[0]) && shz_equalf(shz.y, glm[1]) && shz_equalf(shz.z, glm[2]) && shz_equalf(shz.w, glm[3]))
+        || (shz_equalf(-shz.x, glm[0]) && shz_equalf(-shz.y, glm[1]) && shz_equalf(-shz.z, glm[2]) && shz_equalf(-shz.w, glm[3]));
+}
+
 GBL_TEST_CASE(inverse)
    auto test = [&](const shz::mat4x4& mat) {
         shz::mat4x4 shzInverted, glmInverted;
@@ -51,5 +61,50 @@ GBL_TEST_CASE(transform_vec4)
                         shz::vec4( -2.0f, 2.0f, 8.0f, 1.0f ));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(to_quat)
+    auto test = [&](shz_glm_mat4& mat) {
+        shz::quat shzQuat = mat.shz.to_quat();
+        versor    glmQuat;
+
+        glm_mat4_quat(mat.glm, glmQuat);
+
+        return shzQuat == glmQuat;
+    };
+
+    shz_glm_mat4 mat;
+    mat.shz.init_identity();
+    GBL_TEST_VERIFY(test(mat));
+    mat.shz.init_rotation_x(shz::deg_to_rad(90.0f));
+    GBL_TEST_VERIFY(test(mat));
+    mat.shz.init_rotation_y(shz::deg_to_rad(45.0f));
+    GBL_TEST_VERIFY(test(mat));
+    mat.shz.init_rotation_z(shz::deg_to_rad(180.0f));
+    GBL_TEST_VERIFY(test(mat));
+
+    mat.shz.init_rotation_xyz(9999.0f, 0.34232f, -243.04324f);
+
+    shz::quat shzQuat;
+    versor    glmQuat;
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)(
+            "shz::mat4x4::to_quat", [&] {
+               shzQuat = mat.shz.to_quat();
+            },
+            "glm_mat4_quat", [&] {
+                glm_mat4_quat(mat.glm, glmQuat);
+            }
+        )
+    );
+
+#if 0
+    std::println("{} == {}, {} == {}, {} == {}, {} == {}",
+                 shzQuat.x, glmQuat[0], shzQuat.y, glmQuat[1],
+                 shzQuat.z, glmQuat[2], shzQuat.w, glmQuat[3]);
+#endif
+
+    GBL_TEST_VERIFY(shzQuat == glmQuat);
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(inverse,
-                  transform_vec4)
+                  transform_vec4,
+                  to_quat)

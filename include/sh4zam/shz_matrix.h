@@ -292,7 +292,7 @@ SHZ_FORCE_INLINE void shz_mat4x4_set_col(shz_mat4x4_t* mat, size_t col, shz_vec4
 //! Swaps the 4D row vectors located at \p row1 and \p row2 within \p mat.
 SHZ_INLINE void shz_mat4x4_swap_rows(shz_mat4x4_t* mat, size_t row1, size_t row2) SHZ_NOEXCEPT;
 
-//! Swaps the 4D column vectors located at \p row1 and \p row2 within \p mat.
+//! Swaps the 4D column vectors located at \p col1 and \p col2 within \p mat.
 SHZ_INLINE void shz_mat4x4_swap_cols(shz_mat4x4_t* mat, size_t col1, size_t col2) SHZ_NOEXCEPT;
 
 //! Assigns only the 3D translation-related elements of the given matrix to the given values.

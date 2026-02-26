@@ -285,8 +285,16 @@ SHZ_FORCE_INLINE float shz_logf_sw(float x) SHZ_NOEXCEPT {
     return 0.69314718f * shz_log2f(x);
 }
 
+SHZ_FORCE_INLINE float shz_log10f_sw(float x) SHZ_NOEXCEPT {
+    return shz_log2f(x) * 0.3010299956639812f;
+}
+
 SHZ_FORCE_INLINE float shz_powf_sw(float x, float p) SHZ_NOEXCEPT {
     return shz_pow2f(p * shz_log2f(x));
+}
+
+SHZ_FORCE_INLINE float shz_pow10f_sw(float x) SHZ_NOEXCEPT {
+    return shz_expf(2.302585092994046f * x);
 }
 
 SHZ_FORCE_INLINE float shz_expf_sw(float p) SHZ_NOEXCEPT {

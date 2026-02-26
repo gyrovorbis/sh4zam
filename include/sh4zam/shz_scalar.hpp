@@ -150,15 +150,19 @@ namespace shz {
         @{
     */
     //! C++ alias for shz_pow2f().
-    constexpr auto pow2f = shz_pow2f;
-    //! C++ alias for shz_log2f().
-    constexpr auto log2f = shz_log2f;
-    //! C++ alias for shz_logf().
-    constexpr auto logf  = shz_logf;
+    constexpr auto pow2f  = shz_pow2f;
     //! C++ alias for shz_powf().
-    constexpr auto powf  = shz_powf;
+    constexpr auto powf   = shz_powf;
+    //! C++ alias for shz_pow10f().
+    constexpr auto pow10f = shz_pow10f;
+    //! C++ alias for shz_log2f().
+    constexpr auto log2f  = shz_log2f;
+    //! C++ alias for shz_logf().
+    constexpr auto logf   = shz_logf;
+    //! C++ alias for shz_log10f().
+    constexpr auto log10f = shz_log10f;
     // C++ alias for shz_expf()
-    constexpr auto expf  = shz_expf;
+    constexpr auto expf   = shz_expf;
     //! @}
 }
 

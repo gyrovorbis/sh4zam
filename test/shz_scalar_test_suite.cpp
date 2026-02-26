@@ -347,7 +347,7 @@ GBL_TEST_CASE(smoothstepf_safe)
     GBL_TEST_VERIFY(shz::smoothstepf_safe(0.5f, 1.0f, 0.0f) > shz::smoothstepf_safe(0.75f, 1.0f, 0.0f));
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(cbrt)
+GBL_TEST_CASE(cbrtf)
     auto test = [&](volatile float value) {
         float pow_res, cbrt_res, c_res;
 
@@ -364,6 +364,54 @@ GBL_TEST_CASE(cbrt)
     GBL_TEST_VERIFY(test(1.0f));
     GBL_TEST_VERIFY(test(-27.0f));
     GBL_TEST_VERIFY(test(-0.125f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(log10f)
+    auto test = [&](volatile float value) {
+        float shz_res, c_res;
+
+        shz_res = shz::log10f(value);
+        c_res = log10f(value);
+#if 0
+        std::println("{} vs {}", shz_res, c_res);
+#endif
+        return gblRelativeError(shz_res, c_res) <= 0.2f;
+    };
+
+    GBL_TEST_VERIFY(test(27.0f));
+    GBL_TEST_VERIFY(test(1.1f));
+    GBL_TEST_VERIFY(test(7.324234f));
+    GBL_TEST_VERIFY(test(0.000125f));
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<float>)(
+            "shz::log10f", shz::log10f,
+            "log10f", log10f, 9999.0f
+        )
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(pow10f)
+    auto test = [&](float value) {
+        float shz_res, c_res;
+
+        shz_res = shz::pow10f(value);
+        c_res = powf(10.0f, value);
+#if 0
+        std::println("{} vs {}", shz_res, c_res);
+#endif
+        return shz_equalf(shz_res, c_res);
+    };
+    GBL_TEST_VERIFY(test(27.0f));
+    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_VERIFY(test(27.45345f));
+    GBL_TEST_VERIFY(test(0.125f));
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<float>)(
+            "shz::pow10f", shz::pow10f,
+            "pow10f", [](float value) { return powf(10.0f, value); }, 99.0f
+        )
+    );
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(min,
@@ -386,4 +434,6 @@ GBL_TEST_REGISTER(min,
                   stepf,
                   smoothstepf,
                   smoothstepf_safe,
-                  cbrt)
+                  cbrtf,
+                  log10f,
+                  pow10f)

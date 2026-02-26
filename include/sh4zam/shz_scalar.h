@@ -318,14 +318,20 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) SHZ_NOE
 //! Fast approximation for raising 2 to a floating-point power.
 SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT;
 
+//! Fast approximation for C's powf().
+SHZ_FORCE_INLINE float shz_powf(float x, float p) SHZ_NOEXCEPT;
+
+//! Fast approximation of POSIX's pow10f().
+SHZ_FORCE_INLINE float shz_pow10f(float x) SHZ_NOEXCEPT;
+
 //! Fast approximation for C's log2f().
 SHZ_FORCE_INLINE float shz_log2f(float x) SHZ_NOEXCEPT;
 
 //! Fast approximation for C's logf().
 SHZ_FORCE_INLINE float shz_logf(float x) SHZ_NOEXCEPT;
 
-//! Fast approximation for C's powf().
-SHZ_FORCE_INLINE float shz_powf(float x, float p) SHZ_NOEXCEPT;
+//! Fast approximation for C's log10f().
+SHZ_FORCE_INLINE float shz_log10f(float x) SHZ_NOEXCEPT;
 
 //! Fast approximation for C's expf().
 SHZ_FORCE_INLINE float shz_expf(float p) SHZ_NOEXCEPT;

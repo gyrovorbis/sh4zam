@@ -436,11 +436,10 @@ SHZ_INLINE void shz_mat4x4_swap_rows(shz_mat4x4_t* mat, size_t row1, size_t row2
     shz_mat4x4_set_row(mat, row2, tmp);
 }
 
-//! Swaps the 4D column vectors located at \p row1 and \p row2 within \p mat.
 SHZ_INLINE void shz_mat4x4_swap_cols(shz_mat4x4_t* mat, size_t col1, size_t col2) SHZ_NOEXCEPT {
     shz_vec4_t tmp = shz_mat4x4_col(mat, col1);
 
-    shz_mat4x4_set_col(mat, col1, shz_mat4x4_col(mat, col1));
+    shz_mat4x4_set_col(mat, col1, shz_mat4x4_col(mat, col2));
     shz_mat4x4_set_col(mat, col2, tmp);
 }
 
@@ -753,52 +752,47 @@ SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_point3_transpose(const shz_mat4
 SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     float f, s, m;
 
-    if((f = mat->up.y + mat->left.x + mat->pos.z) >= 0.0f) {
+    if((f = mat->up.y + mat->left.x + mat->forward.z) >= 0.0f) {
         s = shz_inv_sqrtf_fsrra(f + 1.0f);
         m = 0.5f * s;
 
         return shz_quat_init(
             shz_divf_fsrra(0.5f, s),
-            (mat->up.z   - mat->pos.y ) * m,
-            (mat->pos.x  - mat->left.z) * m,
-            (mat->left.y - mat->up.x  ) * m
+            (mat->up.z      - mat->forward.y) * m,
+            (mat->forward.x - mat->left.z   ) * m,
+            (mat->left.y    - mat->up.x     ) * m
         );
-    }
-
-    if((f = mat->left.x - mat->up.y - mat->pos.z) >= 0.0f) {
-        s = shz_inv_sqrtf_fsrra(f + 1.0f);
+    } else if (mat->left.x >= mat->up.y && mat->left.x >= mat->forward.z) {
+        s = shz_inv_sqrtf(1.0f - mat->up.y - mat->forward.z + mat->left.x);
         m = 0.5f * s;
 
         return shz_quat_init(
-            (mat->up.z - mat->pos.y ) * m,
-             shz_divf_fsrra(0.5f,  s),
-            (mat->up.x + mat->left.y) * m,
-            (mat->up.x + mat->left.z) * m
+            (mat->up.z      - mat->forward.y) * m,
+             shz_divf(0.5f,                s),
+            (mat->up.x      + mat->left.y   ) * m,
+            (mat->forward.x + mat->left.z   ) * m
         );
-    }
-
-    if ((f = mat->up.y - mat->left.x - mat->pos.z) >= 0.0f) {
-        s = shz_inv_sqrtf_fsrra(f + 1.0f);
+    } else if (mat->up.y >= mat->forward.z) {
+        s = shz_inv_sqrtf(1.0f - mat->left.x - mat->forward.z + mat->up.y);
         m = 0.5f * s;
 
         return shz_quat_init(
-            (mat->pos.x - mat->left.z) * m,
-            (mat->up.x  - mat->left.y) * m,
-            shz_divf_fsrra(0.5f,    s),
-            (mat->pos.y + mat->up.z  ) * m
+            (mat->forward.x - mat->left.z) * m,
+            (mat->up.x      + mat->left.y) * m,
+            shz_divf(0.5f,              s),
+            (mat->forward.y + mat->up.z  ) * m
+        );
+    } else {
+        s = shz_inv_sqrtf(1.0f - mat->left.x - mat->up.y + mat->forward.z);
+        m = 0.5f * s;
+
+        return shz_quat_init(
+            (mat->left.y    - mat->up.x  ) * m,
+            (mat->forward.x + mat->left.z) * m,
+            (mat->forward.y + mat->up.z  ) * m,
+            shz_divf(0.5f,              s)
         );
     }
-
-    f = mat->pos.z - (mat->up.y + mat->left.x);
-    s = shz_inv_sqrtf(f + 1.0f);
-    m = 0.5f * s;
-
-    return shz_quat_init(
-        (mat->left.y - mat->up.x  ) * m,
-        (mat->pos.x  + mat->left.z) * m,
-        (mat->pos.y  + mat->up.z  ) * m,
-        shz_divf_fsrra(0.5f,     s)
-    );
 }
 
 SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* mat, shz_mat4x4_t* out) SHZ_NOEXCEPT {

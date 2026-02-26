@@ -524,8 +524,6 @@ GBL_TEST_CASE(vec3CubicHermite)
    auto test = [&](shz::vec3 v1, shz::vec3 tangent1,
                    shz::vec3 v2, shz::vec3 tangent2, float amount)
     {
-
-
         //warezed straight from raymath. :mink:
         struct Vector3 { float x, y, z; } rayResult;
         (benchmark)(&rayResult, "Vec3CubicHermite()", [&] SHZ_NO_INLINE {
@@ -546,11 +544,11 @@ GBL_TEST_CASE(vec3CubicHermite)
         (benchmark)(&shzResult, "shz::vec3::cubic_hermite()", [&] SHZ_NO_INLINE {
             return shz::vec3::cubic_hermite(v1, tangent1, v2, tangent2, amount);
         });
-
+#if 0
         std::println("<{}, {}, {}> vs <{}, {}, {}>",
                      rayResult.x, rayResult.y, rayResult.z,
                      shzResult.x, shzResult.y, shzResult.z);
-
+#endif
         return shzResult == shz::vec3::from(rayResult);
     };
 
