@@ -387,7 +387,7 @@ SHZ_INLINE void shz_xmtrx_load_aligned4_4x4(const float matrix[16]) SHZ_NOEXCEPT
         frchg
     )"
     : [mtx] "+r" (matrix)
-    :  "m" (*matrix));
+    :  "m" (*((const float (*)[16])matrix)));
 }
 
 SHZ_INLINE void shz_xmtrx_load_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
@@ -615,7 +615,7 @@ SHZ_INLINE void shz_xmtrx_load_apply_aligned4_4x4(const float matrix1[16],
         frchg
     )"
     : [m1] "+&r" (matrix1), [m2] "+&r" (matrix2)
-    : "m" (*matrix1), "m" (*matrix2)
+    :  "m" (*((const float (*)[16])matrix1)),  "m" (*((const float (*)[16])matrix2))
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
@@ -671,7 +671,7 @@ SHZ_INLINE void shz_xmtrx_apply_aligned4_4x4(const float matrix[16]) SHZ_NOEXCEP
         fschg
     )"
     : [mtx] "+r" (matrix)
-    :  "m" (*matrix)
+    :  "m" (*((const float (*)[16])matrix))
     : "r0", "r7", "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6",
       "fr7", "fr8", "fr9", "fr10", "fr11");
 }
@@ -924,7 +924,7 @@ SHZ_INLINE void shz_xmtrx_store_aligned4_4x4(float matrix[16]) SHZ_NOEXCEPT {
         fmov.s  fr0, @-%[mtx]
         frchg
     )"
-    : "=m" (*matrix)
+    : "=m" (*((float (*)[16])matrix))
     : [mtx] "r" (matrix));
 }
 

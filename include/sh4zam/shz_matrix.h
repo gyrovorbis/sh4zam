@@ -849,6 +849,7 @@ SHZ_INLINE void shz_mat3x3_inverse(const shz_mat3x3_t* mtrx, shz_mat3x3_t* out) 
 
 SHZ_INLINE void shz_mat3x3_scale(shz_mat3x3_t* dst, const shz_mat3x3_t* src, float value) SHZ_NOEXCEPT;
 SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3_transpose(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT;
 
 //! \endcond
 
