@@ -144,3 +144,39 @@ void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ
     out->elem2D[3][2] = -c10c12c8.x * inv_det;
     out->elem2D[3][3] = +c10c12c8.y * inv_det;
 }
+
+
+void shz_mat4x4_decompose(const shz_mat4x4_t* mat,
+                           shz_vec3_t* translation,
+                           shz_quat_t* rotation,
+                           shz_vec3_t* scale) {
+    if(translation)
+        *translation = mat->pos.xyz;
+
+    shz_vec3_t s = shz_vec3_init(
+        shz_vec3_magnitude(mat->left.xyz),
+        shz_vec3_magnitude(mat->up.xyz),
+        shz_vec3_magnitude(mat->forward.xyz)
+    );
+
+    /* Handle negative determinant (reflection). */
+    if(shz_mat4x4_3x3_determinant(mat) < 0.0f)
+        s.x = -s.x;
+
+    if(scale)
+        *scale = s;
+
+    if(rotation) {
+        shz_mat4x4_t norm;
+        const float inv_sx = shz_invf(s.x);
+        const float inv_sy = shz_invf(s.y);
+        const float inv_sz = shz_invf(s.z);
+
+        norm.col[0] = shz_vec3_vec4(shz_vec3_scale(mat->left.xyz,    inv_sx), 0.0f);
+        norm.col[1] = shz_vec3_vec4(shz_vec3_scale(mat->up.xyz,      inv_sy), 0.0f);
+        norm.col[2] = shz_vec3_vec4(shz_vec3_scale(mat->forward.xyz, inv_sz), 0.0f);
+        norm.col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+
+        *rotation = shz_mat4x4_to_quat(&norm);
+    }
+}

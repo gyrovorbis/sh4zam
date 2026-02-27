@@ -181,6 +181,16 @@ SHZ_FORCE_INLINE float shz_wrapf(float value, float min, float max) SHZ_NOEXCEPT
 //! Wraps the given \p value back to be within the range of \p min to \p max more quickly, provided \p max - \p min is a positive difference.
 SHZ_FORCE_INLINE float shz_wrapf_fsrra(float value, float min, float max) SHZ_NOEXCEPT;
 
+
+//! Returns the fractional part of \p x, equivalent to GLSL `fract()`.
+SHZ_FORCE_INLINE float shz_fractf(float x) SHZ_NOEXCEPT;
+
+//! Returns -1.0f if \p x < 0, 0.0f if \p x == 0, or 1.0f if \p x > 0.
+SHZ_FORCE_INLINE float shz_signf(float x) SHZ_NOEXCEPT;
+
+//! Clamps \p x to the range [0.0f, 1.0f].
+SHZ_FORCE_INLINE float shz_saturatef(float x) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Miscellaneous

@@ -595,5 +595,101 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_smoothstep_safe(shz_vec4_t vec, float edge0
     return shz_vec4_smoothstep_safe_sw(vec, edge0, edge1);
 }
 
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_floor(shz_vec2_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_floorf(vec.x), shz_floorf(vec.y));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_floor(shz_vec3_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_vec3(shz_vec2_floor(vec.xy), shz_floorf(vec.z));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_floor(shz_vec4_t vec) SHZ_NOEXCEPT {
+    return shz_vec3_vec4(shz_vec3_floor(vec.xyz), shz_floorf(vec.w));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_ceil(shz_vec2_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_ceilf(vec.x), shz_ceilf(vec.y));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_ceil(shz_vec3_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_vec3(shz_vec2_ceil(vec.xy), shz_ceilf(vec.z));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_ceil(shz_vec4_t vec) SHZ_NOEXCEPT {
+    return shz_vec3_vec4(shz_vec3_ceil(vec.xyz), shz_ceilf(vec.w));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_round(shz_vec2_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_roundf(vec.x), shz_roundf(vec.y));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_round(shz_vec3_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_vec3(shz_vec2_round(vec.xy), shz_roundf(vec.z));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_round(shz_vec4_t vec) SHZ_NOEXCEPT {
+    return shz_vec3_vec4(shz_vec3_round(vec.xyz), shz_roundf(vec.w));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_fract(shz_vec2_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_fractf(vec.x), shz_fractf(vec.y));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_fract(shz_vec3_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_vec3(shz_vec2_fract(vec.xy), shz_fractf(vec.z));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_fract(shz_vec4_t vec) SHZ_NOEXCEPT {
+    return shz_vec3_vec4(shz_vec3_fract(vec.xyz), shz_fractf(vec.w));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_sign(shz_vec2_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_signf(vec.x), shz_signf(vec.y));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_sign(shz_vec3_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_vec3(shz_vec2_sign(vec.xy), shz_signf(vec.z));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_sign(shz_vec4_t vec) SHZ_NOEXCEPT {
+    return shz_vec3_vec4(shz_vec3_sign(vec.xyz), shz_signf(vec.w));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_saturate(shz_vec2_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_saturatef(vec.x), shz_saturatef(vec.y));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_saturate(shz_vec3_t vec) SHZ_NOEXCEPT {
+    return shz_vec2_vec3(shz_vec2_saturate(vec.xy), shz_saturatef(vec.z));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_saturate(shz_vec4_t vec) SHZ_NOEXCEPT {
+    return shz_vec3_vec4(shz_vec3_saturate(vec.xyz), shz_saturatef(vec.w));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_minv(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_fminf(a.x, b.x), shz_fminf(a.y, b.y));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_minv(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT {
+    return shz_vec2_vec3(shz_vec2_minv(a.xy, b.xy), shz_fminf(a.z, b.z));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_minv(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT {
+    return shz_vec3_vec4(shz_vec3_minv(a.xyz, b.xyz), shz_fminf(a.w, b.w));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_maxv(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT {
+    return shz_vec2_init(shz_fmaxf(a.x, b.x), shz_fmaxf(a.y, b.y));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_maxv(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT {
+    return shz_vec2_vec3(shz_vec2_maxv(a.xy, b.xy), shz_fmaxf(a.z, b.z));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_maxv(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT {
+    return shz_vec3_vec4(shz_vec3_maxv(a.xyz, b.xyz), shz_fmaxf(a.w, b.w));
+}
+
  //! \endcond
  

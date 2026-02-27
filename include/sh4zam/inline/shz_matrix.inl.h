@@ -148,6 +148,26 @@ SHZ_INLINE void shz_mat4x4_init_screen(shz_mat4x4_t* mat, float width, float hei
     shz_xmtrx_store_4x4(mat);
 }
 
+SHZ_INLINE void shz_mat4x4_init_lookat(shz_mat4x4_t* mat, shz_vec3_t eye, shz_vec3_t center, shz_vec3_t up) SHZ_NOEXCEPT {
+    shz_xmtrx_init_lookat(eye, center, up);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_ortho(shz_mat4x4_t* mat, float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
+    shz_xmtrx_init_ortho(left, right, bottom, top, near, far);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_frustum(shz_mat4x4_t* mat, float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
+    shz_xmtrx_init_frustum(left, right, bottom, top, near, far);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_perspective(shz_mat4x4_t* mat, float fov, float aspect, float near_z) SHZ_NOEXCEPT {
+    shz_xmtrx_init_perspective(fov, aspect, near_z);
+    shz_xmtrx_store_4x4(mat);
+}
+
 SHZ_INLINE void shz_mat4x4_set_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
     mat->pos.x = x;
     mat->pos.y = y;

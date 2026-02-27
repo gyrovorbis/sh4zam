@@ -188,6 +188,78 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_clamp(shz_vec3_t vec, float min, float max)
 //! Clamps the values of the given 4D \p vec between \p min and \p max, returning a new vector.
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_clamp(shz_vec4_t vec, float min, float max) SHZ_NOEXCEPT;
 
+//! Returns a 2D vector whose components are the floor of the given vector's components.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_floor(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose components are the floor of the given vector's components.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_floor(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose components are the floor of the given vector's components.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_floor(shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector whose components are the ceil of the given vector's components.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_ceil(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose components are the ceil of the given vector's components.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_ceil(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose components are the ceil of the given vector's components.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_ceil(shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector whose components are the rounded values of the given vector's components.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_round(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose components are the rounded values of the given vector's components.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_round(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose components are the rounded values of the given vector's components.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_round(shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector whose components are the fractional parts of the given vector's components.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_fract(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose components are the fractional parts of the given vector's components.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_fract(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose components are the fractional parts of the given vector's components.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_fract(shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector whose components are the signs (-1, 0, or 1) of the given vector's components.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_sign(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose components are the signs (-1, 0, or 1) of the given vector's components.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_sign(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose components are the signs (-1, 0, or 1) of the given vector's components.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_sign(shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector whose components are saturated (clamped to [0, 1]) values of the given vector's components.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_saturate(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose components are saturated (clamped to [0, 1]) values of the given vector's components.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_saturate(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose components are saturated (clamped to [0, 1]) values of the given vector's components.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_saturate(shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector whose components are the pairwise minimums of the two given vectors' components.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_minv(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose components are the pairwise minimums of the two given vectors' components.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_minv(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose components are the pairwise minimums of the two given vectors' components.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_minv(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector whose components are the pairwise maximums of the two given vectors' components.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_maxv(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose components are the pairwise maximums of the two given vectors' components.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_maxv(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose components are the pairwise maximums of the two given vectors' components.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_maxv(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT;
+
 //! Returns true if the values of each element within the two 2D vectors are approximately equal based on relative or absolute tolerance.
 SHZ_FORCE_INLINE bool shz_vec2_equal(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT;
 
@@ -839,6 +911,62 @@ SHZ_DECLS_END
                  shz_vec3_t: shz_vec3_swizzle, \
                  shz_vec4_t: shz_vec4_swizzle)(vec, __VA_ARGS__)
 
+    //! C type-generic component-wise floor.
+#   define shz_vec_floor(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_floor, \
+                 shz_vec3_t: shz_vec3_floor, \
+                 shz_vec4_t: shz_vec4_floor)(vec)
+
+    //! C type-generic component-wise ceil.
+#   define shz_vec_ceil(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_ceil, \
+                 shz_vec3_t: shz_vec3_ceil, \
+                 shz_vec4_t: shz_vec4_ceil)(vec)
+
+    //! C type-generic component-wise round.
+#   define shz_vec_round(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_round, \
+                 shz_vec3_t: shz_vec3_round, \
+                 shz_vec4_t: shz_vec4_round)(vec)
+
+    //! C type-generic component-wise fract.
+#   define shz_vec_fract(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_fract, \
+                 shz_vec3_t: shz_vec3_fract, \
+                 shz_vec4_t: shz_vec4_fract)(vec)
+
+    //! C type-generic component-wise sign.
+#   define shz_vec_sign(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_sign, \
+                 shz_vec3_t: shz_vec3_sign, \
+                 shz_vec4_t: shz_vec4_sign)(vec)
+
+    //! C type-generic component-wise saturate.
+#   define shz_vec_saturate(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_saturate, \
+                 shz_vec3_t: shz_vec3_saturate, \
+                 shz_vec4_t: shz_vec4_saturate)(vec)
+
+    //! C type-generic pairwise minimum.
+#   define shz_vec_minv(a, b) \
+        _Generic((a), \
+                 shz_vec2_t: shz_vec2_minv, \
+                 shz_vec3_t: shz_vec3_minv, \
+                 shz_vec4_t: shz_vec4_minv)(a, b)
+
+    //! C type-generic pairwise maximum.
+#   define shz_vec_maxv(a, b) \
+        _Generic((a), \
+                 shz_vec2_t: shz_vec2_maxv, \
+                 shz_vec3_t: shz_vec3_maxv, \
+                 shz_vec4_t: shz_vec4_maxv)(a, b)
+
     //! C type-generic component-wise step
 #   define shz_vec_stepv(vec, edge) \
         _Generic((vec), \
@@ -1264,6 +1392,102 @@ SHZ_DECLS_END
     //! Overloaded generic swizzle function for 3D vectors.
     SHZ_FORCE_INLINE shz_vec4_t shz_vec_swizzle(shz_vec4_t vec, unsigned x_idx, unsigned y_idx, unsigned z_idx, unsigned w_idx) SHZ_NOEXCEPT {
         return shz_vec4_swizzle(vec, x_idx, y_idx, z_idx, w_idx);
+    }
+
+    //! C++ type-generic component-wise floor.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_floor(T vec) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_floor(vec);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_floor(vec);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_floor(vec);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic component-wise ceil.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_ceil(T vec) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_ceil(vec);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_ceil(vec);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_ceil(vec);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic component-wise round.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_round(T vec) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_round(vec);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_round(vec);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_round(vec);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic component-wise fract.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_fract(T vec) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_fract(vec);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_fract(vec);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_fract(vec);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic component-wise sign.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_sign(T vec) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_sign(vec);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_sign(vec);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_sign(vec);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic component-wise saturate.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_saturate(T vec) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_saturate(vec);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_saturate(vec);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_saturate(vec);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic pairwise minimum.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_minv(T a, T b) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_minv(a, b);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_minv(a, b);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_minv(a, b);
+        else static_assert(false, "Incompatible type!");
+    }
+
+    //! C++ type-generic pairwise maximum.
+    template<typename T>
+    SHZ_FORCE_INLINE T shz_vec_maxv(T a, T b) SHZ_NOEXCEPT {
+        if constexpr(std::convertible_to<T, shz_vec2_t>)
+            return shz_vec2_maxv(a, b);
+        else if constexpr(std::convertible_to<T, shz_vec3_t>)
+            return shz_vec3_maxv(a, b);
+        else if constexpr(std::convertible_to<T, shz_vec4_t>)
+            return shz_vec4_maxv(a, b);
+        else static_assert(false, "Incompatible type!");
     }
 
     //! Compares each component of the vector to the edge. 0 returned in that component if x[i] < edge. Otherwise the component is 1.

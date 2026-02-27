@@ -320,6 +320,31 @@ struct xmtrx {
         shz_xmtrx_init_screen(width, height);
     }
 
+    //! C++ wrapper around shz_xmtrx_init_lookat().
+    SHZ_FORCE_INLINE static void init_lookat(vec3 eye, vec3 center, vec3 up) noexcept {
+        shz_xmtrx_init_lookat(eye, center, up);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_ortho().
+    SHZ_FORCE_INLINE static void init_ortho(float left, float right, float bottom, float top, float near, float far) noexcept {
+        shz_xmtrx_init_ortho(left, right, bottom, top, near, far);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_frustum().
+    SHZ_FORCE_INLINE static void init_frustum(float left, float right, float bottom, float top, float near, float far) noexcept {
+        shz_xmtrx_init_frustum(left, right, bottom, top, near, far);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_perspective().
+    SHZ_FORCE_INLINE static void init_perspective(float fov, float aspect, float near_z) noexcept {
+        shz_xmtrx_init_perspective(fov, aspect, near_z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_rotation_quat().
+    SHZ_FORCE_INLINE static void init_rotation_quat(quat q) noexcept {
+        shz_xmtrx_init_rotation_quat(q);
+    }
+
     //! C++ wrapper around shz_xmtrx_init_permutation_wxyz().
     SHZ_FORCE_INLINE static void init_permutation_wxyz() noexcept {
         shz_xmtrx_init_permutation_wxyz();
@@ -690,6 +715,11 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_determinant().
     SHZ_FORCE_INLINE static float determinant() noexcept {
         return shz_xmtrx_determinant();
+    }
+
+    //! C++ wrapper around shz_xmtrx_invert().
+    SHZ_FORCE_INLINE static void invert() noexcept {
+        shz_xmtrx_invert();
     }
 
 //! @}

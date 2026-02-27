@@ -8,11 +8,11 @@
  *
  *  \todo
  *      - shz_xmtrx_xxx_fft()
- *      - shz_xmtrx_invert()
+ *      - shz_xmtrx_invert() (within XMTRX)
  *      - shz_xmtrx_position()
  *      - shz_xmtrx_size()
  *      - shz_xmtrx_angles()
- *      - shz_xmtrx_init_rotation_quat()
+ *      - shz_xmtrx_init_rotation_quat() (within XMTRX)
  *      - shz_xmtrx_apply_store_4x4()
  *
  *  \author 2025, 2026 Falco Girgis
@@ -324,6 +324,37 @@ SHZ_INLINE void shz_xmtrx_init_permutation_yzwx(void) SHZ_NOEXCEPT;
 */
 SHZ_INLINE void shz_xmtrx_init_screen(float width, float height) SHZ_NOEXCEPT;
 
+/*! Initializes XMTRX to a "lookAt" view matrix, equivalent to gluLookAt().
+
+    \warning This routine clobbers any previous XMTRX contents.
+*/
+SHZ_INLINE void shz_xmtrx_init_lookat(shz_vec3_t eye, shz_vec3_t center, shz_vec3_t up) SHZ_NOEXCEPT;
+
+/*! Initializes XMTRX to an orthographic projection matrix, equivalent to glOrtho().
+
+    \warning This routine clobbers any previous XMTRX contents.
+*/
+SHZ_INLINE void shz_xmtrx_init_ortho(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
+
+/*! Initializes XMTRX to a frustum projection matrix, equivalent to glFrustum().
+
+    \warning This routine clobbers any previous XMTRX contents.
+*/
+SHZ_INLINE void shz_xmtrx_init_frustum(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
+
+/*! Initializes XMTRX to a perspective projection matrix.
+
+    \warning This routine clobbers any previous XMTRX contents.
+*/
+SHZ_INLINE void shz_xmtrx_init_perspective(float fov, float aspect, float near_z) SHZ_NOEXCEPT;
+
+/*! Initializes XMTRX to a 3D rotation matrix with its orientation given by a quaternion.
+
+    \warning This routine clobbers any previous XMTRX contents.
+    \warning This routine is out-of-line.
+*/
+void shz_xmtrx_init_rotation_quat(shz_quat_t q) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Apply Operation
@@ -437,6 +468,9 @@ SHZ_INLINE void shz_xmtrx_apply_lookat(shz_vec3_t eye, shz_vec3_t center, shz_ve
 
 //! Applies a 2D orthographic projection matrix onto XMTRX, equivalent to glOrtho().
 SHZ_INLINE void shz_xmtrx_apply_ortho(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
+
+//! Applies a frustum projection matrix onto XMTRX, equivalent to glFrustum().
+SHZ_INLINE void shz_xmtrx_apply_frustum(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the perspective matrix constructed from the given values onto XMTRX.
 
@@ -672,6 +706,15 @@ shz_quat_t shz_xmtrx_to_quat(void) SHZ_NOEXCEPT;
 
 //! Returns the determinant of XMTRX.
 float shz_xmtrx_determinant(void) SHZ_NOEXCEPT;
+
+/*! Inverts XMTRX in-place.
+
+    Stores XMTRX to memory, computes the inverse via shz_mat4x4_inverse(),
+    and reloads the result.
+
+    \warning This routine is out-of-line.
+*/
+void shz_xmtrx_invert(void) SHZ_NOEXCEPT;
 
 //! @}
 

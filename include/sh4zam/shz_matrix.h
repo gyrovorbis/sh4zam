@@ -245,6 +245,48 @@ SHZ_INLINE void shz_mat4x4_init_permutation_yzwx(shz_mat4x4_t* mat) SHZ_NOEXCEPT
 */
 SHZ_INLINE void shz_mat4x4_init_screen(shz_mat4x4_t* mat, float width, float height) SHZ_NOEXCEPT;
 
+/*! Initializes the given matrix to a "lookAt" view matrix.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_lookat(shz_mat4x4_t* mat, shz_vec3_t eye, shz_vec3_t center, shz_vec3_t up) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix to an orthographic projection matrix.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_ortho(shz_mat4x4_t* mat, float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix to a frustum projection matrix.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_frustum(shz_mat4x4_t* mat, float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix to a perspective projection matrix.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_init_perspective(shz_mat4x4_t* mat, float fov, float aspect, float near_z) SHZ_NOEXCEPT;
+
+//! @}
+
+
+/*! \name  Decomposition
+    \brief Routines for decomposing a matrix into its constituent transforms.
+    @{
+*/
+
+/*! Decomposes a 4x4 transform matrix into translation, rotation, and scale.
+
+    \note    Any output pointer may be NULL to skip that component.
+    \warning This routine clobbers XMTRX.
+*/
+void shz_mat4x4_decompose(const shz_mat4x4_t* mat,
+                           shz_vec3_t* translation,
+                           shz_quat_t* rotation,
+                           shz_vec3_t* scale) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name Getting
