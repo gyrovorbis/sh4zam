@@ -11,8 +11,8 @@
 
     \copyright MIT License
 */
-#ifndef SHZ_QUAT_DC_INL_H
-#define SHZ_QUAT_DC_INL_H
+#ifndef SHZ_QUAT_SH4_INL_H
+#define SHZ_QUAT_SH4_INL_H
 
 SHZ_INLINE shz_quat_t shz_quat_mult_dc(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
     shz_quat_t r;

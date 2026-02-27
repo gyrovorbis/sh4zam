@@ -11,8 +11,8 @@
 
     \copyright MIT License
 */
-#ifndef SHZ_TRIG_DC_INL_H
-#define SHZ_TRIG_DC_INL_H
+#ifndef SHZ_TRIG_SH4_INL_H
+#define SHZ_TRIG_SH4_INL_H
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16_dc(uint16_t radians16) SHZ_NOEXCEPT {
 // \todo Ask Oleg Endo wtf?
@@ -59,6 +59,9 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg_dc(float degrees) SHZ_NOEXCEPT {
 #ifdef __FAST_MATH__
     return (shz_sincos_t) { __builtin_sinf(SHZ_DEG_TO_RAD(degrees)), __builtin_cosf(SHZ_DEG_TO_RAD(degrees)) };
 #else
+    register float rsin asm("fr8");
+    register float rcos asm("fr9");
+
      degrees *= SHZ_FSCA_DEG_FACTOR;
 
     shz_sincos_t sincos;
@@ -67,11 +70,11 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg_dc(float degrees) SHZ_NOEXCEPT {
          ftrc  %0, fpul
          fsca  fpul, dr8
      )"
-     : "=fr8" (sincos.sin), "=fr9" (sincos.cos)
+     : "=&f" (rsin), "=&f" (rcos)
      : "f" (degrees)
      : "fpul");
 
-     return sincos;
+    return (shz_sincos_t){ rsin, rcos };
 #endif
 }
 //! \endcond

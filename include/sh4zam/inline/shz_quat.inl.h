@@ -13,8 +13,8 @@
     \copyright MIT License
 */
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
-#   include "dc/shz_quat_dc.inl.h"
+#if SHZ_BACKEND == SHZ_SH4
+#   include "sh4/shz_quat_sh4.inl.h"
 #endif
 
 #include "sw/shz_quat_sw.inl.h"

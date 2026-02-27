@@ -10,8 +10,8 @@
  *  \copyright MIT License
  */
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
-#   include "dc/shz_mem_dc.inl.h"
+#if SHZ_BACKEND == SHZ_SH4
+#   include "sh4/shz_mem_sh4.inl.h"
 #else
 #   include "sw/shz_mem_sw.inl.h"
 #endif
