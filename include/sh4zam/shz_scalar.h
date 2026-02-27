@@ -99,7 +99,7 @@ SHZ_FORCE_INLINE float shz_ceilf(float x) SHZ_NOEXCEPT;
     This routine only returns valid values for the input range
     -UINT32_MAX <= \p x <= UINT32_MAX.
 */
-SHZ_FORCE_INLINE float shz_roundf(float x) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_roundf(float x) SHZ_NOEXCEPT;
 
 /*! Replacement for the <math.h> routine, truncf().
 
