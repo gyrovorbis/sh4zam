@@ -29,7 +29,7 @@
 #include <assert.h>
 
 /* Internal state: 4 column vectors = 16 floats, matching shz_mat4x4_t layout */
-static struct {
+extern thread_local struct shz_xmtrx_{
     union {
         float      elem[16];
         shz_vec4_t col[4];
@@ -741,7 +741,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_screen_sw(float width, float height) SHZ_N
     m[0] = shz_vec4_init(hw,   0.0f, 0.0f, hw);
     m[1] = shz_vec4_init(0.0f, -hh,  0.0f, hh);
     m[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
-    m[3] = shz_vec4_init(0.0f, 0.0f,   0.0f, 1.0f);
+    m[3] = shz_vec4_init(hw,   0.0f,   0.0f, 1.0f);
     shz_xmtrx_mul4x4_cols_(m);
 }
 

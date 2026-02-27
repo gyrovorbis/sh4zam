@@ -10,8 +10,8 @@
 !!
 
 .text
-    .globl _shz_memset8_
-    .globl _shz_memcpy128_
+    .globl _shz_memset8_sh4_
+    .globl _shz_memcpy128_sh4_
 
 !
 ! void *memset8_dc(void *dst, uint64_t value, size_t bytes)
@@ -21,7 +21,7 @@
 ! r7   : bytes (number of bytes to copy (should be evenly divisible by 8))
 !
     .align 2
-_shz_memset8_:
+_shz_memset8_sh4_:
     shlr2   r7
     mov     r4, r0
     shlr    r7
@@ -50,7 +50,7 @@ _shz_memset8_:
 
 
 .align 5
-_shz_memcpy128_:
+_shz_memcpy128_sh4_:
 
     mov       r15, r0
     or        #0x0f, r0
