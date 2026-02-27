@@ -13,7 +13,7 @@
     \copyright MIT License
 */
 
-#if SHZ_BACKEND == SHZ_SH4
+#if SHZ_BACKEND == SHZ_DREAMCAST
 #   include "sh4/shz_quat_sh4.inl.h"
 #endif
 
@@ -133,7 +133,7 @@ SHZ_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NO
 
 SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_quat_mult_dc(q1, q2);
+    return shz_quat_mult_sh4(q1, q2);
 #else
     return shz_quat_mult_sw(q1, q2);
 #endif
@@ -141,7 +141,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
 
 SHZ_INLINE shz_vec3_t shz_quat_transform_vec3(shz_quat_t q, shz_vec3_t v) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_quat_transform_vec3_dc(q, v);
+    return shz_quat_transform_vec3_sh4(q, v);
 #else
     return shz_quat_transform_vec3_sw(q, v);
 #endif

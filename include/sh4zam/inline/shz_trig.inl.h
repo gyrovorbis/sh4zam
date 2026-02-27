@@ -23,8 +23,8 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16(uint16_t radians16) SHZ_NOEXCEPT {
     if(__builtin_constant_p(radians16))
         return shz_sincosf((float)radians16 * (2.0f * SHZ_F_PI / (float)UINT16_MAX));
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_sincosu16_dc(radians16);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_sincosu16_sh4(radians16);
 #else
     return shz_sincosu16_sw(radians16);
 #endif
@@ -34,8 +34,8 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) SHZ_NOEXCEPT {
     if(__builtin_constant_p(radians))
         return (shz_sincos_t) { __builtin_sinf(radians), __builtin_cosf(radians) };
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_sincosf_dc(radians);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_sincosf_sh4(radians);
 #else
     return shz_sincosf_sw(radians);
 #endif
@@ -45,8 +45,8 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) SHZ_NOEXCEPT {
     if(__builtin_constant_p(degrees))
         return (shz_sincos_t) { __builtin_sinf(SHZ_DEG_TO_RAD(degrees)), __builtin_cosf(SHZ_DEG_TO_RAD(degrees)) };
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_sincosf_deg_dc(degrees);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_sincosf_deg_sh4(degrees);
 #else
     return shz_sincosf_deg_sw(degrees);
 #endif

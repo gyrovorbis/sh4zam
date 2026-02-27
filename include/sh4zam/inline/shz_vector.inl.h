@@ -17,7 +17,7 @@
  *  \copyright MIT License
  */
 
-#if SHZ_BACKEND == SHZ_Sh4
+#if SHZ_BACKEND == SHZ_SH4
 #   include "sh4/shz_vector_sh4.inl.h"
 #endif
 
@@ -424,8 +424,8 @@ SHZ_INLINE shz_vec4_t shz_vec4_refract(shz_vec4_t incidence, shz_vec4_t normal, 
 }
 
 SHZ_INLINE float shz_vec3_triple(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_vec3_triple_dc(a, b, c);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_vec3_triple_sh4(a, b, c);
 #else
     return shz_vec3_triple_sw(a, b, c);
 #endif
@@ -447,8 +447,8 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p,
                                                 shz_vec3_t a,
                                                 shz_vec3_t b,
                                                 shz_vec3_t c) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_vec3_barycenter_dc(p, a, b, c);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_vec3_barycenter_sh4(p, a, b, c);
 #else
     return shz_vec3_barycenter_sw(p, a, b, c);
 #endif
@@ -468,56 +468,56 @@ SHZ_INLINE void shz_vec3_orthonormalize(shz_vec3_t   in1, shz_vec3_t   in2,
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cubic_hermite(shz_vec3_t vec1, shz_vec3_t tangent1, shz_vec3_t vec2, shz_vec3_t tangent2, float t) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_vec3_cubic_hermite_dc(vec1, tangent1, vec2, tangent2, t);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_vec3_cubic_hermite_sh4(vec1, tangent1, vec2, tangent2, t);
 #else
     return shz_vec3_cubic_hermite_sw(vec1, tangent1, vec2, tangent2, t);
 #endif
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_dot2(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_vec2_dot2_dc(l, r1, r2);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_vec2_dot2_sh4(l, r1, r2);
 #else
     return shz_vec2_dot2_sw(l, r1, r2);
 #endif
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec2_dot3(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2, shz_vec2_t r3) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_vec2_dot3_dc(l, r1, r2, r3);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_vec2_dot3_sh4(l, r1, r2, r3);
 #else
     return shz_vec2_dot3_sw(l, r1, r2, r3);
 #endif
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec3_dot2(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_vec3_dot2_dc(l, r1, r2);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_vec3_dot2_sh4(l, r1, r2);
 #else
     return shz_vec3_dot2_sw(l, r1, r2);
 #endif
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_dot3(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2, shz_vec3_t r3) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_vec3_dot3_dc(l, r1, r2, r3);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_vec3_dot3_sh4(l, r1, r2, r3);
 #else
     return shz_vec3_dot3_sw(l, r1, r2, r3);
 #endif
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec4_dot2(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_vec4_dot2_dc(l, r1, r2);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_vec4_dot2_sh4(l, r1, r2);
 #else
     return shz_vec4_dot2_sw(l, r1, r2);
 #endif
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec4_dot3(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2, shz_vec4_t r3) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_vec4_dot3_dc(l, r1, r2, r3);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_vec4_dot3_sh4(l, r1, r2, r3);
 #else
     return shz_vec4_dot3_sw(l, r1, r2, r3);
 #endif

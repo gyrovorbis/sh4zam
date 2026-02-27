@@ -15,13 +15,13 @@
 #ifndef SHZ_SCALAR_SH4_INL_H
 #define SHZ_SCALAR_SH4_INL_H
 
-SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra_dc(float x) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra_sh4(float x) SHZ_NOEXCEPT {
     asm("fsrra %0" : "+f" (x));
 
     return x;
 }
 
-SHZ_FORCE_INLINE float shz_dot6f_dc(float x1, float y1, float z1,
+SHZ_FORCE_INLINE float shz_dot6f_sh4(float x1, float y1, float z1,
                                     float x2, float y2, float z2) SHZ_NOEXCEPT {
     register float rx1 asm("fr8")  = x1;
     register float ry1 asm("fr9")  = y1;
@@ -40,7 +40,7 @@ SHZ_FORCE_INLINE float shz_dot6f_dc(float x1, float y1, float z1,
     return rw2;
 }
 
-SHZ_FORCE_INLINE float shz_mag_sqr3f_dc(float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE float shz_mag_sqr3f_sh4(float x, float y, float z) SHZ_NOEXCEPT {
     register float rx asm("fr8")  = x;
     register float ry asm("fr9")  = y;
     register float rz asm("fr10") = z;
@@ -53,7 +53,7 @@ SHZ_FORCE_INLINE float shz_mag_sqr3f_dc(float x, float y, float z) SHZ_NOEXCEPT 
     return rw;
 }
 
-SHZ_FORCE_INLINE float shz_dot8f_dc(float x1, float y1, float z1, float w1,
+SHZ_FORCE_INLINE float shz_dot8f_sh4(float x1, float y1, float z1, float w1,
                                     float x2, float y2, float z2, float w2) SHZ_NOEXCEPT {
     register float rx1 asm("fr8")  = x1;
     register float ry1 asm("fr9")  = y1;
@@ -72,7 +72,7 @@ SHZ_FORCE_INLINE float shz_dot8f_dc(float x1, float y1, float z1, float w1,
     return rw2;
 }
 
-SHZ_FORCE_INLINE float shz_mag_sqr4f_dc(float x, float y, float z, float w) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE float shz_mag_sqr4f_sh4(float x, float y, float z, float w) SHZ_NOEXCEPT {
     register float rx asm("fr8")  = x;
     register float ry asm("fr9")  = y;
     register float rz asm("fr10") = z;
@@ -85,7 +85,7 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f_dc(float x, float y, float z, float w) SHZ_
     return rw;
 }
 
-SHZ_FORCE_INLINE float shz_cbrt_magic_dc(float x) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE float shz_cbrt_magic_sh4(float x) SHZ_NOEXCEPT {
     int32_t eax = *(shz_alias_int32_t*)&x; // mov eax, x (as bits)
 
     asm inline("shll %0" :"+r"(eax) :: "t");

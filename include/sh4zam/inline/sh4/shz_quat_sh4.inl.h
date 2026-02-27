@@ -14,7 +14,7 @@
 #ifndef SHZ_QUAT_SH4_INL_H
 #define SHZ_QUAT_SH4_INL_H
 
-SHZ_INLINE shz_quat_t shz_quat_mult_dc(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
+SHZ_INLINE shz_quat_t shz_quat_mult_sh4(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
     shz_quat_t r;
     /*
         // reorder the coefficients so that q1 stays in constant order {x,y,z,w}
@@ -101,7 +101,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult_dc(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEP
         return r;
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_quat_transform_vec3_dc(shz_quat_t q, shz_vec3_t v) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_vec3_t shz_quat_transform_vec3_sh4(shz_quat_t q, shz_vec3_t v) SHZ_NOEXCEPT {
     shz_vec2_t qqv;
 
     register float qx asm("fr4") = q.x;

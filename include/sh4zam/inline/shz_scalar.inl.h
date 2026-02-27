@@ -108,8 +108,8 @@ SHZ_FORCE_INLINE float shz_cbrtf(float x) SHZ_NOEXCEPT {
     if(x == 0.0f)
         return 0.0f;
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    float z = shz_cbrt_magic_dc(x);
+#if SHZ_BACKEND == SHZ_SH4
+    float z = shz_cbrt_magic_sh4(x);
 #else
     float z = shz_cbrt_magic_sw(x);
 #endif
@@ -208,8 +208,8 @@ SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
         return (x == 0.0f)? 0.0f : 1.0f / __builtin_sqrtf(x);
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_inv_sqrtf_fsrra_dc(x);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_inv_sqrtf_fsrra_sh4(x);
 #else
     return shz_inv_sqrtf_fsrra_sw(x);
 #endif
@@ -268,8 +268,8 @@ SHZ_FORCE_INLINE float shz_dot6f(float x1, float y1, float z1,
        __builtin_constant_p(x2) && __builtin_constant_p(y2) && __builtin_constant_p(z2))
         return (x1 * x2) + (y1 * y2) + (z1 * z2);
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_dot6f_dc(x1, y1, z1, x2, y2, z2);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_dot6f_sh4(x1, y1, z1, x2, y2, z2);
 #else
     return shz_dot6f_sw(x1, y1, z1, x2, y2, z2);
 #endif
@@ -279,8 +279,8 @@ SHZ_FORCE_INLINE float shz_mag_sqr3f(float x, float y, float z) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x) && __builtin_constant_p(y) && __builtin_constant_p(z))
         return (x * x) + (y * y) + (z * z);
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_mag_sqr3f_dc(x, y, z);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_mag_sqr3f_sh4(x, y, z);
 #else
     return shz_mag_sqr3f_sw(x, y, z);
 #endif
@@ -293,8 +293,8 @@ SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
        __builtin_constant_p(x2) && __builtin_constant_p(y2) && __builtin_constant_p(z2) && __builtin_constant_p(w2))
         return (x1 * x2) + (y1 * y2) + (z1 * z2) + (w1 * w2);
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_dot8f_dc(x1, y1, z1, w1, x2, y2, z2, w2);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_dot8f_sh4(x1, y1, z1, w1, x2, y2, z2, w2);
 #else
     return shz_dot8f_sw(x1, y1, z1, w1, x2, y2, z2, w2);
 #endif
@@ -304,8 +304,8 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) SHZ_NOE
     if(__builtin_constant_p(x) && __builtin_constant_p(y) && __builtin_constant_p(z) && __builtin_constant_p(w))
         return (x * x) + (y * y) + (z * z) + (w * w);
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
-    return shz_mag_sqr4f_dc(x, y, z, w);
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_mag_sqr4f_sh4(x, y, z, w);
 #else
     return shz_mag_sqr4f_sw(x, y, z, w);
 #endif

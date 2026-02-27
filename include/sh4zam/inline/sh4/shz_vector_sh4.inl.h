@@ -16,7 +16,7 @@
 
 #include "../../shz_mem.h"
 
-SHZ_INLINE float shz_vec3_triple_dc(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT {
+SHZ_INLINE float shz_vec3_triple_sh4(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT {
     register float ax asm("fr8")  = a.x;
     register float bx asm("fr9")  = b.x;
     register float cx asm("fr10") = c.x;
@@ -27,7 +27,7 @@ SHZ_INLINE float shz_vec3_triple_dc(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SH
     return -(dotPQ + dotRS);
 }
 
-SHZ_INLINE shz_vec3_t shz_vec3_barycenter_dc(shz_vec3_t p,
+SHZ_INLINE shz_vec3_t shz_vec3_barycenter_sh4(shz_vec3_t p,
                                              shz_vec3_t a,
                                              shz_vec3_t b,
                                              shz_vec3_t c) SHZ_NOEXCEPT {
@@ -117,7 +117,7 @@ SHZ_INLINE shz_vec3_t shz_vec3_barycenter_dc(shz_vec3_t p,
     return result;
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cubic_hermite_dc(shz_vec3_t vec1, shz_vec3_t tangent1, shz_vec3_t vec2, shz_vec3_t tangent2, float t) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cubic_hermite_sh4(shz_vec3_t vec1, shz_vec3_t tangent1, shz_vec3_t vec2, shz_vec3_t tangent2, float t) SHZ_NOEXCEPT {
     shz_vec3_t result;
 
     float t2 = t * t;
@@ -199,7 +199,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cubic_hermite_dc(shz_vec3_t vec1, shz_vec3_
 }
 
 
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_dot2_dc(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_dot2_sh4(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2) SHZ_NOEXCEPT {
 #if 0 // Not a win due to register allocator dumbassery.
     shz_vec2_t res;
 
@@ -245,7 +245,7 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_dot2_dc(shz_vec2_t l, shz_vec2_t r1, shz_ve
 #endif
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_vec2_dot3_dc(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2, shz_vec2_t r3) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_vec3_t shz_vec2_dot3_sh4(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2, shz_vec2_t r3) SHZ_NOEXCEPT {
 #if 0
     shz_vec3_t res;
 
@@ -306,7 +306,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec2_dot3_dc(shz_vec2_t l, shz_vec2_t r1, shz_ve
 #endif
 }
 
-SHZ_FORCE_INLINE shz_vec2_t shz_vec3_dot2_dc(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_vec2_t shz_vec3_dot2_sh4(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2) SHZ_NOEXCEPT {
 #if 0 // Close, but NOPE.
     shz_vec2_t res;
 
@@ -353,7 +353,7 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec3_dot2_dc(shz_vec3_t l, shz_vec3_t r1, shz_ve
 #endif
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_dot3_dc(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2, shz_vec3_t r3) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_dot3_sh4(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2, shz_vec3_t r3) SHZ_NOEXCEPT {
 #if 1
      shz_vec3_t res;
 
@@ -422,7 +422,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_dot3_dc(shz_vec3_t l, shz_vec3_t r1, shz_ve
 #endif
 }
 
-SHZ_FORCE_INLINE shz_vec2_t shz_vec4_dot2_dc(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_vec2_t shz_vec4_dot2_sh4(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2) SHZ_NOEXCEPT {
     shz_vec2_t res;
 
     register float lx asm("fr8")  = l.x;
@@ -467,7 +467,7 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec4_dot2_dc(shz_vec4_t l, shz_vec4_t r1, shz_ve
     return res;
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_vec4_dot3_dc(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2, shz_vec4_t r3) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_vec3_t shz_vec4_dot3_sh4(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2, shz_vec4_t r3) SHZ_NOEXCEPT {
 #if 1
     shz_vec3_t res;
 

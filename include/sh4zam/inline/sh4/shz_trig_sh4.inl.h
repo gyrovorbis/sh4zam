@@ -14,7 +14,7 @@
 #ifndef SHZ_TRIG_SH4_INL_H
 #define SHZ_TRIG_SH4_INL_H
 
-SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16_dc(uint16_t radians16) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16_sh4(uint16_t radians16) SHZ_NOEXCEPT {
 // \todo Ask Oleg Endo wtf?
 #if 0 //__FAST_MATH__
 
@@ -34,7 +34,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16_dc(uint16_t radians16) SHZ_NOEXCEPT 
     return (shz_sincos_t){ rsin, rcos };
 }
 
-SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_dc(float radians) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_sh4(float radians) SHZ_NOEXCEPT {
 #ifdef __FAST_MATH__
     return (shz_sincos_t) { __builtin_sinf(radians), __builtin_cosf(radians) };
 #else
@@ -55,7 +55,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_dc(float radians) SHZ_NOEXCEPT {
 #endif
 }
 
-SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg_dc(float degrees) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg_sh4(float degrees) SHZ_NOEXCEPT {
 #ifdef __FAST_MATH__
     return (shz_sincos_t) { __builtin_sinf(SHZ_DEG_TO_RAD(degrees)), __builtin_cosf(SHZ_DEG_TO_RAD(degrees)) };
 #else
