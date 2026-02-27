@@ -2,7 +2,9 @@
 #include "shz_test.hpp"
 #include "sh4zam/shz_mem.hpp"
 
-#include <fastmem/fastmem.h>
+#if SHZ_BACKEND == SHZ_SH4
+#   include <fastmem/fastmem.h>
+#endif
 
 #define GBL_SELF_TYPE   shz_mem_test_suite
 
@@ -95,8 +97,12 @@ GBL_TEST_CASE(memcpy)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(memcpy_fast)
+#if !(SHZ_BACKEND == SHZ_SH4)
+    GBL_TEST_SKIP("Skipping libfastmem test, SH4 only!");
+#else
     GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 8, 32, PADDING>)(memcpy_fast));
     GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 8, 32, PADDING>)(memcpy_fast));
+#endif
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(memcpy1,

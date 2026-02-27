@@ -1,4 +1,5 @@
 #include "sh4zam/shz_xmtrx.h"
+#include "sh4zam/shz_matrix.h"
 
 void shz_xmtrx_load_apply_store_4x4_sw(shz_mat4x4_t* out,
                                        const shz_mat4x4_t* matrix1,

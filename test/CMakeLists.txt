@@ -33,8 +33,13 @@ add_executable(Sh4zamTests
 target_include_directories(Sh4zamTests
     PRIVATE ..)
 
-target_link_libraries(Sh4zamTests
-                      PRIVATE libGimbal sh4zam cglm fastmem)
+set(LIBS libGimbal sh4zam cglm)
+
+if(PLATFORM_DREAMCAST)
+    list(APPEND LIBS fastmem)
+endif()
+
+target_link_libraries(Sh4zamTests PRIVATE ${LIBS})
 
 if(PLATFORM_DREAMCAST)
     include(kallistios REQUIRED)

@@ -188,7 +188,9 @@ GBL_TEST_CASE(load_4x4)
                     11.0f, -12.0f, 13.0f, 14.0f })));
 
     benchmark(nullptr, [&]() { shz::xmtrx::load(mat4); });
+#if SHZ_BACKEND == SHZ_SH4
     benchmark(nullptr, mat_load, (const float(*)[4][4])&mat4);
+#endif
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_wxyz_4x4)
@@ -272,8 +274,10 @@ GBL_TEST_CASE(store_4x4)
     //GBL_TEST_SKIP("No fucking clue why this shits the bed.");
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
     benchmark(nullptr, [&]{ shz::xmtrx::store(&mat); });
+#if SHZ_BACKEND == SHZ_SH4
     benchmark(nullptr, [&]{ mat_store((float (*)[4][4])&mat); });
-GBL_TEST_CASE_END
+#endif
+ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(store_unaligned_4x4)
     randomize_xmtrx_();
@@ -874,7 +878,7 @@ GBL_TEST_CASE(translate)
                                 0.0f, 1.0f, 0.0f, 2.0f,
                                 0.0f, 0.0f, 1.0f, 3.0f,
                                 0.0f, 0.0f, 0.0f, 1.0f }));
-
+#if SHZ_BACKEND == SHZ_SH4
     GBL_TEST_VERIFY(
         (benchmark_cmp<void>)(
             "shz::xmtrx::translate", shz::xmtrx::translate,
@@ -882,6 +886,7 @@ GBL_TEST_CASE(translate)
             100.0f, 200.0f, 300.0f
         )
     );
+#endif
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_ortho)
@@ -946,6 +951,13 @@ GBL_TEST_CASE(apply_screen)
 
     shz::mat4x4 applied_screen_mat;
     shz::xmtrx::store(&applied_screen_mat);
+
+    for(unsigned i = 0; i < 4; ++i) {
+            for(unsigned j = 0; j < 4; ++j) {
+         //      if(!shz_equalf(shzMat.elem2D[i][j], cglmMat.elem2D[i][j]))
+                    std::println("[{}][{}]: {}", j, i, applied_screen_mat.elem2D[i][j]);
+            }
+        }
 
     // Ensure apply_screen computes
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,

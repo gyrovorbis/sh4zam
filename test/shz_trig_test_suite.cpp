@@ -319,8 +319,8 @@ GBL_TEST_CASE(benches)
     volatile float result;
 
     for(volatile unsigned i = 0; i < 1; ++i) {
-        float random = gblRandUniform(-F_PI, F_PI);
-        float random2 = gblRandUniform(-F_PI, F_PI);
+        float random = gblRandUniform(-SHZ_F_PI, SHZ_F_PI);
+        float random2 = gblRandUniform(-SHZ_F_PI, SHZ_F_PI);
         benchmark(&result, shz::atan2f, random, random2);
         benchmark(&result, atan2f, random, random2);
         printf("\n");

@@ -21,9 +21,12 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3_sw(const shz_mat4x4_t* mat, shz_
 
 SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4_sw(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {
     shz_vec4_t r = shz_vec4_scale(mat->col[0], in.x);
+
     r = shz_vec4_add(r, shz_vec4_scale(mat->col[1], in.y));
     r = shz_vec4_add(r, shz_vec4_scale(mat->col[2], in.z));
     r = shz_vec4_add(r, shz_vec4_scale(mat->col[3], in.w));
+
+    return r;
 }
 
 SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4_transpose_sw(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {

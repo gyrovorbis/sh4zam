@@ -64,7 +64,7 @@ SHZ_FORCE_INLINE float shz_copysignf_sw(float x, float y) SHZ_NOEXCEPT {
     return (y < 0.0f)? -x : x;
 }
 
-SHZ_FORCE_INLINE float shz_roundf_sw(float x) SHZ_NOEXCEPT {
+SHZ_INLINE float shz_roundf_sw(float x) SHZ_NOEXCEPT {
     if(x > 0.0f) {
         float xfloor = shz_truncf(x);
 

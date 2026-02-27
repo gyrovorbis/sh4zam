@@ -18,7 +18,7 @@
 
 #include <string.h>
 
-SHZ_FORCE_INLINE void dcache_alloc_line(void* src) SHZ_NOEXCEPT {}
+SHZ_FORCE_INLINE void shz_dcache_alloc_line(void* src) SHZ_NOEXCEPT {}
 
 SHZ_FORCE_INLINE void* shz_memcpy(      void* SHZ_RESTRICT dst,
                                   const void* SHZ_RESTRICT src,
@@ -91,6 +91,8 @@ SHZ_FORCE_INLINE void* shz_memset8(void* dst, uint64_t value, size_t bytes) SHZ_
 
     for(unsigned i = 0; i < bytes >> 8; ++i)
         d[i] = value;
+
+    return dst;
 }
 
 SHZ_FORCE_INLINE void shz_memset2_16(void* dst, uint16_t value) SHZ_NOEXCEPT {
@@ -130,13 +132,13 @@ SHZ_FORCE_INLINE void shz_memswap32_1_xmtrx(void* SHZ_RESTRICT p1,
 
 SHZ_FORCE_INLINE void* shz_sq_memcpy32_1(      void* SHZ_RESTRICT dst,
                                          const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
-    memcpy(dst, src, 32);
+    return memcpy(dst, src, 32);
 }
 
 
 SHZ_FORCE_INLINE void* shz_sq_memcpy32_1_xmtrx(      void* SHZ_RESTRICT dst,
                                                const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
-    memcpy(dst, src, 32);
+    return memcpy(dst, src, 32);
 }
 
 #endif

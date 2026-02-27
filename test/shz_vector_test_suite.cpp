@@ -215,7 +215,7 @@ GBL_TEST_CASE(vec2MagnitudeInv)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Direction)
-    GBL_TEST_VERIFY((shz::vec2{0.0f, 0.0f}.direction() == shz::vec2(0.0f)));
+    GBL_TEST_VERIFY((shz::vec2{0.0f, 2.0f}.direction() == shz::vec2(0.0f, 1.0f)));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3Dot)

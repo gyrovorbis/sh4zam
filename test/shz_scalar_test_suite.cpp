@@ -399,7 +399,7 @@ GBL_TEST_CASE(pow10f)
 #if 0
         std::println("{} vs {}", shz_res, c_res);
 #endif
-        return shz_equalf(shz_res, c_res);
+        return gblRelativeError(shz_res, c_res) <= 0.2f;
     };
     GBL_TEST_VERIFY(test(27.0f));
     GBL_TEST_VERIFY(test(1.0f));

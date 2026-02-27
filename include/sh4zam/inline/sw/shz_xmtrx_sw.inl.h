@@ -424,8 +424,8 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_sw(float angle, float xAxis, float
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_symmetric_skew_sw(float x, float y, float z) SHZ_NOEXCEPT {
-    shz_xmtrx_state_.col[0] = shz_vec4_init(0.0f, z,    -y,   0.0f);
-    shz_xmtrx_state_.col[1] = shz_vec4_init(z,    0.0f, x,    0.0f);
+    shz_xmtrx_state_.col[0] = shz_vec4_init(0.0f, -z,    y,   0.0f);
+    shz_xmtrx_state_.col[1] = shz_vec4_init(z,    0.0f, -x,   0.0f);
     shz_xmtrx_state_.col[2] = shz_vec4_init(-y,   x,    0.0f, 0.0f);
     shz_xmtrx_state_.col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
 }
@@ -738,10 +738,10 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_screen_sw(float width, float height) SHZ_N
     const float hh = height * 0.5f;
 
     shz_vec4_t m[4];
-    m[0] = shz_vec4_init(hw,   0.0f, 0.0f, 0.0f);
-    m[1] = shz_vec4_init(0.0f, -hh,  0.0f, 0.0f);
+    m[0] = shz_vec4_init(hw,   0.0f, 0.0f, hw);
+    m[1] = shz_vec4_init(0.0f, -hh,  0.0f, hh);
     m[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
-    m[3] = shz_vec4_init(hw,   hh,   0.0f, 1.0f);
+    m[3] = shz_vec4_init(0.0f, 0.0f,   0.0f, 1.0f);
     shz_xmtrx_mul4x4_cols_(m);
 }
 
