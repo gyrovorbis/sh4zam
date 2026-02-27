@@ -45,6 +45,8 @@ GBL_TEST_CASE(sincos_from_degrees)
     auto test = [&](volatile float radians) GBL_FP_PRECISE {
         volatile float degrees = shz::rad_to_deg(radians);
         auto sincos = shz::sincos::from_degrees(degrees);
+        auto sincos1 = shz::sincos::from_degrees(degrees + 180.0f);
+        auto sincos2 = shz::sincos::from_degrees(degrees + 360.0f);
 
         GBL_CTX_BEGIN(pCtx);
         GBL_TEST_CALL([&] {
@@ -52,6 +54,8 @@ GBL_TEST_CASE(sincos_from_degrees)
             GBL_TEST_ERROR(sincos.sinf(),          sinf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
             GBL_TEST_ERROR(shz::sinf_deg(degrees), sinf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
             GBL_TEST_ERROR(sincos.cosf(),          cosf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_ERROR(sincos1.sinf(), sinf(radians + shz::deg_to_rad(180.0f)), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_ERROR(sincos2.sinf(), sinf(radians + shz::deg_to_rad(360.0f)), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
             GBL_CTX_END();
         }());
         GBL_TEST_ERROR(shz::cosf_deg(degrees), cosf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);

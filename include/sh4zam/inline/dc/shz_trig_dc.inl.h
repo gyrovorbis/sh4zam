@@ -61,18 +61,17 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg_dc(float degrees) SHZ_NOEXCEPT {
 #else
      degrees *= SHZ_FSCA_DEG_FACTOR;
 
+    shz_sincos_t sincos;
+
      asm(R"(
          ftrc  %0, fpul
          fsca  fpul, dr8
      )"
-     :
+     : "=fr8" (sincos.sin), "=fr9" (sincos.cos)
      : "f" (degrees)
-     : "fpul", "fr8", "fr9");
+     : "fpul");
 
-     register float rsin asm("fr8");
-     register float rcos asm("fr9");
-
-     return (shz_sincos_t){ rsin, rcos };
+     return sincos;
 #endif
 }
 //! \endcond
