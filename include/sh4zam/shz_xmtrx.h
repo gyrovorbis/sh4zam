@@ -553,9 +553,9 @@ SHZ_INLINE void shz_xmtrx_load_apply_unaligned_4x4(const float matrix1[16],
 
     \sa shz_xmtrx_load_apply(), shz_xmtrx_load_apply_store_unaligned_4x4()
 */
-void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
-                                    const shz_mat4x4_t* matrix1,
-                                    const shz_mat4x4_t* matrix2) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
+                                               const shz_mat4x4_t* matrix1,
+                                               const shz_mat4x4_t* matrix2) SHZ_NOEXCEPT;
 
 /*! Loads XMTRX with the result of applying unaligned \p matrix2 onto unaligned \p matrix1, storing the result.
 
@@ -584,9 +584,9 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
 
     \sa shz_xmtrx_load_3x4(), shz_xmtrx_apply_3x4(), shz_xmtrx_store_3x4()
 */
-void shz_xmtrx_load_apply_store_3x4(shz_mat3x4_t* out,
-                                    const shz_mat3x4_t* matrix1,
-                                    const shz_mat3x4_t* matrix2) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_load_apply_store_3x4(shz_mat3x4_t* out,
+                                               const shz_mat3x4_t* matrix1,
+                                               const shz_mat3x4_t* matrix2) SHZ_NOEXCEPT;
 
 /*! Loads XMTRX with the 3x3 result of applying \p matrix2 onto \p matrix1, storing the result.
 
@@ -603,9 +603,9 @@ void shz_xmtrx_load_apply_store_3x4(shz_mat3x4_t* out,
 
     \sa shz_xmtrx_load_3x3(), shz_xmtrx_apply_3x3(), shz_xmtrx_store_3x3()
 */
-void shz_xmtrx_load_apply_store_3x3(shz_mat3x3_t* out,
-                                    const shz_mat3x3_t* matrix1,
-                                    const shz_mat3x3_t* matrix2) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_load_apply_store_3x3(shz_mat3x3_t* out,
+                                               const shz_mat3x3_t* matrix1,
+                                               const shz_mat3x3_t* matrix2) SHZ_NOEXCEPT;
 
 //! @}
 

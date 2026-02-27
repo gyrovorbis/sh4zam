@@ -10,10 +10,10 @@
 !!
 
 .text
-    .globl _shz_xmtrx_load_apply_store_4x4
-    .globl _shz_xmtrx_load_apply_store_aligned4_4x4
-    .globl _shz_xmtrx_load_apply_store_3x4
-    .globl _shz_xmtrx_load_apply_store_3x3
+    .globl _shz_xmtrx_load_apply_store_4x4_sh4
+    .globl _shz_xmtrx_load_apply_store_aligned4_4x4_sh4
+    .globl _shz_xmtrx_load_apply_store_3x4_sh4
+    .globl _shz_xmtrx_load_apply_store_3x3_sh4
 
 
 !
@@ -24,7 +24,7 @@
 ! r6: matrix2 : Second input matrix which is applied onto XMTRX.
 !
     .align 5
-_shz_xmtrx_load_apply_store_4x4:
+_shz_xmtrx_load_apply_store_4x4_sh4:
     mov       r5, r7
     fschg
 
@@ -98,7 +98,7 @@ _shz_xmtrx_load_apply_store_4x4:
 ! r6: matrix2 : Second input matrix which is applied onto XMTRX.
 !
     .align 2
-_shz_xmtrx_load_apply_store_aligned4_4x4:
+_shz_xmtrx_load_apply_store_aligned4_4x4_sh4:
     frchg
 
     fmov.s  @r5, fr0
@@ -188,7 +188,7 @@ _shz_xmtrx_load_apply_store_aligned4_4x4:
 ! r6: matrix2 : Second input matrix which is applied onto XMTRX.
 !
     .align 5
-_shz_xmtrx_load_apply_store_3x4:
+_shz_xmtrx_load_apply_store_3x4_sh4:
     mov       r5, r7
     frchg                   ! Swap to back bank to load left into XMTRX
 
@@ -284,7 +284,7 @@ _shz_xmtrx_load_apply_store_3x4:
 ! r6: matrix2 : Second input matrix which is applied onto XMTRX.
 !
     .align 5
-_shz_xmtrx_load_apply_store_3x3:
+_shz_xmtrx_load_apply_store_3x3_sh4:
     mov    r5, r7
     frchg                   ! Swap FP regs to XMTRX back-bank
 

@@ -17,8 +17,8 @@
  *  \copyright MIT License
  */
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
-#   include "dc/shz_vector_dc.inl.h"
+#if SHZ_BACKEND == SHZ_Sh4
+#   include "sh4/shz_vector_sh4.inl.h"
 #endif
 
 #include "sw/shz_vector_sw.inl.h"

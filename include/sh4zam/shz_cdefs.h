@@ -20,14 +20,18 @@
 #   include <type_traits>
 #endif
 
-#define SHZ_DREAMCAST   1
-#define SHZ_SOFTWARE    2
+#define SHZ_SH4   1
+#define SHZ_PPC   2
+#define SHZ_ARM   3
+#define SHZ_X86   4
+#define SHZ_WASM  5
+#define SHZ_SW    ~0
 
 #ifndef SHZ_BACKEND
 #   ifdef __DREAMCAST__
-#       define SHZ_BACKEND SHZ_DREAMCAST
+#       define SHZ_BACKEND SHZ_SH4
 #   else
-#       define SHZ_BACKEND SHZ_SOFTWARE
+#       define SHZ_BACKEND SHZ_SW
 #   endif
 #endif
 

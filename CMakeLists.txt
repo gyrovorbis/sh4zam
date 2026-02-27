@@ -28,10 +28,17 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(SHZ_SOURCES
     source/shz_circle.c
     source/shz_matrix.c
-    source/shz_mem.s
     source/shz_xmtrx.c
-    source/shz_xmtrx.s
     source/shz_quat.c)
+
+if(PLATFORM_DREAMCAST)
+    list(APPEND SHZ_SOURCES
+         source/sh4/shz_xmtrx_sh4.s
+         source/sh4/shz_mem_sh4.s)
+else()
+    list(APPEND SHZ_SOURCES
+         source/sw/shz_xmtrx_sw.c)
+endif()
 
 set(SHZ_INCLUDES
     include/sh4zam/shz_cdefs.h
@@ -40,27 +47,45 @@ set(SHZ_INCLUDES
     include/sh4zam/shz_circle.hpp
     include/sh4zam/shz_trig.h
     include/sh4zam/shz_trig.hpp
-    include/sh4zam/inline/shz_trig.inl.h
     include/sh4zam/shz_scalar.h
     include/sh4zam/shz_scalar.hpp
-    include/sh4zam/inline/shz_scalar.inl.h
     include/sh4zam/shz_vector.h
     include/sh4zam/shz_vector.hpp
-    include/sh4zam/inline/shz_vector.inl.h
     include/sh4zam/shz_xmtrx.h
     include/sh4zam/shz_xmtrx.hpp
-    include/sh4zam/inline/shz_xmtrx.inl.h
     include/sh4zam/shz_matrix.h
     include/sh4zam/shz_matrix.hpp
-    include/sh4zam/inline/shz_matrix.inl.h
     include/sh4zam/shz_quat.h
     include/sh4zam/shz_quat.hpp
-    include/sh4zam/inline/shz_quat.inl.h
     include/sh4zam/shz_mem.h
     include/sh4zam/shz_mem.hpp
-    include/sh4zam/inline/shz_mem.inl.h
     include/sh4zam/shz_sh4zam.h
-    include/sh4zam/shz_sh4zam.hpp)
+    include/sh4zam/shz_sh4zam.hpp
+    include/sh4zam/inline/shz_trig.inl.h
+    include/sh4zam/inline/shz_mem.inl.h
+    include/sh4zam/inline/shz_quat.inl.h
+    include/sh4zam/inline/shz_matrix.inl.h
+    include/sh4zam/inline/shz_vector.inl.h
+    include/sh4zam/inline/shz_scalar.inl.h
+    include/sh4zam/inline/shz_xmtrx.inl.h)
+
+if(PLATFORM_DREAMCAST)
+    list(APPEND SHZ_INCLUDES
+         include/sh4zam/inline/sh4/shz_mem_sh4.inl.h
+         include/sh4zam/inline/sh4/shz_quat_sh4.inl.h
+         include/sh4zam/inline/sh4/shz_scalar_sh4.inl.h
+         include/sh4zam/inline/sh4/shz_trig_sh4.inl.h
+         include/sh4zam/inline/sh4/shz_vector_sh4.inl.h
+         include/sh4zam/inline/sh4/shz_xmtrx_sh4.inl.h)
+else()
+    list(APPEND SHZ_INCLUDES
+         include/sh4zam/inline/sw/shz_mem_sw.inl.h
+         include/sh4zam/inline/sw/shz_quat_sw.inl.h
+         include/sh4zam/inline/sw/shz_scalar_sw.inl.h
+         include/sh4zam/inline/sw/shz_trig_sw.inl.h
+         include/sh4zam/inline/sw/shz_vector_sw.inl.h
+         include/sh4zam/inline/sw/shz_xmtrx_sw.inl.h)
+endif()
 
 add_library(sh4zam STATIC ${SHZ_SOURCES})
 

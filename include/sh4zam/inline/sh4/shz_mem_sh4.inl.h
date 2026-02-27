@@ -12,8 +12,8 @@
 
     \copyright MIT License
 */
-#ifndef SHZ_MEM_DC_INL_H
-#define SHZ_MEM_DC_INL_H
+#ifndef SHZ_MEM_SH4_INL_H
+#define SHZ_MEM_SH4_INL_H
 
 #include <assert.h>
 

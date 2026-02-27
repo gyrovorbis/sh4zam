@@ -12,8 +12,8 @@
 
     \copyright MIT License
 */
-#ifndef SHZ_SCALAR_DC_INL_H
-#define SHZ_SCALAR_DC_INL_H
+#ifndef SHZ_SCALAR_SH4_INL_H
+#define SHZ_SCALAR_SH4_INL_H
 
 SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra_dc(float x) SHZ_NOEXCEPT {
     asm("fsrra %0" : "+f" (x));
