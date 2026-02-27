@@ -202,6 +202,46 @@ struct vecN: C {
         return shz_vec_clamp(*static_cast<const CppType*>(this), min, max);
     }
 
+    //! Returns a new vector with the component-wise floor of the given vector.
+    SHZ_FORCE_INLINE CppType floor() const noexcept {
+        return shz_vec_floor(*static_cast<const CppType*>(this));
+    }
+
+    //! Returns a new vector with the component-wise ceil of the given vector.
+    SHZ_FORCE_INLINE CppType ceil() const noexcept {
+        return shz_vec_ceil(*static_cast<const CppType*>(this));
+    }
+
+    //! Returns a new vector with the component-wise rounding of the given vector.
+    SHZ_FORCE_INLINE CppType round() const noexcept {
+        return shz_vec_round(*static_cast<const CppType*>(this));
+    }
+
+    //! Returns a new vector with the fractional part of each component.
+    SHZ_FORCE_INLINE CppType fract() const noexcept {
+        return shz_vec_fract(*static_cast<const CppType*>(this));
+    }
+
+    //! Returns a new vector with the sign of each component (-1, 0, or 1).
+    SHZ_FORCE_INLINE CppType sign() const noexcept {
+        return shz_vec_sign(*static_cast<const CppType*>(this));
+    }
+
+    //! Returns a new vector with each component clamped to [0, 1].
+    SHZ_FORCE_INLINE CppType saturate() const noexcept {
+        return shz_vec_saturate(*static_cast<const CppType*>(this));
+    }
+
+    //! Returns a new vector with the component-wise minimum of two vectors.
+    SHZ_FORCE_INLINE CppType minv(CppType other) const noexcept {
+        return shz_vec_minv(*static_cast<const CppType*>(this), other);
+    }
+
+    //! Returns a new vector with the component-wise maximum of two vectors.
+    SHZ_FORCE_INLINE CppType maxv(CppType other) const noexcept {
+        return shz_vec_maxv(*static_cast<const CppType*>(this), other);
+    }
+
     //! Returns the dot product of the given vector and another.
     SHZ_FORCE_INLINE float dot(CppType other) const noexcept {
         return shz_vec_dot(*static_cast<const CppType*>(this), other);

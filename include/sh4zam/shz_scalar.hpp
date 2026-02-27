@@ -72,6 +72,12 @@ namespace shz {
     constexpr auto wrapf              = shz_wrapf;
     //! C++ alias for shz_wrapf_fsrra().
     constexpr auto wrapf_fsrra        = shz_wrapf_fsrra;
+    //! C++ alias for shz_fractf().
+    constexpr auto fractf            = shz_fractf;
+    //! C++ alias for shz_signf().
+    constexpr auto signf             = shz_signf;
+    //! C++ alias for shz_saturatef().
+    constexpr auto saturatef         = shz_saturatef;
     //! @}
 
     /*! \name  Miscellaneous

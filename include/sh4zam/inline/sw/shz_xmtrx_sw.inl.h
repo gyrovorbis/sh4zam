@@ -926,22 +926,6 @@ SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_sw(shz_vec4_t vec) SHZ_NOEX
     return shz_xmtrx_ftrv_(vec);
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_vec3_sw(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_xmtrx_transform_vec4_sw(shz_vec3_vec4(vec, 0.0f)).xyz;
-}
-
-SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_vec2_sw(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return shz_xmtrx_transform_vec3_sw(shz_vec2_vec3(vec, 0.0f)).xy;
-}
-
-SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_point2_sw(shz_vec2_t pt) SHZ_NOEXCEPT {
-    return shz_xmtrx_transform_vec4_sw(shz_vec2_vec4(pt, 0.0f, 1.0f)).xy;
-}
-
-SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_point3_sw(shz_vec3_t pt) SHZ_NOEXCEPT {
-    return shz_xmtrx_transform_vec4_sw(shz_vec3_vec4(pt, 1.0f)).xyz;
-}
-
 /* Clean up cast helper macros */
 #undef SHZ_XMTRX_COLS_
 #undef SHZ_XMTRX_ELEMS_

@@ -171,6 +171,22 @@ namespace shz {
             shz_mat4x4_init_screen(this, width, height);
         }
 
+        SHZ_FORCE_INLINE void init_lookat(vec3 eye, vec3 center, vec3 up) noexcept {
+            shz_mat4x4_init_lookat(this, eye, center, up);
+        }
+
+        SHZ_FORCE_INLINE void init_ortho(float left, float right, float bottom, float top, float near, float far) noexcept {
+            shz_mat4x4_init_ortho(this, left, right, bottom, top, near, far);
+        }
+
+        SHZ_FORCE_INLINE void init_frustum(float left, float right, float bottom, float top, float near, float far) noexcept {
+            shz_mat4x4_init_frustum(this, left, right, bottom, top, near, far);
+        }
+
+        SHZ_FORCE_INLINE void init_perspective(float fov, float aspect, float near_z) noexcept {
+            shz_mat4x4_init_perspective(this, fov, aspect, near_z);
+        }
+
         //! @}
 
         /*! \name  Getting
@@ -453,6 +469,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE void inverse_block_triangular(mat4x4* out) const noexcept {
             shz_mat4x4_inverse_block_triangular(this, out);
+        }
+
+        SHZ_FORCE_INLINE void decompose(vec3* translation, quat* rotation, vec3* scale) const noexcept {
+            shz_mat4x4_decompose(this, translation, rotation, scale);
         }
 
         //! @}
