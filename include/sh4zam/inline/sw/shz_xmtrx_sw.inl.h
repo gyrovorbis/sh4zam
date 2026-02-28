@@ -438,10 +438,10 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_outer_product_sw(shz_vec4_t a, shz_vec4_t b
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_permutation_wxyz_sw(void) SHZ_NOEXCEPT {
-    shz_xmtrx_state_.col[0] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
-    shz_xmtrx_state_.col[1] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
-    shz_xmtrx_state_.col[2] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
-    shz_xmtrx_state_.col[3] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
+    shz_xmtrx_state_.col[0] = shz_vec4_init(0.0f, 1.0f, 0.0f, 1.0f);
+    shz_xmtrx_state_.col[1] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
+    shz_xmtrx_state_.col[2] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+    shz_xmtrx_state_.col[3] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_permutation_yzwx_sw(void) SHZ_NOEXCEPT {
@@ -657,7 +657,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_lookat_sw(shz_vec3_t eye,
     /* f = normalize(eye - center) (camera looks down -z, so f points from target to eye) */
     shz_vec3_t f = shz_vec3_init(eye.x - center.x, eye.y - center.y, eye.z - center.z);
     float flen2 = f.x * f.x + f.y * f.y + f.z * f.z;
-    float finv = shz_invf_fsrra(flen2);
+    float finv = shz_inv_sqrtf(flen2);
     f.x *= finv; f.y *= finv; f.z *= finv;
 
     /* s = normalize(cross(up, f)) */
@@ -667,7 +667,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_lookat_sw(shz_vec3_t eye,
         up.x * f.y - up.y * f.x
     );
     float slen2 = s.x * s.x + s.y * s.y + s.z * s.z;
-    float sinv = shz_invf_fsrra(slen2);
+    float sinv = shz_inv_sqrtf(slen2);
     s.x *= sinv; s.y *= sinv; s.z *= sinv;
 
     /* u = cross(f, s) */
@@ -738,19 +738,19 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_screen_sw(float width, float height) SHZ_N
     const float hh = height * 0.5f;
 
     shz_vec4_t m[4];
-    m[0] = shz_vec4_init(hw,   0.0f, 0.0f, hw);
-    m[1] = shz_vec4_init(0.0f, -hh,  0.0f, hh);
+    m[0] = shz_vec4_init(hw,   0.0f, 0.0f, 0.0f);
+    m[1] = shz_vec4_init(0.0f, -hh,  0.0f, 0.0f);
     m[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
-    m[3] = shz_vec4_init(hw,   0.0f,   0.0f, 1.0f);
+    m[3] = shz_vec4_init(hw,   hh,   0.0f, 1.0f);
     shz_xmtrx_mul4x4_cols_(m);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_permutation_wxyz_sw(void) SHZ_NOEXCEPT {
     shz_vec4_t m[4];
-    m[0] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
-    m[1] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
-    m[2] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
-    m[3] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
+    m[0] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
+    m[1] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
+    m[2] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+    m[3] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
     shz_xmtrx_mul4x4_cols_(m);
 }
 
