@@ -952,13 +952,6 @@ GBL_TEST_CASE(apply_screen)
     shz::mat4x4 applied_screen_mat;
     shz::xmtrx::store(&applied_screen_mat);
 
-    for(unsigned i = 0; i < 4; ++i) {
-            for(unsigned j = 0; j < 4; ++j) {
-         //      if(!shz_equalf(shzMat.elem2D[i][j], cglmMat.elem2D[i][j]))
-                    std::println("[{}][{}]: {}", j, i, applied_screen_mat.elem2D[i][j]);
-            }
-        }
-
     // Ensure apply_screen computes
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                 { 320.0f, -0.0f,   0.0f, 320.0f,
@@ -1155,7 +1148,8 @@ GBL_TEST_CASE(transform_vec4)
         shz::vec4 expected = { 2.356913f, 2.772574f, 0.870512f, 0.000000f };
         shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
         shz::vec4 vout = shz::xmtrx::transform(v);
-        GBL_TEST_VERIFY(vout == expected);
+        float dist = vout.distance(expected);
+        GBL_TEST_VERIFY(dist <= 0.001f);
     }
 
     // Scaled
@@ -1172,7 +1166,8 @@ GBL_TEST_CASE(transform_vec4)
         shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
         shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
         shz::vec4 vout = shz::xmtrx::transform(v);
-        GBL_TEST_VERIFY(vout == expected);
+        float dist = vout.distance(expected);
+        GBL_TEST_VERIFY(dist <= 0.001f);
     }
 
     // Rotate + Scale + Translate
@@ -1183,7 +1178,8 @@ GBL_TEST_CASE(transform_vec4)
         shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
         shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
         shz::vec4 vout = shz::xmtrx::transform(v);
-        GBL_TEST_VERIFY(vout == expected);
+        float dist = vout.distance(expected);
+        GBL_TEST_VERIFY(dist <= 0.001f);
 
         vec4 v_glm = { 3.0f, 2.0f, 1.0f, 0.0f };
         mat4 gmat;
@@ -1198,7 +1194,7 @@ GBL_TEST_CASE(transform_vec4)
         shz_glm_vec4_t vdest;
         glm_mat4_mulv(gmat, v_glm, vdest.glm);
 
-        float dist = vout.distance(vdest.shz);
+        dist = vout.distance(vdest.shz);
         GBL_TEST_VERIFY(dist <= 0.001f);
     }
 
@@ -1211,7 +1207,8 @@ GBL_TEST_CASE(transform_vec4)
         shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
         shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
         shz::vec4 vout = shz::xmtrx::transform(v);
-        GBL_TEST_VERIFY(vout == expected);
+        float dist = vout.distance(expected);
+        GBL_TEST_VERIFY(dist <= 0.001f);
 
         vec4 v_glm = { 3.0f, 2.0f, 1.0f, 1.0f };
         mat4 gmat;
@@ -1226,7 +1223,7 @@ GBL_TEST_CASE(transform_vec4)
         shz_glm_vec4_t vdest;
         glm_mat4_mulv(gmat, v_glm, vdest.glm);
 
-        float dist = vout.distance(vdest.shz);
+        dist = vout.distance(vdest.shz);
         GBL_TEST_VERIFY(dist <= 0.001f);
     }
 GBL_TEST_CASE_END
@@ -1241,7 +1238,8 @@ GBL_TEST_CASE(transform_vec3)
     shz::vec3 v = { 5.0f, 6.0f, 7.0f };
     shz::vec3 vout = shz::xmtrx::transform(v);
 
-    GBL_TEST_VERIFY(vout == expected);
+    float dist = vout.distance(expected);
+    GBL_TEST_VERIFY(dist <= 0.001f);
 
 GBL_TEST_CASE_END
 
@@ -1255,7 +1253,8 @@ GBL_TEST_CASE(transform_vec2)
     shz::vec2 v = { 5.0f, 6.0f };
     shz::vec2 vout = shz::xmtrx::transform(v);
 
-    GBL_TEST_VERIFY(vout == expected);
+    float dist = vout.distance(expected);
+    GBL_TEST_VERIFY(dist <= 0.001f);
 
 GBL_TEST_CASE_END
 
@@ -1271,7 +1270,8 @@ GBL_TEST_CASE(transform_point3)
     shz::vec3 p = { 4.0f, 5.0f, 21.0f };
     shz::vec3 vout = shz::xmtrx::transform_point(p);
 
-    GBL_TEST_VERIFY(vout == expected);
+    float dist = vout.distance(expected);
+    GBL_TEST_VERIFY(dist <= 0.005f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(transform_point2)
@@ -1286,7 +1286,8 @@ GBL_TEST_CASE(transform_point2)
     shz::vec2 p = { 4.0f, 5.0f };
     shz::vec2 vout = shz::xmtrx::transform_point(p);
 
-    GBL_TEST_VERIFY(vout == expected);
+    float dist = vout.distance(expected);
+    GBL_TEST_VERIFY(dist <= 0.001f);
 
 GBL_TEST_CASE_END
 

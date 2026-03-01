@@ -403,7 +403,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_z_sw(float z) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_sw(float angle, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT {
     float len2 = xAxis * xAxis + yAxis * yAxis + zAxis * zAxis;
-    float inv_len = shz_invf_fsrra(len2);
+    float inv_len = shz_inv_sqrtf(len2);
     xAxis *= inv_len;
     yAxis *= inv_len;
     zAxis *= inv_len;
@@ -607,7 +607,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_z_sw(float z) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_sw(float angle, float x, float y, float z) SHZ_NOEXCEPT {
     float len2 = x * x + y * y + z * z;
-    float inv_len = shz_invf_fsrra(len2);
+    float inv_len = shz_inv_sqrtf(len2);
     x *= inv_len;
     y *= inv_len;
     z *= inv_len;
