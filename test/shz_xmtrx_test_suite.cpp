@@ -1141,6 +1141,155 @@ GBL_TEST_CASE(load_apply_store_3x3)
             GBL_TEST_VERIFY(shz_equalf(shzRes.shz.elem2D[i][j], glmRes.shz.elem2D[i][j]));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(transform_vec4)
+    shz::vec4 v{
+        3.0f, 2.0f, 1.0f, 0.0f
+    };
+    union shz_glm_vec4_t {
+        shz::vec4 shz;
+        vec4 glm;
+    };
+
+    // Rotated
+    {
+        shz::vec4 expected = { 2.356913f, 2.772574f, 0.870512f, 0.000000f };
+        shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
+        shz::vec4 vout = shz::xmtrx::transform(v);
+        GBL_TEST_VERIFY(vout == expected);
+    }
+
+    // Scaled
+    {
+        shz::vec4 expected = { 6.0f, 6.0f, 4.0f, 0.0f };
+        shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+        shz::vec4 vout = shz::xmtrx::transform(v);
+        GBL_TEST_VERIFY(vout == expected);
+    }
+
+    // Rotate + Scale
+    {
+        shz::vec4 expected = { 4.713826f, 5.545148f, 1.741025f, 0.000000f };
+        shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
+        shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
+        shz::vec4 vout = shz::xmtrx::transform(v);
+        GBL_TEST_VERIFY(vout == expected);
+    }
+
+    // Rotate + Scale + Translate
+    // Expectation: Only rotation and scale applied. Translation ignored.
+    {
+        shz::vec4 expected = { 4.713826f, 5.545148f, 1.741025f, 0.000000f };
+        shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
+        shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
+        shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
+        shz::vec4 vout = shz::xmtrx::transform(v);
+        GBL_TEST_VERIFY(vout == expected);
+
+        vec4 v_glm = { 3.0f, 2.0f, 1.0f, 0.0f };
+        mat4 gmat;
+        glm_mat4_identity(gmat);
+        vec3 tl = { 10.0f, 20.0f, 30.0f };
+        glm_translate(gmat, tl);
+        vec3 sc = { 2.0f, 2.0f, 2.0f };
+        glm_scale(gmat, sc);
+        vec3 axis = { 1.0f, 1.0f, 1.0f };
+        glm_rotate(gmat, glm_rad(42.0f), axis);
+
+        shz_glm_vec4_t vdest;
+        glm_mat4_mulv(gmat, v_glm, vdest.glm);
+
+        float dist = vout.distance(vdest.shz);
+        GBL_TEST_VERIFY(dist <= 0.001f);
+    }
+
+    // Rotate + Scale + Translate
+    // Expectation: Translation applied.
+    {
+        v.w = 1.0f;
+        shz::vec4 expected = { 14.713826f, 25.545149f, 31.741024f, 1.000000f };
+        shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
+        shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
+        shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
+        shz::vec4 vout = shz::xmtrx::transform(v);
+        GBL_TEST_VERIFY(vout == expected);
+
+        vec4 v_glm = { 3.0f, 2.0f, 1.0f, 1.0f };
+        mat4 gmat;
+        glm_mat4_identity(gmat);
+        vec3 tl = { 10.0f, 20.0f, 30.0f };
+        glm_translate(gmat, tl);
+        vec3 sc = { 2.0f, 2.0f, 2.0f };
+        glm_scale(gmat, sc);
+        vec3 axis = { 1.0f, 1.0f, 1.0f };
+        glm_rotate(gmat, glm_rad(42.0f), axis);
+
+        shz_glm_vec4_t vdest;
+        glm_mat4_mulv(gmat, v_glm, vdest.glm);
+
+        float dist = vout.distance(vdest.shz);
+        GBL_TEST_VERIFY(dist <= 0.001f);
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(transform_vec3)
+
+    shz::vec3 expected = { 11.286173f, 10.454851f, 14.258974f };
+    shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
+    shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
+    shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
+
+    shz::vec3 v = { 5.0f, 6.0f, 7.0f };
+    shz::vec3 vout = shz::xmtrx::transform(v);
+
+    GBL_TEST_VERIFY(vout == expected);
+
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(transform_vec2)
+
+    shz::vec2 expected = { 4.679756f, 14.664473f };
+    shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
+    shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
+    shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
+
+    shz::vec2 v = { 5.0f, 6.0f };
+    shz::vec2 vout = shz::xmtrx::transform(v);
+
+    GBL_TEST_VERIFY(vout == expected);
+
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(transform_point3)
+
+    // Rotate + Scale + Translate
+    // Expectation: Translation applied.
+    shz::vec3 expected = { 33.442780f, 19.434233f, 67.122986f };
+    shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
+    shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
+    shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
+
+    shz::vec3 p = { 4.0f, 5.0f, 21.0f };
+    shz::vec3 vout = shz::xmtrx::transform_point(p);
+
+    GBL_TEST_VERIFY(vout == expected);
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(transform_point2)
+
+    // Rotate + Scale + Translate
+    // Expectation: Translation applied.
+    shz::vec2 expected = { 13.623529f, 32.063099f };
+    shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
+    shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
+    shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
+
+    shz::vec2 p = { 4.0f, 5.0f };
+    shz::vec2 vout = shz::xmtrx::transform_point(p);
+
+    GBL_TEST_VERIFY(vout == expected);
+
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(read_write_registers,
                   read_write_rows,
                   read_write_cols,
@@ -1209,4 +1358,9 @@ GBL_TEST_REGISTER(read_write_registers,
                   store_3x4,
                   apply_3x4,
                   load_apply_store_3x4,
-                  load_apply_store_3x3)
+                  load_apply_store_3x3,
+                  transform_vec4,
+                  transform_vec3,
+                  transform_vec2,
+                  transform_point3,
+                  transform_point2)
