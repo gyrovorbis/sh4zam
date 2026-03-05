@@ -19,16 +19,17 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16_sh4(uint16_t radians16) SHZ_NOEXCEPT
 #if 0 //__FAST_MATH__
 
 #else
-    register float rsin asm("fr8");
-    register float rcos asm("fr9");
+    float rsin, rcos;
 
     asm(R"(
             lds  %2, fpul
             fsca fpul, dr8
+            fmov fr8, %0
+            fmov fr9, %1
         )"
-        : "=f" (rsin), "=f" (rcos)
+        : "=&f" (rsin), "=&f" (rcos)
         : "r" (radians16)
-        : "fpul");
+        : "fpul", "fr8", "fr9");
 #endif
 
     return (shz_sincos_t){ rsin, rcos };
@@ -38,18 +39,18 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_sh4(float radians) SHZ_NOEXCEPT {
 #ifdef __FAST_MATH__
     return (shz_sincos_t) { __builtin_sinf(radians), __builtin_cosf(radians) };
 #else
-    register float rsin asm("fr8");
-    register float rcos asm("fr9");
-
-    radians *= SHZ_FSCA_RAD_FACTOR;
+    float rsin, rcos;
+    float r = radians * SHZ_FSCA_RAD_FACTOR;
 
     asm(R"(
         ftrc  %2, fpul
         fsca  fpul, dr8
+        fmov  fr8, %0
+        fmov  fr9, %1
     )"
-    : "=f" (rsin), "=f" (rcos)
-    : "f" (radians)
-    : "fpul");
+    : "=&f" (rsin), "=&f" (rcos)
+    : "f" (r)
+    : "fpul", "fr8", "fr9");
 
     return (shz_sincos_t){ rsin, rcos };
 #endif
@@ -59,18 +60,18 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg_sh4(float degrees) SHZ_NOEXCEPT {
 #ifdef __FAST_MATH__
     return (shz_sincos_t) { __builtin_sinf(SHZ_DEG_TO_RAD(degrees)), __builtin_cosf(SHZ_DEG_TO_RAD(degrees)) };
 #else
-    register float rsin asm("fr8");
-    register float rcos asm("fr9");
+    float rsin, rcos;
+    float d = degrees * SHZ_FSCA_DEG_FACTOR;
 
-     degrees *= SHZ_FSCA_DEG_FACTOR;
-
-     asm(R"(
-         ftrc  %0, fpul
+    asm(R"(
+         ftrc  %2, fpul
          fsca  fpul, dr8
+         fmov  fr8, %0
+         fmov  fr9, %1
      )"
      : "=&f" (rsin), "=&f" (rcos)
-     : "f" (degrees)
-     : "fpul");
+     : "f" (d)
+     : "fpul", "fr8", "fr9");
 
     return (shz_sincos_t){ rsin, rcos };
 #endif
