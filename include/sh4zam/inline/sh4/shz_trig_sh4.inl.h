@@ -64,8 +64,6 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg_sh4(float degrees) SHZ_NOEXCEPT {
 
      degrees *= SHZ_FSCA_DEG_FACTOR;
 
-    shz_sincos_t sincos;
-
      asm(R"(
          ftrc  %0, fpul
          fsca  fpul, dr8
