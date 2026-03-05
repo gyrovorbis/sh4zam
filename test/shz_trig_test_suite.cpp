@@ -14,7 +14,7 @@ GBL_TEST_FINAL_NONE
 #define SHZ_FSCA_ERROR_APPROX 0.0052
 
 GBL_TEST_CASE(sincos_from_radians)
-    auto test = [&](float radians) GBL_FP_PRECISE {
+    auto test = [&](volatile float radians) GBL_FP_PRECISE {
         auto sincos = shz::sincos::from_radians(radians);
 
         GBL_CTX_BEGIN(pCtx);
