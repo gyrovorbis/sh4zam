@@ -13,7 +13,7 @@ GBL_TEST_FIXTURE {
 GBL_TEST_INIT_NONE
 GBL_TEST_FINAL_NONE
 
-shz_vec3_t raylibVector3RotateByQuaternion(shz_quat_t q, shz_vec3_t v) {
+static shz_vec3_t raylibVector3RotateByQuaternion(shz_quat_t q, shz_vec3_t v) {
     shz_vec3_t result = { 0 };
 
     result.x = v.x*(q.x*q.x + q.w*q.w - q.y*q.y - q.z*q.z) + v.y*(2*q.x*q.y - 2*q.w*q.z) + v.z*(2*q.x*q.z + 2*q.w*q.y);

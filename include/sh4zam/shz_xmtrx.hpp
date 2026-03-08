@@ -707,6 +707,11 @@ struct xmtrx {
         shz_xmtrx_abs();
     }
 
+    //! C++ wrapper around shz_xmtrx_init_fft_weights().
+    SHZ_FORCE_INLINE static void init_fft_weights(float radians) noexcept {
+        shz_xmtrx_init_fft_weights(radians);
+    }
+
     //! C++ wrapper around shz_xmtrx_to_quat().
     SHZ_FORCE_INLINE static quat to_quat() noexcept {
         return shz_xmtrx_to_quat();

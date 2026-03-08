@@ -6,7 +6,7 @@ CMakeLists.txt.user
 *.elf
 *.img
 *.log
-build/
+build*/
 .vscode/
 doc/html/
 doc/latex/

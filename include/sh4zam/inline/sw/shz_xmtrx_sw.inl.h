@@ -920,6 +920,16 @@ SHZ_FORCE_INLINE void shz_xmtrx_abs_sw(void) SHZ_NOEXCEPT {
         shz_xmtrx_state_.elem[i] = shz_fabsf(shz_xmtrx_state_.elem[i]);
 }
 
+SHZ_INLINE void shz_xmtrx_init_fft_weights_sw(float angle) SHZ_NOEXCEPT {
+    const float b = shz_sinf(angle);
+    const float a = shz_cosf(angle);
+
+    shz_xmtrx_state_.col[0] = shz_vec4_init(1.0f, 0.0f,  a,  b);
+    shz_xmtrx_state_.col[1] = shz_vec4_init(0.0f, 1.0f, -b,  a);
+    shz_xmtrx_state_.col[2] = shz_vec4_init(1.0f, 0.0f, -a, -b);
+    shz_xmtrx_state_.col[3] = shz_vec4_init(0.0f, 1.0f,  b, -a);
+}
+
 /* ========== Transformations ========== */
 
 SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_sw(shz_vec4_t vec) SHZ_NOEXCEPT {

@@ -701,6 +701,9 @@ SHZ_INLINE void shz_xmtrx_negate(void) SHZ_NOEXCEPT;
 //! Takes the absolute value of each element held within XMTRX.
 SHZ_INLINE void shz_xmtrx_abs(void) SHZ_NOEXCEPT;
 
+//! Initializes XMTRX to the sin/cos weights used to multiply two samples within an FFT.
+SHZ_INLINE void shz_xmtrx_init_fft_weights(float radians) SHZ_NOEXCEPT;
+
 //! Constructs a quaternion from the 3D rotation matrix within XMTRX.
 shz_quat_t shz_xmtrx_to_quat(void) SHZ_NOEXCEPT;
 

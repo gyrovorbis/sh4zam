@@ -11,12 +11,6 @@ project(sh4zam
         HOMEPAGE_URL "sh4zam.falcogirgis.com"
         LANGUAGES    C CXX ASM)
 
-# Compiler min version check broken with DreamSDK!
-#set(GCC_VERSION_MIN "12.0")
-#if(CMAKE_C_COMPILER_VERSION VERSION_LESS ${GCC_VERSION_MIN})
-#    message(FATAL_ERROR "GCC version is too old! Minimum required version: ${GCC_VERSION_MIN}.")
-#endif()
-
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
@@ -27,9 +21,10 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 set(SHZ_SOURCES
     source/shz_circle.c
+    source/shz_complex.c
     source/shz_matrix.c
-    source/shz_xmtrx.c
-    source/shz_quat.c)
+    source/shz_quat.c
+    source/shz_xmtrx.c)
 
 if(PLATFORM_DREAMCAST)
     list(APPEND SHZ_SOURCES
@@ -45,6 +40,8 @@ set(SHZ_INCLUDES
     include/sh4zam/shz_cdefs.hpp
     include/sh4zam/shz_circle.h
     include/sh4zam/shz_circle.hpp
+    include/sh4zam/shz_complex.h
+    include/sh4zam/shz_complex.hpp
     include/sh4zam/shz_trig.h
     include/sh4zam/shz_trig.hpp
     include/sh4zam/shz_scalar.h
@@ -61,6 +58,7 @@ set(SHZ_INCLUDES
     include/sh4zam/shz_mem.hpp
     include/sh4zam/shz_sh4zam.h
     include/sh4zam/shz_sh4zam.hpp
+    include/sh4zam/inline/shz_complex.inl.h
     include/sh4zam/inline/shz_trig.inl.h
     include/sh4zam/inline/shz_mem.inl.h
     include/sh4zam/inline/shz_quat.inl.h
@@ -88,9 +86,6 @@ else()
 endif()
 
 add_library(sh4zam STATIC ${SHZ_SOURCES})
-
-# Breaks with older CMake versions, fml.
-#target_compile_features(sh4zam PUBLIC c_std_23 cxx_std_23)
 
 set_target_properties(sh4zam PROPERTIES
                       PUBLIC_HEADER "${SHZ_INCLUDES}")

@@ -1,5 +1,6 @@
-#include "shz_test.h"
 #include <sh4zam/shz_sh4zam.h>
+
+#include "shz_test.h"
 
 int main(int argc, const char* argv[]) {
     GblTestScenario *scenario = GblTestScenario_create("SH4ZAM");
@@ -21,6 +22,8 @@ int main(int argc, const char* argv[]) {
                                  GblTestSuite_create(SHZ_MATRIX_TEST_SUITE_TYPE));
     GblTestScenario_enqueueSuite(scenario,
                                  GblTestSuite_create(SHZ_MEM_TEST_SUITE_TYPE));
+    GblTestScenario_enqueueSuite(scenario,
+                                 GblTestSuite_create(SHZ_COMPLEX_TEST_SUITE_TYPE));
 
     return GblTestScenario_exec(scenario, argc, argv);
 }

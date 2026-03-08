@@ -5,7 +5,7 @@
  *  the SH4ZAM library has to offer to the C language within
  *  a single header file.
  *
- *  \author    2025 Falco Girgis
+ *  \author    2025, 2026 Falco Girgis
  *  \copyright MIT License
  */
 
@@ -21,5 +21,6 @@
 #include "shz_matrix.h"
 #include "shz_xmtrx.h"
 #include "shz_circle.h"
+#include "shz_complex.h"
 
 #endif

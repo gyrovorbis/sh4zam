@@ -898,6 +898,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_abs(void) SHZ_NOEXCEPT {
 #endif
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_init_fft_weights(float angle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_init_fft_weights_sh4(angle);
+#else
+    shz_xmtrx_init_fft_weights_sw(angle);
+#endif
+}
+
 shz_quat_t shz_xmtrx_to_quat(void) SHZ_NOEXCEPT;
 float shz_xmtrx_determinant(void) SHZ_NOEXCEPT;
 

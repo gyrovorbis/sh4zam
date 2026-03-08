@@ -19,6 +19,7 @@ add_executable(Sh4zamTests
     shz_test.c
     shz_test.h
     shz_test.hpp
+    shz_complex_test_suite.cpp
     shz_scalar_test_suite.cpp
     shz_trig_test_suite.cpp
     shz_vector_test_suite.cpp
@@ -26,9 +27,6 @@ add_executable(Sh4zamTests
     shz_xmtrx_test_suite.cpp
     shz_matrix_test_suite.cpp
     shz_mem_test_suite.cpp)
-
-# Breaks with older CMake versions, fml.
-#set_property(TARGET Sh4zamTests PROPERTY CXX_STANDARD 23)
 
 target_include_directories(Sh4zamTests
     PRIVATE ..)
