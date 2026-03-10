@@ -23,7 +23,7 @@ void shz_fft(shz_complex_t* s, size_t size) {
         for(int j = 0; j < len; ++j) {
 
             // Load XMTRX with twiddle factors for two samples.
-            shz_xmtrx_init_fft_weights(a * widx);
+            shz_xmtrx_init_fft_weights(a * j * widx);
 
             // Butterfly operation for a particular Twiddle factor in a particular stage
             for(int i = j; i < size; i += (len << 1)) {
