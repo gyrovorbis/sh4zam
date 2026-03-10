@@ -26,7 +26,7 @@ void shz_fft(shz_complex_t* s, size_t size) {
             shz_xmtrx_init_fft_weights(a * widx);
 
             // Butterfly operation for a particular Twiddle factor in a particular stage
-            for(int i = j; i < size; i += (len >> 1)) {
+            for(int i = j; i < size; i += (len << 1)) {
                 shz_complex_t* x = &s[i];
                 shz_complex_t* y = &s[i + len];
 
@@ -45,7 +45,7 @@ void shz_fft(shz_complex_t* s, size_t size) {
             }
         }
 
-        widx >>= 1;
+        widx <<= 1;
     }
 
     int j = 0, k;

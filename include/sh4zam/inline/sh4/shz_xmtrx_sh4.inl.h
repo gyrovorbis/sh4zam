@@ -3201,22 +3201,22 @@ SHZ_INLINE void shz_xmtrx_init_fft_weights_sh4(float angle) SHZ_NOEXCEPT {
         frchg
         fsca    fpul, dr6
 
-        fldi1	fr0
-        fldi0	fr1
-        fmov	fr7, fr2
-        fldi0	fr4
-        fmov	fr6, fr3
-        fldi1	fr5
+        fldi1   fr0
+        fldi0   fr1
+        fmov    fr7, fr2
+        fldi0   fr4
+        fmov    fr6, fr3
+        fldi1   fr5
 
         fschg
-        fmov	dr2, dr10
-        fneg	fr6
-        fmov	dr4, dr12
-        fneg	fr10
-        fmov	dr6, dr14
-        fneg	fr11
-        fmov	dr0, dr8
-        fneg	fr15
+        fmov    dr2, dr10
+        fneg    fr6
+        fmov    dr4, dr12
+        fneg    fr10
+        fmov    dr6, dr14
+        fneg    fr11
+        fmov    dr0, dr8
+        fneg    fr15
         fschg
 
         frchg
