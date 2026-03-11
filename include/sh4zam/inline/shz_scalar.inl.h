@@ -435,7 +435,7 @@ SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE float shz_pow10f(float p) SHZ_NOEXCEPT {
     if(__builtin_constant_p(p))
-        return __builtin_pow10f(p);
+        return __builtin_powf(10.0f, p);
 
     return shz_expf(2.302585092994046f * p);
 }

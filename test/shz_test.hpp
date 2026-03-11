@@ -78,7 +78,7 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function
 #endif
         SHZ_MEMORY_BARRIER_SOFT();
 
- #pragma GCC unroll 0
+ #pragma GCC unroll 1
         for(iterations = 0; iterations < BENCHMARK_ITERATION_COUNT; ++iterations) {
         SHZ_MEMORY_BARRIER_SOFT();
 #if !defined(SHZ_DISABLE_BENCHMARKS) && (SHZ_BACKEND == SHZ_SH4)
