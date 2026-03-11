@@ -893,7 +893,7 @@ GBL_TEST_CASE(apply_ortho)
     shz::xmtrx::init_identity_safe();
     shz::xmtrx::apply_ortho(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f);
     union {
-        alignas(8) mat4 cmat;
+        alignas(16) mat4 cmat;
         shz::mat4x4 shzcmat;
     } cunion;
     glm_ortho_rh_no(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f, cunion.cmat);
@@ -911,7 +911,7 @@ GBL_TEST_CASE(apply_frustum)
     shz::xmtrx::init_identity_safe();
     shz::xmtrx::apply_frustum(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f);
     union {
-        alignas(8) mat4 cmat;
+        alignas(16) mat4 cmat;
         shz::mat4x4 shzcmat;
     } cunion;
     glm_frustum_rh_no(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f, cunion.cmat);
@@ -927,7 +927,7 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_perspective)
     union {
-        alignas(8) mat4 cmat;
+        alignas(16) mat4 cmat;
         shz::mat4x4 shzcmat;
     } cunion;
 
