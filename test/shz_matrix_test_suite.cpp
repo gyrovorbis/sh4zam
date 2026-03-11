@@ -20,28 +20,29 @@ bool operator==(const shz::quat& shz, const versor& glm) {
 }
 
 GBL_TEST_CASE(inverse)
-   auto test = [&](const shz::mat4x4& mat) {
-        shz::mat4x4 shzInverted, glmInverted;
+   auto test = [&](shz_glm_mat4& mat) {
+        shz_glm_mat4 shzInverted, glmInverted;
 
         benchmark(nullptr, [&]{
-            glm_mat4_inv(*(mat4*)&mat, *(mat4*)&glmInverted);
+            glm_mat4_inv(mat.glm, glmInverted.glm);
         });
 
-        benchmark(nullptr, [&]{ mat.inverse(&shzInverted); });
+        benchmark(nullptr, [&]{ mat.shz.inverse(&shzInverted.shz); });
 
-        return shzInverted == glmInverted;
+        return shzInverted.shz == glmInverted.shz;
     };
 
-    shz::mat4x4 mat, inverted, invertedInverted;
+    shz_glm_mat4 mat;
+    shz::mat4x4 inverted, invertedInverted;
 
-    mat.init_identity();
-    mat.apply_scale(2.0f, 3.0f, 4.0f);
-    mat.apply_translation(10.0f, 20.0f, 30.0f);
-    mat.apply_rotation_x(SHZ_F_PI);
-    mat.inverse(&inverted);
+    mat.shz.init_identity();
+    mat.shz.apply_scale(2.0f, 3.0f, 4.0f);
+    mat.shz.apply_translation(10.0f, 20.0f, 30.0f);
+    mat.shz.apply_rotation_x(SHZ_F_PI);
+    mat.shz.inverse(&inverted);
     inverted.inverse(&invertedInverted);
 
-    GBL_TEST_VERIFY(mat == invertedInverted);
+    GBL_TEST_VERIFY(mat.shz == invertedInverted);
     GBL_TEST_VERIFY(test(mat));
 GBL_TEST_CASE_END
 
