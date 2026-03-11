@@ -16,6 +16,7 @@
 #define SHZ_COMPLEX_H
 
 #include "shz_cdefs.h"
+#include <stddef.h>
 
 #define SHZ_CMPLXF(x, y) 	shz_cinitf(x, y)
 #define SHZ_CMPLXF32(x, y) 	SHZ_CMPLXF(x, y)
