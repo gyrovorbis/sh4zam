@@ -655,13 +655,13 @@ SHZ_DECLS_END
 */
 
 //! Dereferences the given pointer to a sequence of 2 floats as a shz_vec2_t.
-#define shz_vec2_deref(ptr) (*((shz_vec2_t*)(ptr)))
+#define shz_vec2_deref(ptr) (*((SHZ_ALIASING shz_vec2_t*)(ptr)))
 
 //! Dereferences the given pointer to a sequence of 3 floats as a shz_vec3_t.
-#define shz_vec3_deref(ptr) (*((shz_vec3_t*)(ptr)))
+#define shz_vec3_deref(ptr) (*((SHZ_ALIASING shz_vec3_t*)(ptr)))
 
 //! Dereferences the given pointer to a sequence of 4 floats as a shz_vec4_t.
-#define shz_vec4_deref(ptr) (*((shz_vec4_t*)(ptr)))
+#define shz_vec4_deref(ptr) (*((SHZ_ALIASING shz_vec4_t*)(ptr)))
 
 //! Converts the given \p value or expression to the equivalent 2D SH4ZAM vector value.
 #define shz_vec2_from(value) SHZ_CONVERT(shz_vec2_t, value)

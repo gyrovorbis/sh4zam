@@ -139,9 +139,9 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4_sh4(const shz_mat4x4_t* mat, shz
         add     #4, %[v]        ! Advance output vector pointer
         fmov.s  fr3, @%[v]      ! FUCKING STALL - previous FIPR still in pipeline!
     )"
-    : [v] "+r" (v), "=m" (in),
+    : [v] "+r" (v), "+m" (in),
       [c0] "+r" (c[0]), [c1] "+r" (c[1]), [c2] "+r" (c[2]), [c3] "+r" (c[3])
-    : "m" (in), "m" (*c[0]), "m" (*c[1]), "m" (*c[2]), "m" (*c[3])
+    : "m" (*mat)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 

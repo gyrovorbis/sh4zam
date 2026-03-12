@@ -3,6 +3,8 @@
 
 #include <math.h>
 
+//! CONSTEXPR EVALUATION
+
 SHZ_FORCE_INLINE float shz_crealf(shz_complex_t c) SHZ_NOEXCEPT {
     return c.real;
 }
@@ -13,6 +15,11 @@ SHZ_FORCE_INLINE float shz_cimagf(shz_complex_t c) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE shz_complex_t shz_cinitf(float real, float imag) SHZ_NOEXCEPT {
     return (shz_complex_t){ real, imag };
+}
+
+SHZ_FORCE_INLINE shz_complex_t shz_cpolarf(float r, float theta) SHZ_NOEXCEPT {
+    shz_sincos_t sc = shz_sincosf(theta);
+    return shz_cinitf(r * sc.cos, r * sc.sin);
 }
 
 SHZ_FORCE_INLINE bool shz_cequalf(shz_complex_t lhs, shz_complex_t rhs) SHZ_NOEXCEPT {
@@ -33,7 +40,7 @@ SHZ_FORCE_INLINE shz_complex_t shz_cmulf(shz_complex_t lhs, shz_complex_t rhs) S
 }
 
 SHZ_FORCE_INLINE shz_complex_t shz_cdivf(shz_complex_t num, shz_complex_t denom) SHZ_NOEXCEPT {
-    float inv_mag = shz_inv_sqrtf(denom.real * denom.real + denom.imag * denom.imag);
+    float inv_mag = shz_inv_sqrtf(shz_cnormf(denom));
 
     return shz_cinitf((num.real * denom.real + num.imag * denom.imag) * inv_mag,
                       (num.imag * denom.real + num.real * denom.imag) * inv_mag);
@@ -41,7 +48,11 @@ SHZ_FORCE_INLINE shz_complex_t shz_cdivf(shz_complex_t num, shz_complex_t denom)
 }
 
 SHZ_FORCE_INLINE float shz_cabsf(shz_complex_t c) SHZ_NOEXCEPT {
-    return shz_sqrtf(c.real * c.real + c.imag * c.imag);
+    return shz_sqrtf(shz_cnormf(c));
+}
+
+SHZ_FORCE_INLINE float shz_cnormf(shz_complex_t c) SHZ_NOEXCEPT {
+    return c.real * c.real + c.imag * c.imag;
 }
 
 SHZ_FORCE_INLINE float shz_cargf(shz_complex_t c) SHZ_NOEXCEPT {

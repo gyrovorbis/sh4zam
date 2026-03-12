@@ -15,4 +15,11 @@
 
 #include "shz_complex.h"
 
+namespace shz {
+    class complex: public shz_complex_t {
+
+    };
+
+}
+
 #endif
