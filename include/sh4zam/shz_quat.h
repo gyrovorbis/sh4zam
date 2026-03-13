@@ -161,6 +161,9 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_conjugate(shz_quat_t quat) SHZ_NOEXCEPT;
 //! Returns the inverse of the given quaternion
 SHZ_FORCE_INLINE shz_quat_t shz_quat_inv(shz_quat_t quat) SHZ_NOEXCEPT;
 
+//! Returns the negation of the given quaternion.
+SHZ_INLINE shz_quat_t shz_quat_neg(shz_quat_t quat) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Arithmetic

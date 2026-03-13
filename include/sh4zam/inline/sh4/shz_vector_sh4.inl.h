@@ -48,12 +48,12 @@ SHZ_INLINE shz_vec3_t shz_vec3_barycenter_sh4(shz_vec3_t p,
     register float fr11 asm("fr11");
 
     // Load v1 into FV4
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     fr4 = c.x - a.x;
     fr5 = c.y - a.y;
     fr6 = c.z - a.z;
     fr8 = p.x - a.x;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
 
     // Begin calculating d01
     asm("fipr fv0, fv4"
@@ -62,20 +62,20 @@ SHZ_INLINE shz_vec3_t shz_vec3_barycenter_sh4(shz_vec3_t p,
           "f" (fr4), "f" (fr5), "f" (fr6));
 
     // Load v2 into FV4
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     fr9  = p.y - a.y;
     fr10 = p.z - a.z;
-    SHZ_MEMORY_BARRIER_HARD();;
+    SHZ_MEMORY_BARRIER_SOFT();;
 
     // Begin calculating d00.
     asm("fipr fv0, fv0"
         : "+&f" (fr3)
         : "f" (fr0), "f" (fr1), "f" (fr2));
 
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     float d01 = fr7;
     fr7 = 0.0f;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
 
     // Begin calculating d12
     asm("fipr fv4, fv8"
@@ -83,19 +83,19 @@ SHZ_INLINE shz_vec3_t shz_vec3_barycenter_sh4(shz_vec3_t p,
         : "f" (fr4), "f" (fr5), "f" (fr6), "f" (fr7),
           "f" (fr8), "f" (fr9), "f" (fr10));
 
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     float d00 = fr3;
     fr3 = 0.0f;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
 
     // Begin calculating d11
     asm("fipr fv4, fv4"
         : "+&f" (fr7)
         : "f" (fr4), "f" (fr5), "f" (fr6));
 
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     float d12 = fr11;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
 
     // Begin calculating d02
     asm("fipr fv0, fv8"
@@ -103,9 +103,9 @@ SHZ_INLINE shz_vec3_t shz_vec3_barycenter_sh4(shz_vec3_t p,
         : "f" (fr0), "f" (fr1), "f" (fr2), "f" (fr3),
           "f" (fr8), "f" (fr9), "f" (fr10));
 
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     float d02 = fr11;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     float d11 = fr7;
 
     float inv_denom = shz_invf_fsrra((d00 * d11) - (d01 * d01));
@@ -145,54 +145,54 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cubic_hermite_sh4(shz_vec3_t vec1, shz_vec3
     register float v1_2 asm("fr2");
     register float v1_3 asm("fr3");
 
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     h00 = b0;
     h10 = b1;
     h01 = b2;
     h11 = b3;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     v0_0 = vec1.x;
     v0_1 = tangent1.x;
     v0_2 = vec2.x;
     v0_3 = tangent2.x;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     v1_0 = vec1.y;
     v1_1 = tangent1.y;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
 
     asm("fipr   fv4, fv8"
         : "+f" (v0_3)
         : "f" (h00 ),  "f" (h10),  "f" (h01), "f" (h11),
           "f" (v0_0), "f" (v0_1), "f" (v0_2));
 
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     v1_2 = vec2.y;
     v1_3 = tangent2.y;
     v0_0 = vec1.z;
     v0_1 = tangent1.z;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     v0_2 = vec2.z;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     result.x = v0_3;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     v0_3 = tangent2.z;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
 
     asm("fipr   fv4, fv0"
         : "+f" (v1_3)
         : "f" (h00 ),  "f" (h10),  "f" (h01), "f" (h11),
           "f" (v1_0), "f" (v1_1), "f" (v1_2));
 
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
 
     asm("fipr   fv4, fv8"
         : "+f" (v0_3)
         : "f" (h00 ),  "f" (h10),  "f" (h01), "f" (h11),
           "f" (v0_0), "f" (v0_1), "f" (v0_2));
 
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     result.y = v1_3;
-    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_MEMORY_BARRIER_SOFT();
     result.z = v0_3;
 
     return result;

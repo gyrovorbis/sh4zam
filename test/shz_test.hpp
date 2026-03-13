@@ -17,7 +17,6 @@
 #endif
 
 #define BENCHMARK_ITERATION_MATCHES 3
-#define SHZ_MEMORY_BARRIER_HARD() __sync_synchronize()
 
 #if SHZ_BACKEND == SHZ_SH4
 #   include <kos.h>
