@@ -56,7 +56,7 @@ SHZ_INLINE shz_quat_t shz_quat_from_axis_angle(shz_vec3_t axis, float angle) SHZ
 }
 
 SHZ_INLINE float shz_quat_angle(shz_quat_t q) SHZ_NOEXCEPT {
-    return shz_acosf(q.w);
+    return 2.0f * shz_acosf(q.w);
 }
 
 SHZ_INLINE shz_vec3_t shz_quat_axis(shz_quat_t q) SHZ_NOEXCEPT {

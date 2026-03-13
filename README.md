@@ -24,6 +24,7 @@
 - Meticulously optimized for latest SH-GCC version 15.x
 - Rigorously unit tested and validated on physical hardware
 - Heavily documented header files and external Doxygen site
+- Software back-end for using SH4ZAM in cross-platform codebases
 
 # APIs
 - **Preprocessor** directives controlling optimizations
