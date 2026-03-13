@@ -41,6 +41,7 @@ GBL_TEST_CASE(floorf)
     GBL_TEST_VERIFY(shz::floorf(-0.8f) == -1.0f);
     GBL_TEST_VERIFY(shz::floorf(-1.3f) == -2.0f);
     GBL_TEST_VERIFY(shz::floorf(-1.8f) == -2.0f);
+    GBL_TEST_COMPARE(shz::floorf(-3.0f), -3.0f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(ceilf)

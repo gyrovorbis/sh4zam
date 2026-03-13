@@ -54,28 +54,34 @@ SHZ_INLINE float shz_xmtrx_read_sh4(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE void shz_xmtrx_write_sh4(shz_xmtrx_reg_t xf, float value) SHZ_NOEXCEPT {
-    asm volatile("flds %0, fpul\n" : : "f" (value) : "fpul");
+#define FP_REG_FRONT_TO_BACK_(reg)    \
+    asm volatile(                     \
+        "\n\tflds   %0, fpul"         \
+        "\n\tfrchg"                   \
+        "\n\tfsts   fpul, fr"#reg     \
+        "\n\tfrchg"                   \
+    : : "f" (value) : "fpul")
 
-    SHZ_FRCHG();
     switch(xf) {
-    case SHZ_XMTRX_XF0:  asm volatile("fsts fpul, fr0");  break;
-    case SHZ_XMTRX_XF1:  asm volatile("fsts fpul, fr1");  break;
-    case SHZ_XMTRX_XF2:  asm volatile("fsts fpul, fr2");  break;
-    case SHZ_XMTRX_XF3:  asm volatile("fsts fpul, fr3");  break;
-    case SHZ_XMTRX_XF4:  asm volatile("fsts fpul, fr4");  break;
-    case SHZ_XMTRX_XF5:  asm volatile("fsts fpul, fr5");  break;
-    case SHZ_XMTRX_XF6:  asm volatile("fsts fpul, fr6");  break;
-    case SHZ_XMTRX_XF7:  asm volatile("fsts fpul, fr7");  break;
-    case SHZ_XMTRX_XF8:  asm volatile("fsts fpul, fr8");  break;
-    case SHZ_XMTRX_XF9:  asm volatile("fsts fpul, fr9");  break;
-    case SHZ_XMTRX_XF10: asm volatile("fsts fpul, fr10"); break;
-    case SHZ_XMTRX_XF11: asm volatile("fsts fpul, fr11"); break;
-    case SHZ_XMTRX_XF12: asm volatile("fsts fpul, fr12"); break;
-    case SHZ_XMTRX_XF13: asm volatile("fsts fpul, fr13"); break;
-    case SHZ_XMTRX_XF14: asm volatile("fsts fpul, fr14"); break;
-    case SHZ_XMTRX_XF15: asm volatile("fsts fpul, fr15"); break;
+    case SHZ_XMTRX_XF0:  FP_REG_FRONT_TO_BACK_( 0); break;
+    case SHZ_XMTRX_XF1:  FP_REG_FRONT_TO_BACK_( 1); break;
+    case SHZ_XMTRX_XF2:  FP_REG_FRONT_TO_BACK_( 2); break;
+    case SHZ_XMTRX_XF3:  FP_REG_FRONT_TO_BACK_( 3); break;
+    case SHZ_XMTRX_XF4:  FP_REG_FRONT_TO_BACK_( 4); break;
+    case SHZ_XMTRX_XF5:  FP_REG_FRONT_TO_BACK_( 5); break;
+    case SHZ_XMTRX_XF6:  FP_REG_FRONT_TO_BACK_( 6); break;
+    case SHZ_XMTRX_XF7:  FP_REG_FRONT_TO_BACK_( 7); break;
+    case SHZ_XMTRX_XF8:  FP_REG_FRONT_TO_BACK_( 8); break;
+    case SHZ_XMTRX_XF9:  FP_REG_FRONT_TO_BACK_( 9); break;
+    case SHZ_XMTRX_XF10: FP_REG_FRONT_TO_BACK_(10); break;
+    case SHZ_XMTRX_XF11: FP_REG_FRONT_TO_BACK_(11); break;
+    case SHZ_XMTRX_XF12: FP_REG_FRONT_TO_BACK_(12); break;
+    case SHZ_XMTRX_XF13: FP_REG_FRONT_TO_BACK_(13); break;
+    case SHZ_XMTRX_XF14: FP_REG_FRONT_TO_BACK_(14); break;
+    case SHZ_XMTRX_XF15: FP_REG_FRONT_TO_BACK_(15); break;
     }
-    SHZ_FRCHG();
+
+#undef FP_REG_FRONT_TO_BACK_
 }
 
 // Out-of-line 'semblies, if someone has ALL SHIT known to have worst alignment. lolz.
@@ -158,7 +164,8 @@ SHZ_INLINE void shz_xmtrx_write_row_sh4(unsigned int index, shz_vec4_t value) SH
         )"
         :
         : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value));
         break;
     case 1:
         asm volatile(R"(
@@ -169,7 +176,8 @@ SHZ_INLINE void shz_xmtrx_write_row_sh4(unsigned int index, shz_vec4_t value) SH
         )"
         :
         : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value));
         break;
     case 2:
         asm volatile(R"(
@@ -180,7 +188,8 @@ SHZ_INLINE void shz_xmtrx_write_row_sh4(unsigned int index, shz_vec4_t value) SH
         )"
         :
         : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value));
         break;
     case 3:
         asm volatile(R"(
@@ -191,7 +200,8 @@ SHZ_INLINE void shz_xmtrx_write_row_sh4(unsigned int index, shz_vec4_t value) SH
         )"
         :
         : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value));
         break;
     }
     SHZ_FRCHG();
@@ -272,7 +282,8 @@ SHZ_INLINE void shz_xmtrx_write_col_sh4(unsigned int index, shz_vec4_t value) SH
         )"
         :
         : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value));
         break;
     case 1:
         asm volatile(R"(
@@ -283,7 +294,8 @@ SHZ_INLINE void shz_xmtrx_write_col_sh4(unsigned int index, shz_vec4_t value) SH
         )"
         :
         : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value));
         break;
     case 2:
         asm volatile(R"(
@@ -294,7 +306,8 @@ SHZ_INLINE void shz_xmtrx_write_col_sh4(unsigned int index, shz_vec4_t value) SH
         )"
         :
         : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value));
         break;
     case 3:
         asm volatile(R"(
@@ -305,7 +318,8 @@ SHZ_INLINE void shz_xmtrx_write_col_sh4(unsigned int index, shz_vec4_t value) SH
         )"
         :
         : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
+          [z] "r" (&value.z), [w] "r" (&value.w),
+          "m" (value));
         break;
     }
     SHZ_FRCHG();

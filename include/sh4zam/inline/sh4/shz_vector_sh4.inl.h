@@ -533,9 +533,9 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec4_dot3_sh4(shz_vec4_t l, shz_vec4_t r1, shz_v
 
     return res;
 #else
-    return shz_vec3_init(l.x * r1.x + l.y + r1.y + l.z * r1.z + l.w * r1.w,
-                         l.x * r2.x + l.y + r2.y + l.z * r2.z + l.w * r2.w,
-                         l.x * r3.x + l.y + r3.y + l.z * r3.z + l.w * r3.w);
+    return shz_vec3_init(l.x * r1.x + l.y * r1.y + l.z * r1.z + l.w * r1.w,
+                         l.x * r2.x + l.y * r2.y + l.z * r2.z + l.w * r2.w,
+                         l.x * r3.x + l.y * r3.y + l.z * r3.z + l.w * r3.w);
 #endif
 }
 //! \endcond

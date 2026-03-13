@@ -50,7 +50,7 @@ SHZ_FORCE_INLINE float shz_floorf(float x) SHZ_NOEXCEPT {
 
     float result = shz_truncf(x);
 
-    if (x < 0.0f)
+    if (x < result)
         result -= 1.0f;
 
     return result;
@@ -465,7 +465,7 @@ SHZ_FORCE_INLINE float shz_randf(int* seed) SHZ_NOEXCEPT {
     *seed = 0x00269ec3 + (*seed) * 0x000343fd;
     res.u32 = ((((unsigned) * seed) >> 9) | 0x3f800000);
 
-    return res.f32;
+    return res.f32 - 1.0f;
 }
 
 SHZ_FORCE_INLINE float shz_randf_range(int* seed, float min, float max) SHZ_NOEXCEPT {

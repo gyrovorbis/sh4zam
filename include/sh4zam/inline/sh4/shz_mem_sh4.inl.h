@@ -1,7 +1,7 @@
 //! \cond INTERNAL
 /*! \file
     \brief SH4 implementation of the Memory API.
-    \ingroup quat
+    \ingroup memory
 
     This file contains the Dreamcast implementation routines for
     SH4ZAM's memory API, which have been hand-optimized specifically
