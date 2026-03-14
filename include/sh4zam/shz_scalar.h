@@ -353,4 +353,4 @@ SHZ_FORCE_INLINE float shz_expf(float p) SHZ_NOEXCEPT;
 
 SHZ_DECLS_END
 
-#endif // SHZ_INTRIN_H
+#endif

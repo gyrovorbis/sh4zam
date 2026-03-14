@@ -59,16 +59,23 @@ SHZ_INLINE float shz_quat_angle(shz_quat_t q) SHZ_NOEXCEPT {
     return 2.0f * shz_acosf(q.w);
 }
 
+SHZ_INLINE shz_vec3_t shz_quat_axis_from_angle_(shz_quat_t q, float angle) SHZ_NOEXCEPT {
+    // Protect against subsequent divide-by-zero with FSRRA of (sin(0.0) == 0.0) => NaN.
+    if(angle == 0.0f) {
+        return shz_vec3_init(1.0f, 0.0f, 0.0f);
+    } else {
+        float invS = shz_invf_fsrra(shz_sinf(angle * 0.5f));
+        return shz_vec3_init(q.x * invS, q.y * invS, q.z * invS);
+    }
+}
+
 SHZ_INLINE shz_vec3_t shz_quat_axis(shz_quat_t q) SHZ_NOEXCEPT {
-    float angle = shz_quat_angle(q);
-    float invS = shz_invf_fsrra(shz_sinf(angle * 0.5f));
-    return shz_vec3_init(q.x * invS, q.y * invS, q.z * invS);
+    return shz_quat_axis_from_angle_(q, shz_quat_angle(q));
 }
 
 SHZ_INLINE void shz_quat_to_axis_angle(shz_quat_t q, shz_vec3_t* vec, float* angle) SHZ_NOEXCEPT {
     *angle = shz_quat_angle(q);
-    float invS = shz_invf_fsrra(shz_sinf(*angle * 0.5f));
-    *vec = shz_vec3_init(q.x * invS, q.y * invS, q.z * invS);
+    *vec   = shz_quat_axis_from_angle_(q, *angle);
 }
 
 SHZ_INLINE float shz_quat_angle_x(shz_quat_t q) SHZ_NOEXCEPT {
@@ -165,17 +172,15 @@ SHZ_INLINE shz_quat_t shz_quat_from_rotated_axis(shz_vec3_t v1, shz_vec3_t v2) S
 }
 
 SHZ_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT {
-	if(shz_quat_dot(a, b) < 0.0f) {
-        return shz_quat_init(t * (b.w + a.w) - a.w,
-                             t * (b.x + a.x) - a.x,
-                             t * (b.y + a.y) - a.y,
-                             t * (b.z + a.z) - a.z);
-	} else {
-        return shz_quat_init(t * (b.w - a.w) + a.w,
-                             t * (b.x - a.x) + a.x,
-                             t * (b.y - a.y) + a.y,
-                             t * (b.z - a.z) + a.z);
-    }
+    if (shz_quat_dot(a, b) < 0.0f)
+        b = shz_quat_neg(b);
+
+    return shz_quat_init(
+        shz_lerpf(a.w, b.w, t),
+        shz_lerpf(a.x, b.x, t),
+        shz_lerpf(a.y, b.y, t),
+        shz_lerpf(a.z, b.z, t)
+    );
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_nlerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT {
@@ -183,21 +188,21 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_nlerp(shz_quat_t a, shz_quat_t b, float t) 
 }
 
 SHZ_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NOEXCEPT {
-	shz_quat_t q1 = q;
+	shz_quat_t q1;
+    float c, phi;
 
-    float c = shz_quat_dot(q1, p);
-    if(c < 0.0f) {
+    if((c = shz_quat_dot(q1, p)) < 0.0f) {
         c = -c;
-        q1 = shz_quat_neg(q1);
-    }
+        q1 = shz_quat_neg(q);
+    } else q1 = q;
 
-    float phi = shz_acosf(c);
     // Check for a minimum epsilon, below which we do no interpolation.
-    if(phi > SHZ_QUAT_SLERP_PHI_EPSILON) {
+    if((phi = shz_acosf(c)) > SHZ_QUAT_SLERP_PHI_EPSILON) {
         /* The output of acosf() is in the range of [0 : PI],
            giving us a sine that is guaranteed to be a positive value. */
         float s = shz_invf_fsrra(shz_sinf(phi));
-        /* Add the two vectors, which have been scaled by their respective ratios. */
+
+        // Add the two vectors, which have been scaled by their respective ratios.
         return shz_quat_add(shz_quat_scale(q1, shz_sinf((1.0f - t) * phi) * s),
                             shz_quat_scale(p,  shz_sinf(t * phi) * s));
     }

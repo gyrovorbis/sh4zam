@@ -55,12 +55,12 @@ namespace shz {
             return shz_quat_identity();
         }
         
-        //! C++ convenience wrapper for shz_quat_From_angles_xyz().
+        //! C++ convenience wrapper for shz_quat_from_angles_xyz().
         SHZ_FORCE_INLINE static quat from_angles_xyz(float x, float y, float z) noexcept {
             return shz_quat_from_angles_xyz(x, y, z);
         }
 
-        //! initializes a quaternion which is a rotation in \p angle degrees about the given \p axis.
+        //! initializes a quaternion which is a rotation in \p angle radians about the given \p axis.
         SHZ_FORCE_INLINE static quat from_axis_angle(vec3 axis, float angle) noexcept {
             return shz_quat_from_axis_angle(axis, angle);
         }
@@ -151,6 +151,7 @@ namespace shz {
             return shz_quat_angle_z(*this);
         }
 
+        //! Returns the tait-bryan rotation angles about the X, Y, then Z axes which are represented by the given quaternion.
         SHZ_FORCE_INLINE vec3 to_angles_xyz() const noexcept {
             return shz_quat_to_angles_xyz(*this);
         }

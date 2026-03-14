@@ -1547,9 +1547,9 @@ SHZ_INLINE void shz_xmtrx_add_symmetric_skew_sh4(float x, float y, float z) SHZ_
         fschg
 
         frchg
-        fmov.s  fr12, @%[x]
-        fmov.s  fr13, @%[y]
-        fmov.s  fr14, @%[z]
+        fmov.s  @%[x], fr12
+        fmov.s  @%[y], fr13
+        fmov.s  @%[z], fr14
 
         fadd    fr14, fr1
         fsub    fr13, fr2
@@ -1578,10 +1578,10 @@ SHZ_INLINE void shz_xmtrx_add_diagonal_sh4(float x, float y, float z, float w) S
         fschg
 
         frchg
-        fmov.s  fr12, @%[x]
-        fmov.s  fr13, @%[y]
-        fmov.s  fr8, @%[z]
-        fmov.s  fr9, @%[w]
+        fmov.s  @%[x], fr12
+        fmov.s  @%[y], fr13
+        fmov.s  @%[z], fr8
+        fmov.s  @%[w], fr9
 
         fadd    fr12, fr0
         fadd    fr13, fr5

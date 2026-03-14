@@ -38,7 +38,7 @@ SHZ_DECLS_BEGIN
 typedef struct shz_quat {
     union {           //!< Convenience anonymous union between named and array-indexed components.
         struct {      //!< Anonymous structure with named components.
-            float w;             //!< Scalar component/real part of quaternion.
+            float w;             //!< W or scalar component/real part of quaternion.
             union {   //!< Convenience anonymous union for vector components.
                 struct {
                     float x;     //!< X component of axis of rotation (imaginary)
@@ -61,13 +61,13 @@ typedef shz_quat_t shz_quat;
 */
 
 //! Initializes and returns a new quaternion with the given components, in WXYZ order.
-SHZ_FORCE_INLINE shz_quat_t shz_quat_init(float w, float x, float y, float z) SHZ_NOEXCEPT;
+SHZ_INLINE shz_quat_t shz_quat_init(float w, float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Initializes and returns an identity quaternion.
-SHZ_FORCE_INLINE shz_quat_t shz_quat_identity(void) SHZ_NOEXCEPT;
+SHZ_INLINE shz_quat_t shz_quat_identity(void) SHZ_NOEXCEPT;
 
 //! Returns true if the two given quaternions are considered equal based on either absolute or relative tolerance.
-SHZ_FORCE_INLINE bool shz_quat_equal(shz_quat_t a, shz_quat_t b) SHZ_NOEXCEPT;
+SHZ_INLINE bool shz_quat_equal(shz_quat_t a, shz_quat_t b) SHZ_NOEXCEPT;
 
 /*! Initializes and returns a quaternion with the given X-Y-Z rotations in radians.
 
@@ -92,13 +92,9 @@ SHZ_INLINE shz_quat_t shz_quat_from_rotated_axis(shz_vec3_t v1, shz_vec3_t v2) S
 SHZ_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT;
 
 //! Equivalent to shz_quat_lerp(), except that the resulting quaternion is normalized.
-SHZ_FORCE_INLINE shz_quat_t shz_quat_nlerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT;
+SHZ_INLINE shz_quat_t shz_quat_nlerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT;
 
-/*! Returns the quaternion that is spherically linearly interpolating \p a to \p b, by a \p t factor of `0.0f-1.0f`.
-
-    \warning The returned quaternion is not guaranteed to be normalized due to a floating-point error.
-             Callers should normalize the result before reuse, especially when performing repeated interpolations.
-*/
+//! Returns the quaternion that is spherically linearly interpolating \p a to \p b, by a \p t factor of `0.0f-1.0f`.
 SHZ_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NOEXCEPT;
 
 //! @}
@@ -114,13 +110,13 @@ SHZ_INLINE float shz_quat_angle(shz_quat_t q) SHZ_NOEXCEPT;
 //! Returns the axis of rotation from the given quaternion.
 SHZ_INLINE shz_vec3_t shz_quat_axis(shz_quat_t q) SHZ_NOEXCEPT;
 
-// Returns the angle of rotation the quaternion represents about the X axis in radians.
+//! Returns the angle of rotation the quaternion represents about the X axis in radians.
 SHZ_INLINE float shz_quat_angle_x(shz_quat_t q) SHZ_NOEXCEPT;
 
-// Returns the angle of rotation the quaternion represents about the Y axis in radians.
+//! Returns the angle of rotation the quaternion represents about the Y axis in radians.
 SHZ_INLINE float shz_quat_angle_y(shz_quat_t q) SHZ_NOEXCEPT;
 
-// Returns the angle of rotation the quaternion represents about the Z axis in radians.
+//! Returns the angle of rotation the quaternion represents about the Z axis in radians.
 SHZ_INLINE float shz_quat_angle_z(shz_quat_t q) SHZ_NOEXCEPT;
 
 //! Returns both the axis and angle of rotation simultaneously (faster if both are needed) from the given quaternion.
@@ -130,13 +126,13 @@ SHZ_INLINE void shz_quat_to_axis_angle(shz_quat_t q, shz_vec3_t* vec, float* ang
 SHZ_INLINE shz_vec3_t shz_quat_to_angles_xyz(shz_quat_t q) SHZ_NOEXCEPT;
 
 //! Returns the squared magnitude of the given quaternion.
-SHZ_FORCE_INLINE float shz_quat_magnitude_sqr(shz_quat_t quat) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_quat_magnitude_sqr(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! Returns the magnitude of the given quaternion.
-SHZ_FORCE_INLINE float shz_quat_magnitude(shz_quat_t quat) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_quat_magnitude(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! Returns the inverse magnitude of the given quaternion.
-SHZ_FORCE_INLINE float shz_quat_magnitude_inv(shz_quat_t quat) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_quat_magnitude_inv(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -146,19 +142,19 @@ SHZ_FORCE_INLINE float shz_quat_magnitude_inv(shz_quat_t quat) SHZ_NOEXCEPT;
 */
 
 //! Returns the normalized form of the given quaternion.
-SHZ_FORCE_INLINE shz_quat_t shz_quat_normalize(shz_quat_t quat) SHZ_NOEXCEPT;
+SHZ_INLINE shz_quat_t shz_quat_normalize(shz_quat_t quat) SHZ_NOEXCEPT;
 
 /*! SAFELY returns the normalized form of the given quaternion.
 
     Returns the identity quaternion when magnitude is 0.0f.
 */
-SHZ_FORCE_INLINE shz_quat_t shz_quat_normalize_safe(shz_quat_t quat) SHZ_NOEXCEPT;
+SHZ_INLINE shz_quat_t shz_quat_normalize_safe(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! Returns the conjugate of the given quaternion.
-SHZ_FORCE_INLINE shz_quat_t shz_quat_conjugate(shz_quat_t quat) SHZ_NOEXCEPT;
+SHZ_INLINE shz_quat_t shz_quat_conjugate(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! Returns the inverse of the given quaternion
-SHZ_FORCE_INLINE shz_quat_t shz_quat_inv(shz_quat_t quat) SHZ_NOEXCEPT;
+SHZ_INLINE shz_quat_t shz_quat_inv(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! Returns the negation of the given quaternion.
 SHZ_INLINE shz_quat_t shz_quat_neg(shz_quat_t quat) SHZ_NOEXCEPT;
@@ -171,22 +167,22 @@ SHZ_INLINE shz_quat_t shz_quat_neg(shz_quat_t quat) SHZ_NOEXCEPT;
 */
 
 //! Returns the quaternion produced from adding each component of the given quaternions.
-SHZ_FORCE_INLINE shz_quat_t shz_quat_add(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT;
+SHZ_INLINE shz_quat_t shz_quat_add(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT;
 
 //! Scales the components of the given quaternion by the given factor.
-SHZ_FORCE_INLINE shz_quat_t shz_quat_scale(shz_quat_t q, float f) SHZ_NOEXCEPT;
+SHZ_INLINE shz_quat_t shz_quat_scale(shz_quat_t q, float f) SHZ_NOEXCEPT;
 
 //! Multiplies the two quaternions, returning the result as a new quaternion.
 SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT;
 
 //! Returns the dot product of the two quaternions.
-SHZ_FORCE_INLINE float shz_quat_dot(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_quat_dot(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT;
 
 //! Returns the two dot products taken between the \p l quaternion and the \p r1 and \p r2 quaternions.
-SHZ_FORCE_INLINE shz_vec2_t shz_quat_dot2(shz_quat_t l, shz_quat_t r1, shz_quat_t r2) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec2_t shz_quat_dot2(shz_quat_t l, shz_quat_t r1, shz_quat_t r2) SHZ_NOEXCEPT;
 
 //! Returns the two dot products taken between the \p l quaternion and the \p r1, \p r2, and \p r3 quaternions.
-SHZ_FORCE_INLINE shz_vec3_t shz_quat_dot3(shz_quat_t l, shz_quat_t r1, shz_quat_t r2, shz_quat_t r3) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec3_t shz_quat_dot3(shz_quat_t l, shz_quat_t r1, shz_quat_t r2, shz_quat_t r3) SHZ_NOEXCEPT;
 
 //! @}
 
