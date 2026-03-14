@@ -335,15 +335,15 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_lerp(shz_vec4_t a, shz_vec4_t b, float t) S
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_reflect(shz_vec2_t incidence, shz_vec2_t normal) SHZ_NOEXCEPT {
-    return shz_vec2_add(incidence, shz_vec2_scale(normal, shz_vec2_dot(normal, shz_vec2_scale(incidence, -2.0))));
+    return shz_vec2_add(incidence, shz_vec2_scale(normal, shz_vec2_dot(normal, shz_vec2_scale(incidence, -2.0f))));
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_reflect(shz_vec3_t incidence, shz_vec3_t normal) SHZ_NOEXCEPT {
-    return shz_vec3_add(incidence, shz_vec3_scale(normal, shz_vec3_dot(normal, shz_vec3_scale(incidence, -2.0))));
+    return shz_vec3_add(incidence, shz_vec3_scale(normal, shz_vec3_dot(normal, shz_vec3_scale(incidence, -2.0f))));
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_reflect(shz_vec4_t incidence, shz_vec4_t normal) SHZ_NOEXCEPT {
-    return shz_vec4_add(incidence, shz_vec4_scale(normal, shz_vec4_dot(normal, shz_vec4_scale(incidence, -2.0))));
+    return shz_vec4_add(incidence, shz_vec4_scale(normal, shz_vec4_dot(normal, shz_vec4_scale(incidence, -2.0f))));
 }
 
 SHZ_FORCE_INLINE float shz_vec2_cross(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
@@ -357,15 +357,15 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_cross(shz_vec3_t vec1, shz_vec3_t vec2) SHZ
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project(shz_vec2_t vec, shz_vec2_t onto) SHZ_NOEXCEPT {
-    return shz_vec2_scale(onto, shz_vec2_dot(vec, onto) * shz_vec2_magnitude_inv(onto));
+    return shz_vec2_scale(onto, shz_divf_fsrra(shz_vec2_dot(vec, onto), shz_vec2_magnitude_sqr(onto)));
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_project(shz_vec3_t vec, shz_vec3_t onto) SHZ_NOEXCEPT {
-    return shz_vec3_scale(onto, shz_vec3_dot(vec, onto) * shz_vec3_magnitude_inv(onto));
+    return shz_vec3_scale(onto, shz_divf_fsrra(shz_vec3_dot(vec, onto), shz_vec3_magnitude_sqr(onto)));
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_project(shz_vec4_t vec, shz_vec4_t onto) SHZ_NOEXCEPT {
-    return shz_vec4_scale(onto, shz_vec4_dot(vec, onto) * shz_vec4_magnitude_inv(onto));
+    return shz_vec4_scale(onto, shz_divf_fsrra(shz_vec4_dot(vec, onto), shz_vec4_magnitude_sqr(onto)));
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project_safe(shz_vec2_t vec, shz_vec2_t onto) SHZ_NOEXCEPT {
@@ -374,7 +374,7 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_project_safe(shz_vec2_t vec, shz_vec2_t ont
     if(scale == 0.0f)
         return shz_vec2_fill(0.0f);
     else
-        return shz_vec2_scale(onto, shz_vec2_dot(vec, onto) * shz_inv_sqrtf_fsrra(scale));
+        return shz_vec2_scale(onto, shz_vec2_dot(vec, onto) * shz_invf_fsrra(scale));
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_project_safe(shz_vec3_t vec, shz_vec3_t onto) SHZ_NOEXCEPT {
@@ -383,7 +383,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_project_safe(shz_vec3_t vec, shz_vec3_t ont
     if(scale == 0.0f)
         return shz_vec3_fill(0.0f);
     else
-        return shz_vec3_scale(onto, shz_vec3_dot(vec, onto) * shz_inv_sqrtf_fsrra(scale));
+        return shz_vec3_scale(onto, shz_vec3_dot(vec, onto) * shz_invf_fsrra(scale));
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_project_safe(shz_vec4_t vec, shz_vec4_t onto) SHZ_NOEXCEPT  {
@@ -392,7 +392,7 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_project_safe(shz_vec4_t vec, shz_vec4_t ont
     if(scale == 0.0f)
         return shz_vec4_fill(0.0f);
     else
-        return shz_vec4_scale(onto, shz_vec4_dot(vec, onto) * shz_inv_sqrtf_fsrra(scale));
+        return shz_vec4_scale(onto, shz_vec4_dot(vec, onto) * shz_invf_fsrra(scale));
 }
 
 SHZ_FORCE_INLINE float shz_vec2_angle_between(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {

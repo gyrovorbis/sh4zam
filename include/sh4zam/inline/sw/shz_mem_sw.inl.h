@@ -89,7 +89,7 @@ SHZ_FORCE_INLINE void shz_memcpy2_16_sw(      void* SHZ_RESTRICT dst,
 SHZ_FORCE_INLINE void* shz_memset8_sw(void* dst, uint64_t value, size_t bytes) SHZ_NOEXCEPT {
     shz_alias_uint64_t* d = (shz_alias_uint64_t*)dst;
 
-    for(unsigned i = 0; i < bytes >> 8; ++i)
+    for(unsigned i = 0; i < bytes >> 3; ++i)
         d[i] = value;
 
     return dst;

@@ -438,7 +438,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_outer_product_sw(shz_vec4_t a, shz_vec4_t b
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_permutation_wxyz_sw(void) SHZ_NOEXCEPT {
-    shz_xmtrx_state_.col[0] = shz_vec4_init(0.0f, 1.0f, 0.0f, 1.0f);
+    shz_xmtrx_state_.col[0] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
     shz_xmtrx_state_.col[1] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
     shz_xmtrx_state_.col[2] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
     shz_xmtrx_state_.col[3] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);

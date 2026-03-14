@@ -86,10 +86,12 @@ SHZ_INLINE float shz_quat_angle_z(shz_quat_t q) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE shz_vec3_t shz_quat_to_angles_xyz(shz_quat_t q) SHZ_NOEXCEPT {
-    shz_vec2_t xz = shz_quat_dot2(q, shz_quat_init(q.w, q.x, -q.y, -q.z),
-                                     shz_quat_init(q.w, -q.x, -q.y, q.z));
+    shz_vec2_t xz = shz_quat_dot2(q, shz_quat_init(q.w, -q.x, -q.y, q.z),
+                                     shz_quat_init(q.w, q.x, -q.y, -q.z));
 
-    return shz_vec3_init(xz.x, shz_quat_angle_y(q), xz.y);
+    return shz_vec3_init(shz_atan2f(-2.0f * ((q.y * q.z) + (q.w * q.x)), xz.x),
+                         shz_quat_angle_y(q),
+                         shz_atan2f(2.0f * ((q.x * q.y) + (q.w * q.z)), xz.y));
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_add(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT {

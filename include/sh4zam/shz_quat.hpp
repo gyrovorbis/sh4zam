@@ -25,7 +25,7 @@ namespace shz {
     A quaternion represents a rotation about an arbitrary axis in 3D space.
 
     \warning
-    The SH4ZAM internal quaternion representatino puts the W or angle component
+    The SH4ZAM internal quaternion representation puts the W or angle component
     first, followed by the X, Y, Z components for the axis!
 
     \note
@@ -112,13 +112,13 @@ namespace shz {
 
         //! Overloaded space-ship operator for auto-generating lexicographical comparison operators.
         friend auto operator<=>(quat lhs, quat rhs) noexcept {
-            return std::lexicographical_compare(lhs.begin(), lhs.end(),
-                                                rhs.begin(), rhs.end());
+            return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
         }
 
         //! Returns true if \p lhs is lexicographically less than \p rhs.
         friend auto operator<(quat lhs, quat rhs) noexcept {
-            return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+            return std::lexicographical_compare(lhs.begin(), lhs.end(),
+                                                rhs.begin(), rhs.end());
         }
 #endif
         //! Overloaded comparison operator, checks for quaternion equality.

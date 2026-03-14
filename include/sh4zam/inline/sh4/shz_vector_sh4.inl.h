@@ -65,7 +65,7 @@ SHZ_INLINE shz_vec3_t shz_vec3_barycenter_sh4(shz_vec3_t p,
     SHZ_MEMORY_BARRIER_SOFT();
     fr9  = p.y - a.y;
     fr10 = p.z - a.z;
-    SHZ_MEMORY_BARRIER_SOFT();;
+    SHZ_MEMORY_BARRIER_SOFT();
 
     // Begin calculating d00.
     asm("fipr fv0, fv0"

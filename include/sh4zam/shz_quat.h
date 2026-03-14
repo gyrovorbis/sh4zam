@@ -7,7 +7,6 @@
 
     \todo
         - shz_quat_rotate_towards()
-        - shz_quat_to_angles_xyz()
         - shz_quat_angle_between()
 
     \author 2025, 2026 Falco Girgis

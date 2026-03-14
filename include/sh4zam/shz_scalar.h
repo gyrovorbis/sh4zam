@@ -181,7 +181,6 @@ SHZ_FORCE_INLINE float shz_wrapf(float value, float min, float max) SHZ_NOEXCEPT
 //! Wraps the given \p value back to be within the range of \p min to \p max more quickly, provided \p max - \p min is a positive difference.
 SHZ_FORCE_INLINE float shz_wrapf_fsrra(float value, float min, float max) SHZ_NOEXCEPT;
 
-
 //! Returns the fractional part of \p x, equivalent to GLSL `fract()`.
 SHZ_FORCE_INLINE float shz_fractf(float x) SHZ_NOEXCEPT;
 
@@ -207,6 +206,8 @@ SHZ_FORCE_INLINE float shz_fabsf(float x) SHZ_NOEXCEPT;
 /*! Replacement for the <math.h> routine, copysignf().
 
     Returns the value of \p x with the sign of \p y.
+
+    \warning When `y == -0.0f`, a positive value is returned.
 */
 SHZ_FORCE_INLINE float shz_copysignf(float x, float y) SHZ_NOEXCEPT;
 
