@@ -146,6 +146,9 @@ SHZ_INLINE float shz_atanf_q1(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE float shz_atanf(float x) SHZ_NOEXCEPT {
+    if(__builtin_constant_p(x))
+        return __builtin_atanf(x);
+
     if(x > 1.0f)
 	    return shz_atanf_q1(x);
     else if(x < -1.0f)

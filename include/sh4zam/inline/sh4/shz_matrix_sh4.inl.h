@@ -156,7 +156,7 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4_transpose_sh4(const shz_mat4x4_t
         &mat->col[0], &mat->col[1], &mat->col[2], &mat->col[3]
     };
 
-    asm volatile(R"(
+    asm(R"(
         ! Load input vector into FV12
         fmov.s  @%[v]+, fr12
         fmov.s  @%[v]+, fr13

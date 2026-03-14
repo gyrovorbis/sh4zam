@@ -58,7 +58,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult_sh4(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCE
         t1x = -q2z;
         t1y = q2w;
         t1z = q2x;
-        SHZ_MEMORY_BARRIER_HARD();
+        SHZ_MEMORY_BARRIER_SOFT();
         r.x = t1w;   // get previous result
         t1w = q2y;
         asm("fipr	fv4,fv0"
@@ -72,7 +72,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult_sh4(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCE
         t1x = q2y;
         t1y = -q2x;
         t1z = q2w;
-        SHZ_MEMORY_BARRIER_HARD();
+        SHZ_MEMORY_BARRIER_SOFT();
         r.y = t1w;   // get previous result
         t1w = q2z;
         asm("fipr	fv4,fv0"
@@ -81,7 +81,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult_sh4(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCE
               "f" (t1x), "f" (t1y), "f" (t1z)
         );
         //z = t1w;
-        SHZ_MEMORY_BARRIER_HARD();
+        SHZ_MEMORY_BARRIER_SOFT();
 
         // w = -(q1.x * q2.x) - (q1.y * q2.y) - (q1.z * q2.z) + (q1.w * q2.w);
         q2x = -q2x;
@@ -93,9 +93,9 @@ SHZ_INLINE shz_quat_t shz_quat_mult_sh4(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCE
               "f" (q2x), "f" (q2y), "f" (q2z)
         );
 
-        SHZ_MEMORY_BARRIER_HARD();
+        SHZ_MEMORY_BARRIER_SOFT();
         r.z = t1w;
-        SHZ_MEMORY_BARRIER_HARD();
+        SHZ_MEMORY_BARRIER_SOFT();
         r.w = q2w;
 
         return r;

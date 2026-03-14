@@ -438,7 +438,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_outer_product_sw(shz_vec4_t a, shz_vec4_t b
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_permutation_wxyz_sw(void) SHZ_NOEXCEPT {
-    shz_xmtrx_state_.col[0] = shz_vec4_init(0.0f, 1.0f, 0.0f, 1.0f);
+    shz_xmtrx_state_.col[0] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
     shz_xmtrx_state_.col[1] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
     shz_xmtrx_state_.col[2] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
     shz_xmtrx_state_.col[3] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
@@ -644,9 +644,9 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_quat_sw(shz_quat_t q) SHZ_NOEXCEP
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_symmetric_skew_sw(float x, float y, float z) SHZ_NOEXCEPT {
     shz_vec4_t m[4];
-    m[0] = shz_vec4_init(0.0f, z,    -y,   0.0f);
-    m[1] = shz_vec4_init(-z,   0.0f, x,    0.0f);
-    m[2] = shz_vec4_init(y,    -x,   0.0f, 0.0f);
+    m[0] = shz_vec4_init(0.0f, -z,    y,   0.0f);
+    m[1] = shz_vec4_init(z,    0.0f, -x,   0.0f);
+    m[2] = shz_vec4_init(-y,    x,   0.0f, 0.0f);
     m[3] = shz_xmtrx_state_.col[3];
     shz_xmtrx_mul4x4_cols_(m);
 }

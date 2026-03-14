@@ -152,10 +152,10 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_neg(shz_vec3_t vec) SHZ_NOEXCEPT;
 //! Returns a 4D vector whose components are the negative values of the given vector's components.
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_neg(shz_vec4_t vec) SHZ_NOEXCEPT;
 
-//! Returns the 4D vector whose components have been inverted or reciprocated.
+//! Returns the 2D vector whose components have been inverted or reciprocated.
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_inv(shz_vec2_t vec) SHZ_NOEXCEPT;
 
-//! Returns the 4D vector whose components have been inverted or reciprocated.
+//! Returns the 3D vector whose components have been inverted or reciprocated.
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_inv(shz_vec3_t vec) SHZ_NOEXCEPT;
 
 //! Returns the 4D vector whose components have been inverted or reciprocated.
@@ -287,6 +287,15 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_step(shz_vec3_t vec, float edge) SHZ_NOEXCE
 //! For each component: returns 0.0f if vec[i] < edge, otherwise 1.0f
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_step(shz_vec4_t vec, float edge) SHZ_NOEXCEPT;
 
+//! For each component: returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_smoothstep(shz_vec2_t vec, float edge0, float edge1) SHZ_NOEXCEPT;
+
+//! For each component: returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_smoothstep(shz_vec3_t vec, float edge0, float edge1) SHZ_NOEXCEPT;
+
+//! For each component: returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_smoothstep(shz_vec4_t vec, float edge0, float edge1) SHZ_NOEXCEPT;
+
 //! For each component: returns 0.0f at/below edge0[i], 1.0f at/above edge1[i], smoothly varying in-between.
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_smoothstepv(shz_vec2_t vec, shz_vec2_t edge0, shz_vec2_t edge1) SHZ_NOEXCEPT;
 
@@ -296,14 +305,24 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_smoothstepv(shz_vec3_t vec, shz_vec3_t edge
 //! For each component i: returns 0.0f at/below edge0[i], 1.0f at/above edge1[i], smoothly varying in-between.
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_smoothstepv(shz_vec4_t vec, shz_vec4_t edge0, shz_vec4_t edge1) SHZ_NOEXCEPT;
 
-//! For each component: returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between.
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_smoothstep(shz_vec2_t vec, float edge0, float edge1) SHZ_NOEXCEPT;
+//! For each component: returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between. Accepts inverse edges.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_smoothstep_safe(shz_vec2_t vec, float edge0, float edge1) SHZ_NOEXCEPT;
 
-//! For each component: returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_smoothstep(shz_vec3_t vec, float edge0, float edge1) SHZ_NOEXCEPT;
+//! For each component: returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between. Accepts inverse edges.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_smoothstep_safe(shz_vec3_t vec, float edge0, float edge1) SHZ_NOEXCEPT;
 
-//! For each component: returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_smoothstep(shz_vec4_t vec, float edge0, float edge1) SHZ_NOEXCEPT;
+//! For each component: returns 0.0f at/below edge0, 1.0f at/above edge1, smoothly varying in-between. Accepts inverse edges.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_smoothstep_safe(shz_vec4_t vec, float edge0, float edge1) SHZ_NOEXCEPT;
+
+//! For each component: returns 0.0f at/below edge0[i], 1.0f at/above edge1[i], smoothly varying in-between. Accepts inverse edges.
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_smoothstepv_safe(shz_vec2_t vec, shz_vec2_t edge0, shz_vec2_t edge1) SHZ_NOEXCEPT;
+
+//! For each component i: returns 0.0f at/below edge0[i], 1.0f at/above edge1[i], smoothly varying in-between. Accepts inverse edges.
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_smoothstepv_safe(shz_vec3_t vec, shz_vec3_t edge0, shz_vec3_t edge1) SHZ_NOEXCEPT;
+
+//! For each component i: returns 0.0f at/below edge0[i], 1.0f at/above edge1[i], smoothly varying in-between. Accepts inverse edges.
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_smoothstepv_safe(shz_vec4_t vec, shz_vec4_t edge0, shz_vec4_t edge1) SHZ_NOEXCEPT;
+
 
 //! @}
 

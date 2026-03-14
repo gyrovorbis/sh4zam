@@ -13,7 +13,7 @@
     \copyright MIT License
 */
 
-#if SHZ_BACKEND == SHZ_DREAMCAST
+#if SHZ_BACKEND == SHZ_SH4
 #   include "sh4/shz_quat_sh4.inl.h"
 #else
 #   include "sw/shz_quat_sw.inl.h"
@@ -39,10 +39,10 @@ SHZ_INLINE shz_quat_t shz_quat_from_angles_xyz(float xangle, float yangle, float
 
     // \todo Some shz_vec2_dot4() kind of pattern?
     return shz_quat_init(
-        ((scy.cos * scx.cos) * scz.sin) - ((scy.sin * scx.sin) * scz.cos),
+        ((scy.cos * scx.cos) * scz.cos) + ((scy.sin * scx.sin) * scz.sin),
         ((scx.sin * scy.cos) * scz.cos) + ((scy.sin * scx.cos) * scz.sin),
         ((scy.sin * scx.cos) * scz.cos) - ((scx.sin * scy.cos) * scz.sin),
-        ((scy.cos * scx.cos) * scz.cos) + ((scy.sin * scx.sin) * scz.sin)
+        ((scy.cos * scx.cos) * scz.sin) - ((scy.sin * scx.sin) * scz.cos)
     );
 }
 
@@ -56,19 +56,26 @@ SHZ_INLINE shz_quat_t shz_quat_from_axis_angle(shz_vec3_t axis, float angle) SHZ
 }
 
 SHZ_INLINE float shz_quat_angle(shz_quat_t q) SHZ_NOEXCEPT {
-    return shz_acosf(q.w);
+    return 2.0f * shz_acosf(q.w);
+}
+
+SHZ_INLINE shz_vec3_t shz_quat_axis_from_angle_(shz_quat_t q, float angle) SHZ_NOEXCEPT {
+    // Protect against subsequent divide-by-zero with FSRRA of (sin(0.0) == 0.0) => NaN.
+    if(angle == 0.0f) {
+        return shz_vec3_init(1.0f, 0.0f, 0.0f);
+    } else {
+        float invS = shz_invf_fsrra(shz_sinf(angle * 0.5f));
+        return shz_vec3_init(q.x * invS, q.y * invS, q.z * invS);
+    }
 }
 
 SHZ_INLINE shz_vec3_t shz_quat_axis(shz_quat_t q) SHZ_NOEXCEPT {
-    float angle = shz_quat_angle(q);
-    float invS = shz_invf_fsrra(shz_sinf(angle));
-    return shz_vec3_init(q.x * invS, q.y * invS, q.z * invS);
+    return shz_quat_axis_from_angle_(q, shz_quat_angle(q));
 }
 
 SHZ_INLINE void shz_quat_to_axis_angle(shz_quat_t q, shz_vec3_t* vec, float* angle) SHZ_NOEXCEPT {
     *angle = shz_quat_angle(q);
-    float invS = shz_invf_fsrra(shz_sinf(*angle));
-    *vec = shz_vec3_init(q.x * invS, q.y * invS, q.z * invS);
+    *vec   = shz_quat_axis_from_angle_(q, *angle);
 }
 
 SHZ_INLINE float shz_quat_angle_x(shz_quat_t q) SHZ_NOEXCEPT {
@@ -86,10 +93,12 @@ SHZ_INLINE float shz_quat_angle_z(shz_quat_t q) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE shz_vec3_t shz_quat_to_angles_xyz(shz_quat_t q) SHZ_NOEXCEPT {
-    shz_vec2_t xz = shz_quat_dot2(q, shz_quat_init(q.w, q.x, -q.y, -q.z),
-                                     shz_quat_init(q.w, -q.x, -q.y, q.z));
+    shz_vec2_t xz = shz_quat_dot2(q, shz_quat_init(q.w, -q.x, -q.y, q.z),
+                                     shz_quat_init(q.w, q.x, -q.y, -q.z));
 
-    return shz_vec3_init(xz.x, shz_quat_angle_y(q), xz.y);
+    return shz_vec3_init(shz_atan2f(-2.0f * ((q.y * q.z) + (q.w * q.x)), xz.x),
+                         shz_quat_angle_y(q),
+                         shz_atan2f(2.0f * ((q.x * q.y) + (q.w * q.z)), xz.y));
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_add(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT {
@@ -147,28 +156,31 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_conjugate(shz_quat_t quat) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_inv(shz_quat_t quat) SHZ_NOEXCEPT {
-    return shz_quat_scale(shz_quat_conjugate(quat), shz_quat_magnitude_inv(quat));
+    return shz_quat_scale(shz_quat_conjugate(quat), shz_invf_fsrra(shz_quat_magnitude_sqr(quat)));
+}
+
+SHZ_FORCE_INLINE shz_quat_t shz_quat_neg(shz_quat_t quat) SHZ_NOEXCEPT {
+    return shz_quat_init(-quat.w, -quat.x, -quat.y, -quat.z);
 }
 
 SHZ_INLINE shz_quat_t shz_quat_from_rotated_axis(shz_vec3_t v1, shz_vec3_t v2) SHZ_NOEXCEPT {
     shz_vec3_t a = shz_vec3_cross(v1, v2);
-    float      m = shz_sqrtf_fsrra(shz_vec3_magnitude_sqr(v1) * shz_vec3_magnitude_sqr(v2));
+    float      m = shz_sqrtf_fsrra(shz_vec3_magnitude_sqr(v1) * shz_vec3_magnitude_sqr(v2)) +
+                   shz_vec3_dot(v1, v2);
 
     return shz_quat_normalize(shz_quat_init(m, a.x, a.y, a.z));
 }
 
 SHZ_INLINE shz_quat_t shz_quat_lerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT {
-	if(shz_quat_dot(a, b) < 0.0f) {
-        return shz_quat_init(t * (b.w + a.w) - a.w,
-                             t * (b.x + a.x) - a.x,
-                             t * (b.y + a.y) - a.y,
-                             t * (b.z + a.z) - a.z);
-	} else {
-        return shz_quat_init(t * (b.w - a.w) + a.w,
-                             t * (b.x - a.x) + a.x,
-                             t * (b.y - a.y) + a.y,
-                             t * (b.z - a.z) + a.z);
-    }
+    if (shz_quat_dot(a, b) < 0.0f)
+        b = shz_quat_neg(b);
+
+    return shz_quat_init(
+        shz_lerpf(a.w, b.w, t),
+        shz_lerpf(a.x, b.x, t),
+        shz_lerpf(a.y, b.y, t),
+        shz_lerpf(a.z, b.z, t)
+    );
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_nlerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NOEXCEPT {
@@ -176,21 +188,21 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_nlerp(shz_quat_t a, shz_quat_t b, float t) 
 }
 
 SHZ_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NOEXCEPT {
-	shz_quat_t q1 = q;
+	shz_quat_t q1;
+    float c, phi;
 
-    float c = shz_quat_dot(q1, p);
-    if(c < 0.0f) {
+    if((c = shz_quat_dot(q1, p)) < 0.0f) {
         c = -c;
-        q1 = shz_quat_inv(q1);
-    }
+        q1 = shz_quat_neg(q);
+    } else q1 = q;
 
-    float phi = shz_acosf(c);
     // Check for a minimum epsilon, below which we do no interpolation.
-    if(phi > SHZ_QUAT_SLERP_PHI_EPSILON) {
+    if((phi = shz_acosf(c)) > SHZ_QUAT_SLERP_PHI_EPSILON) {
         /* The output of acosf() is in the range of [0 : PI],
            giving us a sine that is guaranteed to be a positive value. */
         float s = shz_invf_fsrra(shz_sinf(phi));
-        /* Add the two vectors, which have been scaled by their respective ratios. */
+
+        // Add the two vectors, which have been scaled by their respective ratios.
         return shz_quat_add(shz_quat_scale(q1, shz_sinf((1.0f - t) * phi) * s),
                             shz_quat_scale(p,  shz_sinf(t * phi) * s));
     }
@@ -199,7 +211,7 @@ SHZ_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NO
 }
 
 SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_DREAMCAST
+#if SHZ_BACKEND == SHZ_SH4
     return shz_quat_mult_sh4(q1, q2);
 #else
     return shz_quat_mult_sw(q1, q2);
@@ -207,7 +219,7 @@ SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE shz_vec3_t shz_quat_transform_vec3(shz_quat_t q, shz_vec3_t v) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_DREAMCAST
+#if SHZ_BACKEND == SHZ_SH4
     return shz_quat_transform_vec3_sh4(q, v);
 #else
     return shz_quat_transform_vec3_sw(q, v);
