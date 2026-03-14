@@ -589,8 +589,8 @@ SHZ_INLINE void shz_memcpy4_16_sh4(      void* SHZ_RESTRICT dst,
         mov.l   r3, @(60, %[d])
         add     #-64, %[s]
     )"
-    : "=m" (*d)
-    : [s] "r" (s), [d] "r" (d), "m" (*s)
+    : "=m" (*((shz_alias_uint32_t (*)[16])dst))
+    : [s] "r" (s), [d] "r" (d), "m" (*((const shz_alias_uint32_t (*)[16])src))
     : "r0", "r1", "r2", "r3");
 }
 
