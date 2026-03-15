@@ -8,6 +8,11 @@
 
     \author     2026 Falco Girgis
     \copyright  MIT License
+
+    \todo
+        - to/from shz_mat2x2_t and XMTRX
+        - FFT utilities
+        - inverse FFT
 */
 
 #ifndef SHZ_COMPLEX_H
@@ -85,6 +90,12 @@ SHZ_INLINE shz_complex_t shz_cmulf(shz_complex_t lhs, shz_complex_t rhs) SHZ_NOE
 //! Divides \p lhs by \p rhs, returning the complex result.
 SHZ_INLINE shz_complex_t shz_cdivf(shz_complex_t lhs, shz_complex_t rhs) SHZ_NOEXCEPT;
 
+//! Scales both componets of the complex number, \p c, by the value, \p v, returning the result.
+SHZ_INLINE shz_complex_t shz_cscalef(shz_complex_t c, float v) SHZ_NOEXCEPT;
+
+//! Returns the multiplicative inverse or reciprocal of the complex number, \p c.
+SHZ_INLINE shz_complex_t shz_crecipf(shz_complex_t c) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Manipulation
@@ -94,6 +105,9 @@ SHZ_INLINE shz_complex_t shz_cdivf(shz_complex_t lhs, shz_complex_t rhs) SHZ_NOE
 
 //! Returns the absolute value (or magnitude) of the complex number, \p c.
 SHZ_INLINE float shz_cabsf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Returns the inverse of the absolute value (or inverse of the magnitude) of the complex number, \p c.
+SHZ_INLINE float shz_inv_cabsf(shz_complex_t c) SHZ_NOEXCEPT;
 
 //! Returns the squared magnitude of the complex number, \p c.
 SHZ_INLINE float shz_cnormf(shz_complex_t c) SHZ_NOEXCEPT;
@@ -131,28 +145,114 @@ SHZ_INLINE shz_complex_t shz_clog10f(shz_complex_t c) SHZ_NOEXCEPT;
 
 //! @}
 
-/*! \name  Trigonometry
-    \brief Complex trigonometric routines.
+/*! \name  Spherical Trigonometry
+    \brief Complex spherical trigonometric functions.
     @{   
 */
 
 //! Calculates and returns the complex sine of \p c.
 SHZ_INLINE shz_complex_t shz_csinf(shz_complex_t c) SHZ_NOEXCEPT;
-/* WIPpity McWIP
+
+//! Calculates and returns the complex cosine of \p c.
 SHZ_INLINE shz_complex_t shz_ccosf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex tangent of \p c.
 SHZ_INLINE shz_complex_t shz_ctanf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex cosecant of \p c.
+SHZ_INLINE shz_complex_t shz_ccscf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex secant of \p c.
+SHZ_INLINE shz_complex_t shz_csecf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex cotangent of \p c.
+SHZ_INLINE shz_complex_t shz_ccotf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex arcsine of \p c.
 SHZ_INLINE shz_complex_t shz_casinf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex arccosine of \p c.
 SHZ_INLINE shz_complex_t shz_cacosf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex arctangent of \p c.
 SHZ_INLINE shz_complex_t shz_catanf(shz_complex_t c) SHZ_NOEXCEPT;
-*/ 
-// hyperbolic equivalents
+
+//! Calculates and returns the complex arccosecant of \p c.
+SHZ_INLINE shz_complex_t shz_cacscf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex arcsecant of \p c.
+SHZ_INLINE shz_complex_t shz_casecf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex arccotangent of \p c.
+SHZ_INLINE shz_complex_t shz_cacotf(shz_complex_t c) SHZ_NOEXCEPT;
 
 //! @}
 
-// to/from 2D matrices
+/*! \name  Hyperbolic Trigonometry
+    \brief Complex hyperbolic trigonometric functions.
+    @{
+*/
 
-//! Applies a fast fourier transform to convert the array \p s, of the given \p size, from the time to the frequency domain.
+//! Calculates and returns the complex hyperbolic sine of \p c.
+SHZ_INLINE shz_complex_t shz_csinhf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex hyperbolic cosine of \p c.
+SHZ_INLINE shz_complex_t shz_ccoshf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex hyperbolic tangent of \p c.
+SHZ_INLINE shz_complex_t shz_ctanhf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex hyperbolic cosecant of \p c.
+SHZ_INLINE shz_complex_t shz_ccschf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex hyperbolic secant of \p c.
+SHZ_INLINE shz_complex_t shz_csechf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex hyperbolic cotangent of \p c.
+SHZ_INLINE shz_complex_t shz_ccothf(shz_complex_t C) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex hyperbolic arcsine of \p c.
+SHZ_INLINE shz_complex_t shz_casinhf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex hyperbolic arccosine of \p c.
+SHZ_INLINE shz_complex_t shz_cacoshf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex hyperbolic arctangent of \p c.
+SHZ_INLINE shz_complex_t shz_catanhf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex hyperbolic arccosecant of \p c.
+SHZ_INLINE shz_complex_t shz_cacschf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex hyperbolic arcsecant of \p c.
+SHZ_INLINE shz_complex_t shz_casechf(shz_complex_t c) SHZ_NOEXCEPT;
+
+//! Calculates and returns the complex hyperbolic arccotangent of \p c.
+SHZ_INLINE shz_complex_t shz_cacothf(shz_complex_t C) SHZ_NOEXCEPT;
+
+//! @}
+
+/*! \name  Signal Processing
+    \brief Functions for processing complex signals.
+    @{
+*/
+
+/*! Fast Fourier Transform
+
+    Applies a fast fourier transform to convert the complex array
+    of samples, \p s, of the given \p size, from the time to the
+    frequency domain. The conversion is done in-place.
+
+    \note
+    The underlying implementation uses the Radix2 variant of the
+    Cooley-Tukey FFT algorithm, using an XMTRX-accelerated 2 point
+    butterfly DIF.
+
+    \warning \p size must be a power-of-two!
+    \warning This routine clobbers `XMTRX`!
+*/
 void shz_fft(shz_complex_t* s, size_t size) SHZ_NOEXCEPT;
+
+//! @}
 
 #include "inline/shz_complex.inl.h"
 

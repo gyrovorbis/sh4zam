@@ -38,7 +38,6 @@ void shz_fft(shz_complex_t* s, size_t size) {
                                               y->real,
                                               y->imag);
 
-                // (a + ib)(x + iy) = (ax - by) + i(ay + bx)
                 shz_vec4_t out = shz_xmtrx_transform_vec4(in);
 
                 // Store output vector as two samples
