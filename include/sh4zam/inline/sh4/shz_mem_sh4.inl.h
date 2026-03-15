@@ -549,9 +549,6 @@ SHZ_INLINE void shz_memset2_16_sh4(void* dst, uint16_t value) SHZ_NOEXCEPT {
 
 SHZ_INLINE void shz_memcpy4_16_sh4(      void* SHZ_RESTRICT dst,
                                    const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
-    const shz_alias_uint32_t (*s)[16] = (const shz_alias_uint32_t (*)[16])src;
-          shz_alias_uint32_t (*d)[16] = (      shz_alias_uint32_t (*)[16])dst;
-
     assert(!((uintptr_t)s & 0x3) && !((uintptr_t)d & 0x3));
 
     asm(R"(
@@ -589,8 +586,8 @@ SHZ_INLINE void shz_memcpy4_16_sh4(      void* SHZ_RESTRICT dst,
         mov.l   r3, @(60, %[d])
         add     #-64, %[s]
     )"
-    : "=m" (*(uint8_t (*)[64])d)
-    : [s] "r" (s), [d] "r" (d), "m" (*(const uint8_t (*)[64])s)
+    : "=m" (*(uint8_t (*)[64])dst)
+    : [s] "r" (src), [d] "r" (dst), "m" (*(const uint8_t (*)[64])src)
     : "r0", "r1", "r2", "r3");
 }
 
