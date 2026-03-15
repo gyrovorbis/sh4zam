@@ -549,7 +549,7 @@ SHZ_INLINE void shz_memset2_16_sh4(void* dst, uint16_t value) SHZ_NOEXCEPT {
 
 SHZ_INLINE void shz_memcpy4_16_sh4(      void* SHZ_RESTRICT dst,
                                    const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
-    assert(!((uintptr_t)s & 0x3) && !((uintptr_t)d & 0x3));
+    assert(!((uintptr_t)src & 0x3) && !((uintptr_t)dst & 0x3));
 
     asm(R"(
         mov.l   @%[s]+, r0
