@@ -516,8 +516,8 @@ SHZ_INLINE void shz_memcpy2_16_sh4(      void* SHZ_RESTRICT dst,
         mov.w   r1, @-%[d]
         mov.w   r0, @-%[d]
     )"
-    : [d] "+r" (dst), [s] "+r" (src), "=m" (*((shz_alias_uint16_t (*)[16])dst))
-    : "m" (*((shz_alias_uint16_t (*)[16])src))
+    : [d] "+r" (dst), [s] "+r" (src), "=m" (*(uint8_t (*)[32])dst)
+    : "m" (*(uint8_t (*)[32])src)
     : "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7");
 }
 
@@ -543,7 +543,7 @@ SHZ_INLINE void shz_memset2_16_sh4(void* dst, uint16_t value) SHZ_NOEXCEPT {
         mov.w   %2, @-%1
         mov.w   %2, @-%1
     )"
-    : "=m" (*((shz_alias_uint16_t (*)[16])dst))
+    : "=m" (*(uint8_t (*)[32])dst)
     : "r" (dst), "r" (value));
 }
 
@@ -589,8 +589,8 @@ SHZ_INLINE void shz_memcpy4_16_sh4(      void* SHZ_RESTRICT dst,
         mov.l   r3, @(60, %[d])
         add     #-64, %[s]
     )"
-    : "=m" (*((shz_alias_uint32_t (*)[16])dst))
-    : [s] "r" (s), [d] "r" (d), "m" (*((const shz_alias_uint32_t (*)[16])src))
+    : "=m" (*(uint8_t (*)[64])d)
+    : [s] "r" (s), [d] "r" (d), "m" (*(const uint8_t (*)[64])s)
     : "r0", "r1", "r2", "r3");
 }
 
@@ -643,7 +643,7 @@ SHZ_INLINE void shz_memswap32_1_sh4(void* SHZ_RESTRICT p1,
         fmov.d  dr2, @-%[b]
         fmov.d  dr0, @-%[b]
     )"
-    : "+m" (*a), "+m" (*b)
+    : "+m" (*(uint8_t (*)[32])a), "+m" (*(uint8_t (*)[32])b)
     : [a] "r" (a), [b] "r" (b)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
@@ -682,7 +682,7 @@ SHZ_INLINE void shz_memswap32_1_xmtrx_sh4(void* SHZ_RESTRICT p1,
         fmov.d  xd2, @-%[b]
         fmov.d  xd0, @-%[b]
     )"
-    : "+m" (*a), "+m" (*b)
+    : "+m" (*(uint8_t (*)[32])a), "+m" (*(uint8_t (*)[32])b)
     : [a] "r" (a), [b] "r" (b));
 
     SHZ_FSCHG();
