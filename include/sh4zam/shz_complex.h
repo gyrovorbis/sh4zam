@@ -209,7 +209,7 @@ SHZ_INLINE shz_complex_t shz_ccschf(shz_complex_t c) SHZ_NOEXCEPT;
 SHZ_INLINE shz_complex_t shz_csechf(shz_complex_t c) SHZ_NOEXCEPT;
 
 //! Calculates and returns the complex hyperbolic cotangent of \p c.
-SHZ_INLINE shz_complex_t shz_ccothf(shz_complex_t C) SHZ_NOEXCEPT;
+SHZ_INLINE shz_complex_t shz_ccothf(shz_complex_t c) SHZ_NOEXCEPT;
 
 //! Calculates and returns the complex hyperbolic arcsine of \p c.
 SHZ_INLINE shz_complex_t shz_casinhf(shz_complex_t c) SHZ_NOEXCEPT;
@@ -227,7 +227,7 @@ SHZ_INLINE shz_complex_t shz_cacschf(shz_complex_t c) SHZ_NOEXCEPT;
 SHZ_INLINE shz_complex_t shz_casechf(shz_complex_t c) SHZ_NOEXCEPT;
 
 //! Calculates and returns the complex hyperbolic arccotangent of \p c.
-SHZ_INLINE shz_complex_t shz_cacothf(shz_complex_t C) SHZ_NOEXCEPT;
+SHZ_INLINE shz_complex_t shz_cacothf(shz_complex_t c) SHZ_NOEXCEPT;
 
 //! @}
 
