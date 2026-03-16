@@ -30,6 +30,7 @@ namespace shz {
         return shz_memcpy128(dst, src, bytes);
     }
 
+    constexpr auto memcpy2_8         = shz_memcpy2_8;
     constexpr auto memcpy2_16        = shz_memcpy2_16;
     constexpr auto memset2_16        = shz_memset2_16;
     constexpr auto memcpy4_16        = shz_memcpy4_16;

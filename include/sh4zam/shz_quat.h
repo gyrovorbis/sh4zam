@@ -169,11 +169,17 @@ SHZ_INLINE shz_quat_t shz_quat_neg(shz_quat_t quat) SHZ_NOEXCEPT;
 //! Returns the quaternion produced from adding each component of the given quaternions.
 SHZ_INLINE shz_quat_t shz_quat_add(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT;
 
+//! Returns the quaternion produced from subtracting each component of quaternion \p p from quaterion \p q.
+SHZ_INLINE shz_quat_t shz_quat_sub(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT;
+
 //! Scales the components of the given quaternion by the given factor.
 SHZ_INLINE shz_quat_t shz_quat_scale(shz_quat_t q, float f) SHZ_NOEXCEPT;
 
 //! Multiplies the two quaternions, returning the result as a new quaternion.
 SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT;
+
+//! Divides quaternion \p p by quaternion \p q (multiplying by its inverse), returning the resulting quaternion.
+SHZ_INLINE shz_quat_t shz_quat_div(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT;
 
 //! Returns the dot product of the two quaternions.
 SHZ_INLINE float shz_quat_dot(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT;

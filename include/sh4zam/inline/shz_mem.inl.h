@@ -124,6 +124,15 @@ SHZ_FORCE_INLINE void* shz_memcpy128(      void* SHZ_RESTRICT dst,
 #endif
 }
 
+SHZ_FORCE_INLINE void shz_memcpy2_8(      void* SHZ_RESTRICT dst,
+                                    const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_memcpy2_8_sh4(dst, src);
+#else
+    shz_memcpy2_8_sw(dst, src);
+#endif
+}
+
 SHZ_FORCE_INLINE void shz_memcpy2_16(      void* SHZ_RESTRICT dst,
                                      const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4

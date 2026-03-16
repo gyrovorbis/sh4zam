@@ -476,6 +476,34 @@ SHZ_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
     return dst;
 }
 
+SHZ_INLINE void shz_memcpy2_8_sh4(      void* SHZ_RESTRICT dst,
+                                  const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
+    assert(!((uintptr_t)dst & 0x1) && !((uintptr_t)src & 0x1));
+
+    asm(R"(
+        mov.w   @%[s]+, r0
+        mov.w   @%[s]+, r1
+        mov.w   @%[s]+, r2
+        mov.w   @%[s]+, r3
+        mov.w   @%[s]+, r4
+        mov.w   @%[s]+, r5
+        mov.w   @%[s]+, r6
+        mov.w   @%[s]+, r7
+        add     #16, %[d]
+        mov.w   r7, @-%[d]
+        mov.w   r6, @-%[d]
+        mov.w   r5, @-%[d]
+        mov.w   r4, @-%[d]
+        mov.w   r3, @-%[d]
+        mov.w   r2, @-%[d]
+        mov.w   r1, @-%[d]
+        mov.w   r0, @-%[d]
+    )"
+    : [s] "+&r" (src), "=m" (*(uint8_t (*)[16])dst)
+    : [d] "r" (dst), "m" (*(const uint8_t (*)[16])src)
+    : "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7");
+}
+
 SHZ_INLINE void shz_memcpy2_16_sh4(      void* SHZ_RESTRICT dst,
                                    const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
     assert(!((uintptr_t)dst & 0x1) && !((uintptr_t)src & 0x1));

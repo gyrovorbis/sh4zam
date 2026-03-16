@@ -765,6 +765,10 @@ GBL_TEST_CASE(apply_rotation_quat)
                                     0.0f, 0.0f, 1.0f, 0.0f,
                                     0.0f, 0.0f, 0.0f, 1.0f }));
 
+    (benchmark)(nullptr, "shz::xmtrx::apply_rotation(quat))",
+                [](shz::quat q) {
+                    shz::xmtrx::apply_rotation_quat(q);
+                }, shz::quat{ 1.0f, 2.0f, 3.0f, 4.0f });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_apply_4x4)

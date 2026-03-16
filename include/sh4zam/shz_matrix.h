@@ -15,13 +15,9 @@
     \todo
         - shz_mat4x4_add_symmetric_skew()
         - shz_mat4x4_add_diagonal()
-        - shz_mat4x4_apply_transpose()
-        - shz_mat4x4_apply_unaligned()
-        - shz_mat4x4_mult_transpose()
-        - shz_mat4x4_mult_unaligned()
 
-    \author    2025, 2026 Falco Girgis
-    \author    2025 Daniel Fairchild
+    \author 2025, 2026 Falco Girgis
+    \author 2025 Daniel Fairchild
 
     \copyright MIT License
 */
@@ -452,7 +448,7 @@ SHZ_INLINE void shz_mat4x4_apply_rotation(shz_mat4x4_t* mat, float angle, float 
 
 /*! Multiplies and accumulates the given matrix with a rotation matrix whose orientation is given by a quaternion.
 
-    \note This routine does not use XMTRX.
+    \note This routine clobbers XMTRX.
 */
 SHZ_INLINE void shz_mat4x4_apply_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
 
@@ -586,6 +582,18 @@ SHZ_INLINE void shz_mat4x4_mult(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, cons
     \warning This routine clobbers XMTRX.
 */
 SHZ_INLINE void shz_mat4x4_mult_unaligned(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, const float rhs[16]) SHZ_NOEXCEPT;
+
+/*! Multiplies the regular matrix, \p lhs, by the transpose of the matrix, \p rhs, storing the result into \p mat.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_mult_transpose(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, const shz_mat4x4_t* rhs) SHZ_NOEXCEPT;
+
+/*! Multiplies the regular matrix, \p lhs, by the transpose of the unaligned matrix, \p rhs, storing the result into \p mat.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_mult_transpose_unaligned(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, const float rhs[16]) SHZ_NOEXCEPT;
 
 /*! Transforms a 2D vector by a 4x4 matrix.
 

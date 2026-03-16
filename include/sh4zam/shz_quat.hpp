@@ -5,7 +5,7 @@
     \todo
         - overload arithmetic operators
 
-    \author    2025 Falco Girgis
+    \author    2025, 2026 Falco Girgis
     \copyright MIT License
 */
 
@@ -85,11 +85,7 @@ namespace shz {
             return shz_quat_nlerp(q, p, t);
         }
 
-        /*! Returns the quaternion that is spherically linearly interpolating \p q to \p p, by a \p t factor of `0.0f-1.0f`.
-
-            \warning The returned quaternion is not guaranteed to be normalized due to floating-point error.
-            Callers should normalize the result before reuse, especially when performing repeated interpolations.
-        */
+        //! Returns the quaternion that is spherically linearly interpolating \p q to \p p, by a \p t factor of `0.0f-1.0f`.
         SHZ_FORCE_INLINE static quat slerp(quat q, quat p, float t) noexcept {
             return shz_quat_slerp(q, p, t);
         }
@@ -183,19 +179,14 @@ namespace shz {
             return shz_quat_magnitude_inv(*this);
         }
 
-        //! Normalizes the given quaternion.
-        SHZ_FORCE_INLINE void normalize() noexcept {
-            *this = shz_quat_normalize(*this);
-        }
-
         //! Returns the given quaternion as a unit quaternion.
         SHZ_FORCE_INLINE quat normalized() const noexcept {
             return shz_quat_normalize(*this);
         }
 
-        //! Safely normalizes the given quaternion by protecting against division-by-zero.
-        SHZ_FORCE_INLINE void normalize_safe() noexcept {
-            *this = shz_quat_normalize_safe(*this);
+        //! Normalizes the given quaternion.
+        SHZ_FORCE_INLINE void normalize() noexcept {
+            *this = normalized();
         }
 
         //! Returns a safely normalized quaternion from the given quaternion, protecting against division-by-zero.
@@ -203,9 +194,9 @@ namespace shz {
             return shz_quat_normalize_safe(*this);
         }
 
-        //! Conjugates the given quaternion.
-        SHZ_FORCE_INLINE void conjugate() noexcept {
-            *this = shz_quat_conjugate(*this);
+        //! Safely normalizes the given quaternion by protecting against division-by-zero.
+        SHZ_FORCE_INLINE void normalize_safe() noexcept {
+            *this = normalized_safe();
         }
 
         //! Returns a quaternion that is the conjugate of the given quaternion.
@@ -213,9 +204,9 @@ namespace shz {
             return shz_quat_conjugate(*this);
         }
 
-        //! Inverts the given quaternion.
-        SHZ_FORCE_INLINE void invert() noexcept {
-            *this = shz_quat_inv(*this);
+        //! Conjugates the given quaternion.
+        SHZ_FORCE_INLINE void conjugate() noexcept {
+            *this = conjugated();
         }
 
         //! Returns the inverse of the given quaternion.
@@ -223,14 +214,38 @@ namespace shz {
             return shz_quat_inv(*this);
         }
 
+        //! Inverts the given quaternion.
+        SHZ_FORCE_INLINE void invert() noexcept {
+            *this = inverse();
+        }
+
+        //! Returns a new quaternion whose components are the negated values of the given quaternion.
+        SHZ_FORCE_INLINE quat negated() const noexcept {
+            return shz_quat_neg(*this);
+        }
+
+        //! Negates the components of the given quaternion.
+        SHZ_FORCE_INLINE void negate() noexcept {
+            *this = negated();
+        }
+
         //! Returns a new quaternion from adding the given quaterion to \p rhs.
         SHZ_FORCE_INLINE quat add(quat rhs) const noexcept {
             return shz_quat_add(*this, rhs);
         }
 
+        //! Returns a new quaternion from adding \p rhs from the given quaternion.
+        SHZ_FORCE_INLINE quat sub(quat rhs) const noexcept {
+            return shz_quat_sub(*this, rhs);
+        }
+
         //! Returns a new quaternion from scaling the given quaterion by \p s.
-        SHZ_FORCE_INLINE quat scale(float s) const noexcept {
+        SHZ_FORCE_INLINE quat scaled(float s) const noexcept {
             return shz_quat_scale(*this, s);
+        }
+
+        SHZ_FORCE_INLINE void scale(float s) noexcept {
+            *this = scaled(s);
         }
 
         //! Returns the dot product between the given quaternion and another.
@@ -253,14 +268,85 @@ namespace shz {
             return shz_quat_mult(*this, rhs);
         }
 
+        //! Returns a new quaterion from dividing the given quaternion by another (or multiplying the given quaternion by the inverse of another).
+        SHZ_FORCE_INLINE quat div(quat rhs) const noexcept {
+            return shz_quat_div(*this, rhs);
+        }
+
         //! Returns a new shz::vec3 from transforming \p in by the given quaternion.
         SHZ_FORCE_INLINE vec3 transform(vec3 in) const noexcept {
             return shz_quat_transform_vec3(*this, in);
+        }
+
+        SHZ_FORCE_INLINE quat operator-() const noexcept {
+            return negated();
+        }
+
+        SHZ_FORCE_INLINE quat operator+=(quat rhs) noexcept {
+            return *this = add(rhs);
+        }
+
+        SHZ_FORCE_INLINE quat operator-=(quat rhs) noexcept {
+            return *this = sub(rhs);
+        }
+
+        SHZ_FORCE_INLINE quat operator*=(quat rhs) noexcept {
+            return *this = mult(rhs);
+        }
+
+        SHZ_FORCE_INLINE quat operator/=(quat rhs) noexcept {
+            return *this = div(rhs);
+        }
+
+        SHZ_FORCE_INLINE quat operator*=(float rhs) noexcept {
+            scale(rhs);
+            return *this;
+        }
+
+        SHZ_FORCE_INLINE quat operator/=(float rhs) noexcept {
+            scale(shz_invf(rhs));
+            return *this;
         }
     };
 
     //! Alternate C++ alias for quat, for those who like POSIX style.
     using quat_t = quat;
+
+    SHZ_FORCE_INLINE quat operator+(quat lhs, quat rhs) noexcept {
+        return lhs.add(rhs);
+    }
+
+    SHZ_FORCE_INLINE quat operator-(quat lhs, quat rhs) noexcept {
+        return lhs.sub(rhs);
+    }
+
+    SHZ_FORCE_INLINE quat operator*(quat lhs, quat rhs) noexcept {
+        return lhs.mult(rhs);
+    }
+
+    SHZ_FORCE_INLINE quat operator/(quat lhs, quat rhs) noexcept {
+        return lhs.div(rhs);
+    }
+
+    SHZ_FORCE_INLINE quat operator*(quat lhs, float rhs) noexcept {
+        return lhs.scaled(rhs);
+    }
+
+    SHZ_FORCE_INLINE quat operator*(float lhs, quat rhs) noexcept {
+        return rhs.scaled(lhs);
+    }
+
+    SHZ_FORCE_INLINE quat operator/(quat lhs, float rhs) noexcept {
+        return lhs.scaled(shz_invf(rhs));
+    }
+
+    SHZ_FORCE_INLINE quat operator/(float lhs, quat rhs) noexcept {
+        return rhs.scaled(shz_invf(lhs));
+    }
+
+    SHZ_FORCE_INLINE vec3 operator*(quat lhs, vec3 rhs) noexcept {
+        return lhs.transform(rhs);
+    }
 }
 
 #endif

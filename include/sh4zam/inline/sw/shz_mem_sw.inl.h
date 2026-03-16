@@ -80,10 +80,15 @@ SHZ_FORCE_INLINE void* shz_memcpy128_sw(      void* SHZ_RESTRICT dst,
     return memcpy(dst, src, bytes);
 }
 
+SHZ_FORCE_INLINE void shz_memcpy2_8_sw(      void* SHZ_RESTRICT dst,
+                                       const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
+    memcpy(dst, src, sizeof(uint16_t) * 8);
+}
+
+
 SHZ_FORCE_INLINE void shz_memcpy2_16_sw(      void* SHZ_RESTRICT dst,
                                         const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
     memcpy(dst, src, sizeof(uint16_t) * 16);
-
 }
 
 SHZ_FORCE_INLINE void* shz_memset8_sw(void* dst, uint64_t value, size_t bytes) SHZ_NOEXCEPT {
