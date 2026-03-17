@@ -110,6 +110,12 @@ target_include_directories(sh4zam
 install(TARGETS sh4zam
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sh4zam)
 
+option(SHZ_ENABLE_PIC "Enable position-independent code." OFF)
+
+if(SHZ_ENABLE_PIC)
+    set(CMAKE_POSITION_INDEPENDENT_CODE SHZ_ENABLE_PIC)
+endif(SHZ_ENABLE_PIC)
+
 option(SHZ_ENABLE_TESTS "Enable SH4ZAM Unit Tests" OFF)
 
 if(SHZ_ENABLE_TESTS)
