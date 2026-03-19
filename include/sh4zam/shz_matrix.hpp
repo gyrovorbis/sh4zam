@@ -174,16 +174,16 @@ namespace shz {
             shz_mat4x4_init_lookat(this, eye, center, up);
         }
 
-        SHZ_FORCE_INLINE void init_ortho(float left, float right, float bottom, float top, float near, float far) noexcept {
-            shz_mat4x4_init_ortho(this, left, right, bottom, top, near, far);
+        SHZ_FORCE_INLINE void init_ortho(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+            shz_mat4x4_init_ortho(this, left, right, bottom, top, znear, zfar);
         }
 
-        SHZ_FORCE_INLINE void init_frustum(float left, float right, float bottom, float top, float near, float far) noexcept {
-            shz_mat4x4_init_frustum(this, left, right, bottom, top, near, far);
+        SHZ_FORCE_INLINE void init_frustum(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+            shz_mat4x4_init_frustum(this, left, right, bottom, top, znear, zfar);
         }
 
-        SHZ_FORCE_INLINE void init_perspective(float fov, float aspect, float near_z) noexcept {
-            shz_mat4x4_init_perspective(this, fov, aspect, near_z);
+        SHZ_FORCE_INLINE void init_perspective(float fov, float aspect, float znear) noexcept {
+            shz_mat4x4_init_perspective(this, fov, aspect, znear);
         }
 
         //! @}
@@ -313,8 +313,8 @@ namespace shz {
             shz_mat4x4_apply_lookat(this, pos, target, up);
         }
 
-        SHZ_FORCE_INLINE void apply_perspective(float fov, float aspect, float near_z) noexcept {
-            shz_mat4x4_apply_perspective(this, fov, aspect, near_z);
+        SHZ_FORCE_INLINE void apply_perspective(float fov, float aspect, float znear) noexcept {
+            shz_mat4x4_apply_perspective(this, fov, aspect, znear);
         }
 
         SHZ_FORCE_INLINE void apply_screen(float width, float height) noexcept {

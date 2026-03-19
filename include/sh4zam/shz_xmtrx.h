@@ -334,19 +334,19 @@ SHZ_INLINE void shz_xmtrx_init_lookat(shz_vec3_t eye, shz_vec3_t center, shz_vec
 
     \warning This routine clobbers any previous XMTRX contents.
 */
-SHZ_INLINE void shz_xmtrx_init_ortho(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_init_ortho(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
 
 /*! Initializes XMTRX to a frustum projection matrix, equivalent to glFrustum().
 
     \warning This routine clobbers any previous XMTRX contents.
 */
-SHZ_INLINE void shz_xmtrx_init_frustum(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_init_frustum(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
 
 /*! Initializes XMTRX to a perspective projection matrix.
 
     \warning This routine clobbers any previous XMTRX contents.
 */
-SHZ_INLINE void shz_xmtrx_init_perspective(float fov, float aspect, float near_z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_init_perspective(float fov, float aspect, float znear) SHZ_NOEXCEPT;
 
 /*! Initializes XMTRX to a 3D rotation matrix with its orientation given by a quaternion.
 
@@ -467,10 +467,10 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_quat(shz_quat_t quat) SHZ_NOEXCEPT;
 SHZ_INLINE void shz_xmtrx_apply_lookat(shz_vec3_t eye, shz_vec3_t center, shz_vec3_t up) SHZ_NOEXCEPT;
 
 //! Applies a 2D orthographic projection matrix onto XMTRX, equivalent to glOrtho().
-SHZ_INLINE void shz_xmtrx_apply_ortho(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_apply_ortho(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
 
 //! Applies a frustum projection matrix onto XMTRX, equivalent to glFrustum().
-SHZ_INLINE void shz_xmtrx_apply_frustum(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_apply_frustum(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the perspective matrix constructed from the given values onto XMTRX.
 
@@ -481,7 +481,7 @@ SHZ_INLINE void shz_xmtrx_apply_frustum(float left, float right, float bottom, f
      0.0f      | 0.0f      |  0.0f     | nz
      0.0f      | 0.0f      | -1.0f     | 0.0f
 */
-SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float near_z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float znear) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the viewport matrix created with the given components.
 

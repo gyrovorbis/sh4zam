@@ -656,27 +656,27 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_lookat(shz_vec3_t eye,
 #endif
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_apply_ortho(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_apply_ortho(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
-    shz_xmtrx_apply_ortho_sh4(left, right, bottom, top, near, far);
+    shz_xmtrx_apply_ortho_sh4(left, right, bottom, top, znear, zfar);
 #else
-    shz_xmtrx_apply_ortho_sw(left, right, bottom, top, near, far);
+    shz_xmtrx_apply_ortho_sw(left, right, bottom, top, znear, zfar);
 #endif
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_apply_frustum(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_apply_frustum(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
-    shz_xmtrx_apply_frustum_sh4(left, right, bottom, top, near, far);
+    shz_xmtrx_apply_frustum_sh4(left, right, bottom, top, znear, zfar);
 #else
-    shz_xmtrx_apply_frustum_sw(left, right, bottom, top, near, far);
+    shz_xmtrx_apply_frustum_sw(left, right, bottom, top, znear, zfar);
 #endif
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float near_z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float znear) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
-    shz_xmtrx_apply_perspective_sh4(fov, aspect, near_z);
+    shz_xmtrx_apply_perspective_sh4(fov, aspect, znear);
 #else
-    shz_xmtrx_apply_perspective_sw(fov, aspect, near_z);
+    shz_xmtrx_apply_perspective_sw(fov, aspect, znear);
 #endif
 }
 
@@ -934,17 +934,17 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_lookat(shz_vec3_t eye, shz_vec3_t center, s
     shz_xmtrx_apply_lookat(eye, center, up);
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_init_ortho(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_init_ortho(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
     shz_xmtrx_init_identity();
-    shz_xmtrx_apply_ortho(left, right, bottom, top, near, far);
+    shz_xmtrx_apply_ortho(left, right, bottom, top, znear, zfar);
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_init_frustum(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_init_frustum(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
     shz_xmtrx_init_identity();
-    shz_xmtrx_apply_frustum(left, right, bottom, top, near, far);
+    shz_xmtrx_apply_frustum(left, right, bottom, top, znear, zfar);
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_init_perspective(float fov, float aspect, float near_z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_init_perspective(float fov, float aspect, float znear) SHZ_NOEXCEPT {
     shz_xmtrx_init_identity();
-    shz_xmtrx_apply_perspective(fov, aspect, near_z);
+    shz_xmtrx_apply_perspective(fov, aspect, znear);
 }

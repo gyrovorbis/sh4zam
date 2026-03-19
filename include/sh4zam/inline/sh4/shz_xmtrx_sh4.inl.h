@@ -2421,10 +2421,10 @@ SHZ_INLINE void shz_xmtrx_apply_lookat_sh4(shz_vec3_t eye,
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_ortho_sh4(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
-    shz_vec3_t box   = shz_vec3_inv(shz_vec3_init(right - left, top - bottom, far - near));
+SHZ_INLINE void shz_xmtrx_apply_ortho_sh4(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
+    shz_vec3_t box   = shz_vec3_inv(shz_vec3_init(right - left, top - bottom, zfar - znear));
     shz_vec3_t scale = shz_vec3_mul(shz_vec3_init(2.0f, 2.0f, -2.0f), box);
-    shz_vec3_t trans = shz_vec3_mul(shz_vec3_init(-(right + left), -(top + bottom), -(far + near)), box);
+    shz_vec3_t trans = shz_vec3_mul(shz_vec3_init(-(right + left), -(top + bottom), -(zfar + znear)), box);
 
     asm volatile(R"(
         fmov.s  @%[s]+, fr0
@@ -2462,14 +2462,14 @@ SHZ_INLINE void shz_xmtrx_apply_ortho_sh4(float left, float right, float bottom,
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_frustum_sh4(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_apply_frustum_sh4(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
     const float values[6] = {
-        2.0f * near / (right - left),
-        2.0f * near / (top - bottom),
+        2.0f * znear / (right - left),
+        2.0f * znear / (top - bottom),
         (right + left) / (right - left),
         (top + bottom) / (top - bottom),
-        -(far + near) / (far - near),
-        -(2.0f * far * near) / (far - near)
+        -(zfar + znear) / (zfar - znear),
+        -(2.0f * zfar * znear) / (zfar - znear)
     };
     const float *p = values;
 
@@ -2517,10 +2517,10 @@ SHZ_INLINE void shz_xmtrx_apply_frustum_sh4(float left, float right, float botto
 // 	0.0f      | 0.0f      | 0.0f      | nz
 // 	0.0f      | 0.0f      | -1.0f     | 0.0f
 // ****************************************************************
-SHZ_INLINE void shz_xmtrx_apply_perspective_sh4(float fov, float aspect, float near_z) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_apply_perspective_sh4(float fov, float aspect, float znear) SHZ_NOEXCEPT {
     register float f asm("fr4") = fov * 0.5f * SHZ_FSCA_RAD_FACTOR;
     register float a asm("fr5") = aspect;
-    register float n asm("fr6") = near_z;
+    register float n asm("fr6") = znear;
 
     asm volatile(R"(
         fmov    fr5, fr7

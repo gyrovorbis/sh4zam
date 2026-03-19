@@ -18,7 +18,7 @@
 
 #include <string.h>
 
-SHZ_FORCE_INLINE void shz_dcache_alloc_line_sw(void* src) SHZ_NOEXCEPT {}
+SHZ_FORCE_INLINE void shz_dcache_alloc_line_sw(void* src) SHZ_NOEXCEPT { (void)src; }
 
 SHZ_FORCE_INLINE void* shz_memcpy_sw(      void* SHZ_RESTRICT dst,
                                      const void* SHZ_RESTRICT src,
