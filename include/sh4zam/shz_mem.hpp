@@ -17,7 +17,7 @@ namespace shz {
     constexpr auto dcache_alloc_line = shz_dcache_alloc_line;
 
     //! C++ wrapper around shz_memmove().
-    inline void* memmove(void* dst, const void* src, size_t bytes) noexcept {
+    SHZ_FORCE_INLINE void* memmove(void* dst, const void* src, size_t bytes) noexcept {
         return shz_memmove(dst, src, bytes);
     }
 
@@ -31,7 +31,7 @@ namespace shz {
     constexpr auto memcpy64          = shz_memcpy64;
 
     //! C++ wrapper around shz_memcpy128().
-    inline void* memcpy128(void* dst, const void* src, size_t bytes) noexcept {
+    SHZ_FORCE_INLINE void* memcpy128(void* dst, const void* src, size_t bytes) noexcept {
         return shz_memcpy128(dst, src, bytes);
     }
 

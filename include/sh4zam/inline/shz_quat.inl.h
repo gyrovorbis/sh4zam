@@ -227,7 +227,6 @@ SHZ_INLINE shz_quat_t shz_quat_squad(shz_quat_t q1, shz_quat_t q2, shz_quat_t s1
                           2.0f * t * (1.0f - t));
 }
 
-
 SHZ_INLINE shz_quat_t shz_quat_rotate_towards(shz_quat_t from, shz_quat_t to, float max_angle) SHZ_NOEXCEPT {
     float angle = shz_quat_angle_between(from, to);
 

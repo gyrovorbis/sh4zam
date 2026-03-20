@@ -1960,7 +1960,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation_sh4(void) SHZ_NOEXCEPT {
         frchg
     )"
     : "=m" (pos)
-    : [p] "r" (&pos));;
+    : [p] "r" (&pos));
 
     return pos;
 }
