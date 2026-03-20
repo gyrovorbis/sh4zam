@@ -27,6 +27,8 @@
 #include <math.h>
 #include <string.h>
 #include <assert.h>
+#include <stdalign.h>
+#include <threads.h>
 
 /* Internal state: 4 column vectors = 16 floats, matching shz_mat4x4_t layout */
 extern thread_local struct shz_xmtrx_{

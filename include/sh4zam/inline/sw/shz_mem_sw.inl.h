@@ -17,6 +17,7 @@
 #define SHZ_MEM_SW_INL_H
 
 #include <string.h>
+#include <stdalign.h>
 
 SHZ_FORCE_INLINE void shz_dcache_alloc_line_sw(void* src) SHZ_NOEXCEPT { (void)src; }
 
