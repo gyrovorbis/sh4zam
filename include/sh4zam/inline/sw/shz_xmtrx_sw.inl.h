@@ -552,6 +552,12 @@ SHZ_FORCE_INLINE void shz_xmtrx_set_translation_sw(float x, float y, float z) SH
     shz_xmtrx_state_.col[3].z = z;
 }
 
+SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation_sw(void) SHZ_NOEXCEPT {
+    return shz_vec3_init(shz_xmtrx_state_.col[3].x,
+                         shz_xmtrx_state_.col[3].y,
+                         shz_xmtrx_state_.col[3].z);
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_apply_translation_sw(float x, float y, float z) SHZ_NOEXCEPT {
     shz_xmtrx_state_.col[3].x += x;
     shz_xmtrx_state_.col[3].y += y;
@@ -689,10 +695,10 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_lookat_sw(shz_vec3_t eye,
     shz_xmtrx_mul4x4_cols_(look);
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_apply_ortho_sw(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
-    shz_vec3_t box   = shz_vec3_inv(shz_vec3_init(right - left, top - bottom, far - near));
+SHZ_FORCE_INLINE void shz_xmtrx_apply_ortho_sw(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
+    shz_vec3_t box   = shz_vec3_inv(shz_vec3_init(right - left, top - bottom, zfar - znear));
     shz_vec3_t sc    = shz_vec3_mul(shz_vec3_init(2.0f, 2.0f, -2.0f), box);
-    shz_vec3_t trans = shz_vec3_mul(shz_vec3_init(-(right + left), -(top + bottom), -(far + near)), box);
+    shz_vec3_t trans = shz_vec3_mul(shz_vec3_init(-(right + left), -(top + bottom), -(zfar + znear)), box);
 
     shz_vec4_t m[4];
     m[0] = shz_vec4_init(sc.x,    0.0f,    0.0f,    0.0f);
@@ -702,13 +708,13 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_ortho_sw(float left, float right, float bo
     shz_xmtrx_mul4x4_cols_(m);
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_apply_frustum_sw(float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
-    const float a = 2.0f * near / (right - left);
-    const float b = 2.0f * near / (top - bottom);
+SHZ_FORCE_INLINE void shz_xmtrx_apply_frustum_sw(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
+    const float a = 2.0f * znear / (right - left);
+    const float b = 2.0f * znear / (top - bottom);
     const float c = (right + left) / (right - left);
     const float d = (top + bottom) / (top - bottom);
-    const float e = -(far + near) / (far - near);
-    const float ff = -(2.0f * far * near) / (far - near);
+    const float e = -(zfar + znear) / (zfar - znear);
+    const float ff = -(2.0f * zfar * znear) / (zfar - znear);
 
     shz_vec4_t m[4];
     m[0] = shz_vec4_init(a,    0.0f, 0.0f, 0.0f);
@@ -718,7 +724,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_frustum_sw(float left, float right, float 
     shz_xmtrx_mul4x4_cols_(m);
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_apply_perspective_sw(float fov, float aspect, float near_z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_apply_perspective_sw(float fov, float aspect, float znear) SHZ_NOEXCEPT {
     const float half = fov * 0.5f;
     const float c = shz_cosf(half);
     const float s = shz_sinf(half);
@@ -729,7 +735,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_perspective_sw(float fov, float aspect, fl
     m[0] = shz_vec4_init(cot_a, 0.0f, 0.0f,  0.0f);
     m[1] = shz_vec4_init(0.0f,  cot,  0.0f,  0.0f);
     m[2] = shz_vec4_init(0.0f,  0.0f, 0.0f,  -1.0f);
-    m[3] = shz_vec4_init(0.0f,  0.0f, near_z, 0.0f);
+    m[3] = shz_vec4_init(0.0f,  0.0f, znear, 0.0f);
     shz_xmtrx_mul4x4_cols_(m);
 }
 

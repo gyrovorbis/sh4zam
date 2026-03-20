@@ -105,6 +105,10 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_add(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEP
     return shz_quat_init(q.w + p.w, q.x + p.x, q.y + p.y, q.z + p.z);
 }
 
+SHZ_FORCE_INLINE shz_quat_t shz_quat_sub(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT {
+    return shz_quat_init(q.w - p.w, q.x - p.x, q.y - p.y, q.z - p.z);
+}
+
 SHZ_FORCE_INLINE shz_quat_t shz_quat_scale(shz_quat_t q, float f) SHZ_NOEXCEPT {
     return shz_quat_init(q.w * f, q.x * f, q.y * f, q.z * f);
 }
@@ -188,7 +192,7 @@ SHZ_FORCE_INLINE shz_quat_t shz_quat_nlerp(shz_quat_t a, shz_quat_t b, float t) 
 }
 
 SHZ_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NOEXCEPT {
-	shz_quat_t q1;
+    shz_quat_t q1;
     float c, phi;
 
     if((c = shz_quat_dot(q1, p)) < 0.0f) {
@@ -210,12 +214,38 @@ SHZ_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NO
 	return q1;
 }
 
+SHZ_INLINE float shz_quat_angle_between(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT {
+    float d = shz_fabsf(shz_quat_dot(q, p));
+
+    // Clamp to handle floating-point overshoot.
+    return 2.0f * shz_acosf(shz_fminf(d, 1.0f));
+}
+
+SHZ_INLINE shz_quat_t shz_quat_squad(shz_quat_t q1, shz_quat_t q2, shz_quat_t s1, shz_quat_t s2, float t) SHZ_NOEXCEPT {
+    return shz_quat_slerp(shz_quat_slerp(q1, q2, t),
+                          shz_quat_slerp(s1, s2, t),
+                          2.0f * t * (1.0f - t));
+}
+
+SHZ_INLINE shz_quat_t shz_quat_rotate_towards(shz_quat_t from, shz_quat_t to, float max_angle) SHZ_NOEXCEPT {
+    float angle = shz_quat_angle_between(from, to);
+
+    if(angle <= max_angle)
+        return to;
+
+    return shz_quat_slerp(from, to, max_angle * shz_invf_fsrra(angle));
+}
+
 SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     return shz_quat_mult_sh4(q1, q2);
 #else
     return shz_quat_mult_sw(q1, q2);
 #endif
+}
+
+SHZ_INLINE shz_quat_t shz_quat_div(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT {
+    return shz_quat_mult(q, shz_quat_inv(p));
 }
 
 SHZ_INLINE shz_vec3_t shz_quat_transform_vec3(shz_quat_t q, shz_vec3_t v) SHZ_NOEXCEPT {

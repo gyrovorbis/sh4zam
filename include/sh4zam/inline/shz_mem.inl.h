@@ -7,6 +7,8 @@
  *  simply delegating to each back-end to implement
  *  their own, as there is currently no shared code.
  *
+ *  \author 2026 Falco Girgis
+ *
  *  \copyright MIT License
  */
 
@@ -31,6 +33,14 @@ SHZ_FORCE_INLINE void* shz_memcpy(      void* SHZ_RESTRICT dst,
     return shz_memcpy_sh4(dst, src, bytes);
 #else
     return shz_memcpy_sw(dst, src, bytes);
+#endif
+}
+
+SHZ_FORCE_INLINE void* shz_memmove(void* dst, const void* src, size_t bytes) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_memmove_sh4(dst, src, bytes);
+#else
+    return shz_memmove_sw(dst, src, bytes);
 #endif
 }
 
@@ -124,6 +134,15 @@ SHZ_FORCE_INLINE void* shz_memcpy128(      void* SHZ_RESTRICT dst,
 #endif
 }
 
+SHZ_FORCE_INLINE void shz_memcpy2_8(      void* SHZ_RESTRICT dst,
+                                    const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_memcpy2_8_sh4(dst, src);
+#else
+    shz_memcpy2_8_sw(dst, src);
+#endif
+}
+
 SHZ_FORCE_INLINE void shz_memcpy2_16(      void* SHZ_RESTRICT dst,
                                      const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
@@ -193,7 +212,6 @@ SHZ_FORCE_INLINE void* shz_sq_memcpy32_1(      void* SHZ_RESTRICT dst,
     return shz_sq_memcpy32_1_sw(dst, src);
 #endif
 }
-
 
 SHZ_FORCE_INLINE void* shz_sq_memcpy32_1_xmtrx(      void* SHZ_RESTRICT dst,
                                                const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {

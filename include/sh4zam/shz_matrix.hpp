@@ -2,8 +2,8 @@
     \brief   C++ routines for operating on in-memory matrices.
     \ingroup matrix
 
-    This file provides a C++ binding layer over the C API provied
-    by shz_matrix.h.
+    This file provides a C++ binding layer over the C API provided by
+    shz_matrix.h.
 
     \author    2025, 2026 Falco Girgis
     \copyright MIT License
@@ -12,7 +12,6 @@
         - Fully document
         - Operator overloading
         - full transforms (GL-style) taking a separate destination matrix?
-        - Copy to unaligned dest
 */
 
 #ifndef SHZ_MATRIX_HPP
@@ -37,28 +36,28 @@ namespace shz {
             return &self[0];
         }
 
-        //! Overloaded subscript operator -- allows for indexing vectors like an array.
+        //! Overloaded subscript operator -- allows for indexing matrices like an array.
         SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) noexcept {
             return std::forward<decltype(self)>(self).elem[index];
         }
 
-        //! Returns an iterator to the beginning of the vector -- For STL support.
+        //! Returns an iterator to the beginning of the matrix -- For STL support.
         SHZ_FORCE_INLINE auto begin(this auto&& self) noexcept {
             return &self[0];
         }
 
-        //! Returns an iterator to the end of the vector -- For STL support.
+        //! Returns an iterator to the end of the matrix -- For STL support.
         SHZ_FORCE_INLINE auto end(this auto&& self) noexcept {
             return &self[Rows * Cols];
         }
 
-        //! Overloaded space-ship operator, for generic lexicographical comparison of vectors.
+        //! Overloaded space-ship operator, for generic lexicographical comparison of matrices.
         friend constexpr auto operator<=>(const mat4x4& lhs, const mat4x4& rhs) noexcept {
             return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(),
                                                           rhs.begin(), rhs.end());
         }
 
-        //! Overloaded "less-than" operator, for comparing vectors.
+        //! Overloaded "less-than" operator, for comparing matrices.
         friend constexpr auto operator<(const mat4x4& lhs, const mat4x4& rhs) noexcept {
             return std::lexicographical_compare(lhs.begin(), lhs.end(),
                                                 rhs.begin(), rhs.end());
@@ -175,16 +174,16 @@ namespace shz {
             shz_mat4x4_init_lookat(this, eye, center, up);
         }
 
-        SHZ_FORCE_INLINE void init_ortho(float left, float right, float bottom, float top, float near, float far) noexcept {
-            shz_mat4x4_init_ortho(this, left, right, bottom, top, near, far);
+        SHZ_FORCE_INLINE void init_ortho(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+            shz_mat4x4_init_ortho(this, left, right, bottom, top, znear, zfar);
         }
 
-        SHZ_FORCE_INLINE void init_frustum(float left, float right, float bottom, float top, float near, float far) noexcept {
-            shz_mat4x4_init_frustum(this, left, right, bottom, top, near, far);
+        SHZ_FORCE_INLINE void init_frustum(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+            shz_mat4x4_init_frustum(this, left, right, bottom, top, znear, zfar);
         }
 
-        SHZ_FORCE_INLINE void init_perspective(float fov, float aspect, float near_z) noexcept {
-            shz_mat4x4_init_perspective(this, fov, aspect, near_z);
+        SHZ_FORCE_INLINE void init_perspective(float fov, float aspect, float znear) noexcept {
+            shz_mat4x4_init_perspective(this, fov, aspect, znear);
         }
 
         //! @}
@@ -202,6 +201,10 @@ namespace shz {
         //! C++ wrapper for shz_mat4x4_col().
         SHZ_FORCE_INLINE vec4 col(size_t index) const noexcept {
             return shz_mat4x4_col(this, index);
+        }
+
+        SHZ_FORCE_INLINE vec3 get_translation() const noexcept {
+            return shz_mat4x4_get_translation(this);
         }
 
         //! @}
@@ -229,6 +232,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE void set_translation(float x, float y, float z) noexcept {
             shz_mat4x4_set_translation(this, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void set_scale(float x, float y, float z) noexcept {
+            shz_mat4x4_set_scale(this, x, y, z);
         }
 
         SHZ_FORCE_INLINE void set_rotation(quat rot) noexcept {
@@ -310,8 +317,8 @@ namespace shz {
             shz_mat4x4_apply_lookat(this, pos, target, up);
         }
 
-        SHZ_FORCE_INLINE void apply_perspective(float fov, float aspect, float near_z) noexcept {
-            shz_mat4x4_apply_perspective(this, fov, aspect, near_z);
+        SHZ_FORCE_INLINE void apply_perspective(float fov, float aspect, float znear) noexcept {
+            shz_mat4x4_apply_perspective(this, fov, aspect, znear);
         }
 
         SHZ_FORCE_INLINE void apply_screen(float width, float height) noexcept {
@@ -383,18 +390,33 @@ namespace shz {
 
         //! @}
 
+        /*! \name  Multiplication
+            \brief Routines for multiplying two matrices and storing the result in a third.
+            @{
+        */
+
+        SHZ_FORCE_INLINE static void mult(shz_mat4x4_t* dst, const shz_mat4x4_t& lhs, const shz_mat4x4_t& rhs) noexcept {
+            shz_mat4x4_mult(dst, &lhs, &rhs);
+        }
+
+        SHZ_FORCE_INLINE static void mult(shz_mat4x4_t* dst, const shz_mat4x4_t& lhs, const float rhs[16]) noexcept {
+            shz_mat4x4_mult_unaligned(dst, &lhs, rhs);
+        }
+
+        SHZ_FORCE_INLINE static void mult_transpose(shz_mat4x4_t* dst, const shz_mat4x4_t& lhs, const shz_mat4x4_t& rhs) noexcept {
+            shz_mat4x4_mult_transpose(dst, &lhs, &rhs);
+        }
+
+        SHZ_FORCE_INLINE static void mult_transpose(shz_mat4x4_t* dst, const shz_mat4x4_t& lhs, const float rhs[16]) noexcept {
+            shz_mat4x4_mult_transpose_unaligned(dst, &lhs, rhs);
+        }
+
+        //! @}
+
         /*! \name  Transforming
             \brief Routines for transforming vectors and points by a matrix.
             @{
         */
-
-        SHZ_FORCE_INLINE static void mult(mat4x4* dst, const mat4x4& lhs, const mat4x4& rhs) noexcept {
-            shz_mat4x4_mult(dst, &lhs, &rhs);
-        }
-
-        SHZ_FORCE_INLINE static void mult(mat4x4* dst, const mat4x4& lhs, const float rhs[16]) noexcept {
-            shz_mat4x4_mult_unaligned(dst, &lhs, rhs);
-        }
 
         SHZ_FORCE_INLINE vec2 transform(vec2 in) const noexcept {
             return shz_mat4x4_transform_vec2(this, in);

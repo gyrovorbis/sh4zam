@@ -5,10 +5,6 @@
     This file contains the public type(s) and interface providing the
     quaternion math API.
 
-    \todo
-        - shz_quat_rotate_towards()
-        - shz_quat_angle_between()
-
     \author 2025, 2026 Falco Girgis
     \author 2025 Oleg Endo
 
@@ -97,6 +93,21 @@ SHZ_INLINE shz_quat_t shz_quat_nlerp(shz_quat_t a, shz_quat_t b, float t) SHZ_NO
 //! Returns the quaternion that is spherically linearly interpolating \p a to \p b, by a \p t factor of `0.0f-1.0f`.
 SHZ_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NOEXCEPT;
 
+/*! Evaluates a smooth cubic spherical interpolation (SQUAD) at parameter \p t.
+
+    \note
+    SQUAD(q1, q2, s1, s2, t) = slerp(slerp(q1, q2, t), slerp(s1, s2, t), 2t(1-t))
+
+    \param q1   Start quaternion.
+    \param q2   End quaternion.
+    \param s1   Inner control point for \p q1 (typically computed from surrounding keyframes).
+    \param s2   Inner control point for \p q2 (typically computed from surrounding keyframes).
+    \param t    Interpolation factor in [0, 1].
+
+    \returns    Resulting interpolated quaternion
+*/
+SHZ_INLINE shz_quat_t shz_quat_squad(shz_quat_t q1, shz_quat_t q2, shz_quat_t s1, shz_quat_t s2, float t) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Properties
@@ -169,11 +180,17 @@ SHZ_INLINE shz_quat_t shz_quat_neg(shz_quat_t quat) SHZ_NOEXCEPT;
 //! Returns the quaternion produced from adding each component of the given quaternions.
 SHZ_INLINE shz_quat_t shz_quat_add(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT;
 
+//! Returns the quaternion produced from subtracting each component of quaternion \p p from quaterion \p q.
+SHZ_INLINE shz_quat_t shz_quat_sub(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT;
+
 //! Scales the components of the given quaternion by the given factor.
 SHZ_INLINE shz_quat_t shz_quat_scale(shz_quat_t q, float f) SHZ_NOEXCEPT;
 
 //! Multiplies the two quaternions, returning the result as a new quaternion.
 SHZ_INLINE shz_quat_t shz_quat_mult(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT;
+
+//! Divides quaternion \p p by quaternion \p q (multiplying by its inverse), returning the resulting quaternion.
+SHZ_INLINE shz_quat_t shz_quat_div(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT;
 
 //! Returns the dot product of the two quaternions.
 SHZ_INLINE float shz_quat_dot(shz_quat_t q1, shz_quat_t q2) SHZ_NOEXCEPT;
@@ -186,6 +203,27 @@ SHZ_INLINE shz_vec3_t shz_quat_dot3(shz_quat_t l, shz_quat_t r1, shz_quat_t r2, 
 
 //! @}
 
+/*! \name  Miscellaneous
+    \brief Other types of quaternion operations.
+    @{
+*/
+
+//! Returns the angle in radians between the rotations represented by quaternions \p q and \p p.
+SHZ_INLINE float shz_quat_angle_between(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT;
+
+/*! Rotates quaternion \p from towards quaternion \p to by at most \p max_angle radians.
+
+    \note Returns \p to if the angle between them is already less than \p max_angle.
+*/
+SHZ_INLINE shz_quat_t shz_quat_rotate_towards(shz_quat_t from, shz_quat_t to, float max_angle) SHZ_NOEXCEPT;
+
+//! @}
+
+/*! \name  Transformations
+    \brief Routines for applying quaternion transforms.
+    @{
+*/
+
 /*! Rotates a vector by the given quaternion.
 
     \note
@@ -196,6 +234,8 @@ SHZ_INLINE shz_vec3_t shz_quat_dot3(shz_quat_t l, shz_quat_t r1, shz_quat_t r2, 
     \sa shz_xmtrx_apply_rotation_quat()
 */
 SHZ_INLINE shz_vec3_t shz_quat_transform_vec3(shz_quat_t q, shz_vec3_t v) SHZ_NOEXCEPT;
+
+//! @}
 
 #include "inline/shz_quat.inl.h"
 

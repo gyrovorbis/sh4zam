@@ -326,18 +326,18 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_init_ortho().
-    SHZ_FORCE_INLINE static void init_ortho(float left, float right, float bottom, float top, float near, float far) noexcept {
-        shz_xmtrx_init_ortho(left, right, bottom, top, near, far);
+    SHZ_FORCE_INLINE static void init_ortho(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+        shz_xmtrx_init_ortho(left, right, bottom, top, znear, zfar);
     }
 
     //! C++ wrapper around shz_xmtrx_init_frustum().
-    SHZ_FORCE_INLINE static void init_frustum(float left, float right, float bottom, float top, float near, float far) noexcept {
-        shz_xmtrx_init_frustum(left, right, bottom, top, near, far);
+    SHZ_FORCE_INLINE static void init_frustum(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+        shz_xmtrx_init_frustum(left, right, bottom, top, znear, zfar);
     }
 
     //! C++ wrapper around shz_xmtrx_init_perspective().
-    SHZ_FORCE_INLINE static void init_perspective(float fov, float aspect, float near_z) noexcept {
-        shz_xmtrx_init_perspective(fov, aspect, near_z);
+    SHZ_FORCE_INLINE static void init_perspective(float fov, float aspect, float znear) noexcept {
+        shz_xmtrx_init_perspective(fov, aspect, znear);
     }
 
     //! C++ wrapper around shz_xmtrx_init_rotation_quat().
@@ -488,18 +488,18 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_apply_ortho().
-    SHZ_FORCE_INLINE static void apply_ortho(float left, float right, float bottom, float top, float near, float far) noexcept {
-        shz_xmtrx_apply_ortho(left, right, bottom, top, near, far);
+    SHZ_FORCE_INLINE static void apply_ortho(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+        shz_xmtrx_apply_ortho(left, right, bottom, top, znear, zfar);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_frustum().
-    SHZ_FORCE_INLINE static void apply_frustum(float left, float right, float bottom, float top, float near, float far) noexcept {
-        shz_xmtrx_apply_frustum(left, right, bottom, top, near, far);
+    SHZ_FORCE_INLINE static void apply_frustum(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+        shz_xmtrx_apply_frustum(left, right, bottom, top, znear, zfar);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_perspective().
-    SHZ_FORCE_INLINE static void apply_perspective(float fov, float aspect, float near_z) noexcept {
-        shz_xmtrx_apply_perspective(fov, aspect, near_z);
+    SHZ_FORCE_INLINE static void apply_perspective(float fov, float aspect, float znear) noexcept {
+        shz_xmtrx_apply_perspective(fov, aspect, znear);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_symmetric_skew().
@@ -663,6 +663,18 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_set_translation().
     SHZ_FORCE_INLINE static void set_translation(float x, float y, float z) noexcept {
         shz_xmtrx_set_translation(x, y, z);
+    }
+
+//! @}
+
+/*! \name  Getters
+    \brief Gets the values of related XMTRX components.
+    @{
+*/
+
+    //! C++ wrapper around shz_xmtrx_set_translation().
+    SHZ_FORCE_INLINE static vec3 get_translation() noexcept {
+        return shz_xmtrx_get_translation();
     }
 
 //! @}

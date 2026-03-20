@@ -153,25 +153,29 @@ SHZ_INLINE void shz_mat4x4_init_lookat(shz_mat4x4_t* mat, shz_vec3_t eye, shz_ve
     shz_xmtrx_store_4x4(mat);
 }
 
-SHZ_INLINE void shz_mat4x4_init_ortho(shz_mat4x4_t* mat, float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
-    shz_xmtrx_init_ortho(left, right, bottom, top, near, far);
+SHZ_INLINE void shz_mat4x4_init_ortho(shz_mat4x4_t* mat, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
+    shz_xmtrx_init_ortho(left, right, bottom, top, znear, zfar);
     shz_xmtrx_store_4x4(mat);
 }
 
-SHZ_INLINE void shz_mat4x4_init_frustum(shz_mat4x4_t* mat, float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT {
-    shz_xmtrx_init_frustum(left, right, bottom, top, near, far);
+SHZ_INLINE void shz_mat4x4_init_frustum(shz_mat4x4_t* mat, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
+    shz_xmtrx_init_frustum(left, right, bottom, top, znear, zfar);
     shz_xmtrx_store_4x4(mat);
 }
 
-SHZ_INLINE void shz_mat4x4_init_perspective(shz_mat4x4_t* mat, float fov, float aspect, float near_z) SHZ_NOEXCEPT {
-    shz_xmtrx_init_perspective(fov, aspect, near_z);
+SHZ_INLINE void shz_mat4x4_init_perspective(shz_mat4x4_t* mat, float fov, float aspect, float znear) SHZ_NOEXCEPT {
+    shz_xmtrx_init_perspective(fov, aspect, znear);
     shz_xmtrx_store_4x4(mat);
 }
 
-SHZ_INLINE void shz_mat4x4_set_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_mat4x4_set_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
     mat->pos.x = x;
     mat->pos.y = y;
     mat->pos.z = z;
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_get_translation(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+    return mat->pos.xyz;
 }
 
 SHZ_INLINE void shz_mat4x4_set_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
@@ -282,10 +286,9 @@ SHZ_INLINE void shz_mat4x4_apply_rotation(shz_mat4x4_t* mat, float angle, float 
 }
 
 SHZ_INLINE void shz_mat4x4_apply_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT {
-	shz_mat4x4_t rot;
-
-	shz_mat4x4_init_rotation_quat(&rot, q);
-	shz_mat4x4_apply(m, &rot);
+    shz_xmtrx_load_4x4(m);
+    shz_xmtrx_apply_rotation_quat(q);
+    shz_xmtrx_store_4x4(m);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_lookat(shz_mat4x4_t* m, shz_vec3_t pos, shz_vec3_t target, shz_vec3_t up) SHZ_NOEXCEPT {
@@ -294,9 +297,9 @@ SHZ_INLINE void shz_mat4x4_apply_lookat(shz_mat4x4_t* m, shz_vec3_t pos, shz_vec
     shz_xmtrx_store_4x4(m);
 }
 
-SHZ_INLINE void shz_mat4x4_apply_perspective(shz_mat4x4_t* m, float fov, float aspect, float near_z) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_mat4x4_apply_perspective(shz_mat4x4_t* m, float fov, float aspect, float znear) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(m);
-    shz_xmtrx_apply_perspective(fov, aspect, near_z);
+    shz_xmtrx_apply_perspective(fov, aspect, znear);
     shz_xmtrx_store_4x4(m);
 }
 
@@ -397,6 +400,18 @@ SHZ_INLINE void shz_mat4x4_mult(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, cons
 SHZ_INLINE void shz_mat4x4_mult_unaligned(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, const float rhs[16]) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(lhs);
     shz_xmtrx_apply_unaligned_4x4(rhs);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_mult_transpose(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, const shz_mat4x4_t* rhs) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(lhs);
+    shz_xmtrx_apply_transpose_4x4(rhs);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_mult_transpose_unaligned(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, const float rhs[16]) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(lhs);
+    shz_xmtrx_apply_transpose_unaligned_4x4(rhs);
     shz_xmtrx_store_4x4(mat);
 }
 

@@ -18,12 +18,16 @@
 
 #include <string.h>
 
-SHZ_FORCE_INLINE void shz_dcache_alloc_line_sw(void* src) SHZ_NOEXCEPT {}
+SHZ_FORCE_INLINE void shz_dcache_alloc_line_sw(void* src) SHZ_NOEXCEPT { (void)src; }
 
 SHZ_FORCE_INLINE void* shz_memcpy_sw(      void* SHZ_RESTRICT dst,
                                      const void* SHZ_RESTRICT src,
                                      size_t              bytes) SHZ_NOEXCEPT {
     return memcpy(dst, src, bytes);
+}
+
+SHZ_FORCE_INLINE void* shz_memmove_sw(void* dst, const void* src, size_t bytes) SHZ_NOEXCEPT {
+    return memmove(dst, src, bytes);
 }
 
 SHZ_FORCE_INLINE void* shz_memcpy1_sw(      void* SHZ_RESTRICT dst,
@@ -80,10 +84,15 @@ SHZ_FORCE_INLINE void* shz_memcpy128_sw(      void* SHZ_RESTRICT dst,
     return memcpy(dst, src, bytes);
 }
 
+SHZ_FORCE_INLINE void shz_memcpy2_8_sw(      void* SHZ_RESTRICT dst,
+                                       const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
+    memcpy(dst, src, sizeof(uint16_t) * 8);
+}
+
+
 SHZ_FORCE_INLINE void shz_memcpy2_16_sw(      void* SHZ_RESTRICT dst,
                                         const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
     memcpy(dst, src, sizeof(uint16_t) * 16);
-
 }
 
 SHZ_FORCE_INLINE void* shz_memset8_sw(void* dst, uint64_t value, size_t bytes) SHZ_NOEXCEPT {
