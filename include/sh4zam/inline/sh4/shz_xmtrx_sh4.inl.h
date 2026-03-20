@@ -1946,6 +1946,25 @@ SHZ_FORCE_INLINE void shz_xmtrx_set_translation_sh4(float x, float y, float z) S
     );
 }
 
+SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation_sh4(void) SHZ_NOEXCEPT {
+    shz_vec3_t pos;
+
+    asm volatile(R"(
+        add     #12, %[p]
+        frchg
+
+        fmov.s  14, @-%[p]
+        fmov.s  13, @-%[p]
+        fmov.s  12, @-%[p]
+
+        frchg
+    )"
+    : "=m" (pos)
+    : [p] "r" (&pos));;
+
+    return pos;
+}
+
 SHZ_INLINE void shz_xmtrx_apply_translation_sh4(float x, float y, float z) SHZ_NOEXCEPT {
     asm volatile(R"(
         fschg

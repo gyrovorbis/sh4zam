@@ -251,19 +251,19 @@ SHZ_INLINE void shz_mat4x4_init_lookat(shz_mat4x4_t* mat, shz_vec3_t eye, shz_ve
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_init_ortho(shz_mat4x4_t* mat, float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_init_ortho(shz_mat4x4_t* mat, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
 
 /*! Initializes the given matrix to a frustum projection matrix.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_init_frustum(shz_mat4x4_t* mat, float left, float right, float bottom, float top, float near, float far) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_init_frustum(shz_mat4x4_t* mat, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
 
 /*! Initializes the given matrix to a perspective projection matrix.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_init_perspective(shz_mat4x4_t* mat, float fov, float aspect, float near_z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_init_perspective(shz_mat4x4_t* mat, float fov, float aspect, float znear) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -295,6 +295,9 @@ SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_row(const shz_mat4x4_t* mat, size_t row) 
 
 //! Extracts the \p col index as a 4D column vector from the given matrix.
 SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_col(const shz_mat4x4_t* mat, size_t col) SHZ_NOEXCEPT;
+
+//! Returns the translational components from the 4th column as a 3D vector.
+SHZ_INLINE shz_vec3_t shz_mat4x4_get_translation(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
 //! Returns the determinant of the given 4x4 matrix.
 SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;

@@ -26,6 +26,10 @@ SHZ_FORCE_INLINE void* shz_memcpy_sw(      void* SHZ_RESTRICT dst,
     return memcpy(dst, src, bytes);
 }
 
+SHZ_FORCE_INLINE void* shz_memmove_sw(void* dst, const void* src, size_t bytes) SHZ_NOEXCEPT {
+    return memmove(dst, src, bytes);
+}
+
 SHZ_FORCE_INLINE void* shz_memcpy1_sw(      void* SHZ_RESTRICT dst,
                                       const void* SHZ_RESTRICT src,
                                            size_t              bytes) SHZ_NOEXCEPT {

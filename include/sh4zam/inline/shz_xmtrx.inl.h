@@ -558,6 +558,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_set_translation(float x, float y, float z) SHZ_N
 #endif
 }
 
+SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation(void) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_xmtrx_get_translation_sh4();
+#else
+    return shz_xmtrx_get_translation_sw();
+#endif
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_apply_translation(float x, float y, float z) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_apply_translation_sh4(x, y, z);
@@ -843,7 +851,7 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_3x3(shz_mat3x3_t* out,
 /* ========== Miscellaneous ========== */
 
 SHZ_FORCE_INLINE void shz_xmtrx_add_4x4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_SH4    
+#if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_add_4x4_sh4(mat);
 #else
     shz_xmtrx_add_4x4_sw(mat);

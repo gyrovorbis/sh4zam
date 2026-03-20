@@ -16,6 +16,11 @@
 namespace shz {
     constexpr auto dcache_alloc_line = shz_dcache_alloc_line;
 
+    //! C++ wrapper around shz_memmove().
+    inline void* memmove(void* dst, const void* src, size_t bytes) noexcept {
+        return shz_memmove(dst, src, bytes);
+    }
+
     constexpr auto memcpy            = shz_memcpy;
     constexpr auto memcpy1           = shz_memcpy1;
     constexpr auto memcpy2           = shz_memcpy2;

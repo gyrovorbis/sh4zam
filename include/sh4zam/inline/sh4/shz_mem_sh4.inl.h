@@ -15,6 +15,7 @@
 #ifndef SHZ_MEM_SH4_INL_H
 #define SHZ_MEM_SH4_INL_H
 
+#include <string.h>
 #include <assert.h>
 
 #define SHZ_FSCHG() asm volatile("fschg")
@@ -474,6 +475,13 @@ SHZ_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
     }
 
     return dst;
+}
+
+SHZ_FORCE_INLINE void* shz_memmove_sh4(void* dst, const void* src, size_t bytes) SHZ_NOEXCEPT {
+    if((uintptr_t)dst <= (uintptr_t)src)
+        return shz_memcpy(dst, src ,bytes);
+    else
+        return memmove(dst, src, bytes);
 }
 
 SHZ_INLINE void shz_memcpy2_8_sh4(      void* SHZ_RESTRICT dst,

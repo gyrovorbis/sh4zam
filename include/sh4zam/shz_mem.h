@@ -10,7 +10,7 @@
  *      - shz_memset4()
  *      - shz_memset32()
  *      - shz_memset()
- *      - shz_memmove()
+ *      - shz_memmoveN()
  *
  * \author 2025, 2026 Falco Girgis
  * \author 2020 MoopTheHedgehog
@@ -56,14 +56,10 @@
 
 SHZ_DECLS_BEGIN
 
-/*! Intrinsic around the SH4 `MOVCA.L` instruction.
-
-    Preallocates the cache-line containing \p src.
-
-    Zero-initializes all 32-bytes within the \p src cache-line,
-    setting the valid bit to `1`.
+/*! \name  C stdlib Replacements
+    \brief Routine replacing the C standard library copy/set API.
+    @{
 */
-SHZ_FORCE_INLINE void shz_dcache_alloc_line(void* src) SHZ_NOEXCEPT;
 
 /*! Generic drop-in fast memcpy() replacement.
 
@@ -87,6 +83,22 @@ SHZ_FORCE_INLINE void shz_dcache_alloc_line(void* src) SHZ_NOEXCEPT;
 SHZ_INLINE void* shz_memcpy(      void* SHZ_RESTRICT dst,
                             const void* SHZ_RESTRICT src,
                                  size_t              bytes) SHZ_NOEXCEPT;
+
+/*! Generic drop-in fast memmove() replacement.
+
+    Copies \p bytes from \p src to \p dst, determining the most efficient
+    specialization to call into at run-time, return \p dst. The source and
+    destination buffers are allowed to overlap, making this routine slightly
+    less efficient, but more versatile than shz_memcpy().
+
+    \note
+    There is no alignment or size requirement for this routine.
+
+    \sa shz_memcpy()
+*/
+SHZ_INLINE void* shz_memmove(void* dst, const void* src, size_t bytes) SHZ_NOEXCEPT;
+
+//! @}
 
 /*! \name  Specializations
     \brief Specialized routines for specific sizes + alignments.
@@ -259,6 +271,17 @@ SHZ_INLINE void* shz_memcpy128(      void* SHZ_RESTRICT dst,
     @{
 */
 
+/*! Copies 8 shorts from \p src to \p dst.
+
+    \warning
+    \p src and \p dst buffers must not overlap.
+
+    \warning
+    \p dst and \p src must both be aligned by at least two bytes.
+*/
+SHZ_INLINE void shz_memcpy2_8(      void* SHZ_RESTRICT dst,
+                              const void* SHZ_RESTRICT src) SHZ_NOEXCEPT;
+
 /*! Copies 16 shorts from \p src to \p dst.
 
     \warning
@@ -340,6 +363,15 @@ SHZ_INLINE void* shz_sq_memcpy32_1(      void* SHZ_RESTRICT dst,
 */
 SHZ_INLINE void* shz_sq_memcpy32_1_xmtrx(      void* SHZ_RESTRICT dst,
                                         const void* SHZ_RESTRICT src) SHZ_NOEXCEPT;
+
+/*! Intrinsic around the SH4 `MOVCA.L` instruction.
+
+    Preallocates the cache-line containing \p src.
+
+    Zero-initializes all 32-bytes within the \p src cache-line,
+    setting the valid bit to `1`.
+*/
+SHZ_INLINE void shz_dcache_alloc_line(void* src) SHZ_NOEXCEPT;
 
 //! @}
 

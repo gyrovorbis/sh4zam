@@ -168,10 +168,14 @@ SHZ_INLINE void shz_mat4x4_init_perspective(shz_mat4x4_t* mat, float fov, float 
     shz_xmtrx_store_4x4(mat);
 }
 
-SHZ_INLINE void shz_mat4x4_set_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_mat4x4_set_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
     mat->pos.x = x;
     mat->pos.y = y;
     mat->pos.z = z;
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_get_translation(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+    return mat->pos.xyz;
 }
 
 SHZ_INLINE void shz_mat4x4_set_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {

@@ -36,28 +36,28 @@ namespace shz {
             return &self[0];
         }
 
-        //! Overloaded subscript operator -- allows for indexing vectors like an array.
+        //! Overloaded subscript operator -- allows for indexing matrices like an array.
         SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) noexcept {
             return std::forward<decltype(self)>(self).elem[index];
         }
 
-        //! Returns an iterator to the beginning of the vector -- For STL support.
+        //! Returns an iterator to the beginning of the matrix -- For STL support.
         SHZ_FORCE_INLINE auto begin(this auto&& self) noexcept {
             return &self[0];
         }
 
-        //! Returns an iterator to the end of the vector -- For STL support.
+        //! Returns an iterator to the end of the matrix -- For STL support.
         SHZ_FORCE_INLINE auto end(this auto&& self) noexcept {
             return &self[Rows * Cols];
         }
 
-        //! Overloaded space-ship operator, for generic lexicographical comparison of vectors.
+        //! Overloaded space-ship operator, for generic lexicographical comparison of matrices.
         friend constexpr auto operator<=>(const mat4x4& lhs, const mat4x4& rhs) noexcept {
             return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(),
                                                           rhs.begin(), rhs.end());
         }
 
-        //! Overloaded "less-than" operator, for comparing vectors.
+        //! Overloaded "less-than" operator, for comparing matrices.
         friend constexpr auto operator<(const mat4x4& lhs, const mat4x4& rhs) noexcept {
             return std::lexicographical_compare(lhs.begin(), lhs.end(),
                                                 rhs.begin(), rhs.end());
@@ -201,6 +201,10 @@ namespace shz {
         //! C++ wrapper for shz_mat4x4_col().
         SHZ_FORCE_INLINE vec4 col(size_t index) const noexcept {
             return shz_mat4x4_col(this, index);
+        }
+
+        SHZ_FORCE_INLINE vec3 get_translation() const noexcept {
+            return shz_mat4x4_get_translation(this);
         }
 
         //! @}

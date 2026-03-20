@@ -667,6 +667,18 @@ struct xmtrx {
 
 //! @}
 
+/*! \name  Getters
+    \brief Gets the values of related XMTRX components.
+    @{
+*/
+
+    //! C++ wrapper around shz_xmtrx_set_translation().
+    SHZ_FORCE_INLINE static vec3 get_translation() noexcept {
+        return shz_xmtrx_get_translation();
+    }
+
+//! @}
+
 /*! \name  Miscellaneous
     \brief Random operations and conversions on XMTRX.
     @{
