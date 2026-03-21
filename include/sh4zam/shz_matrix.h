@@ -477,7 +477,7 @@ SHZ_INLINE void shz_mat4x4_apply_frustum(shz_mat4x4_t* m, float left, float righ
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_perspective(shz_mat4x4_t* m, float fov, float aspect, float near_z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_apply_perspective(shz_mat4x4_t* m, float fov, float aspect, float znear) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the viewport matrix created with the given components ont othe given matrix.
 
