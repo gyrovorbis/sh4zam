@@ -317,6 +317,14 @@ namespace shz {
             shz_mat4x4_apply_lookat(this, pos, target, up);
         }
 
+        SHZ_FORCE_INLINE void apply_ortho(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+            shz_mat4x4_apply_ortho(this, left, right, bottom, top, znear, zfar);
+        }
+
+        SHZ_FORCE_INLINE void apply_frustum(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+            shz_mat4x4_apply_frustum(this, left, right, bottom, top, znear, zfar);
+        }
+
         SHZ_FORCE_INLINE void apply_perspective(float fov, float aspect, float znear) noexcept {
             shz_mat4x4_apply_perspective(this, fov, aspect, znear);
         }

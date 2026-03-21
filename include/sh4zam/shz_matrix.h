@@ -461,6 +461,18 @@ SHZ_INLINE void shz_mat4x4_apply_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SH
 */
 SHZ_INLINE void shz_mat4x4_apply_lookat(shz_mat4x4_t* m, shz_vec3_t pos, shz_vec3_t target, shz_vec3_t up) SHZ_NOEXCEPT;
 
+/*! Multiplies and accumulates the ortho matrix constructed from the given values onto the given matrix.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_ortho(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates the frustum matrix constructed from the given values onto the given matrix.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_apply_frustum(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
+
 /*! Multiplies and accumulates the perspective matrix constructed from the given values onto the given matrix.
 
     \warning This routine clobbers XMTRX.

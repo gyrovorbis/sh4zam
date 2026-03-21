@@ -297,6 +297,18 @@ SHZ_INLINE void shz_mat4x4_apply_lookat(shz_mat4x4_t* m, shz_vec3_t pos, shz_vec
     shz_xmtrx_store_4x4(m);
 }
 
+SHZ_INLINE void shz_mat4x4_apply_ortho(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(m);
+    shz_xmtrx_apply_ortho(left, right, bottom, top, znear, zfar);
+    shz_xmtrx_store_4x4(m);
+}
+
+SHZ_INLINE void shz_mat4x4_apply_frustum(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(m);
+    shz_xmtrx_apply_frustum(left, right, bottom, top, znear, zfar);
+    shz_xmtrx_store_4x4(m);
+}
+
 SHZ_INLINE void shz_mat4x4_apply_perspective(shz_mat4x4_t* m, float fov, float aspect, float znear) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(m);
     shz_xmtrx_apply_perspective(fov, aspect, znear);
