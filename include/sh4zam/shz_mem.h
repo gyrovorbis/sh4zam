@@ -120,9 +120,9 @@ SHZ_INLINE void* shz_memmove(void* dst, const void* src, size_t bytes) SHZ_NOEXC
 
     \sa shz_memcpy()
 */
-SHZ_FORCE_INLINE void* shz_memcpy1(      void* SHZ_RESTRICT dst,
-                                   const void* SHZ_RESTRICT src,
-                                        size_t              bytes) SHZ_NOEXCEPT;
+SHZ_INLINE void* shz_memcpy1(      void* SHZ_RESTRICT dst,
+                             const void* SHZ_RESTRICT src,
+                                  size_t              bytes) SHZ_NOEXCEPT;
 
 /*! Copies from one 2-byte aligned buffer to another two bytes at a time.
 

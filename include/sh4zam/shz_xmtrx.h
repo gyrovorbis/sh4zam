@@ -145,7 +145,7 @@ SHZ_INLINE void shz_xmtrx_load_rows_4x4(const shz_vec4_t* r1,
 SHZ_INLINE void shz_xmtrx_load_transpose_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
 
 //! Loads XMTRX with the transpose of the 4x4 matrix created from the given unaligned array of 16 floats.
-SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_load_transpose_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT;
 
 //! Loads the given 3x4 matrix into XMTRX, initializing its remaining elements to identity.
 SHZ_INLINE void shz_xmtrx_load_3x4(const shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
@@ -196,7 +196,7 @@ SHZ_INLINE void shz_xmtrx_store_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT;
 SHZ_INLINE void shz_xmtrx_store_transpose_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
 
 //! Stores the transpose of the the current values held within XMTRX into the given 16-element float array.
-SHZ_FORCE_INLINE void shz_xmtrx_store_transpose_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_store_transpose_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT;
 
 //! Stores the top-left 3x4 values currently held within XMTRX into the given matrix.
 SHZ_INLINE void shz_xmtrx_store_3x4(shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
@@ -246,7 +246,7 @@ SHZ_INLINE void shz_xmtrx_init_fill(float value) SHZ_NOEXCEPT;
 SHZ_INLINE void shz_xmtrx_init_translation(float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Initializes XMTRX to be a 3D scale matrix with the given dimensions.
-SHZ_FORCE_INLINE void shz_xmtrx_init_scale(float x, float y, float z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_init_scale(float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Initializes XMTRX to be a 3D rotation matrix by \p x radians about the X axis.
 SHZ_INLINE void shz_xmtrx_init_rotation_x(float x) SHZ_NOEXCEPT;
@@ -376,7 +376,7 @@ SHZ_INLINE void shz_xmtrx_apply_unaligned_4x4(const float matrix[16]) SHZ_NOEXCE
 SHZ_INLINE void shz_xmtrx_apply_transpose_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates the transpose of the given 16-entry float array as a 4x4 matrix onto XMTRX.
-SHZ_FORCE_INLINE void shz_xmtrx_apply_transpose_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_apply_transpose_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates XMTRX onto \p matrix, storing the result as XMTRX.
 SHZ_INLINE void shz_xmtrx_apply_reverse_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
@@ -533,16 +533,16 @@ SHZ_INLINE void shz_xmtrx_rotate_y(float radians) SHZ_NOEXCEPT;
 SHZ_INLINE void shz_xmtrx_rotate_z(float radians) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates XMTRX by 3D rotation matrices about the X then Y then Z axes.
-SHZ_FORCE_INLINE void shz_xmtrx_rotate_xyz(float xRadians, float yRadians, float zRadians) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_rotate_xyz(float xRadians, float yRadians, float zRadians) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates XMTRX by 3D rotation matrices about the Z then Y then X axes.
-SHZ_FORCE_INLINE void shz_xmtrx_rotate_zyx(float zRadians, float yRadians, float xRadians) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_rotate_zyx(float zRadians, float yRadians, float xRadians) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates XMTRX by 3D rotation matrices about the Z then X then Y axes.
-SHZ_FORCE_INLINE void shz_xmtrx_rotate_zxy(float zRadians, float xRadians, float yRadians) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_rotate_zxy(float zRadians, float xRadians, float yRadians) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates XMTRX by 3D rotation matrices about the Y then X then Z axes.
-SHZ_FORCE_INLINE void shz_xmtrx_rotate_yxz(float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_rotate_yxz(float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates XMTRX by the 3D rotation matrix formed by the given axis and angle (glRotatef equivalent).
 SHZ_INLINE void shz_xmtrx_rotate(float radians, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
@@ -691,19 +691,19 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_3x3(shz_mat3x3_t* out,
 */
 
 //! Returns the 4D vector that is the result of transforming \p vec by XMTRX.
-SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4(shz_vec4_t vec) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec4_t shz_xmtrx_transform_vec4(shz_vec4_t vec) SHZ_NOEXCEPT;
 
 //! Returns the 3D vector that is the result of transforming \p vec by XMTRX.
-SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_vec3(shz_vec3_t vec) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec3_t shz_xmtrx_transform_vec3(shz_vec3_t vec) SHZ_NOEXCEPT;
 
 //! Returns the 2D vector that is the result of transforming \p vec by XMTRX.
-SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_vec2(shz_vec2_t vec) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec2_t shz_xmtrx_transform_vec2(shz_vec2_t vec) SHZ_NOEXCEPT;
 
 //! Returns the 2D point that is the result of transforming \p pt by XMTRX.
-SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_point2(shz_vec2_t pt) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec2_t shz_xmtrx_transform_point2(shz_vec2_t pt) SHZ_NOEXCEPT;
 
 //! Returns the 3D point that is the result of transforming \p pt by XMTRX.
-SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_point3(shz_vec3_t pt) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec3_t shz_xmtrx_transform_point3(shz_vec3_t pt) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -713,7 +713,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_point3(shz_vec3_t pt) SHZ_NOEXCE
 */
 
 //! Sets only the translational components of XMTRX to the given values.
-SHZ_FORCE_INLINE void shz_xmtrx_set_translation(float x, float y, float z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_set_translation(float x, float y, float z) SHZ_NOEXCEPT;
 
 //! @}
 

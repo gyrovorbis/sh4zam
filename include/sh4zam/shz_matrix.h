@@ -279,9 +279,9 @@ SHZ_INLINE void shz_mat4x4_init_perspective(shz_mat4x4_t* mat, float fov, float 
     \warning This routine clobbers XMTRX.
 */
 void shz_mat4x4_decompose(const shz_mat4x4_t* mat,
-                           shz_vec3_t* translation,
-                           shz_quat_t* rotation,
-                           shz_vec3_t* scale) SHZ_NOEXCEPT;
+                          shz_vec3_t* translation,
+                          shz_quat_t* rotation,
+                          shz_vec3_t* scale) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -291,10 +291,10 @@ void shz_mat4x4_decompose(const shz_mat4x4_t* mat,
 */
 
 //! Extracts the \p row index as a 4D row vector from the given matrix.
-SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_row(const shz_mat4x4_t* mat, size_t row) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec4_t shz_mat4x4_row(const shz_mat4x4_t* mat, size_t row) SHZ_NOEXCEPT;
 
 //! Extracts the \p col index as a 4D column vector from the given matrix.
-SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_col(const shz_mat4x4_t* mat, size_t col) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec4_t shz_mat4x4_col(const shz_mat4x4_t* mat, size_t col) SHZ_NOEXCEPT;
 
 //! Returns the translational components from the 4th column as a 3D vector.
 SHZ_INLINE shz_vec3_t shz_mat4x4_get_translation(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
@@ -303,7 +303,7 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_get_translation(const shz_mat4x4_t* mat) SHZ_NO
 SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
 //! Returns the trace of the given 4x4 matrix.
-SHZ_FORCE_INLINE float shz_mat4x4_trace(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_mat4x4_trace(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
 //! Extracts the top-left 3x3 of the given 4D matrix.
 SHZ_INLINE void shz_mat4x4_3x3(const shz_mat4x4_t* mat4, shz_mat3x3_t* mat3) SHZ_NOEXCEPT;
@@ -325,10 +325,10 @@ SHZ_INLINE float shz_mat4x4_3x3_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEP
 */
 
 //! Sets the values of \p mat at the given \p row to those of the 4D vector, \p vec.
-SHZ_FORCE_INLINE void shz_mat4x4_set_row(shz_mat4x4_t* mat, size_t row, shz_vec4_t vec) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_set_row(shz_mat4x4_t* mat, size_t row, shz_vec4_t vec) SHZ_NOEXCEPT;
 
 //! Sets the values of \p mat at the given \p col to those of the 4D vector, \p vec.
-SHZ_FORCE_INLINE void shz_mat4x4_set_col(shz_mat4x4_t* mat, size_t col, shz_vec4_t vec) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_set_col(shz_mat4x4_t* mat, size_t col, shz_vec4_t vec) SHZ_NOEXCEPT;
 
 //! Swaps the 4D row vectors located at \p row1 and \p row2 within \p mat.
 SHZ_INLINE void shz_mat4x4_swap_rows(shz_mat4x4_t* mat, size_t row1, size_t row2) SHZ_NOEXCEPT;
@@ -552,25 +552,25 @@ SHZ_INLINE void shz_mat4x4_rotate_z(shz_mat4x4_t* mat, float radians) SHZ_NOEXCE
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_FORCE_INLINE void shz_mat4x4_rotate_xyz(shz_mat4x4_t* mat, float xRadians, float yRadians, float zRadians) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_rotate_xyz(shz_mat4x4_t* mat, float xRadians, float yRadians, float zRadians) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates \p mat by 3D rotation matrices about the Z then Y then X axes.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_FORCE_INLINE void shz_mat4x4_rotate_zyx(shz_mat4x4_t* mat, float zRadians, float yRadians, float xRadians) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_rotate_zyx(shz_mat4x4_t* mat, float zRadians, float yRadians, float xRadians) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates \p mat by 3D rotation matrices about the Z then X then Y axes.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_FORCE_INLINE void shz_mat4x4_rotate_zxy(shz_mat4x4_t* mat, float zRadians, float xRadians, float yRadians) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_rotate_zxy(shz_mat4x4_t* mat, float zRadians, float xRadians, float yRadians) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates \p mat by 3D rotation matrices about the Y then X then Z axes.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_FORCE_INLINE void shz_mat4x4_rotate_yxz(shz_mat4x4_t* mat, float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_rotate_yxz(shz_mat4x4_t* mat, float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates \p mat by the 3D rotation matrix formed by the given axis and angle.
 
@@ -709,7 +709,7 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4_transpose(const shz_mat4x4_t* m,
 
     \sa shz_xmtrx_transform_point2()
 */
-SHZ_FORCE_INLINE shz_vec2_t shz_mat4x4_transform_point2(const shz_mat4x4_t* mat, shz_vec2_t pt) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec2_t shz_mat4x4_transform_point2(const shz_mat4x4_t* mat, shz_vec2_t pt) SHZ_NOEXCEPT;
 
 /*! Transforms a 3D point by a 4x4 matrix.
 
@@ -723,7 +723,7 @@ SHZ_FORCE_INLINE shz_vec2_t shz_mat4x4_transform_point2(const shz_mat4x4_t* mat,
 
     \sa shz_xmtrx_transform_point3()
 */
-SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_point3(const shz_mat4x4_t* mat, shz_vec3_t pt) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec3_t shz_mat4x4_transform_point3(const shz_mat4x4_t* mat, shz_vec3_t pt) SHZ_NOEXCEPT;
 
 /*! Transforms a 2D point by the transpose of a 4x4 matrix.
 
@@ -738,7 +738,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_point3(const shz_mat4x4_t* mat,
 
     \sa shz_xmtrx_transpose(), shz_xmtrx_transform_point2()
 */
-SHZ_FORCE_INLINE shz_vec2_t shz_mat4x4_transform_point2_transpose(const shz_mat4x4_t* mat, shz_vec2_t pt) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec2_t shz_mat4x4_transform_point2_transpose(const shz_mat4x4_t* mat, shz_vec2_t pt) SHZ_NOEXCEPT;
 
 /*! Transforms a 3D point by the transpose of a 4x4 matrix.
 
@@ -753,7 +753,7 @@ SHZ_FORCE_INLINE shz_vec2_t shz_mat4x4_transform_point2_transpose(const shz_mat4
 
     \sa shz_xmtrx_transpose(), shz_xmtrx_transform_point3()
 */
-SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_point3_transpose(const shz_mat4x4_t* mat, shz_vec3_t pt) SHZ_NOEXCEPT;
+SHZ_INLINE shz_vec3_t shz_mat4x4_transform_point3_transpose(const shz_mat4x4_t* mat, shz_vec3_t pt) SHZ_NOEXCEPT;
 
 //! @}
 

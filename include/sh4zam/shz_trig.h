@@ -66,25 +66,25 @@ typedef shz_sincos_t shz_sincos;
 */
 
 //! Returns sinf()/cosf() pairs for the given unsigned 16-bit angle in radians.
-SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16(uint16_t radians16) SHZ_NOEXCEPT;
+SHZ_INLINE shz_sincos_t shz_sincosu16(uint16_t radians16) SHZ_NOEXCEPT;
 
 //! Returns sinf()/cosf() pairs for the given floating-point angle in radians.
-SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) SHZ_NOEXCEPT;
+SHZ_INLINE shz_sincos_t shz_sincosf(float radians) SHZ_NOEXCEPT;
 
 //! Returns sinf/cosf() pairs for the given floating-point angle in degrees.
-SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) SHZ_NOEXCEPT;
+SHZ_INLINE shz_sincos_t shz_sincosf_deg(float degrees) SHZ_NOEXCEPT;
 
 //! Returns tanf() from the given pre-computed \p sincos pair.
-SHZ_FORCE_INLINE float shz_sincos_tanf(shz_sincos_t sincos) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_sincos_tanf(shz_sincos_t sincos) SHZ_NOEXCEPT;
 
 //! Returns the floating-point secant (1.0f / cosf(x)) from the given pre-computed \p sincos pair.
-SHZ_FORCE_INLINE float shz_sincos_secf(shz_sincos_t sincos) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_sincos_secf(shz_sincos_t sincos) SHZ_NOEXCEPT;
 
 //! Returns the floating-point cosecant (1.0f / sinf(x)) from the given pre-computed \p sincos pair.
-SHZ_FORCE_INLINE float shz_sincos_cscf(shz_sincos_t sincos) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_sincos_cscf(shz_sincos_t sincos) SHZ_NOEXCEPT;
 
 //! Returns the floating-point cotangent (1.0f / tanf(x)) from the given pre-computed \p sincos pair.
-SHZ_FORCE_INLINE float shz_sincos_cotf(shz_sincos_t sincos) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_sincos_cotf(shz_sincos_t sincos) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -94,40 +94,40 @@ SHZ_FORCE_INLINE float shz_sincos_cotf(shz_sincos_t sincos) SHZ_NOEXCEPT;
 */
 
 //! One-off routine for returning only sinf() from an angle in radians.
-SHZ_FORCE_INLINE float shz_sinf(float radians) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_sinf(float radians) SHZ_NOEXCEPT;
 
 //! One-off routine for returning only sinf() from an angle in degrees.
-SHZ_FORCE_INLINE float shz_sinf_deg(float degrees) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_sinf_deg(float degrees) SHZ_NOEXCEPT;
 
 //! One-off routine for returning only cosf() from an angle in radians.
-SHZ_FORCE_INLINE float shz_cosf(float radians) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_cosf(float radians) SHZ_NOEXCEPT;
 
 //! One-off routine for returning only cosf() from an angle in degrees.
-SHZ_FORCE_INLINE float shz_cosf_deg(float degrees) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_cosf_deg(float degrees) SHZ_NOEXCEPT;
 
 //! One-off routine for returning only tanf() from an angle in radians.
-SHZ_FORCE_INLINE float shz_tanf(float radians) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_tanf(float radians) SHZ_NOEXCEPT;
 
 //! One-off routine for returning only tanf() from an angle in degrees.
-SHZ_FORCE_INLINE float shz_tanf_deg(float degrees) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_tanf_deg(float degrees) SHZ_NOEXCEPT;
 
 //! One-off routine for returning only secant (1 / cos(x)) from an angle in radians.
-SHZ_FORCE_INLINE float shz_secf(float radians) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_secf(float radians) SHZ_NOEXCEPT;
 
 //! One-off routine for returning only secant (1 / cos(x)) from an angle in degrees.
-SHZ_FORCE_INLINE float shz_secf_deg(float degrees) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_secf_deg(float degrees) SHZ_NOEXCEPT;
 
 //! One-off routine for returning only cosecant (1 / sin(x)) from an angle in radians.
-SHZ_FORCE_INLINE float shz_cscf(float radians) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_cscf(float radians) SHZ_NOEXCEPT;
 
 //! One-off routine for returning only cosecant (1 / sin(x)) from an angle in degrees.
-SHZ_FORCE_INLINE float shz_cscf_deg(float degrees) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_cscf_deg(float degrees) SHZ_NOEXCEPT;
 
 //! One-off routine for returning only cotangent (1 / tan(x)) from an angle in radians.
-SHZ_FORCE_INLINE float shz_cotf(float radians) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_cotf(float radians) SHZ_NOEXCEPT;
 
 //! One-off routine for returning only cotangent (1 / cot(x)) from an angle in degrees.
-SHZ_FORCE_INLINE float shz_cotf_deg(float degrees) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_cotf_deg(float degrees) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -143,7 +143,7 @@ SHZ_INLINE float shz_asinf(float x) SHZ_NOEXCEPT;
 SHZ_INLINE float shz_acosf(float x) SHZ_NOEXCEPT;
 
 //! Fast arctangent approximation for unit values between `0.0f` and `1.0f`.
-SHZ_FORCE_INLINE float shz_atanf_unit(float x) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_atanf_unit(float x) SHZ_NOEXCEPT;
 
 //! Fast arctangent approximation for values lying within the first quadrant (`>= 0.0f`).
 SHZ_INLINE float shz_atanf_q1(float x) SHZ_NOEXCEPT;
