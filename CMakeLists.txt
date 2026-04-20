@@ -102,7 +102,7 @@ target_include_directories(sh4zam
         $<INSTALL_INTERFACE:include>)
 
 install(TARGETS sh4zam)
-install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY include/sh4zam DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 option(SHZ_ENABLE_PIC "Enable position-independent code." OFF)
 
