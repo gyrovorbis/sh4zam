@@ -19,6 +19,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 set(CMAKE_CXX_EXTENSIONS ON)
 
+include(GNUInstallDirs)
+
 set(SHZ_SOURCES
     source/shz_circle.c
     source/shz_complex.c
