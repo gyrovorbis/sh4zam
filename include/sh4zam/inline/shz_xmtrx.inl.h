@@ -18,7 +18,6 @@
 #   include "sw/shz_xmtrx_sw.inl.h"
 #endif
 
-
 SHZ_FORCE_INLINE float shz_xmtrx_read(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     return shz_xmtrx_read_sh4(xf);

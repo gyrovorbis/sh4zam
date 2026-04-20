@@ -190,13 +190,13 @@
 */
 #if SHZ_TLS_MODEL == SHZ_TLS_DISABLED
 //! Declares a TLS variable with disabled model (so not thread-local).
-#   define SHZ_TLS_DECL(type, name, ...) static type name = __VA_ARGS__
+#   define SHZ_TLS_DECL(type, name, ...) static type name = __VA_ARGS__;
 //! References a TLS variable, with disabled model.
 #   define SHZ_TLS_REF(name)             (&name)
 #elif SHZ_TLS_MODEL == SHZ_TLS_IMPLICIT
 #   include <threads.h>
 //! Declares a TLS variable with compiler-driven implicit TLS model.
-#   define SHZ_TLS_DECL(type, name, ...) static thread_local type name = __VA_ARGS__
+#   define SHZ_TLS_DECL(type, name, ...) static thread_local type name = __VA_ARGS__;
 //! References a TLS variable with compiler-driven implicit TLS model.
 #   define SHZ_TLS_REF(name)             (&name)
 #elif SHZ_TLS_MODEL == SHZ_TLS_PTHREAD
