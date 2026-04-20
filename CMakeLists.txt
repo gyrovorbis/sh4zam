@@ -89,9 +89,6 @@ endif()
 
 add_library(sh4zam STATIC ${SHZ_SOURCES})
 
-set_target_properties(sh4zam PROPERTIES
-                      PUBLIC_HEADER "${SHZ_INCLUDES}")
-
 target_compile_definitions(sh4zam 
     PUBLIC
         -DSHZ_VERSION_MAJOR=${SHZ_VERSION_MAJOR}
@@ -104,8 +101,8 @@ target_include_directories(sh4zam
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
 
-install(TARGETS sh4zam
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sh4zam)
+install(TARGETS sh4zam)
+install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 option(SHZ_ENABLE_PIC "Enable position-independent code." OFF)
 
