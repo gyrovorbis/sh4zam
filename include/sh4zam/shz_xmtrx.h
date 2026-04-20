@@ -47,6 +47,10 @@
         - Applying multiple operations to a source matrix before storing the result.
         - Transforming batches of vectors against a single matrix.
 
+    \note
+    Unless TLS has been disabled, the XMTRX API is thread-safe, with each thread
+    getting its own unique copy of XMTRX.
+
     \sa matrix
  */
 

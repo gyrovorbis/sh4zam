@@ -58,7 +58,7 @@
 #   if SHZ_BACKEND == SHZ_SH4
 #       define SHZ_TLS_MODEL    SHZ_TLS_IMPLICIT    // SH4 back-end supports compiler-level TLS.
 #   elif SHZ_BACKEND == SHZ_SW
-#       define SHZ_TLS_MODEL    SHZ_TLS_IMPLICIT    // SW back-end uses pthread-based TLS for compatibilty.
+#       define SHZ_TLS_MODEL    SHZ_TLS_PTHREAD     // SW back-end uses pthread-based TLS for compatibilty.
 #   endif
 #endif
 
