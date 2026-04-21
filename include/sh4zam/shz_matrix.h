@@ -809,17 +809,20 @@ SHZ_INLINE bool shz_mat4x4_equal(const shz_mat4x4_t* SHZ_RESTRICT mat1, const sh
 //! Returns true if the given matrix is in block-triangular form: having a bottom row in the form of `<0.0f, 0.0f, 0.0f, w>`.
 SHZ_INLINE bool shz_mat4x4_is_block_triangular(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
-/*! Copies the given \p src 4x4 matrix into the given \p dst 4x4 matrix.
-
-    \warning This routine clobbers XMTRX!
-*/
+//! Copies the given \p src 4x4 matrix into the given \p dst 4x4 matrix.
 SHZ_INLINE void shz_mat4x4_copy(shz_mat4x4_t* dst, const shz_mat4x4_t* src) SHZ_NOEXCEPT;
 
 /*! Copies the given unaligned \p src 4x4 matrix into the given \p dst 4x4 matrix.
 
-    \warning This routine clobbers XMtRX.
+    \warning This routine clobbers XMTRX.
 */
 SHZ_INLINE void shz_mat4x4_copy_unaligned(shz_mat4x4_t* dst, const float src[16]) SHZ_NOEXCEPT;
+
+/*! Swaps the contents of the two given matrices, \p matA and \p matB.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_swap(shz_mat4x4_t* matA, shz_mat4x4_t* matB) SHZ_NOEXCEPT;
 
 //! @}
 

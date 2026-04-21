@@ -288,38 +288,91 @@ SHZ_INLINE void shz_mat4x4_copy_sh4(shz_mat4x4_t* dst, const shz_mat4x4_t* src) 
     asm volatile(R"(
         fschg
 
+        fmov.d  @%[src]+, dr0
         pref    @%[dst]
-        fmov.d  @%[src]+, xd0
-        fmov.d  @%[src]+, xd2
-        fmov.d  @%[src]+, xd4
-        fmov.d  @%[src]+, xd6
-
-        pref    @%[src]
+        fmov.d  @%[src]+, dr2
+        fmov.d  @%[src]+, dr4
         add     #32, %[dst]
+        fmov.d  @%[src]+, dr6
 
-        fmov.d  xd6, @-%[dst]
-        fmov.d  xd4, @-%[dst]
-        fmov.d  xd2, @-%[dst]
-        fmov.d  xd0, @-%[dst]
+        fmov.d  dr6, @-%[dst]
+        fmov.d  dr4, @-%[dst]
+        fmov.d  dr2, @-%[dst]
+        fmov.d  dr0, @-%[dst]
 
         add     #32, %[dst]
+        fmov.d  @%[src]+, dr0
         pref    @%[dst]
-
-        fmov.d  @%[src]+, xd0
-        fmov.d  @%[src]+, xd2
-        fmov.d  @%[src]+, xd4
-        fmov.d  @%[src]+, xd6
+        fmov.d  @%[src]+, dr2
+        fmov.d  @%[src]+, dr4
+        fmov.d  @%[src]+, dr6
 
         add     #32, %[dst]
-        fmov.d  xd6, @-%[dst]
-        fmov.d  xd4, @-%[dst]
-        fmov.d  xd2, @-%[dst]
-        fmov.d  xd0, @-%[dst]
+        fmov.d  dr6, @-%[dst]
+        fmov.d  dr4, @-%[dst]
+        fmov.d  dr2, @-%[dst]
+        fmov.d  dr0, @-%[dst]
 
         fschg
     )"
     : [dst] "+&r" (dst), [src] "+&r" (src), "=m" (*dst)
-    : "m" (*src));
+    : "m" (*src)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7");
+}
+
+SHZ_INLINE void shz_mat4x4_swap_sh4(shz_mat4x4_t* matA, shz_mat4x4_t* matB) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        fschg
+
+        fmov.d  @%[m1]+, xd0
+        pref    @%[m2]
+        fmov.d  @%[m1]+, xd2
+        fmov.d  @%[m1]+, xd4
+        fmov.d  @%[m1]+, xd6
+
+        fmov.d  @%[m2]+, xd8
+        pref    @%[m1]
+        fmov.d  @%[m2]+, xd10
+        fmov.d  @%[m2]+, xd12
+        fmov.d  @%[m2]+, xd14
+
+        fmov.d  xd14, @-%[m1]
+        fmov.d  xd12, @-%[m1]
+        fmov.d  xd10, @-%[m1]
+        fmov.d  xd8, @-%[m1]
+        add     #32, %[m1]
+
+        fmov.d  xd6, @-%[m2]
+        fmov.d  xd4, @-%[m2]
+        fmov.d  xd2, @-%[m2]
+        fmov.d  xd0, @-%[m2]
+        add     #32, %[m2]
+
+        fmov.d  @%[m1]+, xd0
+        pref    @%[m2]
+        fmov.d  @%[m1]+, xd2
+        fmov.d  @%[m1]+, xd4
+        fmov.d  @%[m1]+, xd6
+
+        fmov.d  @%[m2]+, xd8
+        fmov.d  @%[m2]+, xd10
+        fmov.d  @%[m2]+, xd12
+        fmov.d  @%[m2]+, xd14
+
+        fmov.d  xd14, @-%[m1]
+        fmov.d  xd12, @-%[m1]
+        fmov.d  xd10, @-%[m1]
+        fmov.d  xd8, @-%[m1]
+
+        fmov.d  xd6, @-%[m2]
+        fmov.d  xd4, @-%[m2]
+        fmov.d  xd2, @-%[m2]
+        fmov.d  xd0, @-%[m2]
+
+        fschg
+    )"
+    : [m1] "+&r" (matA), [m2] "+&r" (matB),
+      "+m" (*matA), "+m" (*matB));
 }
 
 SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3_sh4(const shz_mat3x3_t* mat, shz_vec3_t v) SHZ_NOEXCEPT {

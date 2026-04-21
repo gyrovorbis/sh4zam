@@ -50,6 +50,14 @@ SHZ_INLINE void shz_mat4x4_copy_sw(shz_mat4x4_t* dst, const shz_mat4x4_t* src) S
     *dst = *src;
 }
 
+SHZ_INLINE void shz_mat4x4_swap_sw(shz_mat4x4_t* matA, shz_mat4x4_t* matB) SHZ_NOEXCEPT {
+    alignas(32) shz_mat4x4_t tmp;
+
+    shz_mat4x4_copy(&tmp, matA);
+    shz_mat4x4_copy(matA, matB);
+    shz_mat4x4_copy(matB, &tmp);
+}
+
 SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3_sw(const shz_mat3x3_t* mat, shz_vec3_t v) SHZ_NOEXCEPT {
     return shz_vec3_add(shz_vec3_scale(mat->col[0], v.x),
            shz_vec3_add(shz_vec3_scale(mat->col[1], v.y),

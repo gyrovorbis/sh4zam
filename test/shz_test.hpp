@@ -156,6 +156,7 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function
 #define benchmark(res, f, ...) (benchmark)(res, #f, f __VA_OPT__(,) __VA_ARGS__)
 
 template<typename R, typename ShzFn, typename RefFn, typename... Args>
+SHZ_NO_INLINE
 bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
                    const char* refName, RefFn&& refFn,
                    Args&&... args) noexcept

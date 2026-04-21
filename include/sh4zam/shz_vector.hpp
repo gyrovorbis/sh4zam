@@ -128,7 +128,7 @@ struct vecN: C {
 #endif
 
     //! Overloaded equality operator, for comparing vectors.
-    friend auto operator==(CppType lhs, CppType rhs) noexcept {
+    friend bool operator==(CppType lhs, CppType rhs) noexcept {
         return shz_vec_equal(lhs, rhs);
     }
 

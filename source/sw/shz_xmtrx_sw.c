@@ -1,7 +1,7 @@
 #include "sh4zam/shz_xmtrx.h"
 #include "sh4zam/shz_matrix.h"
 
-SHZ_TLS_DECL(shz_xmtrx__t, xmtrx_state_, { 0 })
+alignas(64) SHZ_TLS_DECL(shz_xmtrx__t, xmtrx_state_, { 0 })
 
 shz_xmtrx__t* shz_xmtrx_state_(void) {
     return SHZ_TLS_REF(xmtrx_state_);

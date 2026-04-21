@@ -1632,7 +1632,6 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_4x4_sh4(const shz_mat4x4_t* matrix) SHZ_NO
 
         pref    @%[scr]
         fmov.d  @%[mtx]+, dr0
-
         fmov.d  @%[mtx]+, dr2
         fmov.d  @%[mtx]+, dr4
         fmov.d  @%[mtx]+, dr6

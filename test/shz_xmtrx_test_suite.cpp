@@ -747,7 +747,6 @@ GBL_TEST_CASE(apply_scale)
     }
 GBL_TEST_CASE_END
 
-
 GBL_TEST_CASE(apply_rotation_x)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();

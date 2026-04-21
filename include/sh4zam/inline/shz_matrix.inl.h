@@ -667,6 +667,14 @@ SHZ_INLINE void shz_mat4x4_copy(shz_mat4x4_t* dst, const shz_mat4x4_t* src) SHZ_
 #endif
 }
 
+SHZ_INLINE void shz_mat4x4_swap(shz_mat4x4_t* matA, shz_mat4x4_t* matB) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_mat4x4_swap_sh4(matA, matB);
+#else
+    shz_mat4x4_swap_sw(matA, matB);
+#endif
+}
+
 SHZ_INLINE void shz_mat4x4_copy_unaligned(shz_mat4x4_t* dst, const float src[16]) SHZ_NOEXCEPT {
     shz_xmtrx_load_unaligned_4x4(src);
     shz_xmtrx_store_4x4(dst);

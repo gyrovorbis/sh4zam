@@ -30,6 +30,14 @@ namespace shz {
 
         mat4x4() noexcept = default;
 
+        SHZ_FORCE_INLINE mat4x4(const mat4x4& other) noexcept {
+            shz_mat4x4_copy(this, &other);
+        }
+
+        SHZ_FORCE_INLINE mat4x4(const shz_mat4x4_t& other) noexcept {
+            shz_mat4x4_copy(this, &other);
+        }
+
 #ifdef SHZ_CPP23
         //! Returns a pointer to the internal floating-point array held by the matrix.
         SHZ_FORCE_INLINE auto data(this auto&& self) noexcept {
@@ -64,8 +72,13 @@ namespace shz {
         }
 #endif
         //! Overloaded equality operator, for comparing vectors.
-        friend auto operator==(const mat4x4& lhs, const mat4x4& rhs) noexcept {
+        friend bool operator==(const mat4x4& lhs, const mat4x4& rhs) noexcept {
             return shz_mat4x4_equal(&lhs, &rhs);
+        }
+
+        mat4x4& operator=(const shz_mat4x4_t& other) noexcept {
+            shz_mat4x4_copy(this, &other);
+            return *this;
         }
 
         /*! \name  Initialization
@@ -479,6 +492,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE static void copy(shz_mat4x4_t* lhs, const float rhs[16]) noexcept {
             shz_mat4x4_copy_unaligned(lhs, rhs);
+        }
+
+        friend SHZ_FORCE_INLINE void swap(shz_mat4x4_t& matA, shz_mat4x4_t& matB) noexcept {
+            shz_mat4x4_swap(&matA, &matB);
         }
 
         SHZ_FORCE_INLINE quat to_quat() const noexcept {

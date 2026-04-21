@@ -19,6 +19,59 @@ bool operator==(const shz::quat& shz, const versor& glm) {
         || (shz_equalf(-shz.x, glm[0]) && shz_equalf(-shz.y, glm[1]) && shz_equalf(-shz.z, glm[2]) && shz_equalf(-shz.w, glm[3]));
 }
 
+GBL_TEST_CASE(copy)
+    alignas(32) shz::mat4x4 m1, m2, m3, m4;
+
+    m1.init_diagonal(1.0f, 2.0f, 3.0f, 4.0f);
+    m3.init_rotation_xyz(shz::pi_f, shz::pi_f_2, shz::pi_f_4);
+
+    shz::mat4x4::copy(&m2, m1);
+    GBL_TEST_VERIFY(m1 == m2);
+
+    shz::mat4x4::copy(&m4, m3);
+    GBL_TEST_VERIFY(m3 == m4);
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)("shz::mat4x4::copy",
+                              [](shz::mat4x4* dst, const shz::mat4x4& src) {
+                                  shz::mat4x4::copy(dst, src);
+                              },
+                              "memcpy",
+                              [](shz::mat4x4* dst, const shz::mat4x4& src) {
+                                  memcpy(reinterpret_cast<void*>(dst),
+                                         reinterpret_cast<const void*>(&src),
+                                         sizeof(shz::mat4x4));
+                              },
+                              &m1, m2)
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(swap)
+    alignas(32) shz::mat4x4 m1, m2, m3, m4;
+
+    m1.init_diagonal(1.0f, 2.0f, 3.0f, 4.0f);
+    m3.init_rotation_xyz(shz::pi_f, shz::pi_f_2, shz::pi_f_4);
+
+    shz::mat4x4::copy(&m2, m1);
+    shz::mat4x4::copy(&m4, m3);
+
+    swap(m1, m3);
+    GBL_TEST_VERIFY(m3 == m2);
+    GBL_TEST_VERIFY(m1 == m4);
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)("shz::mat4x4::swap",
+                              [](shz::mat4x4& a, shz::mat4x4& b) {
+                                  swap(a, b);
+                              },
+                              "std::swap",
+                              [](shz::mat4x4& a, shz::mat4x4& b) {
+                                  std::swap(a, b);
+                              },
+                              m1, m2)
+    );
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(inverse)
    auto test = [&](shz_glm_mat4& mat) {
         shz_glm_mat4 shzInverted, glmInverted;
@@ -104,6 +157,8 @@ GBL_TEST_CASE(to_quat)
     GBL_TEST_VERIFY(shzQuat == glmQuat);
 GBL_TEST_CASE_END
 
-GBL_TEST_REGISTER(inverse,
+GBL_TEST_REGISTER(copy,
+                  swap,
+                  inverse,
                   transform_vec4,
                   to_quat)

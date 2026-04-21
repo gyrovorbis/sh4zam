@@ -143,7 +143,7 @@ namespace shz {
         }
 #endif
         //! Overloaded comparison operator, checks for quaternion equality.
-        friend auto operator==(quat lhs, quat rhs) noexcept {
+        friend bool operator==(quat lhs, quat rhs) noexcept {
             return shz_quat_equal(lhs, rhs);
         }
 
