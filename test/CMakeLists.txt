@@ -31,9 +31,14 @@ add_executable(Sh4zamTests
 target_include_directories(Sh4zamTests
     PRIVATE ..)
 
-find_package(cglm CONFIG REQUIRED)
+set(LIBS libGimbal sh4zam)
 
-set(LIBS libGimbal sh4zam cglm::cglm)
+if(MSVC)
+    find_package(cglm CONFIG REQUIRED)
+    list(APPEND LIBS cglm::cglm)
+else()
+    list(APPEND LIBS cglm)
+endif()
 
 if(PLATFORM_DREAMCAST)
     list(APPEND LIBS fastmem)

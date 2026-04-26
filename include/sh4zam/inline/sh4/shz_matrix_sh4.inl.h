@@ -283,7 +283,6 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3_transpose_sh4(const shz_mat4x4_t
     return out;
 }
 
-
 SHZ_INLINE void shz_mat4x4_copy_sh4(shz_mat4x4_t* dst, const shz_mat4x4_t* src) SHZ_NOEXCEPT {
     asm volatile(R"(
         fschg

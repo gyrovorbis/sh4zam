@@ -1149,9 +1149,9 @@ GBL_TEST_CASE_END
 
 namespace {
 void cooley_tukey_fft(shz_complex_t* spectrum, size_t size) {
-    int j = 0;
+    size_t j = 0;
 
-    for (int i = 1; i < (int)size - 1; i++) {
+    for (size_t i = 1; i < size - 1; i++) {
         size_t bit = size >> 1;
 
         while (j >= bit) {
@@ -1167,14 +1167,14 @@ void cooley_tukey_fft(shz_complex_t* spectrum, size_t size) {
         }
     }
 
-    for (int len = 2; len <= (int)size; len <<= 1) {
+    for (size_t len = 2; len <= size; len <<= 1) {
         float angle_rad = -2.0f * SHZ_F_PI / len;
         shz_complex_t twiddle_unit = { cosf(angle_rad), sinf(angle_rad) };
 
-        for (int i = 0; i < (int)size; i += len) {
+        for (size_t i = 0; i < size; i += len) {
             shz_complex_t twiddle_cur = {1.0f, 0.0f};
 
-            for (int k = 0; k < len / 2; k++) {
+            for (size_t k = 0; k < len / 2; k++) {
                 shz_complex_t even = spectrum[i + k];
                 shz_complex_t odd = spectrum[i + k + len / 2];
                 shz_complex_t twiddled_odd = {
