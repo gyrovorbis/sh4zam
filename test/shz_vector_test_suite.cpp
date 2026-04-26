@@ -28,14 +28,14 @@ GBL_TEST_CASE(vec2Construct)
         GBL_TEST_VERIFY(vec3[1] == 2.0f);
     }
     {
-        auto vec4 = shz::vec2((shz_vec2_t) { 3.0f, 4.0f });
+        auto vec4 = shz::vec2{ 3.0f, 4.0f };
         GBL_TEST_VERIFY(vec4.x == 3.0f);
         GBL_TEST_VERIFY(vec4.y == 4.0f);
         GBL_TEST_VERIFY(vec4[0] == 3.0f);
         GBL_TEST_VERIFY(vec4[1] == 4.0f);
     }
     {
-        auto vec5 = shz::vec2((shz_vec2_t) { 5.0f, 6.0f });
+        auto vec5 = shz::vec2{ 5.0f, 6.0f };
         GBL_TEST_VERIFY(vec5.x == 5.0f);
         GBL_TEST_VERIFY(vec5.y == 6.0f);
         GBL_TEST_VERIFY(vec5[0] == 5.0f);
@@ -56,7 +56,7 @@ GBL_TEST_CASE(vec2Set)
     GBL_TEST_VERIFY(vec.x == -1.0f);
     GBL_TEST_VERIFY(vec.y == -2.0f);
 
-    vec = (shz_vec2_t) { 3.0f, 4.0f };
+    vec = shz_vec2_t{ 3.0f, 4.0f };
     GBL_TEST_VERIFY(vec.x == 3.0f);
     GBL_TEST_VERIFY(vec.y == 4.0f);
 
@@ -68,7 +68,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(vec2Lerp)
     auto vec =
         shz::vec2::lerp({ 0.0f, 0.0f},               // Flex C++ ctor dick
-                        (shz_vec2_t) { 2.0f, 2.0f }, // Flex C conversion ctor dick
+                        { 2.0f, 2.0f }, // Flex C conversion ctor dick
                         0.5f);
     GBL_TEST_VERIFY(vec.x == 1.0f);  // Flex C member access dick
     GBL_TEST_VERIFY(vec[1] == 1.0f); // Flex C++ overloaded subscript dick
@@ -77,7 +77,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(vec2AddEquals)
     auto vec = shz::vec2(1.0f, -2.0f);
 
-    vec += (shz_vec2_t) { 3.0f, 5.0f };
+    vec += shz_vec2_t{ 3.0f, 5.0f };
     vec += shz::vec2 { -4.0f, -6.0f };
 
     GBL_TEST_VERIFY(vec.x == 0.0f);
@@ -87,7 +87,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(vec2SubEquals)
     auto vec = shz::vec2(1.0f, -2.0f);
 
-    vec -= (shz_vec2_t) { 3.0f, 5.0f };
+    vec -= shz_vec2_t { 3.0f, 5.0f };
     vec -= shz::vec2 { -4.0f, -6.0f };
 
     GBL_TEST_VERIFY(vec.x == 2.0f);
@@ -97,7 +97,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(vec2MultEquals)
     auto vec = shz::vec2(1.0f, -2.0f);
 
-    vec *= (shz_vec2_t) { 3.0f, 5.0f };
+    vec *= shz_vec2_t { 3.0f, 5.0f };
     vec *= shz::vec2 { -4.0f, -6.0f };
 
     GBL_TEST_VERIFY(vec.x == -12.0f);
@@ -107,7 +107,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(vec2DivEquals)
     auto vec = shz::vec2(1.0f, -2.0f);
 
-    vec /= (shz_vec2_t) { 3.0f, 5.0f };
+    vec /= shz_vec2_t { 3.0f, 5.0f };
     vec /= shz::vec2 { -4.0f, -6.0f };
 
     GBL_TEST_VERIFY(gblFloatEquals(vec.x, -0.0833333333f));
@@ -136,7 +136,7 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Compare)
     auto vec = shz::vec2(1.0f, 4.0f);
-    GBL_TEST_VERIFY((vec == (shz_vec2_t){1.0f, 4.0f}));
+    GBL_TEST_VERIFY((vec == shz_vec2_t {1.0f, 4.0f}));
     GBL_TEST_VERIFY(vec <= shz::vec2(2.0f, 5.0f));
     GBL_TEST_VERIFY(vec > shz::vec2(1.0f, 3.0f));
 GBL_TEST_CASE_END
@@ -144,7 +144,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(vec2Dot)
     auto base = shz::vec2(2.0f, 3.0f);
     GBL_TEST_VERIFY(base.dot({1.0f, -1.0f}) == -1.0f);
-    GBL_TEST_VERIFY(base.dot((shz_vec2_t){-3.0f, 4.0f}) == 6.0f);
+    GBL_TEST_VERIFY(base.dot(shz_vec2_t{-3.0f, 4.0f}) == 6.0f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Dot2)
@@ -221,7 +221,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(vec3Dot)
     auto base = shz::vec3(2.0f, 3.0f, 4.0f);
     GBL_TEST_VERIFY(base.dot({1.0f, -1.0f, 1.0f}) == 3.0f);
-    GBL_TEST_VERIFY(base.dot((shz_vec3_t){-3.0f, 4.0f, -2.0f}) == -2.0f);
+    GBL_TEST_VERIFY(base.dot(shz_vec3_t{-3.0f, 4.0f, -2.0f}) == -2.0f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3Dot2)
@@ -279,7 +279,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(vec4Dot)
     auto base = shz::vec4(2.0f, 3.0f, 4.0f, 1.0f);
     GBL_TEST_VERIFY(base.dot({1.0f, -1.0f, 1.0f, 2.0f}) == 5.0f);
-    GBL_TEST_VERIFY(base.dot((shz_vec4_t){-3.0f, 4.0f, -2.0f, -3.0f}) == -5.0f);
+    GBL_TEST_VERIFY(base.dot(shz_vec4_t{-3.0f, 4.0f, -2.0f, -3.0f}) == -5.0f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec4Dot2)

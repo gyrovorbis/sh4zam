@@ -12,7 +12,7 @@
 
 #include "shz_cdefs.h"
 
-#if __cplusplus > 202002L
+#if (defined(_MSVC_LANG) && _MSVC_LANG > 202002L) || (defined(__cplusplus) && __cplusplus > 202002L)
     //! Defined if building with C++23 to enable optional features.
 #   define SHZ_CPP23    1
 #endif

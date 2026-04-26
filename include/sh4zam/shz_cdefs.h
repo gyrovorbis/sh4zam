@@ -4,8 +4,10 @@
  *  This file contains commonly used preprocessor definitions used throughout
  *  the project:
  *      - Library-wide configuration defines
+ *      - Compiler detection
  *      - Compiler attributes
- *      - Miscellaneous utilities
+ *      - TLS model
+ *      - Conversion utilities
  *
  *  \author    2025, 2026 Falco Girgis
  *  \copyright MIT License
@@ -62,6 +64,28 @@
 #   endif
 #endif
 
+/*! \name  Compiler Detection
+    \brief Defines for identifying the detected compiler.
+    @{
+*/
+#ifdef _MSC_VER
+#   define SHZ_MSVC         1   //!< Defined when building with Microsoft Visual C++.
+#elif defined(__GNUC__)
+#   define SHZ_GNUC         1   //!< Defined when building with a GCC-compatible compiler.
+#   if defined(__clang__)
+#       define SHZ_CLANG    1   //!< Defined when bulding with Clang.
+#   elif defined(__MINGW64__)
+#       define SHZ_MINGW64  1   //!< Defined when bulding with MinGW-w64.
+#   elif defined(__MINGW32__)
+#       define SHZ_MINGW32  1   //!< Defined when building for 32-bit MinGW or other MinGW compiler(s).
+#   else
+#       define SHZ_GCC      1   //!< Defined when building for GCC.
+#   endif
+#else
+#   define SHZ_GNUC         1   // Unknown compiler -- assume it's GCC-compatible?
+#endif
+//! @}
+
 /*! \name   Utilities
  *  \brief  Miscellaneous function-like macros
  *  @{
@@ -87,44 +111,97 @@
  *  \brief Defines for commonly-used GCC attributes.
  *  @{
  */
-//! Forces a function or type to be aligned by \p N bytes.
-#define SHZ_ALIGNAS(N)           __attribute__((aligned((N))))
-//! Tells GCC that a scalar type is to be treated as a vector of size \p N.
-#define SHZ_SIMD(N)              __attribute__((vector_size((N))))
-//! Tells GCC that a particular function should be optimized for performance.
-#define SHZ_HOT                  __attribute__((hot))
-//! Tells GCC that a particular function should be optimized for size.
-#define SHZ_COLD                  __attribute__((cold))
-//! Put this before a function definition to tell GCC to use fast math optimizations on a specific function.
-#define SHZ_FAST_MATH            __attribute__((optimize("fast-math")))
-//! Put this before a function definition to tell GCC to NOT use fast math optimizations on a specific function.
-#define SHZ_NO_FAST_MATH         __attribute__((optimize("no-fast-math")))
-//! Put this before a function definition to tell GCC to NOT unroll loops in a specific function.
-#define SHZ_NO_UNROLL_LOOPS      __attribute__((optimize("no-unroll-loops")))
-//! Tells GCC to disable any optimizations when compiling a function.
-#define SHZ_NO_OPTIMIZATION      __attribute__((optimize("O0")))
-//! Aligns a function by the size of an icache line (32 bytes).
-#define SHZ_ICACHE_ALIGNED       __attribute__((aligned(32)))
-//! Forces GCC to inline the given function.
-#define SHZ_FORCE_INLINE         __attribute__((always_inline)) SHZ_INLINE
-//! Prevents GCC from inlining the given function.
-#define SHZ_NO_INLINE            __attribute__((noinline))
-//! Forces GCC to inline all calls to other functions made within the tagged function.
-#define SHZ_FLATTEN              __attribute__((flatten))
-//! Tells GCC not to introduce any extra padding for the given type.
-#define SHZ_PACKED               __attribute__((packed))
-//! Tells GCC the function has no effects other than returning a value that depends on its arguments and global variables.
-#define SHZ_PURE                 __attribute__((pure))
-//! Tells GCC that the decorated pointer may be breaking strict aliasing rules for C and C++
-#define SHZ_ALIASING             __attribute__((__may_alias__))
-//! Tells GCC that the expression is likely to be true (used for conditional and loop optimizations)
-#define SHZ_LIKELY(e)            __builtin_expect(!!(e), 1)
-//! Tells GCC that the expression is likely to be false (used for conditional and loop optimizations)
-#define SHZ_UNLIKELY(e)          __builtin_expect(!!(e), 0)
-//! Tells GCC to use its builtin intrinsic for prefetching (better instruction scheduling than pure ASM pref)
-#define SHZ_PREFETCH(a)          __builtin_prefetch(a)
-//! Tells GCC to issue a prefetch, using inline ASM so that it cannot be reordered
-#define SHZ_PREFETCH_VOLATILE(a) asm volatile("pref @%0" : : "r" (a))
+#ifdef SHZ_GNUC
+    //! Forces a function or type to be aligned by \p N bytes.
+#   define SHZ_ALIGNAS(N)              __attribute__((aligned((N))))
+    //! Tells GCC that a scalar type is to be treated as a vector of size \p N.
+#   define SHZ_SIMD(N)                 __attribute__((vector_size((N))))
+    //! Tells GCC that a particular function should be optimized for performance.
+#   define SHZ_HOT                     __attribute__((hot))
+    //! Tells GCC that a particular function should be optimized for size.
+#   define SHZ_COLD                    __attribute__((cold))
+    //! Put this before a function definition to tell GCC to use fast math optimizations on a specific function.
+#   define SHZ_FAST_MATH               __attribute__((optimize("fast-math")))
+    //! Put this before a function definition to tell GCC to NOT use fast math optimizations on a specific function.
+#   define SHZ_NO_FAST_MATH            __attribute__((optimize("no-fast-math")))
+    //! Put this before a function definition to tell GCC to NOT unroll loops in a specific function.
+#   define SHZ_NO_UNROLL_LOOPS         __attribute__((optimize("no-unroll-loops")))
+    //! Tells GCC to disable any optimizations when compiling a function.
+#   define SHZ_NO_OPTIMIZATION         __attribute__((optimize("O0")))
+    //! Aligns a function within the .text segment by \p N bytes.
+#   define SHZ_FUNC_ALIGNAS(N)         __attribute__((aligned(N)))
+    //! Forces GCC to inline the given function.
+#   define SHZ_FORCE_INLINE            __attribute__((always_inline)) SHZ_INLINE
+    //! Prevents GCC from inlining the given function.
+#   define SHZ_NO_INLINE               __attribute__((noinline))
+    //! Forces GCC to inline all calls to other functions made within the tagged function.
+#   define SHZ_FLATTEN                 __attribute__((flatten))
+    //! Tells GCC not to introduce any extra padding for the given type.
+#   define SHZ_PACKED                  __attribute__((packed))
+    //! Tells GCC the function has no effects other than returning a value that depends on its arguments and global variables.
+#   define SHZ_PURE                    __attribute__((pure))
+    //! Tells GCC the function has no effects other than returning a value that depends only on its arguments.
+#   define SHZ_CONST                   __attribute__((const))
+    //! Tells GCC that the decorated pointer may be breaking strict aliasing rules for C and C++
+#   define SHZ_ALIASING                __attribute__((__may_alias__))
+    //! Tells GCC that the expression is likely to be true (used for conditional and loop optimizations)
+#   define SHZ_LIKELY(e)               __builtin_expect(!!(e), 1)
+    //! Tells GCC that the expression is likely to be false (used for conditional and loop optimizations)
+#   define SHZ_UNLIKELY(e)             __builtin_expect(!!(e), 0)
+    //! Tells GCC to use its builtin intrinsic for prefetching (better instruction scheduling than pure ASM pref)
+#   define SHZ_PREFETCH(a)             __builtin_prefetch(a)
+    //! Tells GCC the pointer paraemter is unique and is not aliased by another parameter
+#   define SHZ_RESTRICT                __restrict__
+    //! Creates a software memory barrier beyond which any loads or stores may not be reordered
+#   define SHZ_MEMORY_BARRIER_SOFT()   asm volatile("" : : : "memory")
+    //! Creates a hardware memory barrier beyond which any loads or stores may not be reordered
+#   define SHZ_MEMORY_BARRIER_HARD()   __sync_synchronize()
+#elif defined(SHZ_MSVC)
+    //! Forces a function or type to be aligned by \p N bytes.
+#   define SHZ_ALIGNAS(N)              __declspec(align(N))
+    //! Unsupported by MSVC.
+#   define SHZ_SIMD(N)
+    //! Unsupported by MSVC.
+#   define SHZ_HOT
+    //! Unsupported by MSVC.
+#   define SHZ_COLD
+    //! Unsupported by MSVC.
+#   define SHZ_FAST_MATH
+    //! Unsupported by MSVC.
+#   define SHZ_NO_FAST_MATH
+    //! Unsupported by MSVC.
+#   define SHZ_NO_UNROLL_LOOPS
+    //! Unsupported by MSVC.
+#   define SHZ_NO_OPTIMIZATION
+    //! Unsupported by MSVC.
+#   define SHZ_FUNC_ALIGNAS(N)
+    //! Forces MSVC to inline the given function.
+#   define SHZ_FORCE_INLINE            __forceinline
+    //! Prevents MSVC from inlining the given function.
+#   define SHZ_NO_INLINE               __declspec(noinline)
+    //! Unsupported by MSVC.
+#   define SHZ_FLATTEN
+    //! Unimplemented for MSVC.
+#   define SHZ_PACKED
+    //! Unsupported by MSVC.
+#   define SHZ_PURE                    SHZ_CONST
+    //! Tells MSVC that a function may be evaluated at compile-time.
+#   define SHZ_CONST                   constexpr
+    //! MSVC already doesn't optimize for strict aliasing rules.
+#   define SHZ_ALIASING
+    //! Unimplemented for MSVC.
+#   define SHZ_LIKELY(e)              (e)
+    //! Unimplemented for MSVC.
+#   define SHZ_UNLIKELY(e)            (e)
+    //! Unimplemented for MSVC.
+#   define SHZ_PREFETCH(a)
+    //! Tells MSVC the pointer paraemter is unique and is not aliased by another parameter.
+#   define SHZ_RESTRICT               __restrict
+    //! Unimplemented for MSVC.
+#   define SHZ_MEMORY_BARRIER_SOFT()
+    //! Unimpemented for MSVC.
+#   define SHZ_MEMORY_BARRIER_HARD()
+#endif
 
 #ifndef __cplusplus
     //! Dummy define provided for C++ compatibility
@@ -133,12 +210,10 @@
 #   define SHZ_DECLS_END
     //! Requests a function or member to be inlined (nonforcibly) OR to have static linkage.
 #   define SHZ_INLINE                   inline static
-    //! Tells GCC the function has no effects other than returning a value that depends only on its arguments.
-#   define SHZ_CONST                    __attribute__((const))
-    //! Tells GCC the pointer paramter is unique and is not aliased by another parameter
-#   define SHZ_RESTRICT                 restrict
     //! Dummy define provided for C++ compatibility
 #   define SHZ_NOEXCEPT
+    //! Temporary struct initialization statement to use within C.
+#   define SHZ_INIT(type, ...)         ((type){ __VA_ARGS__ })
     //! Conversion macro for zero-overhead conversions, taking the given \p value to a value of the given \p type.
 #   define SHZ_CONVERT(type, value) \
         (((struct { \
@@ -155,12 +230,10 @@
 #   define SHZ_DECLS_END                }
     //! Requests a function or member to be inlined (nonforcibly).
 #   define SHZ_INLINE                   inline
-    //! Tells GCC the function has no effects other than returning a value that depends only on its arguments.
-#   define SHZ_CONST                    __attribute__((const)) constexpr
-    //! Tells GCC the pointer paramter is unique and is not aliased by another parameter
-#   define SHZ_RESTRICT                 __restrict__
     //! Tells the compiler that the function does not throw exceptions
 #   define SHZ_NOEXCEPT                 noexcept
+    //! Temporary struct initialization statement to use within C++.
+#   define SHZ_INIT(type, ...)         (type{ __VA_ARGS__ })
     //! Conversion macro for zero-overhead conversions that handles pointers/references \p from and \p type.
 #   define SHZ_CONVERT(type, from) \
         [&]<typename To, typename V>(V&& value) -> To { \
@@ -189,20 +262,20 @@
     @{
 */
 #if SHZ_TLS_MODEL == SHZ_TLS_DISABLED
-//! Declares a TLS variable with disabled model (so not thread-local).
+    //! Declares a TLS variable with disabled model (so not thread-local).
 #   define SHZ_TLS_DECL(type, name, ...) static type name = __VA_ARGS__;
-//! References a TLS variable, with disabled model.
+    //! References a TLS variable, with disabled model.
 #   define SHZ_TLS_REF(name)             (&name)
 #elif SHZ_TLS_MODEL == SHZ_TLS_IMPLICIT
 #   include <threads.h>
-//! Declares a TLS variable with compiler-driven implicit TLS model.
+    //! Declares a TLS variable with compiler-driven implicit TLS model.
 #   define SHZ_TLS_DECL(type, name, ...) static thread_local type name = __VA_ARGS__;
-//! References a TLS variable with compiler-driven implicit TLS model.
+    //! References a TLS variable with compiler-driven implicit TLS model.
 #   define SHZ_TLS_REF(name)             (&name)
 #elif SHZ_TLS_MODEL == SHZ_TLS_PTHREAD
 #   include <pthread.h>
 #   include <stdlib.h>
-//! Declares a TLS variable using pthread thread-specific data.
+    //! Declares a TLS variable using pthread thread-specific data.
 #   define SHZ_TLS_DECL(type, name, ...) \
         static pthread_key_t name; \
         static void tls_##name##_init_(void) { \
@@ -224,12 +297,12 @@
             } \
             return ptr; \
         }
-//! References a TLS variable using pthread thread-specific data.
+    //! References a TLS variable using pthread thread-specific data.
 #   define SHZ_TLS_REF(name) tls_##name##_ref_()
 #elif SHZ_TLS_MODEL == SHZ_TLS_CTHREAD
 #   include <threads.h>
 #   include <stdlib.h>
-//! Declares a TLS variable using C11 thread-specific storage.
+    //! Declares a TLS variable using C11 thread-specific storage.
 #   define SHZ_TLS_DECL(type, name, ...) \
         static tss_t name; \
         static void tls_##name##_init_(void) { \
@@ -250,7 +323,7 @@
             } \
             return ptr; \
         }
-//! References a TLS variable using C11 thread-specific storage.
+    //! References a TLS variable using C11 thread-specific storage.
 #   define SHZ_TLS_REF(name) tls_##name##_ref_()
 #endif
 //! @}

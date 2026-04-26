@@ -643,13 +643,17 @@ GBL_TEST_CASE(apply_translation)
         mat4 m_glm = GLM_MAT4_IDENTITY_INIT;
         vec3 t1, t2;
 
-        glm_vec3_copy((vec3){2.0f, 3.0f, -4.0f}, t1);
-        glm_vec3_copy((vec3){5.0f, 6.0f, 7.0f}, t2);
+        {
+            vec3 t1v = { 2.0f, 3.0f, -4.0f };
+            vec3 t2v = { 5.0f, 6.0f, 7.0f };
+            glm_vec3_copy(t1v, t1);
+            glm_vec3_copy(t2v, t2);
 
-        glm_translate(m_glm, t1);
-        glm_translate(m_glm, t2);
+            glm_translate(m_glm, t1);
+            glm_translate(m_glm, t2);
 
-        GBL_TEST_VERIFY(compare_glm(res, m_glm));        
+            GBL_TEST_VERIFY(compare_glm(res, m_glm));
+        }
     }
 
 GBL_TEST_CASE_END
@@ -737,13 +741,17 @@ GBL_TEST_CASE(apply_scale)
         mat4 m_glm = GLM_MAT4_IDENTITY_INIT;
         vec3 scale1, scale2;
 
-        glm_vec3_copy((vec3){2.0f, 3.0f, 4.0f}, scale1);
-        glm_vec3_copy((vec3){5.0f, 6.0f, 7.0f}, scale2);
+        {
+            vec3 scale1v = { 2.0f, 3.0f, 4.0f };
+            vec3 scale2v = { 5.0f, 6.0f, 7.0f };
+            glm_vec3_copy(scale1v, scale1);
+            glm_vec3_copy(scale2v, scale2);
 
-        glm_scale(m_glm, scale1);
-        glm_scale(m_glm, scale2);
+            glm_scale(m_glm, scale1);
+            glm_scale(m_glm, scale2);
 
-        GBL_TEST_VERIFY(compare_glm(res, m_glm));
+            GBL_TEST_VERIFY(compare_glm(res, m_glm));
+        }
     }
 GBL_TEST_CASE_END
 
@@ -1053,12 +1061,14 @@ GBL_TEST_CASE(apply_frustum)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_perspective)
+#if 1
+    GBL_TEST_SKIP("Not equivalent to any CGLM reference. Figure out why.");
+#else
     union {
         alignas(16) mat4 cmat;
         shz::mat4x4 shzcmat;
     } cunion;
 
-    GBL_TEST_SKIP("Not equivalent to any CGLM reference. Figure out why.");
     shz::xmtrx::init_identity_safe();
     shz::xmtrx::apply_perspective(shz::deg_to_rad(45.0f), 640.0f / 480.0f, 0.0f);
     glm_perspective_infinite_rh_no(shz::deg_to_rad(45.0f), 640.0f / 480.0f, 0.0f, cunion.cmat);
@@ -1070,6 +1080,7 @@ GBL_TEST_CASE(apply_perspective)
             std::println("[{}][{}]: {} vs {}", i, j, shzmat.elem2D[i][j], cunion.shzcmat.elem2D[i][j]);
 #endif
     GBL_TEST_VERIFY(shzmat == cunion.shzcmat);
+#endif
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_screen)

@@ -4,7 +4,7 @@
 #include <type_traits>
 #include <concepts>
 #include <print>
-#include <ctime>
+#include <chrono>
 
 #include <sh4zam/shz_sh4zam.hpp>
 
@@ -51,10 +51,9 @@ SHZ_FORCE_INLINE uint64_t PERF_CNTR_STOP() {
 
 namespace {
     inline uint64_t ns_gettime64(void) noexcept {
-        timespec ts;
-
-        clock_gettime(CLOCK_MONOTONIC, &ts);
-        return ts.tv_nsec + ts.tv_sec * 1000000000;
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::high_resolution_clock::now().time_since_epoch()
+        ).count();
     }
 }
 
@@ -64,7 +63,7 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function
 #if SHZ_BACKEND == SHZ_SH4
     perf_cntr_timer_enable();
 #endif
-    auto inner = [&]<bool CacheFlush>() SHZ_NO_INLINE SHZ_ICACHE_ALIGNED SHZ_NO_UNROLL_LOOPS {
+    auto inner = [&]<bool CacheFlush>() SHZ_NO_INLINE SHZ_FUNC_ALIGNAS(32) SHZ_NO_UNROLL_LOOPS {
         uint64_t tmu_sum      = 0;
         uint64_t sum          = 0;
         uint64_t prev         = 0;
@@ -192,7 +191,7 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
     if(cacheGainz > 1.0f || uncacheGainz > 1.0f) {
         gainz = GAINZ;
         gainz_str = "GAINZ";
-    } else if(shz_equalf(cacheGainz, 1.0f) || shz_equalf(uncacheGainz, 1.0f)) {
+    } else if(shz_equalf(static_cast<float>(cacheGainz), 1.0f) || shz_equalf(static_cast<float>(uncacheGainz), 1.0f)) {
         gainz = EQUAL;
         gainz_str = "EQUAL";
     } else {

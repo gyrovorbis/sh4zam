@@ -30,7 +30,6 @@
     \brief    Routines for managing memory.
 
     This API provides the following types of memory routines:
-        - barriers
         - special instruction intrinsics
         - cache operations
         - memcpy()-type routines
@@ -41,18 +40,6 @@
     assert(), so make sure to build a release build (-DNDEBUG)
     for maximal gainz, when not debugging.
  */
-
-/*! \name  Barriers
-    \brief Macros for preventing GCC from reordering instructions.
-    @{
-*/
-
-//! Creates a software memory barrier beyond which any loads or stores may not be reordered
-#define SHZ_MEMORY_BARRIER_SOFT()   asm volatile("" : : : "memory")
-//! Creates a hardware memory barrier beyond which any loads or stores may not be reordered
-#define SHZ_MEMORY_BARRIER_HARD()   __sync_synchronize()
-
-//! @}
 
 SHZ_DECLS_BEGIN
 

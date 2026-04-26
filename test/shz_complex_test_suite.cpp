@@ -377,7 +377,7 @@ GBL_TEST_CASE(cnormf)
     GBL_TEST_VERIFY(test({-2.0f, -2.0f}));  // 8
     GBL_TEST_VERIFY((benchmark_cmp<float>)(
         "std::norm",
-        [](volatile shz::complex c) { return std::norm(std::complex<float>(c.real, c.imag)); },
+        [](volatile shz::complex c) { return std::norm(std::complex<float>(static_cast<float>(c.real), static_cast<float>(c.imag))); },
         "shz::cnormf",
         shz::cnormf,
         shz::complex{3.0f, 4.0f}));
@@ -422,7 +422,7 @@ GBL_TEST_CASE(conjf)
             shz::conjf,
             "std::conj",
             [](volatile shz::complex c) {
-                auto r = std::conj(std::complex<float>(c.real, c.imag));
+                auto r = std::conj(std::complex<float>(static_cast<float>(c.real), static_cast<float>(c.imag)));
                 return shz::complex{r.real(), r.imag()};
             },
             shz::complex{1.0f, 2.0f});
@@ -1152,7 +1152,7 @@ void cooley_tukey_fft(shz_complex_t* spectrum, size_t size) {
     int j = 0;
 
     for (int i = 1; i < (int)size - 1; i++) {
-        int bit = size >> 1;
+        size_t bit = size >> 1;
 
         while (j >= bit) {
             j -= bit;

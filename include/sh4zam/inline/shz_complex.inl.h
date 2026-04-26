@@ -14,7 +14,7 @@ SHZ_FORCE_INLINE float shz_cimagf(shz_complex_t c) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_complex_t shz_cinitf(float real, float imag) SHZ_NOEXCEPT {
-    return (shz_complex_t){ real, imag };
+    return SHZ_INIT(shz_complex_t, real, imag);
 }
 
 SHZ_FORCE_INLINE shz_complex_t shz_cpolarf(float r, float theta) SHZ_NOEXCEPT {

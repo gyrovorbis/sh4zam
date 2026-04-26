@@ -5,7 +5,7 @@ project(Sh4zamTest
         DESCRIPTION "Unit tests for SH4ZAM"
         LANGUAGES   C CXX ASM)
 
-set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
@@ -31,7 +31,9 @@ add_executable(Sh4zamTests
 target_include_directories(Sh4zamTests
     PRIVATE ..)
 
-set(LIBS libGimbal sh4zam cglm)
+find_package(cglm CONFIG REQUIRED)
+
+set(LIBS libGimbal sh4zam cglm::cglm)
 
 if(PLATFORM_DREAMCAST)
     list(APPEND LIBS fastmem)

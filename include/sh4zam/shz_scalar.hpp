@@ -13,6 +13,7 @@
 #ifndef SHZ_SCALAR_HPP
 #define SHZ_SCALAR_HPP
 
+#include "shz_cdefs.hpp"
 #include "shz_scalar.h"
 
 namespace shz {

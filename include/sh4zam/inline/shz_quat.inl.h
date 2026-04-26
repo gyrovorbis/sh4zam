@@ -20,7 +20,7 @@
 #endif
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_init(float w, float x, float y, float z) SHZ_NOEXCEPT {
-    return (shz_quat_t) { .w = w, .x = x, .y = y, .z = z };
+    return SHZ_INIT(shz_quat_t, .w = w, .x = x, .y = y, .z = z);
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_identity(void) SHZ_NOEXCEPT {

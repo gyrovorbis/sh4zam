@@ -21,14 +21,14 @@ void shz_fft(shz_complex_t* s, size_t size) {
     const float a = -2.0f * SHZ_F_PI / (float)size; // Twiddle factor angle increments
 
     // This loop determines the stage of the FFT
-    for(int len = size >> 1; len > 0 ; len >>= 1) { 
+    for(size_t len = size >> 1; len > 0 ; len >>= 1) {
 
         // This loop determines which Twiddle factor to use
-        for(int j = 0; j < len; ++j) {
+        for(size_t j = 0; j < len; ++j) {
             shz_xmtrx_init_fft_weights(a * j * ((float)size / (float)(len << 1)));
 
             // Butterfly operation for a particular Twiddle factor in a particular stage
-            for(int i = j; i < size; i += (len << 1)) {
+            for(size_t i = j; i < size; i += (len << 1)) {
                 shz_complex_t* x = &s[i];
                 shz_complex_t* y = &s[i + len];
 
@@ -47,8 +47,8 @@ void shz_fft(shz_complex_t* s, size_t size) {
         }
     }
 
-    int j = 0, k;
-    for(int i = 1; i < (size - 1); i++) {
+    size_t j = 0, k;
+    for(size_t i = 1; i < (size - 1); i++) {
         k = size / 2;
         
         while(k <= j) {

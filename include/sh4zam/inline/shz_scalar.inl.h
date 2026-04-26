@@ -25,11 +25,19 @@
 #endif
 
 SHZ_FORCE_INLINE float shz_fminf(float a, float b) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     return __builtin_fminf(a, b);
+#else
+    return fminf(a, b);
+#endif
 }
 
 SHZ_FORCE_INLINE float shz_fmaxf(float a, float b) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     return __builtin_fmaxf(a, b);
+#else
+    return fmaxf(a, b);
+#endif
 }
 
 SHZ_FORCE_INLINE bool shz_equalf(float a, float b) SHZ_NOEXCEPT {
@@ -45,9 +53,10 @@ SHZ_FORCE_INLINE bool shz_equalf_rel(float a, float b) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_floorf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return __builtin_floorf(x);
-
+#endif
     float result = shz_truncf(x);
 
     if (x < result)
@@ -57,9 +66,10 @@ SHZ_FORCE_INLINE float shz_floorf(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_ceilf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return __builtin_ceilf(x);
-
+#endif
     float result = shz_truncf(x);
 
     if (x > result)
@@ -69,18 +79,20 @@ SHZ_FORCE_INLINE float shz_ceilf(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_copysignf(float x, float y) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x) && __builtin_constant_p(y))
         return __builtin_copysignf(x, y);
-
+#endif
     x = shz_fabsf(x);
 
     return (y < 0.0f)? -x : x;
 }
 
 SHZ_INLINE float shz_roundf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return __builtin_roundf(x);
-
+#endif
     if(x > 0.0f) {
         float xfloor = shz_truncf(x);
 
@@ -95,23 +107,22 @@ SHZ_INLINE float shz_roundf(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_truncf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return __builtin_truncf(x);
-
+#endif
     return (float)(int32_t)x;
 }
 
 SHZ_FORCE_INLINE float shz_fdimf(float x, float y) SHZ_NOEXCEPT {
-    if(__builtin_constant_p(x) && __builtin_constant_p(y))
-        return (x > y)? x - y : 0.0f;
-
     return (x > y)? x - y : 0.0f;
 }
 
 SHZ_FORCE_INLINE float shz_hypotf(float x, float y) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x) && __builtin_constant_p(y))
         return __builtin_hypotf(x, y);
-
+#endif
     return shz_sqrtf((x * x) + (y * y));
 }
 
@@ -126,9 +137,10 @@ SHZ_FORCE_INLINE float shz_cbrt_newton1(float x, float z) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_cbrtf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return __builtin_cbrtf(x);
-
+#endif
     if(x == 0.0f)
         return 0.0f;
 
@@ -145,20 +157,23 @@ SHZ_FORCE_INLINE float shz_cbrtf(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_remainderf(float num, float denom) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(num) && __builtin_constant_p(denom))
         return __builtin_remainderf(num, denom);
-
+#endif
     return num - shz_roundf(shz_divf(num, denom)) * denom;
 }
 
 SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(num) && __builtin_constant_p(denom))
         return __builtin_fmodf(num, denom);
-
+#endif
     return num - shz_truncf(shz_divf(num, denom)) * denom;
 }
 
 SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(num) && __builtin_constant_p(denom)) {
         int int_quot;
         float remainder = __builtin_remquof(num, denom, &int_quot);
@@ -167,7 +182,7 @@ SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEX
 
         return remainder;
     }
-
+#endif
     *quot = shz_roundf(shz_divf(num, denom));
 
     return num - *quot * denom;
@@ -218,7 +233,11 @@ SHZ_FORCE_INLINE float shz_wrapf_fsrra(float value, float min, float max) SHZ_NO
    fabsf() isn't optimal... but in the meantime, it is.
 */
 SHZ_FORCE_INLINE float shz_fabsf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     return __builtin_fabsf(x);
+#else
+    return fabsf(x);
+#endif
 }
 
 /* Compiler is smart enough to do the right thing regardless of flags for SH4.
@@ -273,8 +292,10 @@ SHZ_FORCE_INLINE bool shz_quadratic_roots(float a, float b, float c,
 }
 
 SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return (x == 0.0f)? 0.0f : 1.0f / __builtin_sqrtf(x);
+#endif
 
 #if SHZ_BACKEND == SHZ_SH4
     return shz_inv_sqrtf_fsrra_sh4(x);
@@ -284,9 +305,10 @@ SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_inv_sqrtf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return (x == 0.0f)? 0.0f : 1.0f / __builtin_sqrtf(x);
-
+#endif
     return (x == 0.0f)? 0.0f : shz_inv_sqrtf_fsrra(x);
 }
 
@@ -295,23 +317,26 @@ SHZ_FORCE_INLINE float shz_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return __builtin_sqrtf(x);
-
+#endif
     return (x == 0.0f)? 0.0f : shz_sqrtf_fsrra(x);
 }
 
 SHZ_FORCE_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return (x == 0.0f)? 0.0f : 1.0f / __builtin_fabsf(x);
-
+#endif
     return shz_inv_sqrtf_fsrra(x * x);
 }
 
 SHZ_FORCE_INLINE float shz_invf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if (__builtin_constant_p(x))
         return (x == 0.0f)? 0.0f : 1.0f / x;
-
+#endif
     float inv = shz_invf_fsrra(x);
 
     if (x < 0.0f)
@@ -321,25 +346,28 @@ SHZ_FORCE_INLINE float shz_invf(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_divf_fsrra(float num, float denom) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(denom))
         return num / denom;
-    else
-        return num * shz_invf_fsrra(denom);
+#endif
+    return num * shz_invf_fsrra(denom);
 }
 
 SHZ_FORCE_INLINE float shz_divf(float num, float denom) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(denom))
         return num / denom;
-    else
-        return num * shz_invf(denom);
+#endif
+    return num * shz_invf(denom);
 }
 
 SHZ_FORCE_INLINE float shz_dot6f(float x1, float y1, float z1,
                                  float x2, float y2, float z2) SHZ_NOEXCEPT {
-
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x1) && __builtin_constant_p(y1) && __builtin_constant_p(z1) &&
        __builtin_constant_p(x2) && __builtin_constant_p(y2) && __builtin_constant_p(z2))
         return (x1 * x2) + (y1 * y2) + (z1 * z2);
+#endif
 
 #if SHZ_BACKEND == SHZ_SH4
     return shz_dot6f_sh4(x1, y1, z1, x2, y2, z2);
@@ -349,8 +377,10 @@ SHZ_FORCE_INLINE float shz_dot6f(float x1, float y1, float z1,
 }
 
 SHZ_FORCE_INLINE float shz_mag_sqr3f(float x, float y, float z) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x) && __builtin_constant_p(y) && __builtin_constant_p(z))
         return (x * x) + (y * y) + (z * z);
+#endif
 
 #if SHZ_BACKEND == SHZ_SH4
     return shz_mag_sqr3f_sh4(x, y, z);
@@ -361,10 +391,11 @@ SHZ_FORCE_INLINE float shz_mag_sqr3f(float x, float y, float z) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
                                  float x2, float y2, float z2, float w2) SHZ_NOEXCEPT {
-
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x1) && __builtin_constant_p(y1) && __builtin_constant_p(z1) && __builtin_constant_p(w1) &&
        __builtin_constant_p(x2) && __builtin_constant_p(y2) && __builtin_constant_p(z2) && __builtin_constant_p(w2))
         return (x1 * x2) + (y1 * y2) + (z1 * z2) + (w1 * w2);
+#endif
 
 #if SHZ_BACKEND == SHZ_SH4
     return shz_dot8f_sh4(x1, y1, z1, w1, x2, y2, z2, w2);
@@ -374,8 +405,10 @@ SHZ_FORCE_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
 }
 
 SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x) && __builtin_constant_p(y) && __builtin_constant_p(z) && __builtin_constant_p(w))
         return (x * x) + (y * y) + (z * z) + (w * w);
+#endif
 
 #if SHZ_BACKEND == SHZ_SH4
     return shz_mag_sqr4f_sh4(x, y, z, w);
@@ -385,10 +418,10 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f(float x, float y, float z, float w) SHZ_NOE
 }
 
 SHZ_FORCE_INLINE float shz_log2f(float x) SHZ_NOEXCEPT {
-    // Let GCC compute statically if compile-time constant.
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return __builtin_log2f(x);
-
+#endif
     const union {
         float    f;
         uint32_t i;
@@ -400,26 +433,27 @@ SHZ_FORCE_INLINE float shz_log2f(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_log10f(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return __builtin_log10f(x);
-
+#endif
     return shz_log2f(x) * 0.3010299956639812f;
 }
 
 SHZ_FORCE_INLINE float shz_logf(float x) SHZ_NOEXCEPT {
-    // Let GCC compute statically if compile-time constant.
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return __builtin_logf(x);
-
+#endif
     return 0.69314718f * shz_log2f(x);
 }
 
 // https://github.com/appleseedhq/appleseed/blob/master/src/appleseed/foundation/math/fastmath.h
 SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT {
-    // Let GCC compute statically if compile-time constant.
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(p))
         return __builtin_powf(2.0f, p);
-
+#endif
     // Underflow of exponential is common practice in numerical routines, so handle it here.
     const float clipp = p < -126.0f ? -126.0f : p;
 
@@ -434,25 +468,26 @@ SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_pow10f(float p) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(p))
         return __builtin_powf(10.0f, p);
-
+#endif
     return shz_expf(2.302585092994046f * p);
 }
 
 SHZ_FORCE_INLINE float shz_powf(float x, float p) SHZ_NOEXCEPT {
-    // Let GCC compute statically if compile-time constant.
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(x) && __builtin_constant_p(p))
         return __builtin_powf(x, p);
-
+#endif
     return shz_pow2f(p * shz_log2f(x));
 }
 
 SHZ_FORCE_INLINE float shz_expf(float p) SHZ_NOEXCEPT {
-    // Let GCC compute statically if compile-time constant.
+#ifdef SHZ_GNUC
     if(__builtin_constant_p(p))
         return __builtin_expf(p);
-
+#endif
     return shz_pow2f(1.442695040f * p);
 }
 
@@ -504,9 +539,8 @@ SHZ_FORCE_INLINE float shz_smoothstepf(float x, float edge0, float edge1) SHZ_NO
 }
 
 SHZ_FORCE_INLINE float shz_smoothstepf_safe(float x, float edge0, float edge1) SHZ_NOEXCEPT {
-    if(edge0 == edge1) {
+    if(edge0 == edge1)
         return shz_stepf(x, edge0);
-    }
 
     float t = (x - edge0) / (edge1 - edge0);
     t = shz_clampf(t, 0.0f, 1.0f);

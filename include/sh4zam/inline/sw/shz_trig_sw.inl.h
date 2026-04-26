@@ -20,15 +20,15 @@
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16_sw(uint16_t radians16) SHZ_NOEXCEPT {
     float radians = ((float)radians16 / 65535.0f) * 2.0f * SHZ_F_PI;
  
-    return (shz_sincos_t){ sinf(radians), cosf(radians) };
+    return SHZ_INIT(shz_sincos_t, sinf(radians), cosf(radians));
 }
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_sw(float radians) SHZ_NOEXCEPT {
-    return (shz_sincos_t) { sinf(radians), cosf(radians) };
+    return SHZ_INIT(shz_sincos_t, sinf(radians), cosf(radians));
 }
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg_sw(float degrees) SHZ_NOEXCEPT {
-    return (shz_sincos_t) { sinf(SHZ_DEG_TO_RAD(degrees)), cosf(SHZ_DEG_TO_RAD(degrees)) };
+    return SHZ_INIT(shz_sincos_t, sinf(SHZ_DEG_TO_RAD(degrees)), cosf(SHZ_DEG_TO_RAD(degrees)));
 }
 //! \endcond
 
