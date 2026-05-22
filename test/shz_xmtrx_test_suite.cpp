@@ -597,7 +597,7 @@ GBL_TEST_CASE(apply_transpose_4x4)
                                 }));
 
 #if SHZ_BACKEND == SHZ_SH4
-    (benchmark)(nullptr, "shz::xmtrx::apply_tranpose_4x4()", [](const shz::mat4x4& m) {
+    (benchmark)(nullptr, "shz::xmtrx::apply_transpose_4x4()", [](const shz::mat4x4& m) {
         shz::xmtrx::apply_transpose(m);
     }, in);
 #endif
@@ -631,7 +631,7 @@ GBL_TEST_CASE(apply_transpose_unaligned_4x4)
                                 }));
 
 #if SHZ_BACKEND == SHZ_SH4
-    (benchmark)(nullptr, "shz::xmtrx::apply_tranpose_unaligned_4x4()", [](const float* m) {
+    (benchmark)(nullptr, "shz::xmtrx::apply_transpose_unaligned_4x4()", [](const float* m) {
         shz::xmtrx::apply_transpose(m);
     }, in->data());
 #endif
