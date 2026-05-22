@@ -571,21 +571,180 @@ GBL_TEST_CASE(apply_unaligned_4x4)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_transpose_4x4)
+    alignas(32) shz_mat4x4_t in{
+        .elem = {
+            2.0f, 3.0f, 1.0f, 4.0f,
+            5.0f, 1.0f, 6.0f, 2.0f,
+            3.0f, 7.0f, 2.0f, 5.0f,
+            1.0f, 4.0f, 8.0f, 3.0f
+        }
+    };
+    alignas(32) const float xmat[] = {
+        1.0f, 2.0f, 3.0f, 4.0f,
+        5.0f, 6.0f, 7.0f, 8.0f,
+        9.0f, 10.0f, 11.0f, 12.0f,
+        13.0f, 14.0f, 15.0f, 16.0f
+    };
+    shz::xmtrx::load(xmat);
+    shz::xmtrx::apply_transpose(in);
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, 
+                                {
+                                    67.0f, 123.0f, 153.0f, 98.0f,
+                                    78.0f, 138.0f, 170.0f, 112.0f,
+                                    89.0f, 153.0f, 187.0f, 126.0f,
+                                    100.0f, 168.0f, 204.0f, 140.0f
+                                }));
+
+#if SHZ_BACKEND == SHZ_SH4
+    (benchmark)(nullptr, "shz::xmtrx::apply_tranpose_4x4()", [](const shz::mat4x4& m) {
+        shz::xmtrx::apply_transpose(m);
+    }, in);
+#endif
+
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_transpose_unaligned_4x4)
+    alignas(32) char buffer[sizeof(shz::mat4x4) + 4];
+    auto *in = new (buffer + 4) std::array<float, 16> {
+        2.0f, 3.0f, 1.0f, 4.0f,
+        5.0f, 1.0f, 6.0f, 2.0f,
+        3.0f, 7.0f, 2.0f, 5.0f,
+        1.0f, 4.0f, 8.0f, 3.0f
+    };
+
+    alignas(32) const float xmat[] = {
+        1.0f, 2.0f, 3.0f, 4.0f,
+        5.0f, 6.0f, 7.0f, 8.0f,
+        9.0f, 10.0f, 11.0f, 12.0f,
+        13.0f, 14.0f, 15.0f, 16.0f
+    };
+    shz::xmtrx::load(xmat);
+    shz::xmtrx::apply_transpose(in->data());
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, 
+                                {
+                                    67.0f, 123.0f, 153.0f, 98.0f,
+                                    78.0f, 138.0f, 170.0f, 112.0f,
+                                    89.0f, 153.0f, 187.0f, 126.0f,
+                                    100.0f, 168.0f, 204.0f, 140.0f
+                                }));
+
+#if SHZ_BACKEND == SHZ_SH4
+    (benchmark)(nullptr, "shz::xmtrx::apply_tranpose_unaligned_4x4()", [](const float* m) {
+        shz::xmtrx::apply_transpose(m);
+    }, in->data());
+#endif
+
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_reverse_4x4)
+    alignas(32) shz_mat4x4_t in{
+        .elem = {
+            2.0f, 3.0f, 1.0f, 4.0f,
+            5.0f, 1.0f, 6.0f, 2.0f,
+            3.0f, 7.0f, 2.0f, 5.0f,
+            1.0f, 4.0f, 8.0f, 3.0f
+        }
+    };
+    alignas(32) const float xmat[] = {
+        1.0f, 2.0f, 3.0f, 4.0f,
+        5.0f, 6.0f, 7.0f, 8.0f,
+        9.0f, 10.0f, 11.0f, 12.0f,
+        13.0f, 14.0f, 15.0f, 16.0f
+    };
+    shz::xmtrx::load(xmat);
+    shz::xmtrx::apply_reverse(in);
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                                {
+                                    25.0f, 69.0f, 113.0f, 157.0f,
+                                    42.0f, 102.0f, 162.0f, 222.0f,
+                                    51.0f, 119.0f, 187.0f, 255.0f,
+                                    35.0f, 91.0f, 147.0f, 203.0f
+                                }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_reverse_unaligned_4x4)
+    alignas(32) char buffer[sizeof(shz::mat4x4) + 4];
+    auto *in = new (buffer + 4) std::array<float, 16> {
+        2.0f, 3.0f, 1.0f, 4.0f,
+        5.0f, 1.0f, 6.0f, 2.0f,
+        3.0f, 7.0f, 2.0f, 5.0f,
+        1.0f, 4.0f, 8.0f, 3.0f
+    };
+
+    alignas(32) const float xmat[] = {
+        1.0f, 2.0f, 3.0f, 4.0f,
+        5.0f, 6.0f, 7.0f, 8.0f,
+        9.0f, 10.0f, 11.0f, 12.0f,
+        13.0f, 14.0f, 15.0f, 16.0f
+    };
+    shz::xmtrx::load(xmat);
+    shz::xmtrx::apply_reverse(in->data());
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                                {
+                                    25.0f, 69.0f, 113.0f, 157.0f,
+                                    42.0f, 102.0f, 162.0f, 222.0f,
+                                    51.0f, 119.0f, 187.0f, 255.0f,
+                                    35.0f, 91.0f, 147.0f, 203.0f
+                                }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_reverse_transpose_4x4)
+    alignas(32) shz_mat4x4_t in{
+        .elem = {
+            2.0f, 3.0f, 1.0f, 4.0f,
+            5.0f, 1.0f, 6.0f, 2.0f,
+            3.0f, 7.0f, 2.0f, 5.0f,
+            1.0f, 4.0f, 8.0f, 3.0f
+        }
+    };
+    alignas(32) const float xmat[] = {
+        1.0f, 2.0f, 3.0f, 4.0f,
+        5.0f, 6.0f, 7.0f, 8.0f,
+        9.0f, 10.0f, 11.0f, 12.0f,
+        13.0f, 14.0f, 15.0f, 16.0f
+    };
+    shz::xmtrx::load(xmat);
+    shz::xmtrx::apply_reverse_transpose(in);
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                                {
+                                    27.0f, 67.0f, 107.0f, 147.0f,
+                                    33.0f, 89.0f, 145.0f, 201.0f,
+                                    43.0f, 111.0f, 179.0f, 247.0f,
+                                    45.0f, 109.0f, 173.0f, 237.0f
+                                }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_reverse_transpose_unaligned_4x4)
+    alignas(32) char buffer[sizeof(shz::mat4x4) + 4];
+    auto *in = new (buffer + 4) std::array<float, 16> {
+        2.0f, 3.0f, 1.0f, 4.0f,
+        5.0f, 1.0f, 6.0f, 2.0f,
+        3.0f, 7.0f, 2.0f, 5.0f,
+        1.0f, 4.0f, 8.0f, 3.0f
+    };
+
+    alignas(32) const float xmat[] = {
+        1.0f, 2.0f, 3.0f, 4.0f,
+        5.0f, 6.0f, 7.0f, 8.0f,
+        9.0f, 10.0f, 11.0f, 12.0f,
+        13.0f, 14.0f, 15.0f, 16.0f
+    };
+
+    shz::xmtrx::load(xmat);
+    shz::xmtrx::apply_reverse_transpose(in->data());
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                                {
+                                    27.0f, 67.0f, 107.0f, 147.0f,
+                                    33.0f, 89.0f, 145.0f, 201.0f,
+                                    43.0f, 111.0f, 179.0f, 247.0f,
+                                    45.0f, 109.0f, 173.0f, 237.0f
+                                }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_translation)
