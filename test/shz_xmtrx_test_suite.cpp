@@ -663,6 +663,12 @@ GBL_TEST_CASE(apply_reverse_4x4)
                                     51.0f, 119.0f, 187.0f, 255.0f,
                                     35.0f, 91.0f, 147.0f, 203.0f
                                 }));
+
+#if SHZ_BACKEND == SHZ_SH4
+    (benchmark)(nullptr, "shz::xmtrx::apply_reverse_4x4()", [](const shz::mat4x4& m) {
+        shz::xmtrx::apply_reverse(m);
+    }, in);
+#endif
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_reverse_unaligned_4x4)
@@ -690,6 +696,12 @@ GBL_TEST_CASE(apply_reverse_unaligned_4x4)
                                     51.0f, 119.0f, 187.0f, 255.0f,
                                     35.0f, 91.0f, 147.0f, 203.0f
                                 }));
+
+#if SHZ_BACKEND == SHZ_SH4
+    (benchmark)(nullptr, "shz::xmtrx::apply_reverse_unaligned_4x4()", [](const float* m) {
+        shz::xmtrx::apply_reverse(m);
+    }, in->data());
+#endif
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_reverse_transpose_4x4)
@@ -717,6 +729,12 @@ GBL_TEST_CASE(apply_reverse_transpose_4x4)
                                     43.0f, 111.0f, 179.0f, 247.0f,
                                     45.0f, 109.0f, 173.0f, 237.0f
                                 }));
+
+#if SHZ_BACKEND == SHZ_SH4
+    (benchmark)(nullptr, "shz::xmtrx::apply_reverse_transpose_4x4()", [](const shz::mat4x4& m) {
+        shz::xmtrx::apply_reverse_transpose(m);
+    }, in);
+#endif
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_reverse_transpose_unaligned_4x4)
@@ -745,6 +763,12 @@ GBL_TEST_CASE(apply_reverse_transpose_unaligned_4x4)
                                     43.0f, 111.0f, 179.0f, 247.0f,
                                     45.0f, 109.0f, 173.0f, 237.0f
                                 }));
+
+#if SHZ_BACKEND == SHZ_SH4
+    (benchmark)(nullptr, "shz::xmtrx::apply_reverse_transpose_unaligned_4x4()", [](const float* m) {
+        shz::xmtrx::apply_reverse_transpose(m);
+    }, in->data());
+#endif
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_translation)
