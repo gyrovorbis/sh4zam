@@ -330,7 +330,7 @@ GBL_FP_PRECISE
 GBL_TEST_CASE(cabsf)
     auto test = [](shz::complex c) {
         float result   = shz::cabsf(c);
-        float expected = std::abs(std::complex<float>(c.real, c.imag));
+        float expected = abs(std::complex<float>(c.real, c.imag));
         return fabsf(result - expected) <= SHZ_COMPLEX_ERROR_APPROX;
     };
     GBL_TEST_VERIFY(test({3.0f,  4.0f}));   // |3+4i| = 5
@@ -342,7 +342,7 @@ GBL_TEST_CASE(cabsf)
         "shz::cabsf",
         shz::cabsf,
         "std::abs",
-        [](shz::complex c) { return std::abs(std::complex<float>(c.real, c.imag)); },
+        [](shz::complex c) { return abs(std::complex<float>(c.real, c.imag)); },
         shz::complex{3.0f, 4.0f}));
 GBL_TEST_CASE_END
 
@@ -350,7 +350,7 @@ GBL_FP_PRECISE
 GBL_TEST_CASE(inv_cabsf)
     auto test = [](shz::complex c) {
         float result   = shz::inv_cabsf(c);
-        float expected = 1.0f / std::abs(std::complex<float>(c.real, c.imag));
+        float expected = 1.0f / abs(std::complex<float>(c.real, c.imag));
         return fabsf(result - expected) <= SHZ_COMPLEX_ERROR_APPROX;
     };
     GBL_TEST_VERIFY(test({3.0f, 4.0f}));   // 1/5
@@ -360,7 +360,7 @@ GBL_TEST_CASE(inv_cabsf)
         "shz::inv_cabsf",
         shz::inv_cabsf,
         "1.0f/std::abs",
-        [](shz::complex c) { return 1.0f / std::abs(std::complex<float>(c.real, c.imag)); },
+        [](shz::complex c) { return 1.0f / abs(std::complex<float>(c.real, c.imag)); },
         shz::complex{3.0f, 4.0f}));
 GBL_TEST_CASE_END
 
