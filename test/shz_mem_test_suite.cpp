@@ -110,6 +110,8 @@ GBL_TEST_CASE(memcpy_sq_32)
 #if SHZ_BACKEND == SHZ_SH4
         dcache_inval_range((uintptr_t)dst, bytes);
         auto* d = sq_lock(dst);
+#else
+        auto* d = dst;
 #endif
         auto* ret = shz_sq_memcpy32(d, src, bytes);
 #if SHZ_BACKEND == SHZ_SH4
