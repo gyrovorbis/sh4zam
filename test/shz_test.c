@@ -1,6 +1,7 @@
 #include <sh4zam/shz_sh4zam.h>
-
 #include "shz_test.h"
+
+#include <assert.h>
 
 int main(int argc, const char* argv[]) {
     GblTestScenario *scenario = GblTestScenario_create("SH4ZAM");
@@ -8,6 +9,8 @@ int main(int argc, const char* argv[]) {
     GblContext_setLogFilter(GBL_CONTEXT(scenario), GBL_LOG_LEVEL_INFO    |
                                                    GBL_LOG_LEVEL_WARNING |
                                                    GBL_LOG_LEVEL_ERROR);
+    assert(SHZ_VERSION == shz_version_linked());
+
     GblTestScenario_enqueueSuite(scenario,
                                  GblTestSuite_create(SHZ_SCALAR_TEST_SUITE_TYPE));
     GblTestScenario_enqueueSuite(scenario,

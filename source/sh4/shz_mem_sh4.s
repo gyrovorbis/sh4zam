@@ -12,13 +12,14 @@
 .text
     .globl _shz_memset8_sh4_
     .globl _shz_memcpy128_sh4_
+    .globl _shz_sq_memcpy32_sh4_
 
 !
-! void *memset8_dc(void *dst, uint64_t value, size_t bytes)
+! void* shz_memset8_sh4_(void *dst, uint64_t value, size_t bytes)
 !
-! r4   : dst   (should be 8-byte aligned destination address)
-! r5-r6: value (64-bit value)
-! r7   : bytes (number of bytes to copy (should be evenly divisible by 8))
+! r4    : dst   (should be 8-byte aligned destination address)
+! r5-r6 : value (64-bit value)
+! r7    : bytes (number of bytes to copy (should be evenly divisible by 8))
 !
     .align 2
 _shz_memset8_sh4_:
@@ -48,10 +49,15 @@ _shz_memset8_sh4_:
     rts
     nop     
 
-
+!
+! void* shz_memcpy128_sh4_(void *dst, const void* src, size_t bytes)
+!
+! r4  : dst   (should be 32-byte aligned destination address)
+! r5  : src   (should be 8-byte aligned source address)
+! r6  : bytes (number of bytes to copy (should be evenly divisible by 128))
+!
 .align 5
 _shz_memcpy128_sh4_:
-
     mov       r15, r0
     or        #0x0f, r0
     mov       #-7, r2
@@ -88,7 +94,7 @@ _shz_memcpy128_sh4_:
     mov       r4, r2
     add       #-32, r2
 
-    .align 2
+    .align 5
 1:
     add       #-32, r7
     fmov.d    @r5+, dr0
@@ -162,3 +168,45 @@ _shz_memcpy128_sh4_:
 
     rts
     mov       r1, r0
+
+
+!
+! void* shz_sq_memcpy32_sh4_(void *dst, const void* src, size_t bytes)
+!
+! r4  : dst   (should be 4-byte aligned destination address)
+! r5  : src   (should be 8-byte aligned source address))
+! r6  : bytes (number of bytes to copy (should be evenly divisible by 32))
+!
+_shz_sq_memcpy32_sh4_:
+    pref    @r5         ! Immediately prefetch first cache line
+    mov     #-5, r7
+    fschg
+    shld    r7, r6      ! bytes >>= 5
+    mov     r5, r7
+    tst     r6, r6
+    mov     r4, r0
+    bt.s    1f          ! if(bytes == 0) goto end
+    add     #-32, r4
+0:
+    ! Load current 32 byte chunk
+    fmov.d  @r5+, dr0
+    dt      r6
+    fmov.d  @r5+, dr2
+    add     #32, r7
+    fmov.d  @r5+, dr4
+    add     #64, r4
+    fmov.d  @r5+, dr6
+
+    pref    @r7         ! Prefetch next 32 byte chunk
+
+    ! Write current chunk into SQs
+    fmov.d  dr6, @-r4
+    fmov.d  dr4, @-r4
+    fmov.d  dr2, @-r4
+    fmov.d  dr0, @-r4
+
+    bf.s    0b
+    pref    @r4         ! Flush the store queue
+1:
+    rts
+    fschg

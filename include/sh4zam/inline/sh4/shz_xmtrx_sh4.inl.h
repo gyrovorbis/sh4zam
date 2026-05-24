@@ -1695,21 +1695,26 @@ SHZ_INLINE void shz_xmtrx_apply_transpose_4x4_sh4(const shz_mat4x4_t* matrix) SH
 }
 
 SHZ_INLINE void shz_xmtrx_apply_reverse_4x4_sh4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
-    asm volatile(R"(
-        frchg
+    uintptr_t scratch;
 
-        fschg
-        fmov.d  @%[mtx]+, xd0
-        add     #24, %[mtx]
+    asm volatile(R"(
         pref    @%[mtx]
-        add     #-24, %[mtx]
-        fmov.d  @%[mtx]+, xd2
-        fmov.d  @%[mtx]+, xd4
-        fmov.d  @%[mtx]+, xd6
-        fmov.d  @%[mtx]+, xd8
-        fmov.d  @%[mtx]+, xd10
-        fmov.d  @%[mtx]+, xd12
-        fmov.d  @%[mtx]+, xd14
+        mov     %[mtx], %[scr]
+
+        add     #32, %[scr]
+        fschg
+
+        pref    @%[scr]
+        fmov.d  @%[mtx]+, dr0
+        fmov.d  @%[mtx]+, dr2
+        fmov.d  @%[mtx]+, dr4
+        fmov.d  @%[mtx]+, dr6
+        fmov.d  @%[mtx]+, dr8
+        fmov.d  @%[mtx]+, dr10
+        fmov.d  @%[mtx]+, dr12
+        fmov.d  @%[mtx]+, dr14
+
+        frchg
         fschg
 
         ftrv    xmtrx, fv0
@@ -1719,7 +1724,7 @@ SHZ_INLINE void shz_xmtrx_apply_reverse_4x4_sh4(const shz_mat4x4_t* matrix) SHZ_
 
         frchg
     )"
-    : [mtx] "+r" (matrix)
+    : [mtx] "+&r" (matrix), [scr] "=r" (scratch)
     : "m" (*matrix)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");

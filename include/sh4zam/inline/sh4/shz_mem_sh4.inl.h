@@ -20,7 +20,8 @@
 
 #define SHZ_FSCHG() asm volatile("fschg")
 
-extern void shz_memcpy128_sh4_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
+extern void  shz_memcpy128_sh4_  (void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
+extern void* shz_sq_memcpy32_sh4_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
 
 SHZ_FORCE_INLINE void shz_dcache_alloc_line_sh4(void* src) SHZ_NOEXCEPT {
     shz_alias_uint32_t *src32 = (shz_alias_uint32_t *)src;
@@ -124,27 +125,39 @@ SHZ_FORCE_INLINE void shz_memcpy64_store_no_movca_sh4_(uint64_t* SHZ_RESTRICT ds
 }
 
 // Based on routine from GLdc from MoopTheHedgehog.
-SHZ_FORCE_INLINE void* shz_memcpy1_sh4(      void* SHZ_RESTRICT dst,
+SHZ_FORCE_INLINE void shz_memcpy1_sh4_(      void* SHZ_RESTRICT dst,
                                        const void* SHZ_RESTRICT src,
                                             size_t              bytes) SHZ_NOEXCEPT {
-    SHZ_PREFETCH(src);
-
-    if(SHZ_LIKELY(bytes)) {
        uint32_t scratch;
        uint32_t diff = (uintptr_t)dst - (((uintptr_t)src) + 1);
 
        asm(R"(
-        .align 2
+            shlr    %[cnt]
+            bf      0f
+
+            cmp/pl  %[cnt]
+            mov.b   @%[in]+, %[scr]
+            bf.s    1f
+            mov.b   %[scr], @(%[offset], %[in])
         0:
+            mov.b   @%[in]+, %[scr]
             dt      %[cnt]
+            mov.b   %[scr], @(%[offset], %[in])
             mov.b   @%[in]+, %[scr]
             bf.s    0b
             mov.b   %[scr], @(%[offset], %[in])
+        1:
         )"
         : [in] "+&r" (src), [scr] "=&r" (scratch), [cnt] "+&r" (bytes), "=m" (*((uint8_t (*)[])dst))
         : [offset] "z" (diff), "m" (*((const uint8_t (*)[])src))
         : "t");
-    }
+}
+
+SHZ_INLINE void* shz_memcpy1_sh4(      void* SHZ_RESTRICT dst,
+                                 const void* SHZ_RESTRICT src,
+                                      size_t              bytes) SHZ_NOEXCEPT {
+    if(bytes)
+        shz_memcpy1_sh4_(dst, src, bytes);
 
     return dst;
 }
@@ -307,43 +320,12 @@ SHZ_INLINE void* shz_memcpy32_sh4(      void* SHZ_RESTRICT dst,
     return dst;
 }
 
-SHZ_INLINE void* shz_sq_memcpy32_sh4(      void* SHZ_RESTRICT dst,
-                                     const void* SHZ_RESTRICT src,
-                                     size_t                   bytes) SHZ_NOEXCEPT {
-    void* ret = dst;
+SHZ_FORCE_INLINE void* shz_sq_memcpy32_sh4(      void* SHZ_RESTRICT dst,
+                                           const void* SHZ_RESTRICT src,
+                                           size_t                   bytes) SHZ_NOEXCEPT {
+    assert(!(bytes & 31) && !((uintptr_t)dst & 3) && !((uintptr_t)src & 7));
 
-    assert(!(bytes % 32) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
-
-    bytes >>= 5;
-
-    if(bytes) {
-        SHZ_FSCHG();
-
-        asm volatile(R"(
-        1:
-            fmov.d @%[src]+, dr0
-            fmov.d @%[src]+, dr2
-            fmov.d @%[src]+, dr4
-            fmov.d @%[src]+, dr6
-            pref   @%[src]          ! Prefetch 32 bytes for next loop
-            dt     %[blks]          ! while(n--)
-            add    #32, %[dst]
-            fmov.d dr6, @-%[dst]
-            fmov.d dr4, @-%[dst]
-            fmov.d dr2, @-%[dst]
-            fmov.d dr0, @-%[dst]
-            pref   @%[dst]          ! Fire off store queue
-            bf.s   1b
-            add    #32, %[dst]
-        )"
-        : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" ((char (*)[])dst)
-        : "m" (*(const char (*)[])src)
-        : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "t");
-
-        SHZ_FSCHG();
-    }
-
-    return ret;
+    return shz_sq_memcpy32_sh4_(dst, src, bytes);
 }
 
 SHZ_INLINE void* shz_sq_memcpy32_xmtrx_sh4(      void* SHZ_RESTRICT dst,
@@ -439,12 +421,13 @@ SHZ_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
           uint8_t *d = (      uint8_t *)dst;
     size_t copied;
 
-    if(SHZ_LIKELY(bytes < 32))
-        shz_memcpy1(d, s, bytes);
-    else {
-        if((uintptr_t)d & 31) {
-            copied = (((uintptr_t)d + 31) & ~31) - (uintptr_t)d;
-            shz_memcpy1(d, s, copied);
+    if(bytes < 32) {
+        SHZ_PREFETCH(d);
+        shz_memcpy1_sh4(d, s, bytes);
+
+    } else {
+        if((copied = ((uintptr_t)d & 31))) {
+            shz_memcpy1_sh4_(d, s, copied);
             bytes -= copied;
             d     += copied;
             s     += copied;
@@ -454,24 +437,25 @@ SHZ_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
         if(!(((uintptr_t)s) & 0x7)) {
             if(SHZ_LIKELY(bytes >= 32)) {
                 copied = bytes & ~31;
-                shz_memcpy32(d, s, copied);
+                shz_memcpy32_sh4(d, s, copied);
             } else if(bytes >= 8) {
                 copied = bytes & ~7;
-                shz_memcpy8(d, s, copied);
+                shz_memcpy8_sh4(d, s, copied);
             }
         } else if(bytes >= 4 && !(((uintptr_t)s) & 3)) {
             copied = bytes & ~3;
-            shz_memcpy4(d, s, copied);
+            shz_memcpy4_sh4(d, s, copied);
         } else if(bytes >= 2 && !(((uintptr_t)s) & 1)) {
             copied = bytes & ~1;
-            shz_memcpy2(d, s, copied);
+            shz_memcpy2_sh4(d, s, copied);
         }
 
         bytes -= copied;
-        d     += copied;
-        s     += copied;
-
-        shz_memcpy1(d, s, bytes);
+        if(bytes) {
+            d     += copied;
+            s     += copied;
+            shz_memcpy1_sh4_(d, s, bytes);
+        }
     }
 
     return dst;

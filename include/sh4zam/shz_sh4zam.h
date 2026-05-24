@@ -12,6 +12,7 @@
 #ifndef SHZ_SH4ZAM_H
 #define SHZ_SH4ZAM_H
 
+#include "shz_version.h"
 #include "shz_cdefs.h"
 #include "shz_mem.h"
 #include "shz_scalar.h"

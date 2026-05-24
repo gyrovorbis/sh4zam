@@ -21,14 +21,14 @@ namespace shz {
         return shz_memmove(dst, src, bytes);
     }
 
-    constexpr auto memcpy            = shz_memcpy;
-    constexpr auto memcpy1           = shz_memcpy1;
-    constexpr auto memcpy2           = shz_memcpy2;
-    constexpr auto memcpy4           = shz_memcpy4;
-    constexpr auto memcpy8           = shz_memcpy8;
-    constexpr auto memset8           = shz_memset8;
-    constexpr auto memcpy32          = shz_memcpy32;
-    constexpr auto memcpy64          = shz_memcpy64;
+    constexpr auto memcpy   = shz_memcpy;
+    constexpr auto memcpy1  = shz_memcpy1;
+    constexpr auto memcpy2  = shz_memcpy2;
+    constexpr auto memcpy4  = shz_memcpy4;
+    constexpr auto memcpy8  = shz_memcpy8;
+    constexpr auto memset8  = shz_memset8;
+    constexpr auto memcpy32 = shz_memcpy32;
+    constexpr auto memcpy64 = shz_memcpy64;
 
     //! C++ wrapper around shz_memcpy128().
     SHZ_FORCE_INLINE void* memcpy128(void* dst, const void* src, size_t bytes) noexcept {

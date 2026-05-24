@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(SHZ_VERSION_MAJOR 0)
-set(SHZ_VERSION_MINOR 0)
+set(SHZ_VERSION_MINOR 7)
 set(SHZ_VERSION_PATCH 0)
 set(SHZ_VERSION ${SHZ_VERSION_MAJOR}.${SHZ_VERSION_MINOR}.${SHZ_VERSION_PATCH})
 
@@ -26,6 +26,7 @@ set(SHZ_SOURCES
     source/shz_complex.c
     source/shz_matrix.c
     source/shz_quat.c
+    source/shz_version.c
     source/shz_xmtrx.c)
 
 if(PLATFORM_DREAMCAST)
@@ -88,13 +89,6 @@ else()
 endif()
 
 add_library(sh4zam STATIC ${SHZ_SOURCES})
-
-target_compile_definitions(sh4zam 
-    PUBLIC
-        -DSHZ_VERSION_MAJOR=${SHZ_VERSION_MAJOR}
-        -DSHZ_VERSION_MINOR=${SHZ_VERSION_MINOR}
-        -DSHZ_VERSION_PATCH=${SHZ_VERSION_PATCH}
-        -DSHZ_VERSION="${SHZ_VERSION}")
 
 target_include_directories(sh4zam
     PUBLIC

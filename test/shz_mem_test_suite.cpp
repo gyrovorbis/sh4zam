@@ -105,6 +105,93 @@ GBL_TEST_CASE(memcpy_fast)
 #endif
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(memcpy_sq_32)
+    auto sq_memcpy = [](void* dst, const void* src, size_t bytes) {
+#if SHZ_BACKEND == SHZ_SH4
+        dcache_inval_range((uintptr_t)dst, bytes);
+        auto* d = sq_lock(dst);
+#endif
+        auto* ret = shz_sq_memcpy32(d, src, bytes);
+#if SHZ_BACKEND == SHZ_SH4
+        sq_unlock();
+#endif
+        return ret;
+    };
+
+    GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 8, 32, PADDING>)(sq_memcpy));
+    GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 8, 32, PADDING>)(sq_memcpy));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(memcpy_primitive_1)
+    GBL_TEST_VERIFY((memcpy_verify<1, 1, 1, 1>)(shz::memcpy));
+    (memcpy_bench <1, 1, 1, 1>)(shz::memcpy);
+#if SHZ_BACKEND != SHZ_SH4
+    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
+#else
+    (memcpy_bench <1, 1, 1, 1>)(memcpy_fast);
+#endif
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(memcpy_primitive_2)
+    GBL_TEST_VERIFY((memcpy_verify<2, 2, 2, 1>)(shz::memcpy));
+    (memcpy_bench <2, 2, 2, 1>)(shz::memcpy);
+#if SHZ_BACKEND != SHZ_SH4
+    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
+#else
+    (memcpy_bench <2, 2, 2, 1>)(memcpy_fast);
+#endif
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(memcpy_primitive_4)
+    GBL_TEST_VERIFY((memcpy_verify<4, 4, 4, 1>)(shz::memcpy));
+    (memcpy_bench <4, 4, 4, 1>)(shz::memcpy);
+#if SHZ_BACKEND != SHZ_SH4
+    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
+#else
+    (memcpy_bench <4, 4, 4, 1>)(memcpy_fast);
+#endif
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(memcpy_primitive_8)
+    GBL_TEST_VERIFY((memcpy_verify<8, 8, 8, 1>)(shz::memcpy));
+    (memcpy_bench <8, 8, 8, 1>)(shz::memcpy);
+#if SHZ_BACKEND != SHZ_SH4
+    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
+#else
+    (memcpy_bench <8, 8, 8, 1>)(memcpy_fast);
+#endif
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(memcpy_primitive_16)
+    GBL_TEST_VERIFY((memcpy_verify<16, 16, 16, 1>)(shz::memcpy));
+    (memcpy_bench <16, 16, 16, 1>)(shz::memcpy);
+#if SHZ_BACKEND != SHZ_SH4
+    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
+#else
+    (memcpy_bench <16, 16, 16, 1>)(memcpy_fast);
+#endif
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(memcpy_primitive_32)
+    GBL_TEST_VERIFY((memcpy_verify<32, 32, 32, 1>)(shz::memcpy));
+    (memcpy_bench <32, 32, 32, 1>)(shz::memcpy);
+#if SHZ_BACKEND != SHZ_SH4
+    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
+#else
+    (memcpy_bench <32, 32, 32, 1>)(memcpy_fast);
+#endif
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(memcpy_primitive_64)
+    GBL_TEST_VERIFY((memcpy_verify<64, 64, 64, 1>)(shz::memcpy));
+    (memcpy_bench <64, 64, 64, 1>)(shz::memcpy);
+#if SHZ_BACKEND != SHZ_SH4
+    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
+#else
+    (memcpy_bench <64, 64, 64, 1>)(memcpy_fast);
+#endif
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(memcpy1,
                   memcpy2,
                   memcpy4,
@@ -113,4 +200,12 @@ GBL_TEST_REGISTER(memcpy1,
                   memcpy64,
                   memcpy128,
                   memcpy,
-                  memcpy_fast)
+                  memcpy_fast,
+                  memcpy_sq_32,
+                  memcpy_primitive_1,
+                  memcpy_primitive_2,
+                  memcpy_primitive_4,
+                  memcpy_primitive_8,
+                  memcpy_primitive_16,
+                  memcpy_primitive_32,
+                  memcpy_primitive_64)
