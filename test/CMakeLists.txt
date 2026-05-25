@@ -15,6 +15,13 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 add_subdirectory(libgimbal)
 
+set(CGLM_SHARED OFF)
+set(CGLM_STATIC ON)
+add_subdirectory(cglm)
+if(PLATFORM_DREAMCAST)
+    target_compile_options(cglm PRIVATE -fno-fast-math)
+endif()
+
 add_executable(Sh4zamTests
     shz_test.c
     shz_test.h
@@ -31,14 +38,7 @@ add_executable(Sh4zamTests
 target_include_directories(Sh4zamTests
     PRIVATE ..)
 
-set(LIBS libGimbal sh4zam)
-
-if(MSVC)
-    find_package(cglm CONFIG REQUIRED)
-    list(APPEND LIBS cglm::cglm)
-else()
-    list(APPEND LIBS cglm)
-endif()
+set(LIBS libGimbal sh4zam cglm)
 
 if(PLATFORM_DREAMCAST)
     list(APPEND LIBS fastmem)

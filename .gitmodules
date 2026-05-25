@@ -1,3 +1,6 @@
 [submodule "test/libgimbal"]
 	path = test/libgimbal
 	url = https://github.com/gyrovorbis/libgimbal.git
+[submodule "test/cglm"]
+	path = test/cglm
+	url = git@github.com:recp/cglm.git
