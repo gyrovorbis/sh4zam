@@ -81,6 +81,18 @@ static inline void shz_xmtrx_mul4x4_cols_(const shz_vec4_t* b) {
     xmtrx_state_->col[3] = r3;
 }
 
+static inline void shz_xmtrx_mul4x4_colsf_(const float b[16]) {
+    shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
+    shz_vec4_t r0 = shz_xmtrx_ftrv_(shz_vec4_init(b[ 0], b[ 1], b[ 2], b[ 3]));
+    shz_vec4_t r1 = shz_xmtrx_ftrv_(shz_vec4_init(b[ 4], b[ 5], b[ 6], b[ 7]));
+    shz_vec4_t r2 = shz_xmtrx_ftrv_(shz_vec4_init(b[ 8], b[ 9], b[10], b[11]));
+    shz_vec4_t r3 = shz_xmtrx_ftrv_(shz_vec4_init(b[12], b[13], b[14], b[15]));
+    xmtrx_state_->col[0] = r0;
+    xmtrx_state_->col[1] = r1;
+    xmtrx_state_->col[2] = r2;
+    xmtrx_state_->col[3] = r3;
+}
+
 /* state = A * state (reverse multiply: load A, transform each column of old state) */
 static inline void shz_xmtrx_rmul4x4_cols_(const shz_vec4_t* a) {
     shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
@@ -505,7 +517,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_4x4_sw(const shz_mat4x4_t* matrix) SHZ_NOE
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_aligned4_4x4_sw(const float matrix[16]) SHZ_NOEXCEPT {
-    shz_xmtrx_apply_4x4_sw((const shz_mat4x4_t*)matrix);
+    shz_xmtrx_mul4x4_colsf_(matrix);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_transpose_4x4_sw(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
