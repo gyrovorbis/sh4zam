@@ -54,6 +54,13 @@ GBL_TEST_CASE(ceilf)
     GBL_TEST_VERIFY(shz::ceilf(-0.8f) ==  0.0f);
     GBL_TEST_VERIFY(shz::ceilf(-1.3f) == -1.0f);
     GBL_TEST_VERIFY(shz::ceilf(-1.8f) == -1.0f);
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<float>)(
+            "shz::ceilf", shz::ceilf,
+            "ceilf", ceilf, 99.0f
+        )
+    );
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(fmacf)
@@ -367,6 +374,28 @@ GBL_TEST_CASE(cbrtf)
     GBL_TEST_VERIFY(test(-0.125f));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(logf)
+    auto test = [&](volatile float value) {
+        float shz_res, c_res;
+
+        shz_res = shz::logf(value);
+        c_res = logf(value);
+
+        return gblRelativeError(shz_res, c_res) <= 0.2f;
+    };
+
+    GBL_TEST_VERIFY(test(27.0f));
+    GBL_TEST_VERIFY(test(1.1f));
+    GBL_TEST_VERIFY(test(7.324234f));
+    GBL_TEST_VERIFY(test(0.000125f));
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<float>)(
+            "shz::logf", shz::logf,
+            "logf", logf, 9999.0f
+        )
+    );
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(log10f)
     auto test = [&](volatile float value) {
         float shz_res, c_res;
@@ -436,5 +465,6 @@ GBL_TEST_REGISTER(min,
                   smoothstepf,
                   smoothstepf_safe,
                   cbrtf,
+                  logf,
                   log10f,
                   pow10f)
