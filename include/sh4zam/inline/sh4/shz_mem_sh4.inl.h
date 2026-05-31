@@ -421,12 +421,14 @@ SHZ_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
           uint8_t *d = (      uint8_t *)dst;
     size_t copied;
 
+    SHZ_PREFETCH(s);
+
     if(bytes < 32) {
-        SHZ_PREFETCH(d);
-        shz_memcpy1_sh4(d, s, bytes);
+        shz_memcpy1_sh4_(d, s, bytes);
 
     } else {
-        if((copied = ((uintptr_t)d & 31))) {
+        if(((uintptr_t)d & 31)) {
+            copied = 32 - ((uintptr_t)d & 31);
             shz_memcpy1_sh4_(d, s, copied);
             bytes -= copied;
             d     += copied;
