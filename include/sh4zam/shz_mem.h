@@ -78,7 +78,6 @@ SHZ_INLINE void* shz_memcpy(      void* SHZ_RESTRICT dst,
     destination buffers are allowed to overlap, making this routine slightly
     less efficient, but more versatile than shz_memcpy().
 
-    \note
     There is no alignment or size requirement for this routine.
 
     \sa shz_memcpy()

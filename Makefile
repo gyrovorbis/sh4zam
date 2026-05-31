@@ -1,7 +1,7 @@
 # SH4ZAM!
 #
 # KallistiOS-Compatible Makefile
-# Copyright (C) 2025 Falco Girgis
+# Copyright (C) 2025, 2026 Falco Girgis
 #
 # Top-level Makefile for use within the KallistiOS
 # build environment. You should have already sourced
@@ -38,9 +38,10 @@ rerun: clean run
 flycast: tests
 	flycast $(CMAKE_BUILD_DIR)/test/Sh4zamTests.elf
 
-# Installs the static library as a KOS addon.
+# Installs the static library as a KOS port.
 install: lib
 	ln -sf $(CURDIR)/$(CMAKE_BUILD_DIR)/libsh4zam.a $(KOS_PORTS)/lib/libsh4zam.a
+	rm -rf $(KOS_PORTS)/include/sh4zam
 	ln -sf $(CURDIR)/include/sh4zam $(KOS_PORTS)/include/sh4zam
 
 # Uninstalls the static library from KOS addons.
@@ -54,9 +55,21 @@ reinstall: uninstall install
 # Deletes all build artifacts.
 clean:
 	-rm -rf $(CMAKE_BUILD_DIR)
+	-rm -rf build-sw
 
 # Cleans artifacts then rebuilds static library.
 rebuild: clean lib
+
+################# NON-DREAMCAST RULES #################
+
+# Rebuild + runs SW-based unit test for sanity testing
+check-sw:
+	rm -rf build-sw
+	mkdir build-sw
+	cd build-sw
+	cmake -DSHZ_ENABLE_TESTS=on -G "Ninja" -S . -B build-sw
+	ninja -C build-sw
+	build-sw/test/Sh4zamTests
 
 # Regenerates Doxygen documentation and opens in the browser.
 docs:
