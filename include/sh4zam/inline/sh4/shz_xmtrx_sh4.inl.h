@@ -2431,15 +2431,16 @@ SHZ_INLINE void shz_xmtrx_apply_lookat_sh4(shz_vec3_t eye,
         fmov    fr4, fr1
         fmov    fr8, fr2
         fmov    fr15, fr4
+        fmov    fr9, fr15
         fmov    fr3, fr8
         fmov    fr7, fr9
 
         fldi0   fr3
         fldi0   fr7
+        fmov    fr15, fr6
         ftrv    xmtrx, fv0
-        fmov    fr9, fr6
-        ftrv    xmtrx, fv4
         fldi0   fr11
+        ftrv    xmtrx, fv4
         fldi1   fr15
         ftrv    xmtrx, fv8
 
@@ -2451,6 +2452,7 @@ SHZ_INLINE void shz_xmtrx_apply_lookat_sh4(shz_vec3_t eye,
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
+
 
 SHZ_INLINE void shz_xmtrx_apply_ortho_sh4(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
     shz_vec3_t box   = shz_vec3_inv(shz_vec3_init(right - left, top - bottom, zfar - znear));
