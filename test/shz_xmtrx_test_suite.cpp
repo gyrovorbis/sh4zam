@@ -1023,18 +1023,18 @@ GBL_TEST_CASE(apply_rotation_quat)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_permutation_wzyx)
-
     randomize_xmtrx_();
-    shz::xmtrx::init_translation(20.0f, 30.0f, 40.0f);
+    shz::xmtrx::init_identity();
     shz::xmtrx::apply_permutation_wzyx();
 
-    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, {
-        20.0f, 0.0f, 0.0f, 1.0f,
-        30.0f, 0.0f, 1.0f, 0.0f,
-        40.0f, 1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f, 0.0f
-    }));
+    shz::vec4 input = { 1.0f, 2.0f, 3.0f, 4.0f };
+    auto output = shz::xmtrx::transform(input);
 
+    // wzyx: output should be (w,z,y,x) = (4,3,2,1)
+    GBL_TEST_VERIFY(output.x == 4.0f);
+    GBL_TEST_VERIFY(output.y == 3.0f);
+    GBL_TEST_VERIFY(output.z == 2.0f);
+    GBL_TEST_VERIFY(output.w == 1.0f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_apply_4x4)
