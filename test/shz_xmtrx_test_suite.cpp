@@ -514,6 +514,20 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(init_permutation_yzwx)
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(init_permutation_wzyx)
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_permutation_wzyx();
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, {
+        0.0f, 0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f, 0.0f
+    }));
+
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(init_outer_product)
 GBL_TEST_CASE_END
 
@@ -1006,6 +1020,21 @@ GBL_TEST_CASE(apply_rotation_quat)
                 [](shz::quat q) {
                     shz::xmtrx::apply_rotation_quat(q);
                 }, shz::quat{ 1.0f, 2.0f, 3.0f, 4.0f });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_permutation_wzyx)
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_translation(20.0f, 30.0f, 40.0f);
+    shz::xmtrx::apply_permutation_wzyx();
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, {
+        20.0f, 0.0f, 0.0f, 1.0f,
+        30.0f, 0.0f, 1.0f, 0.0f,
+        40.0f, 1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f, 0.0f
+    }));
+
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_apply_4x4)
@@ -1650,6 +1679,7 @@ GBL_TEST_REGISTER(read_write_registers,
                   init_screen,
                   init_permutation_wxyz,
                   init_permutation_yzwx,
+                  init_permutation_wzyx,
                   apply_4x4,
                   apply_unaligned_4x4,
                   apply_transpose_4x4,
@@ -1667,6 +1697,7 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_rotation_zyx,
                   apply_rotation_yxz,
                   apply_rotation_quat,
+                  apply_permutation_wzyx,
                   load_apply_4x4,
                   load_apply_unaligned_4x4,
                   apply_store_4x4,

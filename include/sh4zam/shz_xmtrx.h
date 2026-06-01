@@ -317,6 +317,9 @@ SHZ_INLINE void shz_xmtrx_init_permutation_wxyz(void) SHZ_NOEXCEPT;
 //! Initializes XMTRX to a permutation matrix, which reorders the components of transformed vectors to be in YZWX order.
 SHZ_INLINE void shz_xmtrx_init_permutation_yzwx(void) SHZ_NOEXCEPT;
 
+//! Initializes XMTRX to a permutation matrix, which reorders the components of transformed vectors to be in WZYX order.
+SHZ_INLINE void shz_xmtrx_init_permutation_wzyx(void) SHZ_NOEXCEPT;
+
 /*! Initializes XMTRX to the viewport matrix with the given dimensions.
 
      fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
@@ -506,6 +509,9 @@ SHZ_INLINE void shz_xmtrx_apply_permutation_wxyz(void) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in YZWX order.
 SHZ_INLINE void shz_xmtrx_apply_permutation_yzwx(void) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in WZYX order.
+SHZ_INLINE void shz_xmtrx_apply_permutation_wzyx(void) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulatse the XMTRX matrix by itself, squaring it.
 SHZ_INLINE void shz_xmtrx_apply_self(void) SHZ_NOEXCEPT;

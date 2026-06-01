@@ -412,6 +412,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_permutation_yzwx(void) SHZ_NOEXCEPT {
 #endif
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_init_permutation_wzyx(void) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_init_permutation_wzyx_sh4();
+#else
+    shz_xmtrx_init_permutation_wzyx_sw();
+#endif
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_init_screen(float width, float height) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_init_screen_sh4(width, height);
@@ -708,6 +716,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_permutation_yzwx(void) SHZ_NOEXCEPT {
     shz_xmtrx_apply_permutation_yzwx_sh4();
 #else
     shz_xmtrx_apply_permutation_yzwx_sw();
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_apply_permutation_wzyx(void) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_apply_permutation_wzyx_sh4();
+#else
+    shz_xmtrx_apply_permutation_wzyx_sw();
 #endif
 }
 

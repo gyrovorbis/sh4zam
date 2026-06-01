@@ -500,6 +500,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_permutation_yzwx_sw(void) SHZ_NOEXCEPT {
     xmtrx_state_->col[3] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_init_permutation_wzyx_sw(void) SHZ_NOEXCEPT {
+    shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
+    xmtrx_state_->col[0] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+    xmtrx_state_->col[1] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
+    xmtrx_state_->col[2] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
+    xmtrx_state_->col[3] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_init_screen_sw(float width, float height) SHZ_NOEXCEPT {
     shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
     const float hw = width * 0.5f;
@@ -821,6 +829,15 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_permutation_yzwx_sw(void) SHZ_NOEXCEPT {
     m[1] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
     m[2] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
     m[3] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
+    shz_xmtrx_mul4x4_cols_(m);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_apply_permutation_wzyx_sw(void) SHZ_NOEXCEPT {
+    shz_vec4_t m[4];
+    m[0] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+    m[1] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
+    m[2] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
+    m[3] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
     shz_xmtrx_mul4x4_cols_(m);
 }
 
