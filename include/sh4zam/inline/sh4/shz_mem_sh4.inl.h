@@ -153,7 +153,7 @@ SHZ_FORCE_INLINE void shz_memcpy1_sh4_(      void* SHZ_RESTRICT dst,
         : "t");
 }
 
-SHZ_INLINE void* shz_memcpy1_sh4(      void* SHZ_RESTRICT dst,
+SHZ_FORCE_INLINE void* shz_memcpy1_sh4(      void* SHZ_RESTRICT dst,
                                  const void* SHZ_RESTRICT src,
                                       size_t              bytes) SHZ_NOEXCEPT {
     if(bytes)
@@ -411,7 +411,7 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
     size_t copied;
 
     if(bytes < 32) {
-        shz_memcpy1_sh4_(d, s, bytes);
+        shz_memcpy1_sh4(d, s, bytes);
 
     } else {
         if(((uintptr_t)d & 31)) {
