@@ -249,9 +249,10 @@ SHZ_INLINE shz_complex_t shz_cacothf(shz_complex_t c) SHZ_NOEXCEPT;
     butterfly DIF.
 
     \warning \p size must be a power-of-two!
+    \warning \p s must be aligned to 8-byte boundaries!
     \warning This routine clobbers `XMTRX`!
 */
-void shz_fft(shz_complex_t* s, size_t size) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_fft(shz_complex_t* s, size_t size) SHZ_NOEXCEPT;
 
 //! @}
 

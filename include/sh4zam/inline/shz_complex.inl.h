@@ -3,8 +3,6 @@
 
 #include <math.h>
 
-//! CONSTEXPR EVALUATION
-
 SHZ_FORCE_INLINE float shz_crealf(shz_complex_t c) SHZ_NOEXCEPT {
     return c.real;
 }
@@ -280,4 +278,18 @@ SHZ_INLINE shz_complex_t shz_casechf(shz_complex_t c) SHZ_NOEXCEPT {
 
 SHZ_INLINE shz_complex_t shz_cacothf(shz_complex_t c) SHZ_NOEXCEPT {
     return shz_catanhf(shz_crecipf(c));
+}
+
+#if SHZ_BACKEND == SHZ_SH4
+void shz_fft_dc(shz_complex_t* s, size_t bytes) SHZ_NOEXCEPT;
+#else
+void shz_fft_sw(shz_complex_t* s, size_t bytes) SHZ_NOEXCEPT;
+#endif
+
+SHZ_FORCE_INLINE void shz_fft(shz_complex_t* s, size_t bytes) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_fft_dc(s, bytes);
+#else
+    shz_fft_sw(s, bytes);
+#endif
 }
