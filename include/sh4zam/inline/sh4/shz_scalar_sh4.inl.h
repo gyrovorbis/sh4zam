@@ -85,17 +85,70 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f_sh4(float x, float y, float z, float w) SHZ
     return rw;
 }
 
+#if 1
 SHZ_FORCE_INLINE float shz_cbrt_magic_sh4(float x) SHZ_NOEXCEPT {
-    int32_t eax = *(shz_alias_int32_t*)&x; // mov eax, x (as bits)
+    uint32_t eax = *(shz_alias_uint32_t *)&x; // mov eax, x (as bits)
+    uint32_t ecx = eax;                       // mov ecx, eax
 
-    asm inline("shll %0" :"+r"(eax) :: "t");
+    eax &= 0x7FFFFFFFu;                       // clear sign
+    eax -= 0x3F800000u;                       // subtract 1.0f anchor
+    eax = (uint32_t)((int32_t)eax >> 10);     // sar eax, 10  (arithmetic shift)
+    eax = (uint32_t)((int32_t)eax * 341);     // imul eax, 341
+    eax += 0x3F800000u;                       // add anchor back
+    eax &= 0x7FFFFFFFu;                       // remask (keep positive magnitude)
 
-    eax = ((eax - 0x7f000000) >> 10) * 341 + 0x7f000000;
-
-    asm inline("rotcr %0" :"+r"(eax) :: "t");
+    ecx &= 0x80000000u;                       // keep original sign bit
+    eax |= ecx;                               // combine sign + new magnitude
 
     return *(shz_alias_float_t*)&eax; // z as float
 }
+#else
+SHZ_FORCE_INLINE float shz_cbrt_magic_sh4(float x) SHZ_NOEXCEPT {
+    shz_alias_int32_t bits = *(shz_alias_int32_t*)&x;
+    shz_alias_int32_t s1, s2;
+
+    asm volatile(
+        "shll   %[x]        \n\t" /* T = sign bit, x = abs(bits) << 1      */
+        "mov    #0x7f, %[s1]\n\t" /* build anchor 0x7f000000                */
+        "shll8  %[s1]       \n\t"
+        "shll16 %[s1]       \n\t"
+        "sub    %[s1], %[x] \n\t" /* x -= 0x7f000000                        */
+        "mov    #-10, %[s2] \n\t" /* shift amount (negative = right in SHAD) */
+        "shad   %[s2], %[x] \n\t" /* x >>= 10 arithmetic; T unmodified       */
+        "mov    #1,  %[s2]  \n\t" /* build 341 = 256 + 85                    */
+        "shll8  %[s2]       \n\t"
+        "mov    #85, %[s1]  \n\t"
+        "add    %[s2], %[s1]\n\t"
+        "mul.l  %[s1], %[x] \n\t" /* MACL = x * 341; T unmodified            */
+        "mov    #0x7f, %[s1]\n\t" /* rebuild anchor (fills mul.l latency)    */
+        "shll8  %[s1]       \n\t"
+        "shll16 %[s1]       \n\t"
+        "sts    macl, %[x]  \n\t" /* x = MACL (>= 2 cycles after mul.l)     */
+        "add    %[s1], %[x] \n\t" /* x += 0x7f000000                        */
+        "rotcr  %[x]        \n\t" /* restore sign from T                     */
+        : [x] "+r" (bits), [s1] "=&r" (s1), [s2] "=&r" (s2)
+        :
+        : "macl", "t"
+    );
+
+    return *(shz_alias_float_t*)&bits;
+}
+
+
+/* Broken: shll saves sign in T flag, but >> 10 compiles to SHAR which
+   overwrites T on every shift, so rotcr restores the wrong bit. */
+SHZ_FORCE_INLINE float shz_cbrt_magic_sh4_broken(float x) SHZ_NOEXCEPT {
+    shz_alias_int32_t eax = *(shz_alias_int32_t*)&x;
+
+    asm("shll %0" :"+r"(eax) :: "t");
+
+    eax = ((eax - 0x7f000000) >> 10) * 341 + 0x7f000000;
+
+    asm("rotcr %0" :"+r"(eax) :: "t");
+
+    return *(shz_alias_float_t*)&eax;
+}
+#endif
 
 //! \endcond
 

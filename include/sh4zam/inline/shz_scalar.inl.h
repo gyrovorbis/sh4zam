@@ -161,7 +161,7 @@ SHZ_FORCE_INLINE float shz_remainderf(float num, float denom) SHZ_NOEXCEPT {
     if(__builtin_constant_p(num) && __builtin_constant_p(denom))
         return __builtin_remainderf(num, denom);
 #endif
-    return num - shz_roundf(shz_divf(num, denom)) * denom;
+    return num - shz_roundf(shz_divf_fsrra(num, denom)) * denom;
 }
 
 SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT {
@@ -169,7 +169,7 @@ SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT {
     if(__builtin_constant_p(num) && __builtin_constant_p(denom))
         return __builtin_fmodf(num, denom);
 #endif
-    return num - shz_truncf(shz_divf(num, denom)) * denom;
+    return num - shz_truncf(shz_divf_fsrra(num, denom)) * denom;
 }
 
 SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEXCEPT {
@@ -526,8 +526,8 @@ SHZ_FORCE_INLINE float shz_stepf(float x, float edge) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_smoothstepf(float x, float edge0, float edge1) SHZ_NOEXCEPT {
-    if (x >= edge1) return 1.0f;
-    if (x <= edge0) return 0.0f;
+    if(x >= edge1) return 1.0f;
+    else if(x <= edge0) return 0.0f;
 
     float diff = edge1 - edge0;
 
@@ -542,7 +542,7 @@ SHZ_FORCE_INLINE float shz_smoothstepf_safe(float x, float edge0, float edge1) S
     if(edge0 == edge1)
         return shz_stepf(x, edge0);
 
-    float t = (x - edge0) / (edge1 - edge0);
+    float t = shz_divf((x - edge0), (edge1 - edge0));
     t = shz_clampf(t, 0.0f, 1.0f);
     return t * t * shz_fmaf(t, -2.0f, 3.0f);
 }
