@@ -195,12 +195,26 @@ SHZ_INLINE shz_quat_t shz_quat_slerp(shz_quat_t q, shz_quat_t p, float t) SHZ_NO
     shz_quat_t q1;
     float c, phi;
 
-    if((c = shz_quat_dot(q1, p)) < 0.0f) {
+    /* Negate one of the inputs when the dot product is negative in order
+       to avoid taking the long path around the sphere. */
+    if((c = shz_quat_dot(q, p)) < 0.0f) {
         c = -c;
         q1 = shz_quat_neg(q);
-    } else q1 = q;
+    } else
+        q1 = q;
+
+    // Check whether the inputs are closer than a certain threshold.
+    const float SHZ_QUAT_DOT_THRESHOLD = 0.9995f;
+    if(c > SHZ_QUAT_DOT_THRESHOLD) {
+        // LERP and normalize to mitigate numerical instability and division by zero.
+        return shz_quat_normalize(shz_quat_init(shz_lerpf(q1.w, p.w, t),
+                                                shz_lerpf(q1.x, p.x, t),
+                                                shz_lerpf(q1.y, p.y, t),
+                                                shz_lerpf(q1.z, p.z, t)));
+    }
 
     // Check for a minimum epsilon, below which we do no interpolation.
+    const float SHZ_QUAT_SLERP_PHI_EPSILON = SHZ_FLT_EPSILON;
     if((phi = shz_acosf(c)) > SHZ_QUAT_SLERP_PHI_EPSILON) {
         /* The output of acosf() is in the range of [0 : PI],
            giving us a sine that is guaranteed to be a positive value. */

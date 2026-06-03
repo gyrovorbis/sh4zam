@@ -21,7 +21,7 @@
 - Clean header files, separating interface from implementation
 - Constexpr evaluation handled for both C and C++
 - Zero-cost conversion operators for interop with other APIs
-- Meticulously optimized for latest SH-GCC version 15.x
+- Meticulously optimized for latest SH-GCC version 16.x
 - Rigorously unit tested and validated on physical hardware
 - Heavily documented header files and external Doxygen site
 - Software back-end for using SH4ZAM in cross-platform codebases
@@ -30,7 +30,6 @@
 - **Preprocessor** directives controlling optimizations
 - **Intrinsics** for SH4 instructions not emitted by GCC
 - **Memory** routines (memcpy(), memset(), memmove(), etc)
-- **Floating-point Environment** control
 - **Scalar** math operations, including faster `<math.h>` replacements
 - **Trigonometry** functions, inverse trig functions
 - **Vector** types: 2D, 3D, 4D
@@ -38,7 +37,6 @@
 - **Quaternion** math operations
 - **XMTRX** API for manipulating 4x4 back-bank of FP registers
 - **Complex** and imaginary math API, including accelerated FFT
-- **Miscellaneous** optimized routines
 
 # Usage
 
@@ -129,6 +127,10 @@ Project                                                   | Description
 [Mario Kart 64 DC](https://github.com/jnmartin84/mk64-dc) | jnmartin's Mario Kart 64 DC port with SH4ZAM acceleration.
 [Star Fox 64 DC](https://github.com/jnmartin84/sf64-dc)   | jnmartin's Star Fox 64 DC port with SH4ZAM acceleration.
 [Super Mario 64 DC](https://github.com/jnmartin84/sm64-dc)| Super Mario 64 DC port with SH4ZAM acceleration.
+[FFFFTT](https://github.com/meisei4/fffftt)               | Audio signal visualizations, with SH4ZAM accelerated FFT and more.
+[Sonic Mania DC](https://github.com/michael-fadely/Sonic-Mania-Decompilation) | Sonic Mania DC port with SH4ZAM acceleration.
+[Simulant Engine](https://gitlab.com/simulant/simulant)   | General-purpose cross-platform engine backed by SH4ZAM math.
+[Meese Engine](https://meese4.github.io/)                 | An open-world voxel game built for the GameCube, using the SH4ZAM SW back-end.
 
 # Conventions
 The following conventions are used throughout the API by default, unless otherwise specified:
@@ -167,3 +169,4 @@ Special thanks to the following individuals who have either directly or indirect
 - BruceLeet
 - Eric Fradella
 - Donald Haase
+- IANN (@meisei4)
