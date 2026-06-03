@@ -161,7 +161,7 @@ SHZ_FORCE_INLINE float shz_remainderf(float num, float denom) SHZ_NOEXCEPT {
     if(__builtin_constant_p(num) && __builtin_constant_p(denom))
         return __builtin_remainderf(num, denom);
 #endif
-    return num - shz_roundf(shz_divf_fsrra(num, denom)) * denom;
+    return num - shz_roundf(shz_divf_fsrra(num, denom)) * shz_fabsf(denom);
 }
 
 SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT {

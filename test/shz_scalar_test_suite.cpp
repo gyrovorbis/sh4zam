@@ -542,11 +542,11 @@ GBL_TEST_CASE(fmodf)
         GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), 0.0f));
     }
     {
-        volatile float num = 5.5f, denom = 2.0f;
+        volatile float num = 5.5f, denom = -2.0f;
         GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), 1.5f));
     }
     {
-        volatile float num = 2.0f, denom = 5.0f;
+        volatile float num = 2.0f, denom = -5.0f;
         GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), 2.0f));
     }
     {
@@ -600,11 +600,11 @@ GBL_TEST_CASE(remainderf)
         GBL_TEST_VERIFY(shz::equalf(shz::remainderf(num, denom), 1.0f));
     }
     {
-        volatile float num = -8.0f, denom = 3.0f;
+        volatile float num = -8.0f, denom = -3.0f;
         GBL_TEST_VERIFY(shz::equalf(shz::remainderf(num, denom), 1.0f));
     }
     {
-        volatile float num = 2.0f, denom = 3.0f;
+        volatile float num = 2.0f, denom = -3.0f;
         GBL_TEST_VERIFY(shz::equalf(shz::remainderf(num, denom), -1.0f));
     }
     // Half-integer quotient: runtime path uses shz_roundf (round-half-away-from-zero),
@@ -619,7 +619,7 @@ GBL_TEST_CASE(remainderf)
         volatile float den = 2.0f;
         GBL_TEST_VERIFY((benchmark_cmp<float>)(
             "shz::remainderf", shz::remainderf,
-            "remainderff", remainderf, num, den)
+            "remainderf", remainderf, num, den)
         );
     }
 GBL_TEST_CASE_END
