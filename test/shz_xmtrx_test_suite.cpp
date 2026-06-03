@@ -1188,14 +1188,31 @@ GBL_TEST_CASE(load_apply_store_unaligned_4x4)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(translate)
+    mat4 glmRes;
+    shz::mat4x4 shzRes;
+    vec3 sc = { 2.0f, 2.0f, 2.0f };
+    vec3 tl = { 1.0f, 2.0f, 3.0f };
+
     shz::xmtrx::init_identity_safe();
+    shz::xmtrx::scale(2.0f, 2.0f, 2.0f);
     shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                             {
-                                1.0f, 0.0f, 0.0f, 1.0f,
-                                0.0f, 1.0f, 0.0f, 2.0f,
-                                0.0f, 0.0f, 1.0f, 3.0f,
+                                2.0f, 0.0f, 0.0f, 2.0f,
+                                0.0f, 2.0f, 0.0f, 4.0f,
+                                0.0f, 0.0f, 2.0f, 6.0f,
                                 0.0f, 0.0f, 0.0f, 1.0f }));
+
+    
+    shz::xmtrx::store(&shzRes);
+    
+    glm_mat4_identity(glmRes);
+    glm_scale(glmRes, sc);
+    glm_translate(glmRes, tl);
+
+    GBL_TEST_VERIFY(compare_glm(shzRes, glmRes));
+
 #if SHZ_BACKEND == SHZ_SH4
     GBL_TEST_VERIFY(
         (benchmark_cmp<void>)(
