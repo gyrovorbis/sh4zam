@@ -116,9 +116,9 @@ GBL_TEST_CASE(barycentric_lerpf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(inv_sqrtf)
-   auto test = [&](float value) {
+   auto test = [&](auto value) {
         float shzv = shz::inv_sqrtf(value);
-        float ceev = 1.0f / sqrtf(value);
+        float ceev = 1.0f / sqrtf(fabsf(value));
 #if 0
         std::println("{} vs {}", shzv, ceev);
 #endif
@@ -127,14 +127,14 @@ GBL_TEST_CASE(inv_sqrtf)
    };
    GBL_TEST_VERIFY(test(333333.33f));
    GBL_TEST_VERIFY(test(1.001f));
-   GBL_TEST_VERIFY(test(1.0f));
+   GBL_TEST_VERIFY(test((volatile float)1.0f));
    //GBL_TEST_VERIFY(test(0.55f));
    //GBL_TEST_VERIFY(test(0.01f));
    //GBL_TEST_VERIFY(test(-0.001f));
    //GBL_TEST_VERIFY(test(-0.55f));
    GBL_TEST_VERIFY(test(-1.0f));
    GBL_TEST_VERIFY(test(-1.001f));
-   GBL_TEST_VERIFY(test(-33333.33f));
+   GBL_TEST_VERIFY(test((volatile float)-33333.33f));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(invf_fsrra)

@@ -294,7 +294,7 @@ SHZ_FORCE_INLINE bool shz_quadratic_roots(float a, float b, float c,
 SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
 #ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
-        return (x == 0.0f)? 0.0f : 1.0f / __builtin_sqrtf(x);
+        return 1.0f / __builtin_sqrtf(__builtin_fabsf(x));
 #endif
 
 #if SHZ_BACKEND == SHZ_SH4
@@ -307,7 +307,7 @@ SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
 SHZ_FORCE_INLINE float shz_inv_sqrtf(float x) SHZ_NOEXCEPT {
 #ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
-        return (x == 0.0f)? 0.0f : 1.0f / __builtin_sqrtf(x);
+        return (x == 0.0f)? 0.0f : 1.0f / __builtin_sqrtf(__builtin_fabsf(x));
 #endif
     return (x == 0.0f)? 0.0f : shz_inv_sqrtf_fsrra(x);
 }
