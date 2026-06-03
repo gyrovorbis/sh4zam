@@ -22,18 +22,18 @@ namespace shz {
 
     /*! C++ structure representing a quaternion.
 
-    A quaternion represents a rotation about an arbitrary axis in 3D space.
+        A quaternion represents a rotation about an arbitrary axis in 3D space.
 
-    \warning
-    The SH4ZAM internal quaternion representation puts the W or angle component
-    first, followed by the X, Y, Z components for the axis!
+        \warning
+        The SH4ZAM internal quaternion representation puts the W or angle component
+        first, followed by the X, Y, Z components for the axis!
 
-    \note
-    shz::quat is the C++ extension of shz_quat_t, which adds member functions,
-    convenience operators, and still retains backwards compatibility with the
-    C API.
+        \note
+        shz::quat is the C++ extension of shz_quat_t, which adds member functions,
+        convenience operators, and still retains backwards compatibility with the
+        C API.
 
-    \sa shz_quat_t, shz::mat4x4, shz::vec3
+        \sa shz_quat_t, shz::mat4x4, shz::vec3
     */
     struct quat: public shz_quat_t {
 

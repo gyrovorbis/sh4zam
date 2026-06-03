@@ -22,7 +22,6 @@ set(CMAKE_CXX_EXTENSIONS ON)
 include(GNUInstallDirs)
 
 set(SHZ_SOURCES
-    source/shz_circle.c
     source/shz_matrix.c
     source/shz_quat.c
     source/shz_version.c
@@ -42,8 +41,6 @@ endif()
 set(SHZ_INCLUDES
     include/sh4zam/shz_cdefs.h
     include/sh4zam/shz_cdefs.hpp
-    include/sh4zam/shz_circle.h
-    include/sh4zam/shz_circle.hpp
     include/sh4zam/shz_complex.h
     include/sh4zam/shz_complex.hpp
     include/sh4zam/shz_trig.h

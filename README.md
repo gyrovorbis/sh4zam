@@ -131,6 +131,8 @@ Project                                                   | Description
 [Sonic Mania DC](https://github.com/michael-fadely/Sonic-Mania-Decompilation) | Sonic Mania DC port with SH4ZAM acceleration.
 [Simulant Engine](https://gitlab.com/simulant/simulant)   | General-purpose cross-platform engine backed by SH4ZAM math.
 [Meese Engine](https://meese4.github.io/)                 | An open-world voxel game built for the GameCube, using the SH4ZAM SW back-end.
+[Quake 2 DC](https://github.com/Bruceleeto/Quake2)        | Port of Quake 2 to the DC, with SH4ZAM accelerated matrix math.
+[DCSinge](https://github.com/GPF/DCSinge)                 | Singe API + FMV playback engine on DC using SH4ZAM memory routines.
 
 # Conventions
 The following conventions are used throughout the API by default, unless otherwise specified:
