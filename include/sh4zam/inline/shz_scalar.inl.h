@@ -169,7 +169,7 @@ SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT {
     if(__builtin_constant_p(num) && __builtin_constant_p(denom))
         return __builtin_fmodf(num, denom);
 #endif
-    return num - shz_truncf(shz_divf_fsrra(num, denom)) * denom;
+    return num - shz_truncf(shz_divf_fsrra(num, denom)) * shz_fabsf(denom);
 }
 
 SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEXCEPT {
@@ -348,7 +348,7 @@ SHZ_FORCE_INLINE float shz_invf(float x) SHZ_NOEXCEPT {
 SHZ_FORCE_INLINE float shz_divf_fsrra(float num, float denom) SHZ_NOEXCEPT {
 #ifdef SHZ_GNUC
     if(__builtin_constant_p(denom))
-        return num / denom;
+        return num / __builtin_fabsf(denom);
 #endif
     return num * shz_invf_fsrra(denom);
 }
