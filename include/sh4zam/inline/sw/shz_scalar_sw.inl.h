@@ -18,7 +18,7 @@
 #define SHZ_SCALAR_SW_INL_H
 
 SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra_sw(float x) SHZ_NOEXCEPT {
-    return 1.0f / sqrtf(absf(x));
+    return 1.0f / sqrtf(fabsf(x));
 }
 
 SHZ_FORCE_INLINE float shz_dot6f_sw(float x1, float y1, float z1,
