@@ -21,7 +21,6 @@
 #include "shz_quat.hpp"
 #include "shz_matrix.hpp"
 #include "shz_xmtrx.hpp"
-#include "shz_circle.hpp"
 #include "shz_complex.hpp"
 
 #endif
