@@ -36,8 +36,6 @@ namespace shz {
     \sa shz_quat_t, shz::mat4x4, shz::vec3
     */
     struct quat: public shz_quat_t {
-        //! Minimum epsilon for bothering to interpolate in shz::quat::slerp().
-        constexpr static float slerp_phi_epsilon = SHZ_QUAT_SLERP_PHI_EPSILON;
 
         /*! \name  Initialization
             \brief Routines for creating and initializing quaternions.
