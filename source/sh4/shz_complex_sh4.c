@@ -13,6 +13,11 @@
 #include "sh4zam/shz_complex.h"
 #include "sh4zam/shz_xmtrx.h"
 
+/* =========================== XMTRX UTILITY ROUTINES ==============================
+   The following routines are for configuring and updating the state of XMTRX, which
+   is used to store a 4x4 matrix that applies the 2-pt butterfly transform operation.
+   ================================================================================== */
+
 // Fully initializes XMTRX to be a 2pt butterfly with the given twiddle factor.
 SHZ_INLINE void shz_xmtrx_init_fft_butterfly(float twiddle_angle) {
     asm volatile(R"(
@@ -311,13 +316,13 @@ void shz_fft_dc(shz_complex_t* s, size_t size) {
     // Calculate smallest angle in radians for each twiddle increment.
     const float twiddle_inc = shz_divf_fsrra(-2.0f * SHZ_F_PI, size) * SHZ_FSCA_RAD_FACTOR;
 
+    // Preinitialize XMTRX with an FFT butterfly matrix.
+    shz_xmtrx_init_fft_butterfly(0.0f);
+
     // Loop for each stage of the FFT.
     for(size_t twiddle = size >> 1, pairs = 1; twiddle > 0; twiddle >>= 1, pairs <<= 1) {
         // Scale twiddle increment by the current stage.
         const float twiddle_scale = twiddle_inc * shz_divf_fsrra(size, twiddle << 1);
-
-        // Preinitialize XMTRX with an FFT butterfly matrix.
-        shz_xmtrx_init_fft_butterfly(0.0f);
 
         /* Select the unrolled, optimized inner loop implementation,
            based on how many pairs are being processed at the current stage.

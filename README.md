@@ -133,6 +133,7 @@ Project                                                   | Description
 [Meese Engine](https://meese4.github.io/)                 | An open-world voxel game built for the GameCube, using the SH4ZAM SW back-end.
 [Quake 2 DC](https://github.com/Bruceleeto/Quake2)        | Port of Quake 2 to the DC, with SH4ZAM accelerated matrix math.
 [DCSinge](https://github.com/GPF/DCSinge)                 | Singe API + FMV playback engine on DC using SH4ZAM memory routines.
+[Xash3D DC](https://github.com/maximqaxd/xash3d-fwgs_dc/tree/pvrrender) | SH4ZAM'd up DC port of the Half-Life compatible Xash3D engine.
 
 # Conventions
 The following conventions are used throughout the API by default, unless otherwise specified:
