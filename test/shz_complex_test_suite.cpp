@@ -1197,7 +1197,7 @@ void cooley_tukey_fft(shz_complex_t* spectrum, size_t size) {
 
 GBL_TEST_CASE(fft)
     constexpr float FFT_ERROR_MAX = 1.0f;
-    shz::complex samples[2][1024];
+    alignas(8) shz::complex samples[2][1024];
 
     for(unsigned s = 0; s < 1024; ++s) {
         samples[0][s].real = samples[1][s].real = gblRandUniform(0.0f, 1.0f);

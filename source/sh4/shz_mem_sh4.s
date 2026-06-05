@@ -56,118 +56,136 @@ _shz_memset8_sh4_:
 ! r5  : src   (should be 8-byte aligned source address)
 ! r6  : bytes (number of bytes to copy (should be evenly divisible by 128))
 !
+! r0  : dst   (returns destination pointer)
+!
 .align 5
 _shz_memcpy128_sh4_:
-    mov       r15, r0
+! Align stack by 8-bytes for FP double push/pop.
+    mov       r15, r0       ! r0 = SP
     or        #0x0f, r0
+    cmp/pl    r6            ! Check bytes > 0.
+    xor       #0x0f, r0     ! r0 = 8-byte aligned stack.
     mov       #-7, r2
-    xor       #0x0f, r0 ! r0 = 8-byte aligned stack
+    pref      @r0           ! Prefetch new stack address.
+    mov       r0, r1        ! r1 = 8-byte aligned stack.
+    fschg                   ! Swap to FMOV.D mode.
+    bf.s      2f            ! Exit if nothing to copy.
+    mov       r4, r0        ! Return dst through r0.
 
-    fmov.d    dr12, @-r0
-    shld      r2, r6
-    fmov.d    dr14, @-r0
-    xor       r3, r3
-    fmov.d    xd0, @-r0
-    mov       r6, r1  ! counter
-    fmov.d    xd2, @-r0
-    mov       #7, r2
-    fmov.d    xd4, @-r0
-    shld      r2, r1
-    fmov.d    xd6, @-r0
-    add       r1, r4 ! dst += (bytes >> 7) << 7
-    fmov.d    xd8, @-r0
-    add       r1, r5 ! src += (bytes >> 7) << 7
-    fmov.d    xd10, @-r0
-    mov       r5, r7
-    fmov.d    xd12, @-r0
-    add       #-32, r7 ! r7 = src - 32
-    pref      @r7
-    add       #64, r3
-    fmov.d    xd14, @-r0
+! Push FPU regs to stack as we set up for the main loop.
+    add       r6, r5        ! src += bytes
+    fmov.d    dr12, @-r1
+    xor       r3, r3        ! r3 = 0
+    fmov.d    dr14, @-r1
+    add       #64, r3       ! r3 = 64
+    fmov.d    xd0, @-r1
+    add       r3, r3        ! r3 = 128
+    fmov.d    xd2, @-r1
+    sub       r3, r5        ! src -= 128
+    fmov.d    xd4, @-r1
+    add       r6, r4        ! dst += bytes
+    fmov.d    xd6, @-r1
+    mov       r5, r7        ! r7 is src prefetcher.
+    fmov.d    xd8, @-r1
+    pref      @r5           ! Prefetch first cache line of src.
+    add       #32, r7
+    fmov.d    xd10, @-r1
+    shld      r2, r6        ! count = bytes / 128
+    fmov.d    xd12, @-r1
+    mov       r4, r2        ! r2 is dst preallocator.
+    fmov.d    xd14, @-r1
+    add       r3, r3        ! r3 = 256 (src decrementer)
+    add       #-32, r2      ! Decrement preallocator to previous cache line.
+    pref      @r7           ! Prefetch second cache line of src.
+    add       #32, r7
 
-    add       #64, r3
-    sub       r3, r5   != src -= 128
-    add       r3, r3   ! r3 = 256
-    add       #-32, r7
-    pref      @r7
-    mov       r4, r1
-    mov       r4, r2
-    add       #-32, r2
-
+! Critical 128-byte copy loop, blows whole FPU load per iteration.
     .align 5
 1:
-    add       #-32, r7
+    ! Load first cache line.
     fmov.d    @r5+, dr0
-    pref      @r7
+    pref      @r7           ! Prefetch third cache line.
+    add       #32, r7       ! Increment prefetcher.
     fmov.d    @r5+, dr2
     fmov.d    @r5+, dr4
     fmov.d    @r5+, dr6
 
+    ! Load second cache line.
     fmov.d    @r5+, dr8
     fmov.d    @r5+, dr10
     fmov.d    @r5+, dr12
+    pref      @r7           ! Prefetch fourth cache line.
     fmov.d    @r5+, dr14
+    add       #32, r7
 
-    add       #-32, r7
+    ! Load third cache line.
     fmov.d    @r5+, xd0
-    pref      @r7
+    sub       r3, r7
     fmov.d    @r5+, xd2
     fmov.d    @r5+, xd4
     fmov.d    @r5+, xd6
+    pref      @r7           ! Prefetch first cache line of next chunk.
+    add       #32, r7
 
+    ! Load fourth cache line.
     fmov.d    @r5+, xd8
     fmov.d    @r5+, xd10
     fmov.d    @r5+, xd12
     fmov.d    @r5+, xd14
 
-    movca.l   r0, @r2
+    ! Store first cache line.
+    movca.l   r0, @r2       ! Preallocate first cache line.
     fmov.d    xd14, @-r4
-    add       #-32, r2
+    add       #-32, r2      ! Decrement preallocator.
     fmov.d    xd12, @-r4
     fmov.d    xd10, @-r4
     fmov.d    xd8, @-r4
 
-    movca.l   r0, @r2
+    ! Store second cache line.
+    movca.l   r0, @r2       ! Preallocate second cache line.
     fmov.d    xd6, @-r4
-    add       #-32, r2
+    add       #-32, r2      ! Decrement preallocator.
     fmov.d    xd4, @-r4
     fmov.d    xd2, @-r4
     fmov.d    xd0, @-r4
 
-    movca.l   r0, @r2
+    ! Store third cache line.
+    movca.l   r0, @r2       ! Preallocate third cache line.
     fmov.d    dr14, @-r4
-    add       #-32, r2
+    add       #-32, r2      ! Decrement preallocator.
     fmov.d    dr12, @-r4
     fmov.d    dr10, @-r4
     fmov.d    dr8, @-r4
 
-    movca.l   r0, @r2
-    add       #-32, r2
+    ! Store fourth cache line.
+    movca.l   r0, @r2       ! Preallocate fourth cache line.
+    add       #-32, r2      ! Decrement preallocator.
     fmov.d    dr6, @-r4
-    dt        r6
     fmov.d    dr4, @-r4
-    sub       r3, r5
     fmov.d    dr2, @-r4
-    add       #-32, r7
     fmov.d    dr0, @-r4
-    pref      @r7
-    add       #-32, r7
-    bf.s      1b
-    pref      @r7
+    pref      @r7           ! Prefetch second cache line.
+    dt        r6            ! Check if counter has hit 0.
+    sub       r3, r5        ! Decrement src to previous 128-byte block.
+    bf.s      1b            ! Exit if this was our last block.
+    add       #32, r7
 
-    fmov.d    @r0+, xd14
-    fmov.d    @r0+, xd12
-    fmov.d    @r0+, xd10
-    fmov.d    @r0+, xd8
-    fmov.d    @r0+, xd6
-    fmov.d    @r0+, xd4
-    fmov.d    @r0+, xd2
-    fmov.d    @r0+, xd0
-    fmov.d    @r0+, dr14
-    fmov.d    @r0+, dr12
+! Pop FPU registers from stack.
+    fmov.d    @r1+, xd14
+    fmov.d    @r1+, xd12
+    fmov.d    @r1+, xd10
+    fmov.d    @r1+, xd8
+    fmov.d    @r1+, xd6
+    fmov.d    @r1+, xd4
+    fmov.d    @r1+, xd2
+    fmov.d    @r1+, xd0
+    fmov.d    @r1+, dr14
+    fmov.d    @r1+, dr12
 
-    rts
-    mov       r1, r0
+! Exit this bitch.
+2:
+    rts     ! Return dst, through r0.
+    fschg   ! Swap back to 4-byte FMOV.S mode.
 
 
 !

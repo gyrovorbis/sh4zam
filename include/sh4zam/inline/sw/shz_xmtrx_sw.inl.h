@@ -851,7 +851,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_self_sw(void) SHZ_NOEXCEPT {
     shz_xmtrx_mul4x4_cols_(copy);
 }
 
-/* ========== GL-style Transforms (T * XMTRX) ========== */
+/* ========== GL-style API ========== */
 
 SHZ_FORCE_INLINE void shz_xmtrx_translate_sw(float x, float y, float z) SHZ_NOEXCEPT {
     shz_vec4_t t[4];
@@ -859,7 +859,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_translate_sw(float x, float y, float z) SHZ_NOEX
     t[1] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
     t[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
     t[3] = shz_vec4_init(x,    y,    z,    1.0f);
-    shz_xmtrx_rmul4x4_cols_(t);
+    shz_xmtrx_mul4x4_cols_(t);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_scale_sw(float x, float y, float z) SHZ_NOEXCEPT {
@@ -868,7 +868,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_scale_sw(float x, float y, float z) SHZ_NOEXCEPT
     s[1] = shz_vec4_init(0.0f, y,    0.0f, 0.0f);
     s[2] = shz_vec4_init(0.0f, 0.0f, z,    0.0f);
     s[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
-    shz_xmtrx_rmul4x4_cols_(s);
+    shz_xmtrx_mul4x4_cols_(s);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_x_sw(float radians) SHZ_NOEXCEPT {
@@ -879,7 +879,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_x_sw(float radians) SHZ_NOEXCEPT {
     rot[1] = shz_vec4_init(0.0f, c,    s,    0.0f);
     rot[2] = shz_vec4_init(0.0f, -s,   c,    0.0f);
     rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
-    shz_xmtrx_rmul4x4_cols_(rot);
+    shz_xmtrx_mul4x4_cols_(rot);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_y_sw(float radians) SHZ_NOEXCEPT {
@@ -890,7 +890,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_y_sw(float radians) SHZ_NOEXCEPT {
     rot[1] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
     rot[2] = shz_vec4_init(s,    0.0f, c,    0.0f);
     rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
-    shz_xmtrx_rmul4x4_cols_(rot);
+    shz_xmtrx_mul4x4_cols_(rot);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_z_sw(float radians) SHZ_NOEXCEPT {
@@ -901,7 +901,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_z_sw(float radians) SHZ_NOEXCEPT {
     rot[1] = shz_vec4_init(-s,   c,    0.0f, 0.0f);
     rot[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
     rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
-    shz_xmtrx_rmul4x4_cols_(rot);
+    shz_xmtrx_mul4x4_cols_(rot);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_sw(float angle, float x, float y, float z) SHZ_NOEXCEPT {
@@ -925,7 +925,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_sw(float angle, float x, float y, float z
     rot[1] = shz_vec4_init(xyt - zs,  y * y * t + c,  yzt + xs,  0.0f);
     rot[2] = shz_vec4_init(xzt + ys,  yzt - xs,  z * z * t + c,  0.0f);
     rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
-    shz_xmtrx_rmul4x4_cols_(rot);
+    shz_xmtrx_mul4x4_cols_(rot);
 }
 
 /* ========== Compound Operations ========== */
@@ -1019,17 +1019,6 @@ SHZ_FORCE_INLINE void shz_xmtrx_abs_sw(void) SHZ_NOEXCEPT {
     shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
     for(int i = 0; i < 16; ++i)
         xmtrx_state_->elem[i] = shz_fabsf(xmtrx_state_->elem[i]);
-}
-
-SHZ_INLINE void shz_xmtrx_init_fft_weights_sw(float angle) SHZ_NOEXCEPT {
-    shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
-    const float b = shz_sinf(angle);
-    const float a = shz_cosf(angle);
-
-    xmtrx_state_->col[0] = shz_vec4_init(1.0f, 0.0f,  a,  b);
-    xmtrx_state_->col[1] = shz_vec4_init(0.0f, 1.0f, -b,  a);
-    xmtrx_state_->col[2] = shz_vec4_init(1.0f, 0.0f, -a, -b);
-    xmtrx_state_->col[3] = shz_vec4_init(0.0f, 1.0f,  b, -a);
 }
 
 /* ========== Transformations ========== */

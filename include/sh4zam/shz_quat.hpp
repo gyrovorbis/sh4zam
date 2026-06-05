@@ -22,22 +22,20 @@ namespace shz {
 
     /*! C++ structure representing a quaternion.
 
-    A quaternion represents a rotation about an arbitrary axis in 3D space.
+        A quaternion represents a rotation about an arbitrary axis in 3D space.
 
-    \warning
-    The SH4ZAM internal quaternion representation puts the W or angle component
-    first, followed by the X, Y, Z components for the axis!
+        \warning
+        The SH4ZAM internal quaternion representation puts the W or angle component
+        first, followed by the X, Y, Z components for the axis!
 
-    \note
-    shz::quat is the C++ extension of shz_quat_t, which adds member functions,
-    convenience operators, and still retains backwards compatibility with the
-    C API.
+        \note
+        shz::quat is the C++ extension of shz_quat_t, which adds member functions,
+        convenience operators, and still retains backwards compatibility with the
+        C API.
 
-    \sa shz_quat_t, shz::mat4x4, shz::vec3
+        \sa shz_quat_t, shz::mat4x4, shz::vec3
     */
     struct quat: public shz_quat_t {
-        //! Minimum epsilon for bothering to interpolate in shz::quat::slerp().
-        constexpr static float slerp_phi_epsilon = SHZ_QUAT_SLERP_PHI_EPSILON;
 
         /*! \name  Initialization
             \brief Routines for creating and initializing quaternions.
@@ -47,13 +45,20 @@ namespace shz {
         //! Default constructor: does nothing.
         quat() noexcept = default;
 
+        //! Default copy constructor.
+        quat(const quat& other) noexcept = default;
+
         //! Value constructor: initializes a quaternion with the given values for each component.
         SHZ_FORCE_INLINE quat(float w, float x, float y, float z) noexcept:
             shz_quat_t({w, x, y, z}) {}
 
         //! C Converting constructor: constructs a C++ shz::quat from a C shz_quat_t.
-        SHZ_FORCE_INLINE quat(shz_quat_t q) noexcept:
+        SHZ_FORCE_INLINE quat(const shz_quat_t& q) noexcept:
             shz_quat_t(q) {}
+
+        //! Converting constructor from existing volatile C instance.
+        SHZ_FORCE_INLINE quat(const volatile shz_quat_t& other) noexcept:
+            shz_quat_t(const_cast<const shz_quat_t&>(other)) {}
 
         //! Returns an identity quaternion.
         SHZ_FORCE_INLINE static quat identity() noexcept {
@@ -145,6 +150,12 @@ namespace shz {
         //! Overloaded comparison operator, checks for quaternion equality.
         friend bool operator==(quat lhs, quat rhs) noexcept {
             return shz_quat_equal(lhs, rhs);
+        }
+
+        //! Overloaded operator for assigning volatile reference to base C type.
+        volatile quat& operator=(volatile shz_quat_t other) volatile noexcept {
+            *static_cast<quat*>(const_cast<quat*>(this)) = quat(const_cast<shz_quat_t&>(other));
+            return *static_cast<volatile quat*>(this);
         }
 
         //! @}

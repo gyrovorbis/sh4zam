@@ -21,9 +21,6 @@
     \brief    Routines for quaternion math.
 */
 
-//! Minimum epsilon below which shz_quat_slerp() performs no interpolation.
-#define SHZ_QUAT_SLERP_PHI_EPSILON SHZ_FLT_EPSILON
-
 SHZ_DECLS_BEGIN
 
 /*! Represents a 3D quaternion.

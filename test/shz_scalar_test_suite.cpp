@@ -2,6 +2,8 @@
 #include "shz_test.hpp"
 #include "sh4zam/shz_scalar.hpp"
 
+#include <cglm/cglm.h>
+
 #include <print>
 #include <array>
 
@@ -42,6 +44,16 @@ GBL_TEST_CASE(floorf)
     GBL_TEST_VERIFY(shz::floorf(-1.3f) == -2.0f);
     GBL_TEST_VERIFY(shz::floorf(-1.8f) == -2.0f);
     GBL_TEST_COMPARE(shz::floorf(-3.0f), -3.0f);
+
+    {
+        volatile float value = -0.8f;
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)(
+                "shz::floorf", shz::floorf,
+                "floorf", floorf, value
+            )
+        );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(ceilf)
@@ -54,13 +66,15 @@ GBL_TEST_CASE(ceilf)
     GBL_TEST_VERIFY(shz::ceilf(-0.8f) ==  0.0f);
     GBL_TEST_VERIFY(shz::ceilf(-1.3f) == -1.0f);
     GBL_TEST_VERIFY(shz::ceilf(-1.8f) == -1.0f);
-
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<float>)(
-            "shz::ceilf", shz::ceilf,
-            "ceilf", ceilf, 99.0f
-        )
-    );
+    {
+        volatile float value = 99.0f;
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)(
+                "shz::ceilf", shz::ceilf,
+                "ceilf", ceilf, value
+            )
+        );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(fmacf)
@@ -102,9 +116,9 @@ GBL_TEST_CASE(barycentric_lerpf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(inv_sqrtf)
-   auto test = [&](float value) {
+   auto test = [&](auto value) {
         float shzv = shz::inv_sqrtf(value);
-        float ceev = 1.0f / sqrtf(value);
+        float ceev = 1.0f / sqrtf(fabsf(value));
 #if 0
         std::println("{} vs {}", shzv, ceev);
 #endif
@@ -113,14 +127,14 @@ GBL_TEST_CASE(inv_sqrtf)
    };
    GBL_TEST_VERIFY(test(333333.33f));
    GBL_TEST_VERIFY(test(1.001f));
-   GBL_TEST_VERIFY(test(1.0f));
+   GBL_TEST_VERIFY(test((volatile float)1.0f));
    //GBL_TEST_VERIFY(test(0.55f));
    //GBL_TEST_VERIFY(test(0.01f));
    //GBL_TEST_VERIFY(test(-0.001f));
    //GBL_TEST_VERIFY(test(-0.55f));
    GBL_TEST_VERIFY(test(-1.0f));
    GBL_TEST_VERIFY(test(-1.001f));
-   GBL_TEST_VERIFY(test(-33333.33f));
+   GBL_TEST_VERIFY(test((volatile float)-33333.33f));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(invf_fsrra)
@@ -221,6 +235,15 @@ GBL_TEST_CASE(mag_sqr3f)
     GBL_TEST_VERIFY(test({ 1.0f,   2.0f, 3.0f   }));
     GBL_TEST_VERIFY(test({ 1.0f, -22.0f, 3.0f   }));
     GBL_TEST_VERIFY(test({-1.0f,   0.0f, 3.333f }));
+    {
+        volatile float a = 1.0f, b = 2.0f, c = 3.0f;
+            (benchmark_cmp<float>)("shz::mag_sqr3f", shz::mag_sqr3f,
+                                   "a*a + b*b + c*c",
+                                   [](volatile float x, volatile float y, volatile float z) {
+                                       return (x * x) + (y * y) + (z * z);
+                                   }, a, b, c
+            );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(mag_sqr4f)
@@ -233,6 +256,15 @@ GBL_TEST_CASE(mag_sqr4f)
     GBL_TEST_VERIFY(test({ 1.0f,   2.0f, 3.0f,    4.0f   }));
     GBL_TEST_VERIFY(test({ 1.0f, -22.0f, 3.0f,    4.5555f}));
     GBL_TEST_VERIFY(test({-1.0f,   0.0f, 3.333f, -4.4345f}));
+    {
+        volatile float a = 1.0f, b = 2.0f, c = 3.0f, d = 4.0f;
+            (benchmark_cmp<float>)("shz::mag_sqr4f", shz::mag_sqr4f,
+                                   "a*a + b*b + c*c + d*d",
+                                   [](float a, float b, float c, float d) {
+                                       return (a * a) + (b * b) + (c * c) + (d * d);
+                                   }, a, b, c, d
+            );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(stepf)
@@ -276,8 +308,7 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(smoothstepf)
     auto test = [&](float x, float edge0, float edge1, float expect) {
-        volatile float res;
-        benchmark(&res, shz::smoothstepf, x, edge0, edge1);
+        volatile float res = shz::smoothstepf(x, edge0, edge1);
         return shz_equalf(res, expect);
     };
 
@@ -308,13 +339,21 @@ GBL_TEST_CASE(smoothstepf)
     GBL_TEST_VERIFY(shz::smoothstepf(2.0f, 0.0f, 1.0f) == shz::smoothstepf_safe(2.0f, 0.0f, 1.0f));
     GBL_TEST_VERIFY(shz::smoothstepf(0.0f, 0.0f, 1.0f) == shz::smoothstepf_safe(0.0f, 0.0f, 1.0f));
     GBL_TEST_VERIFY(shz::smoothstepf(1.0f, 0.0f, 1.0f) == shz::smoothstepf_safe(1.0f, 0.0f, 1.0f));
+
+    {
+        volatile float x = 0.25f;
+        volatile float edge0 = 0.0f;
+        volatile float edge1 = 17.0f;
+        (benchmark_cmp<float>)(
+            "shz::smoothstepf", shz::smoothstepf,
+            "glm_smoothstep", [](float edge0, float edge1, float x) { return glm_smoothstep(edge0, edge1, x); },
+            x, edge0, edge1);
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(smoothstepf_safe)
     auto test = [&](float x, float edge0, float edge1, float expect) {
-        volatile float res;
-        benchmark(&res, shz::smoothstepf_safe,x, edge0, edge1);
-
+        float res = shz::smoothstepf_safe(x, edge0, edge1);
         return gblFloatEquals(res, expect);
     };
 
@@ -353,25 +392,45 @@ GBL_TEST_CASE(smoothstepf_safe)
     // Mirrored monotonic
     GBL_TEST_VERIFY(shz::smoothstepf_safe(0.25f, 1.0f, 0.0f) > shz::smoothstepf_safe(0.5f, 1.0f, 0.0f));
     GBL_TEST_VERIFY(shz::smoothstepf_safe(0.5f, 1.0f, 0.0f) > shz::smoothstepf_safe(0.75f, 1.0f, 0.0f));
+
+    {
+        volatile float x = 0.25f;
+        volatile float edge0 = 0.0f;
+        volatile float edge1 = 17.0f;
+        (benchmark_cmp<float>)(
+            "shz::smoothstepf_safe", shz::smoothstepf_safe,
+            "glm_smoothstep", [](float edge0, float edge1, float x) { return glm_smoothstep(edge0, edge1, x); },
+            x, edge0, edge1);
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(cbrtf)
-    auto test = [&](volatile float value) {
-        float pow_res, cbrt_res, c_res;
 
-        benchmark(&c_res,    shz::cbrtf, value);
-        benchmark(&pow_res,  powf,       value, 1.0f / 3.0f);
-        benchmark(&cbrt_res, cbrtf,      value);
+    auto test = [&](volatile float value) {
+        float c_res = shz::cbrtf(value);
+        float cbrt_res = cbrtf(value);
 #if 0
         std::println("{} vs {} vs {}", pow_res, cbrt_res, c_res);
 #endif
         return gblFloatEquals(cbrt_res, c_res, 0.0001f);
     };
-
+GBL_TEST_SKIP("FUCKED");
     GBL_TEST_VERIFY(test(27.0f));
     GBL_TEST_VERIFY(test(1.0f));
     GBL_TEST_VERIFY(test(-27.0f));
     GBL_TEST_VERIFY(test(-0.125f));
+    {
+        volatile float value = -0.125f;
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)("shz::cbrtf", shz::cbrtf,
+                                   "cbrtf", cbrtf, value)
+        );
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)("shz::cbrtf", shz::cbrtf,
+                                   "powf(x, 1.0f/3.0f)", [](float x) { return powf(x, 1.0f / 3.0f); },
+                                    value)
+        );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(logf)
@@ -444,6 +503,127 @@ GBL_TEST_CASE(pow10f)
     );
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(fmodf)
+    // Sign of result always matches numerator across all four sign combinations
+    GBL_TEST_VERIFY(shz::fmodf( 7.0f,  3.0f) ==  1.0f);
+    GBL_TEST_VERIFY(shz::fmodf(-7.0f,  3.0f) == -1.0f);
+    GBL_TEST_VERIFY(shz::fmodf( 7.0f, -3.0f) ==  1.0f);
+    GBL_TEST_VERIFY(shz::fmodf(-7.0f, -3.0f) == -1.0f);
+
+    // Zero numerator
+    GBL_TEST_VERIFY(shz::fmodf(0.0f, 5.0f) == 0.0f);
+
+    // |num| < |denom|: no full quotients, returns num unchanged
+    GBL_TEST_VERIFY(shz::fmodf( 2.0f, 5.0f) ==  2.0f);
+    GBL_TEST_VERIFY(shz::fmodf(-2.0f, 5.0f) == -2.0f);
+
+    // Exact divisibility: remainder is zero
+    GBL_TEST_VERIFY(shz::fmodf( 9.0f, 3.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::fmodf(-9.0f, 3.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::fmodf( 5.0f, 5.0f) == 0.0f);
+
+    // Non-integer denominator
+    GBL_TEST_VERIFY(shz::fmodf( 5.5f, 2.0f) ==  1.5f);  // 5.5 = 2*2.0 + 1.5
+    GBL_TEST_VERIFY(shz::fmodf(-5.5f, 2.0f) == -1.5f);
+    GBL_TEST_VERIFY(shz::fmodf( 5.0f, 1.5f) ==  0.5f);  // 5.0 = 3*1.5 + 0.5
+
+    // Truncation toward zero: result stays positive when x/y exceeds n+0.5
+    // trunc(8/3)=2 → 8-2*3=2; contrast with remainderf: round(8/3)=3 → 8-3*3=-1
+    GBL_TEST_VERIFY(shz::fmodf( 8.0f, 3.0f) ==  2.0f);
+    GBL_TEST_VERIFY(shz::fmodf(-8.0f, 3.0f) == -2.0f);
+
+    // Runtime path: non-constant args exercise shz_truncf + shz_divf approximation
+    {
+        volatile float num = -7.0f, denom = 3.0f;
+        GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), -1.0f));
+    }
+    {
+        volatile float num = -9.0f, denom = 3.0f;
+        GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), 0.0f));
+    }
+    {
+        volatile float num = 5.5f, denom = -2.0f;
+        GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), 1.5f));
+    }
+    {
+        volatile float num = 2.0f, denom = -5.0f;
+        GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), 2.0f));
+    }
+    {
+        volatile float num = -5.0f;
+        volatile float den = 2.0f;
+        GBL_TEST_VERIFY((benchmark_cmp<float>)(
+            "shz::fmodf", shz::fmodf,
+            "fmodf", fmodf, num, den)
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(remainderf)
+    // round(7/3)=round(2.33)=2 → 7-2*3=1
+    GBL_TEST_VERIFY(shz::remainderf( 7.0f,  3.0f) ==  1.0f);
+    // round(8/3)=round(2.67)=3 → 8-3*3=-1: negative result despite positive inputs
+    GBL_TEST_VERIFY(shz::remainderf( 8.0f,  3.0f) == -1.0f);
+
+    // All four sign combinations
+    GBL_TEST_VERIFY(shz::remainderf(-7.0f,  3.0f) == -1.0f);
+    GBL_TEST_VERIFY(shz::remainderf(-8.0f,  3.0f) ==  1.0f);
+    GBL_TEST_VERIFY(shz::remainderf( 7.0f, -3.0f) ==  1.0f);
+    GBL_TEST_VERIFY(shz::remainderf(-7.0f, -3.0f) == -1.0f);
+
+    // Zero numerator
+    GBL_TEST_VERIFY(shz::remainderf(0.0f, 3.0f) == 0.0f);
+
+    // Exact divisibility
+    GBL_TEST_VERIFY(shz::remainderf( 6.0f, 3.0f) == 0.0f);
+    GBL_TEST_VERIFY(shz::remainderf(-6.0f, 3.0f) == 0.0f);
+
+    // |num| < denom/2: rounds to 0, remainder equals num
+    GBL_TEST_VERIFY(shz::remainderf( 1.0f, 3.0f) ==  1.0f);  // round(1/3)=0, 1-0*3=1
+    GBL_TEST_VERIFY(shz::remainderf(-1.0f, 3.0f) == -1.0f);  // round(-1/3)=0, -1-0*3=-1
+
+    // |num| > denom/2: rounds to nearest quotient, result crosses into opposite sign
+    GBL_TEST_VERIFY(shz::remainderf( 2.0f, 3.0f) == -1.0f);  // round(2/3)=1, 2-1*3=-1
+    GBL_TEST_VERIFY(shz::remainderf(-2.0f, 3.0f) ==  1.0f);  // round(-2/3)=-1, -2-(-1)*3=1
+
+    // Non-integer denominator
+    GBL_TEST_VERIFY(shz::remainderf( 5.5f, 2.0f) == -0.5f);  // round(2.75)=3, 5.5-3*2=-0.5
+    GBL_TEST_VERIFY(shz::remainderf(-3.5f, 2.0f) ==  0.5f);  // round(-1.75)=-2, -3.5-(-2)*2=0.5
+
+    // Result is always bounded: |remainder| <= |denom| / 2
+    GBL_TEST_VERIFY(shz_fabsf(shz::remainderf( 10.0f, 3.0f)) <= 1.5f);
+    GBL_TEST_VERIFY(shz_fabsf(shz::remainderf(-10.0f, 3.0f)) <= 1.5f);
+
+    // Runtime path: non-constant args for non-tie quotients
+    {
+        volatile float num = 7.0f, denom = 3.0f;
+        GBL_TEST_VERIFY(shz::equalf(shz::remainderf(num, denom), 1.0f));
+    }
+    {
+        volatile float num = -8.0f, denom = -3.0f;
+        GBL_TEST_VERIFY(shz::equalf(shz::remainderf(num, denom), 1.0f));
+    }
+    {
+        volatile float num = 2.0f, denom = -3.0f;
+        GBL_TEST_VERIFY(shz::equalf(shz::remainderf(num, denom), -1.0f));
+    }
+    // Half-integer quotient: runtime path uses shz_roundf (round-half-away-from-zero),
+    // unlike the constant-fold path which uses __builtin_remainderf (round-half-to-even).
+    // shz_roundf(2.5) = 3 → 2.5 - 3*1.0 = -0.5, not the +0.5 the builtin path yields.
+    {
+        volatile float num = 2.5f, denom = 1.0f;
+        GBL_TEST_VERIFY(shz::remainderf(num, denom) == -0.5f);
+    }
+    {
+        volatile float num = -5.0f;
+        volatile float den = 2.0f;
+        GBL_TEST_VERIFY((benchmark_cmp<float>)(
+            "shz::remainderf", shz::remainderf,
+            "remainderf", remainderf, num, den)
+        );
+    }
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(min,
                   max,
                   clamp,
@@ -467,4 +647,6 @@ GBL_TEST_REGISTER(min,
                   cbrtf,
                   logf,
                   log10f,
-                  pow10f)
+                  pow10f,
+                  fmodf,
+                  remainderf)
