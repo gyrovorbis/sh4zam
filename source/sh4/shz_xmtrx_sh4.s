@@ -5,14 +5,15 @@
 !  This file contains the out-of-line assembly implementation of the XMTRX API.
 !
 !  \author    2025, 2026 Falco Girgis
-!
 !  \copyright MIT License
 !!
 
-.text
-    .globl _shz_xmtrx_load_apply_store_4x4_sh4
-    .globl _shz_xmtrx_load_apply_store_3x4_sh4
-    .globl _shz_xmtrx_load_apply_store_3x3_sh4
+    .section .text._shz_xmtrx_load_apply_store_4x4_sh4, "ax", %progbits
+.globl _shz_xmtrx_load_apply_store_4x4_sh4
+    .section .text._shz_xmtrx_load_apply_store_3x4_sh_, "ax", %progbits
+.globl _shz_xmtrx_load_apply_store_3x4_sh4
+    .section .text._shz_xmtrx_load_apply_store_4x4_sh4, "ax", %progbits
+.globl _shz_xmtrx_load_apply_store_3x3_sh4
 
 !
 ! void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out, const shz_mat4x4_t* matrix1, const shz_mat4x4_t* matrix2)
