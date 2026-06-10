@@ -81,7 +81,7 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function
 #if !defined(SHZ_DISABLE_BENCHMARKS) && (SHZ_BACKEND == SHZ_SH4)
             if constexpr(CacheFlush) {
                 icache_inval_range((uintptr_t)&_executable_start, (size_t)((uintptr_t)&_etext - (uintptr_t)&_executable_start));
-                arch_dcache_purge_all();
+                dcache_purge_all();
             }
 #endif
 
