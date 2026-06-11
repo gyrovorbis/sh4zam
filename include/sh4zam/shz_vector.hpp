@@ -302,12 +302,12 @@ struct vecN: C {
     }
 
     //! Return the normalized vector.
-    SHZ_FORCE_INLINE CppType normalized() noexcept {
+    SHZ_FORCE_INLINE CppType normalized() const noexcept {
         return shz_vec_normalize(*static_cast<const CppType*>(this));
     }
 
     //! Return the normalized vector, safely protecting against division-by-zero.
-    SHZ_FORCE_INLINE CppType normalized_safe() noexcept {
+    SHZ_FORCE_INLINE CppType normalized_safe() const noexcept {
         return shz_vec_normalize_safe(*static_cast<const CppType*>(this));
     }
 
