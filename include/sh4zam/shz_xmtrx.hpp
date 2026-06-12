@@ -355,6 +355,11 @@ struct xmtrx {
         shz_xmtrx_init_permutation_yzwx();
     }
 
+    //! C++ wrapper around shz_xmtrx_init_permutation_wzyx().
+    SHZ_FORCE_INLINE static void init_permutation_wzyx() noexcept {
+        shz_xmtrx_init_permutation_wzyx();
+    }
+
 //! @}
 
 /*! \name  Apply Operation
@@ -520,6 +525,11 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_apply_permutation_yzwx().
     SHZ_FORCE_INLINE static void apply_permutation_yzwx() noexcept {
         shz_xmtrx_apply_permutation_yzwx();
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_permutation_wzyx().
+    SHZ_FORCE_INLINE static void apply_permutation_wzyx() noexcept {
+        shz_xmtrx_apply_permutation_wzyx();
     }
 
     //! C++ wrapper around shz_xmtrx_apply_self().
