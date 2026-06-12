@@ -509,9 +509,28 @@ GBL_TEST_CASE(init_screen)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_permutation_wxyz)
+    randomize_xmtrx_();
+    shz::xmtrx::init_permutation_wxyz();
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, {
+        0.0f, 0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f
+    }));
+
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_permutation_yzwx)
+    randomize_xmtrx_();
+    shz::xmtrx::init_permutation_yzwx();
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, {
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 0.0f, 0.0f
+    }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_permutation_wzyx)
@@ -1022,6 +1041,38 @@ GBL_TEST_CASE(apply_rotation_quat)
                 }, shz::quat{ 1.0f, 2.0f, 3.0f, 4.0f });
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(apply_permutation_wxyz)
+    randomize_xmtrx_();
+    shz::xmtrx::init_identity();
+    shz::xmtrx::apply_permutation_wxyz();
+
+    shz::vec4 input = { 1.0f, 2.0f, 3.0f, 4.0f };
+    auto output = shz::xmtrx::transform(input);
+
+    // output should be (w,x,y,z) = (4,1,2,3)
+    GBL_TEST_VERIFY(output.x == 4.0f);
+    GBL_TEST_VERIFY(output.y == 1.0f);
+    GBL_TEST_VERIFY(output.z == 2.0f);
+    GBL_TEST_VERIFY(output.w == 3.0f);
+
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_permutation_yzwx)
+    randomize_xmtrx_();
+    shz::xmtrx::init_identity();
+    shz::xmtrx::apply_permutation_yzwx();
+
+    shz::vec4 input = { 1.0f, 2.0f, 3.0f, 4.0f };
+    auto output = shz::xmtrx::transform(input);
+
+    // output should be (y,z,w,x) = (2,3,4,1)
+    GBL_TEST_VERIFY(output.x == 2.0f);
+    GBL_TEST_VERIFY(output.y == 3.0f);
+    GBL_TEST_VERIFY(output.z == 4.0f);
+    GBL_TEST_VERIFY(output.w == 1.0f);
+
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(apply_permutation_wzyx)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
@@ -1030,7 +1081,7 @@ GBL_TEST_CASE(apply_permutation_wzyx)
     shz::vec4 input = { 1.0f, 2.0f, 3.0f, 4.0f };
     auto output = shz::xmtrx::transform(input);
 
-    // wzyx: output should be (w,z,y,x) = (4,3,2,1)
+    // output should be (w,z,y,x) = (4,3,2,1)
     GBL_TEST_VERIFY(output.x == 4.0f);
     GBL_TEST_VERIFY(output.y == 3.0f);
     GBL_TEST_VERIFY(output.z == 2.0f);
@@ -1819,6 +1870,8 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_rotation_zyx,
                   apply_rotation_yxz,
                   apply_rotation_quat,
+                  apply_permutation_wxyz,
+                  apply_permutation_yzwx,
                   apply_permutation_wzyx,
                   load_apply_4x4,
                   load_apply_unaligned_4x4,
