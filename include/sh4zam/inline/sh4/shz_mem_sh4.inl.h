@@ -397,15 +397,15 @@ SHZ_FORCE_INLINE void* shz_memcpy64_sh4(      void* SHZ_RESTRICT dst,
 
 SHZ_FORCE_INLINE void* shz_memcpy128_sh4(      void* SHZ_RESTRICT dst,
                                          const void* SHZ_RESTRICT src,
-                                         size_t               bytes) SHZ_NOEXCEPT {
+                                             size_t               bytes) SHZ_NOEXCEPT {
     assert(!(bytes % 128) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
 
     return shz_memcpy128_sh4_(dst, src, bytes);
 }
 
 SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
-                                const void* SHZ_RESTRICT src,
-                                    size_t               bytes) SHZ_NOEXCEPT {
+                                      const void* SHZ_RESTRICT src,
+                                          size_t               bytes) SHZ_NOEXCEPT {
     const uint8_t *s = (const uint8_t *)src;
           uint8_t *d = (      uint8_t *)dst;
     size_t copied;

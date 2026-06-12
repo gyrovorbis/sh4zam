@@ -9,10 +9,12 @@
 !  \copyright MIT License
 !!
 
-.text
-    .globl _shz_memset8_sh4_
-    .globl _shz_memcpy128_sh4_
-    .globl _shz_sq_memcpy32_sh4_
+    .section .text._shz_memset8_sh4_, "ax", %progbits
+.globl _shz_memset8_sh4_
+    .section .text._shz_memcpy128_sh4_, "ax", %progbits
+.globl _shz_memcpy128_sh4_
+    .section .text._shz_memcpy32_sh4_, "ax", %progbits
+.globl _shz_sq_memcpy32_sh4_
 
 !
 ! void* shz_memset8_sh4_(void *dst, uint64_t value, size_t bytes)

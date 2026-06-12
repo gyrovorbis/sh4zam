@@ -27,16 +27,14 @@
 - Software back-end for using SH4ZAM in cross-platform codebases
 
 # APIs
-- **Preprocessor** directives controlling optimizations
-- **Intrinsics** for SH4 instructions not emitted by GCC
-- **Memory** routines (memcpy(), memset(), memmove(), etc)
 - **Scalar** math operations, including faster `<math.h>` replacements
-- **Trigonometry** functions, inverse trig functions
+- **Trigonometry** functions, inverse and hyperbolic trig functions
 - **Vector** types: 2D, 3D, 4D
 - **Matrix** types: 2x2, 3x2, 3x3, 3x4, 4x3, and 4x4
 - **Quaternion** math operations
 - **XMTRX** API for manipulating 4x4 back-bank of FP registers
 - **Complex** and imaginary math API, including accelerated FFT
+- **Memory** routines (memcpy(), memset(), memmove(), etc)
 
 # Usage
 
@@ -118,7 +116,7 @@ PVR DMA       | Real-world, complex renderer using KOS's PVR DMA API.
 
 NOTE: <i>If you've installed SH4ZAM through KOS-ports, the examples should get installed to `kos-ports/examples/sh4zam`.</i>
 
-# Projects
+# Showcase
 The following projects have been successfully accelerated with SH4ZAM and make great references:
 
 Project                                                   | Description
@@ -134,6 +132,11 @@ Project                                                   | Description
 [Quake 2 DC](https://github.com/Bruceleeto/Quake2)        | Port of Quake 2 to the DC, with SH4ZAM accelerated matrix math.
 [DCSinge](https://github.com/GPF/DCSinge)                 | Singe API + FMV playback engine on DC using SH4ZAM memory routines.
 [Xash3D DC](https://github.com/maximqaxd/xash3d-fwgs_dc/tree/pvrrender) | SH4ZAM'd up DC port of the Half-Life compatible Xash3D engine.
+[Gael Force](https://mrtheplague1.itch.io/gael-force)     | Tactical RPG featuring 2D sprites in 3D worlds with dynamic lights, using SH4ZAM.
+[DMS-Engine](https://github.com/Bruceleeto/DMS-Engine)    | Bruceleet's "Dreamcast Mesh Shit" Engine, SH4ZAM'd to hell with skinning.
+[The Cave](https://freakdave.itch.io/dreamcast-the-cave-tech-demo) | FreakDave's SH4ZAM-boosted DC tech demo with impressive lighting and effects.
+[Audio Visualizer](https://www.youtube.com/watch?v=2KR_PtF_33c) | Brielle Garcia's CD Audio Visualizer for Dreamcast, using SH4ZAM math routines.
+[DemoTek](https://youtu.be/GfbITGBcHHY?si=TwwZWQhc9E8sfbyi) | Crash Bandicoot-style 3D platformer, with SH4ZAM'd up scalar math + 3D transforms.
 
 # Conventions
 The following conventions are used throughout the API by default, unless otherwise specified:
@@ -147,7 +150,7 @@ Quaternions  | Stored in `<W, X, Y, Z>` order.
 # Community
 The `#sh4zam` channel within the [Simulant Discord Server](https://discord.gg/G2Ay9kxec2) for Dreamcast development is the best place to ask questions, get help, give feedback, or discuss anything relating to SH4ZAM. Also, feel free to open tickets for any issues or feature requests!
 
-# Contributors
+# Acknowledgements
 Special thanks to the following individuals who have either directly or indirectly contributed to SH4ZAM:
 - Falco Girgis
 - Paul Cercueil
