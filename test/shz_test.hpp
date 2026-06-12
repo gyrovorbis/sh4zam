@@ -80,9 +80,8 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function
         SHZ_MEMORY_BARRIER_SOFT();
 #if !defined(SHZ_DISABLE_BENCHMARKS) && (SHZ_BACKEND == SHZ_SH4)
             if constexpr(CacheFlush) {
-                alignas(32) uint8_t dcache_buffer[1024 * 16];
                 icache_inval_range((uintptr_t)&_executable_start, (size_t)((uintptr_t)&_etext - (uintptr_t)&_executable_start));
-                dcache_purge_all_with_buffer((uintptr_t)dcache_buffer, sizeof(dcache_buffer));
+                dcache_purge_all();
             }
 #endif
 

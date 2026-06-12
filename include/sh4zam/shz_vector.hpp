@@ -286,19 +286,29 @@ struct vecN: C {
         return shz_vec_normalize(*static_cast<const CppType*>(this));
     }
 
-    //! Normalizes the given vector.
-    SHZ_FORCE_INLINE void normalize() noexcept {
-        *static_cast<CppType*>(this) = shz_vec_normalize(*static_cast<const CppType*>(this));
-    }
-
     //! Returns the direction vector of a given vector, safely protecting against division-by-zero.
     SHZ_FORCE_INLINE CppType direction_safe() const noexcept {
         return shz_vec_normalize_safe(*static_cast<const CppType*>(this));
     }
 
+    //! Normalizes the given vector.
+    SHZ_FORCE_INLINE void normalize() noexcept {
+        *static_cast<CppType*>(this) = shz_vec_normalize(*static_cast<const CppType*>(this));
+    }
+
     //! Normalizes the given vector, safely protecting against division-by-zero.
     SHZ_FORCE_INLINE void normalize_safe() noexcept {
         *static_cast<CppType*>(this) = shz_vec_normalize_safe(*static_cast<const CppType*>(this));
+    }
+
+    //! Return the normalized vector.
+    SHZ_FORCE_INLINE CppType normalized() const noexcept {
+        return shz_vec_normalize(*static_cast<const CppType*>(this));
+    }
+
+    //! Return the normalized vector, safely protecting against division-by-zero.
+    SHZ_FORCE_INLINE CppType normalized_safe() const noexcept {
+        return shz_vec_normalize_safe(*static_cast<const CppType*>(this));
     }
 
     //! Returns the magnitude of the difference between two vectors as their distance.

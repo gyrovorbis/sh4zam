@@ -1216,130 +1216,33 @@ GBL_TEST_CASE(load_apply_store_unaligned_4x4)
                                     0.0f, 0.0f, 0.0f, 1.0f }));
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(gl_transforms)
-    constexpr float rotation_factor = 0.785398f;
+GBL_TEST_CASE(translate)
     vec3 sc = { 2.0f, 2.0f, 2.0f };
     vec3 tl = { 1.0f, 2.0f, 3.0f };
-    // Translation test
-    {
-        mat4 glmRes;
-        shz::mat4x4 shzRes;
 
-        shz::xmtrx::init_identity_safe();
-        shz::xmtrx::scale(2.0f, 2.0f, 2.0f);
-        shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+    mat4 glmRes;
+    shz::mat4x4 shzRes;
 
-        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                                {
-                                    2.0f, 0.0f, 0.0f, 2.0f,
-                                    0.0f, 2.0f, 0.0f, 4.0f,
-                                    0.0f, 0.0f, 2.0f, 6.0f,
-                                    0.0f, 0.0f, 0.0f, 1.0f }));
+    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::scale(2.0f, 2.0f, 2.0f);
+    shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
 
-        
-        shz::xmtrx::store(&shzRes);
-        
-        glm_mat4_identity(glmRes);
-        glm_scale(glmRes, sc);
-        glm_translate(glmRes, tl);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                            {
+                                2.0f, 0.0f, 0.0f, 2.0f,
+                                0.0f, 2.0f, 0.0f, 4.0f,
+                                0.0f, 0.0f, 2.0f, 6.0f,
+                                0.0f, 0.0f, 0.0f, 1.0f }));
 
-        GBL_TEST_VERIFY(compare_glm(shzRes, glmRes));
-    }
+    
+    shz::xmtrx::store(&shzRes);
+    
+    glm_mat4_identity(glmRes);
+    glm_scale(glmRes, sc);
+    glm_translate(glmRes, tl);
 
-    // Scale test (reverse operation of above)
-    {
-        mat4 glmScaleRes;
-        shz::mat4x4 shzScaleRes;
+    GBL_TEST_VERIFY(compare_glm(shzRes, glmRes));
 
-        shz::xmtrx::init_identity_safe();
-        shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
-        shz::xmtrx::scale(2.0f, 2.0f, 2.0f);
-
-        shz::xmtrx::store(&shzScaleRes);
-
-        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                                {
-                                    2.0f, 0.0f, 0.0f, 1.0f,
-                                    0.0f, 2.0f, 0.0f, 2.0f,
-                                    0.0f, 0.0f, 2.0f, 3.0f,
-                                    0.0f, 0.0f, 0.0f, 1.0f }));
-
-        glm_mat4_identity(glmScaleRes);
-        glm_translate(glmScaleRes, tl);
-        glm_scale(glmScaleRes, sc);
-
-        GBL_TEST_VERIFY(compare_glm(shzScaleRes, glmScaleRes));
-
-    }
-
-    // rotate_x
-    {
-        shz::mat4x4 shzRotRes;
-        mat4 glmRotRes;
-        shz::xmtrx::init_identity_safe();
-        shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
-        shz::xmtrx::rotate_x(rotation_factor);
-        shz::xmtrx::store(&shzRotRes);
-
-        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                                {
-                                    1.0f, 0.0f,       0.0f,      1.0f,
-                                    0.0f, 0.707107f, -0.707107f, 2.0f,
-                                    0.0f, 0.707107f,  0.707107f, 3.0f,
-                                    0.0f, 0.0f,       0.0f,      1.0f }));
-
-        glm_mat4_identity(glmRotRes);
-        glm_translate(glmRotRes, tl);
-        glm_rotate_x(glmRotRes, rotation_factor, glmRotRes);
-
-        GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
-    }
-
-    // rotate_y
-    {
-        shz::mat4x4 shzRotRes;
-        mat4 glmRotRes;
-        shz::xmtrx::init_identity_safe();
-        shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
-        shz::xmtrx::rotate_y(rotation_factor);
-        shz::xmtrx::store(&shzRotRes);
-
-        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                        {
-                             0.707107f,  0.0f,  0.707107,  1.0f,
-                             0.0f,       1.0f,  0.0f,      2.0f,
-                            -0.707107f,  0.0f,  0.707107f, 3.0f,
-                             0.0f,       0.0f,  0.0f,      1.0f }));
-
-        glm_mat4_identity(glmRotRes);
-        glm_translate(glmRotRes, tl);
-        glm_rotate_y(glmRotRes, rotation_factor, glmRotRes);
-
-        GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
-    }
-
-    // rotate_z
-    {
-        shz::mat4x4 shzRotRes;
-        mat4 glmRotRes;
-        shz::xmtrx::init_identity_safe();
-        shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
-        shz::xmtrx::rotate_z(rotation_factor);
-        shz::xmtrx::store(&shzRotRes);
-
-        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                        {
-                            0.707107, -0.707107, 0.0f, 1.0f,
-                            0.707107,  0.707107, 0.0f, 2.0f,
-                            0.0f,      0.0f,     1.0f, 3.0f,
-                            0.0f,      0.0f,     0.0f, 1.0f }));
-
-        glm_mat4_identity(glmRotRes);
-        glm_translate(glmRotRes, tl);
-        glm_rotate_z(glmRotRes, rotation_factor, glmRotRes);
-
-        GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
-    }
 
 #if SHZ_BACKEND == SHZ_SH4
     GBL_TEST_VERIFY(
@@ -1350,6 +1253,109 @@ GBL_TEST_CASE(gl_transforms)
         )
     );
 #endif
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(scale)
+    vec3 sc = { 2.0f, 2.0f, 2.0f };
+    vec3 tl = { 1.0f, 2.0f, 3.0f };
+
+    mat4 glmScaleRes;
+    shz::mat4x4 shzScaleRes;
+
+    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+    shz::xmtrx::scale(2.0f, 2.0f, 2.0f);
+
+    shz::xmtrx::store(&shzScaleRes);
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                            {
+                                2.0f, 0.0f, 0.0f, 1.0f,
+                                0.0f, 2.0f, 0.0f, 2.0f,
+                                0.0f, 0.0f, 2.0f, 3.0f,
+                                0.0f, 0.0f, 0.0f, 1.0f }));
+
+    glm_mat4_identity(glmScaleRes);
+    glm_translate(glmScaleRes, tl);
+    glm_scale(glmScaleRes, sc);
+
+    GBL_TEST_VERIFY(compare_glm(shzScaleRes, glmScaleRes));
+
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_x)
+    constexpr float rotation_factor = 0.785398f;
+    vec3 tl = { 1.0f, 2.0f, 3.0f };
+
+    shz::mat4x4 shzRotRes;
+    mat4 glmRotRes;
+    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+    shz::xmtrx::rotate_x(rotation_factor);
+    shz::xmtrx::store(&shzRotRes);
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                            {
+                                1.0f, 0.0f,       0.0f,      1.0f,
+                                0.0f, 0.707107f, -0.707107f, 2.0f,
+                                0.0f, 0.707107f,  0.707107f, 3.0f,
+                                0.0f, 0.0f,       0.0f,      1.0f }));
+
+    glm_mat4_identity(glmRotRes);
+    glm_translate(glmRotRes, tl);
+    glm_rotate_x(glmRotRes, rotation_factor, glmRotRes);
+
+    GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_y)
+    constexpr float rotation_factor = 0.785398f;
+    vec3 tl = { 1.0f, 2.0f, 3.0f };
+
+    shz::mat4x4 shzRotRes;
+    mat4 glmRotRes;
+    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+    shz::xmtrx::rotate_y(rotation_factor);
+    shz::xmtrx::store(&shzRotRes);
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                            0.707107f,  0.0f,  0.707107,  1.0f,
+                            0.0f,       1.0f,  0.0f,      2.0f,
+                        -0.707107f,  0.0f,  0.707107f, 3.0f,
+                            0.0f,       0.0f,  0.0f,      1.0f }));
+
+    glm_mat4_identity(glmRotRes);
+    glm_translate(glmRotRes, tl);
+    glm_rotate_y(glmRotRes, rotation_factor, glmRotRes);
+
+    GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_z)
+    constexpr float rotation_factor = 0.785398f;
+    vec3 tl = { 1.0f, 2.0f, 3.0f };
+
+    shz::mat4x4 shzRotRes;
+    mat4 glmRotRes;
+    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+    shz::xmtrx::rotate_z(rotation_factor);
+    shz::xmtrx::store(&shzRotRes);
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        0.707107, -0.707107, 0.0f, 1.0f,
+                        0.707107,  0.707107, 0.0f, 2.0f,
+                        0.0f,      0.0f,     1.0f, 3.0f,
+                        0.0f,      0.0f,     0.0f, 1.0f }));
+
+    glm_mat4_identity(glmRotRes);
+    glm_translate(glmRotRes, tl);
+    glm_rotate_z(glmRotRes, rotation_factor, glmRotRes);
+
+    GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_ortho)
@@ -1820,7 +1826,11 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_store_unaligned_4x4,
                   load_apply_store_4x4,
                   load_apply_store_unaligned_4x4,
-                  gl_transforms,
+                  translate,
+                  scale,
+                  rotate_x,
+                  rotate_y,
+                  rotate_z,
                   apply_ortho,
                   apply_frustum,
                   apply_perspective,
