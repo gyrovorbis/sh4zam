@@ -527,7 +527,7 @@ struct xmtrx {
         shz_xmtrx_apply_permutation_yzwx();
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_permutation_yzwx().
+    //! C++ wrapper around shz_xmtrx_apply_permutation_wzyx().
     SHZ_FORCE_INLINE static void apply_permutation_wzyx() noexcept {
         shz_xmtrx_apply_permutation_wzyx();
     }
