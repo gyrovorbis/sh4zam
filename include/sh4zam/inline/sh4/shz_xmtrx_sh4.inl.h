@@ -2815,6 +2815,64 @@ SHZ_INLINE void shz_xmtrx_apply_permutation_yzwx_sh4(void) SHZ_NOEXCEPT {
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
+SHZ_INLINE void shz_xmtrx_init_permutation_wzyx_sh4(void) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        frchg
+        fldi0   fr0
+        fldi0   fr1
+        fldi0   fr2
+        fldi1   fr3
+        fldi0   fr4
+        fldi0   fr5
+        fldi0   fr7
+        fldi1   fr6
+        fldi0   fr8
+        fldi1   fr9
+        fldi0   fr10
+        fldi0   fr11
+        fldi1   fr12
+        fldi0   fr13
+        fldi0   fr14
+        fldi0   fr15
+        frchg
+    )");
+}
+
+SHZ_INLINE void shz_xmtrx_apply_permutation_wzyx_sh4(void) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        fldi0 fr0
+        fldi0 fr1
+        fmul  fr0, fr2
+        fldi1 fr3
+        fldi0 fr4
+        ftrv  xmtrx,fv0
+
+        fldi0 fr5
+        fldi1 fr6
+        fldi0 fr7
+        fldi0 fr8
+        ftrv  xmtrx,fv4
+
+        fldi1 fr9
+        fldi0 fr10
+        fldi0 fr11
+        fldi1 fr12
+        ftrv  xmtrx,fv8
+
+    
+        fldi0 fr13
+        fldi0 fr14
+        fldi0 fr15
+        ftrv  xmtrx,fv12
+
+        frchg
+    )"
+    :
+    :
+    : "fr0","fr1","fr2","fr3","fr4","fr5","fr6","fr7",
+    "fr8","fr9","fr10","fr11","fr12","fr13","fr14","fr15");
+}
+
 SHZ_INLINE void shz_xmtrx_apply_self_sh4(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         fschg
