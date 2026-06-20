@@ -53,7 +53,9 @@ SHZ_DECLS_BEGIN
     Copies \p bytes from \p src to \p dst, determining the most efficient
     specialization to call into at run-time, returning \p dst.
 
-    There are no alignment or size requirements for this routine.
+    There are no alignment or size requirements for this routine, but it is
+    specifically optimized for 2-, 4-, 8-, and 32-byte alignments, with
+    bigger alignments bringing bigger gainz.
 
     \note
     When you know of and can control the \p src and \p dst alignments and

@@ -7,6 +7,13 @@
     Fast math library for the Sega Dreamcast's SH4 CPU
     <br />
     <a href="http://sh4zam.com"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    Optimized
+    ·
+    Ergonomic
+    ·
+    Multiplatform
   </p>
 </div>
 <hr>

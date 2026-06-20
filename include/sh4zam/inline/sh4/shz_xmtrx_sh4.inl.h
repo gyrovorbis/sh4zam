@@ -14,6 +14,8 @@
 #ifndef SHZ_XMTRX_SH4_INL_H
 #define SHZ_XMTRX_SH4_INL_H
 
+#include <assert.h>
+
 #define SHZ_FRCHG() asm volatile("frchg")
 
 void shz_xmtrx_load_apply_store_4x4_sh4(shz_mat4x4_t* out, const shz_mat4x4_t* mat1, const shz_mat4x4_t* mat2);

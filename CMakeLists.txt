@@ -86,15 +86,26 @@ else()
          include/sh4zam/inline/sw/shz_xmtrx_sw.inl.h)
 endif()
 
-add_library(sh4zam STATIC ${SHZ_SOURCES})
+# Allow a parent project to control how sh4zam is built. simulant builds it as
+# an OBJECT library so the sh4zam object files are embedded directly into
+# libsimulant.a, meaning downstream users don't have to link sh4zam themselves.
+if(NOT DEFINED SHZ_LIBRARY_TYPE)
+    set(SHZ_LIBRARY_TYPE STATIC)
+endif()
+
+add_library(sh4zam ${SHZ_LIBRARY_TYPE} ${SHZ_SOURCES})
 
 target_include_directories(sh4zam
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
 
-install(TARGETS sh4zam)
-install(DIRECTORY include/sh4zam DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+# When embedded as an OBJECT library inside another target (e.g. simulant) there
+# is nothing to install on its own, and its headers are kept private.
+if(NOT SHZ_LIBRARY_TYPE STREQUAL "OBJECT")
+    install(TARGETS sh4zam)
+    install(DIRECTORY include/sh4zam DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif()
 
 option(SHZ_ENABLE_PIC "Enable position-independent code." OFF)
 
