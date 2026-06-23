@@ -2776,7 +2776,6 @@ SHZ_INLINE void shz_xmtrx_init_permutation_yzwx_sh4(void) SHZ_NOEXCEPT {
         fldi0   fr13
         fldi1   fr14
         fldi0   fr15
-        ftrv    xmtrx, fv12
         frchg
     )");
 }

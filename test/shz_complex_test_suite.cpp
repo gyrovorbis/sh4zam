@@ -1208,10 +1208,8 @@ GBL_TEST_CASE(fft)
     cooley_tukey_fft(samples[1], 1024);
 
     for(unsigned s = 0; s < 1024; ++s) {
-        float rdiff = fabsf(samples[0][s].real - samples[1][s].real);
-        float idiff = fabsf(samples[0][s].imag - samples[1][s].imag);
-
-        GBL_TEST_VERIFY(rdiff <= FFT_ERROR_MAX && idiff <= FFT_ERROR_MAX);
+        GBL_TEST_ERROR(samples[1][s].real, samples[0][s].real, FFT_ERROR_MAX, GBL_TEST_ERROR_FUZZY);
+        GBL_TEST_ERROR(samples[1][s].imag, samples[0][s].imag, FFT_ERROR_MAX, GBL_TEST_ERROR_FUZZY);
     }
 
     GBL_TEST_VERIFY(

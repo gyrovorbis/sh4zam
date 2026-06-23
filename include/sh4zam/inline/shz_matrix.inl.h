@@ -579,7 +579,7 @@ SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
         );
     } else if (mat->left.x >= mat->up.y && mat->left.x >= mat->forward.z) {
         f = 1.0f - mat->up.y - mat->forward.z + mat->left.x;
-        s = shz_inv_sqrtf(f);
+        s = shz_inv_sqrtf_fsrra(f);
         m = 0.5f * s;
 
         return shz_quat_init(
@@ -590,7 +590,7 @@ SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
         );
     } else if (mat->up.y >= mat->forward.z) {
         f = 1.0f - mat->left.x - mat->forward.z + mat->up.y;
-        s = shz_inv_sqrtf(f);
+        s = shz_inv_sqrtf_fsrra(f);
         m = 0.5f * s;
 
         return shz_quat_init(
@@ -601,7 +601,7 @@ SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
         );
     } else {
         f = 1.0f - mat->left.x - mat->up.y + mat->forward.z;
-        s = shz_inv_sqrtf(f);
+        s = shz_inv_sqrtf_fsrra(f);
         m = 0.5f * s;
 
         return shz_quat_init(
