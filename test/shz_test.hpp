@@ -57,9 +57,9 @@ namespace {
     }
 }
 
-template<typename F, typename... Args>
+template<typename... Args>
 SHZ_NO_INLINE
-std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, F &&function, Args&&... args) noexcept {
+std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& function, Args&&... args) noexcept {
 #if SHZ_BACKEND == SHZ_SH4
     perf_cntr_timer_enable();
 #endif
