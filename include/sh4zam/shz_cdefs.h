@@ -267,7 +267,9 @@
     //! References a TLS variable, with disabled model.
 #   define SHZ_TLS_REF(name)             (&name)
 #elif SHZ_TLS_MODEL == SHZ_TLS_IMPLICIT
-#   include <threads.h>
+#   ifndef __cplusplus
+#       include <threads.h>
+#   endif
     //! Declares a TLS variable with compiler-driven implicit TLS model.
 #   define SHZ_TLS_DECL(type, name, ...) static thread_local type name = __VA_ARGS__;
     //! References a TLS variable with compiler-driven implicit TLS model.
