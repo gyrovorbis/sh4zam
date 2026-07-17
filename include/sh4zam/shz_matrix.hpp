@@ -110,8 +110,16 @@ namespace shz {
             shz_mat4x4_init_translation(this, x, y, z);
         }
 
+        SHZ_FORCE_INLINE void init_translation(vec3 v) noexcept {
+            init_translation(v.x, v.y, v.z);
+        }
+
         SHZ_FORCE_INLINE void init_scale(float x, float y, float z) noexcept {
             shz_mat4x4_init_scale(this, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void init_scale(vec3 v) noexcept {
+            init_scale(v.x, v.y, v.z);
         }
 
         SHZ_FORCE_INLINE void init_rotation_x(float angle) noexcept {
@@ -142,9 +150,12 @@ namespace shz {
             shz_mat4x4_init_rotation_yxz(this, yAngle, xAngle, zAngle);
         }
 
-        //! C++ wrapper for shz_mat4x4_init_rotation().
         SHZ_FORCE_INLINE void init_rotation(float angle, float x, float y, float z) noexcept {
             shz_mat4x4_init_rotation(this, angle, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void init_rotation(float angle, vec3 axis) noexcept {
+            init_rotation(angle, axis.x, axis.y, axis.z);
         }
 
         SHZ_FORCE_INLINE void init_rotation(quat q) noexcept {
@@ -153,6 +164,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE void init_diagonal(float x, float y, float z, float w) noexcept {
             shz_mat4x4_init_diagonal(this, x, y, z, w);
+        }
+
+        SHZ_FORCE_INLINE void init_diagonal(vec4 v) noexcept {
+            init_diagonal(v.x, v.y, v.z, v.w);
         }
 
         SHZ_FORCE_INLINE void init_upper_triangular(float col1, vec2 col2, vec3 col3, vec4 col4) noexcept{
@@ -165,6 +180,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE void init_symmetric_skew(float x, float y, float z) noexcept {
             shz_mat4x4_init_symmetric_skew(this, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void init_symmetric_skew(vec3 v) noexcept {
+            init_symmetric_skew(v.x, v.y, v.z);
         }
 
         SHZ_FORCE_INLINE void init_outer_product(vec4 v1, vec4 v2) noexcept {
@@ -247,8 +266,16 @@ namespace shz {
             shz_mat4x4_set_translation(this, x, y, z);
         }
 
+        SHZ_FORCE_INLINE void set_translation(vec3 v) noexcept {
+            set_translation(v.x, v.y, v.z);
+        }
+
         SHZ_FORCE_INLINE void set_scale(float x, float y, float z) noexcept {
             shz_mat4x4_set_scale(this, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void set_scale(vec3 v) noexcept {
+            set_scale(v.x, v.y, v.z);
         }
 
         SHZ_FORCE_INLINE void set_rotation(quat rot) noexcept {
@@ -257,6 +284,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE void set_diagonal(float x, float y, float z, float w) noexcept {
             shz_mat4x4_set_diagonal(this, x, y, z, w);
+        }
+
+        SHZ_FORCE_INLINE void set_diagonal(vec4 v) noexcept {
+            set_diagonal(v.x, v.y, v.z, v.w);
         }
 
         //! @}
@@ -285,9 +316,17 @@ namespace shz {
         SHZ_FORCE_INLINE void apply_scale(float x, float y, float z) noexcept {
             shz_mat4x4_apply_scale(this, x, y, z);
         }
+        
+        SHZ_FORCE_INLINE void apply_scale(vec3 v) noexcept {
+            apply_scale(v.x, v.y, v.z);
+        }
 
         SHZ_FORCE_INLINE void apply_translation(float x, float y, float z) noexcept {
             shz_mat4x4_apply_translation(this, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void apply_translation(vec3 v) noexcept {
+            apply_translation(v.x, v.y, v.z);
         }
 
         SHZ_FORCE_INLINE void apply_rotation_x(float angle) noexcept {
@@ -320,6 +359,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE void apply_rotation(float angle, float x, float y, float z) noexcept {
             shz_mat4x4_apply_rotation(this, angle, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void apply_rotation(float angle, vec3 axis) noexcept {
+            apply_rotation(angle, axis.x, axis.y, axis.z);
         }
 
         SHZ_FORCE_INLINE void apply_rotation(quat q) noexcept {
@@ -373,8 +416,16 @@ namespace shz {
             shz_mat4x4_translate(this, x, y, z);
         }
 
+        SHZ_FORCE_INLINE void translate(vec3 v) noexcept {
+            translate(v.x, v.y, v.z);
+        }
+
         SHZ_FORCE_INLINE void scale(float x, float y, float z) noexcept {
             shz_mat4x4_scale(this, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void scale(vec3 v) noexcept {
+            scale(v.x, v.y, v.z);
         }
 
         SHZ_FORCE_INLINE void rotate_x(float radians) noexcept {
@@ -407,6 +458,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE void rotate(float radians, float xAxis, float yAxis, float zAxis) noexcept {
             shz_mat4x4_rotate(this, radians, xAxis, yAxis, zAxis);
+        }
+
+        SHZ_FORCE_INLINE void rotate(float radians, vec3 axis) noexcept {
+            rotate(radians, axis.x, axis.y, axis.z);
         }
 
         //! @}

@@ -245,9 +245,19 @@ struct xmtrx {
         shz_xmtrx_init_translation(x, y, z);
     }
 
+    //! C++ wrapper around shz_xmtrx_init_translation().
+    SHZ_FORCE_INLINE static void init_translation(vec3 v) noexcept {
+        init_translation(v.x, v.y, v.z);
+    }
+
     //! C++ wrapper around shz_xmtrx_init_scale().
     SHZ_FORCE_INLINE static void init_scale(float x, float y, float z) noexcept {
         shz_xmtrx_init_scale(x, y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_scale().
+    SHZ_FORCE_INLINE static void init_scale(vec3 v) noexcept {
+        init_scale(v.x, v.y, v.z);
     }
 
     //! C++ wrapper around shz_xmtrx_init_rotation_x().
@@ -290,9 +300,19 @@ struct xmtrx {
         shz_xmtrx_init_rotation(angle, x, y, z);
     }
 
+    //! C++ wrapper around shz_xmtrx_init_rotation().
+    SHZ_FORCE_INLINE static void init_rotation(float angle, vec3 axis) noexcept {
+        init_rotation(angle, axis.x, axis.y, axis.z);
+    }
+
     //! C++ wrapper around shz_xmtrx_init_diagonal().
     SHZ_FORCE_INLINE static void init_diagonal(float x, float y, float z, float w) noexcept {
         shz_xmtrx_init_diagonal(x, y, z, w);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_diagonal().
+    SHZ_FORCE_INLINE static void init_diagonal(vec4 v) noexcept {
+        init_diagonal(v.x, v.y, v.z, v.w);
     }
 
     //! C++ wrapper around shz_xmtrx_init_upper_triangular().
@@ -437,9 +457,19 @@ struct xmtrx {
         shz_xmtrx_apply_translation(x, y, z);
     }
 
+    //! C++ wrapper around shz_xmtrx_apply_translation().
+    SHZ_FORCE_INLINE static void apply_translation(vec3 v) noexcept {
+        apply_translation(v.x, v.y, v.z);
+    }
+
     //! C++ wrapper around shz_xmtrx_apply_scale().
     SHZ_FORCE_INLINE static void apply_scale(float x, float y, float z) noexcept {
         shz_xmtrx_apply_scale(x, y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_scale().
+    SHZ_FORCE_INLINE static void apply_scale(vec3 v) noexcept {
+        apply_scale(v.x, v.y, v.z);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_rotation_x().
@@ -477,9 +507,14 @@ struct xmtrx {
         shz_xmtrx_apply_rotation_yxz(y, x, z);
     }
 
-        // C++ wrapper around shz_xmtrx_apply_rotation().
+    // C++ wrapper around shz_xmtrx_apply_rotation().
     SHZ_FORCE_INLINE static void apply_rotation(float angle, float x, float y, float z) noexcept {
         shz_xmtrx_apply_rotation(angle, x, y, z);
+    }
+
+    // C++ wrapper around shz_xmtrx_apply_rotation().
+        SHZ_FORCE_INLINE static void apply_rotation(float angle, vec3 axis) noexcept {
+        apply_rotation(angle, axis.x, axis.y, axis.z);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_rotation_quat().
@@ -549,9 +584,19 @@ struct xmtrx {
         shz_xmtrx_translate(x, y, z);
     }
 
+    //! C++ wrapper around shz_xmtrx_translate().
+    SHZ_FORCE_INLINE static void translate(vec3 v) noexcept {
+        translate(v.x, v.y, v.z);
+    }
+
     //! C++ wrapper around shz_xmtrx_scale().
     SHZ_FORCE_INLINE static void scale(float x, float y, float z) noexcept {
         shz_xmtrx_scale(x, y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_scale().
+    SHZ_FORCE_INLINE static void scale(vec3 v) noexcept {
+        scale(v.x, v.y, v.z);
     }
 
     //! C++ wrapper around shz_xmtrx_rotate_x().
@@ -592,6 +637,11 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_rotate().
     SHZ_FORCE_INLINE static void rotate(float radians, float x, float y, float z) noexcept {
         shz_xmtrx_rotate(radians, x, y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate().
+    SHZ_FORCE_INLINE static void rotate(float radians, vec3 axis) noexcept {
+        rotate(radians, axis.x, axis.y, axis.z);
     }
 
 //! @}
@@ -685,6 +735,11 @@ struct xmtrx {
         shz_xmtrx_set_translation(x, y, z);
     }
 
+    //! C++ wrapper around shz_xmtrx_set_translation().
+    SHZ_FORCE_INLINE void set_translation(vec3 v) noexcept {
+        set_translation(v.x, v.y, v.z);
+    }
+
 //! @}
 
 /*! \name  Getters
@@ -719,9 +774,19 @@ struct xmtrx {
         shz_xmtrx_add_diagonal(x, y, z, w);
     }
 
+    //! C++ wrapper around shz_xmtrx_add_diagonal().
+    SHZ_FORCE_INLINE static void add_diagonal(vec4 v) noexcept {
+        add_diagonal(v.x, v.y, v.z, v.w);
+    }
+
     //! C++ wrapper around shz_xmtrx_add_symmetric_skew().
     SHZ_FORCE_INLINE static void add_symmetric_skew(float x, float y, float z) noexcept {
         shz_xmtrx_add_symmetric_skew(x, y, z);
+    }
+    
+    //! C++ wrapper around shz_xmtrx_add_symmetric_skew().
+    SHZ_FORCE_INLINE static void add_symmetric_skew(vec3 v) noexcept {
+        add_symmetric_skew(v.x, v.y, v.z);
     }
 
     //! C++ wrapper around shz_xmtrx_transpose().
