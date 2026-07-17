@@ -249,6 +249,14 @@ GBL_TEST_CASE(vec3Dot2)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3Dot3)
+    auto scalar = [](const shz::vec3& l, const shz::vec3& r1, const shz::vec3& r2, const shz::vec3& r3) {
+        return shz::vec3 {
+            l.x * r1.x + l.y * r1.y + l.z * r1.z,
+            l.x * r2.x + l.y * r2.y + l.z * r2.z,
+            l.x * r3.x + l.y * r3.y + l.z * r3.z
+        };
+   };
+
    auto test = [&](shz::vec3 vec1,
                    shz::vec3 vec2,
                    shz::vec3 vec3,
@@ -256,24 +264,35 @@ GBL_TEST_CASE(vec3Dot3)
    {
         shz::vec3 fipr_res, c_res;
 
-        benchmark(&c_res, [&]{ return shz::vec3 {
-                            vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z,
-                            vec1.x * vec3.x + vec1.y * vec3.y + vec1.z * vec3.z,
-                            vec1.x * vec4.x + vec1.y * vec4.y + vec1.z * vec4.z
-                        };
-                   });
-
-        benchmark(&fipr_res, [&]{ return vec1.dot(vec2, vec3, vec4); });
+        fipr_res = vec1.dot(vec2, vec3, vec4);
+        c_res    = scalar(vec1, vec2, vec3, vec4);
 
         return gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
                gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error) &&
                gblFloatEquals(fipr_res.z, c_res.z, shz::fipr_max_error);
     };
 
-    GBL_TEST_VERIFY(test({ -0.342344f,    890432084.0f, 343244.0f },
-                         { 0.0000001f,    34342.0324f, -0.3243242f },
-                         { 12343455.0f,   -34234324.4444f, 0.034234f },
-                         { 3243124.3434f, SHZ_F_PI, 3143124.0342f }));
+    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() },
+                         { gblRandf(), gblRandf(), gblRandf() }));
+    {
+        auto l  = shz::vec3{ gblRandf(), gblRandf(), gblRandf() };
+        auto r1 = shz::vec3{ gblRandf(), gblRandf(), gblRandf() };
+        auto r2 = shz::vec3{ gblRandf(), gblRandf(), gblRandf() };
+        auto r3 = shz::vec3{ gblRandf(), gblRandf(), gblRandf() };
+
+        (benchmark_cmp<shz::vec3>)("shz::vec3::dot3",
+                                   [](const shz::vec3& l,
+                                      const shz::vec3& r1,
+                                      const shz::vec3& r2,
+                                      const shz::vec3& r3) {
+                                       return l.dot(r1, r2, r3);
+                                   },
+                                   "scalar",
+                                   scalar,
+                                   l, r1, r2, r3);
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec4Dot)

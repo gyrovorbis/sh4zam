@@ -16,9 +16,11 @@
 #   define BENCHMARK_ITERATION_COUNT    1
 #endif
 
-#define BENCHMARK_ITERATION_MATCHES 3
+#define BENCHMARK_ITERATION_MATCHES     3
 
 #if SHZ_BACKEND == SHZ_SH4
+#   define PERF_CNTR       PRFC1
+
 #   include <kos.h>
 #   define PMCR_PMENABLE   0x8000  /* Enable */
 #   define PMCR_PMST       0x4000  /* Start */
@@ -38,14 +40,14 @@
 #   define PMCTR_LOW(o)  ( *((volatile uint32_t *)(0xff100008) + (o << 1)) )
 
 SHZ_FORCE_INLINE void PERF_CNTR_START() {
-    PMCR_CTRL(0) &= ~PMCR_RUN;
-    PMCR_CTRL(0) |= PMCR_CLR;
-    PMCR_CTRL(0) |= PMCR_RUN;
+    PMCR_CTRL(PERF_CNTR) &= ~PMCR_RUN;
+    PMCR_CTRL(PERF_CNTR) |= PMCR_CLR;
+    PMCR_CTRL(PERF_CNTR) |= PMCR_RUN;
 }
 
 SHZ_FORCE_INLINE uint64_t PERF_CNTR_STOP() {
-    PMCR_CTRL(0) &= ~PMCR_RUN;
-    return (((uint64_t)PMCTR_HIGH(PRFC0) << 32) | PMCTR_LOW(PRFC0));
+    PMCR_CTRL(PERF_CNTR) &= ~PMCR_RUN;
+    return (((uint64_t)PMCTR_HIGH(PERF_CNTR) << 32) | PMCTR_LOW(PERF_CNTR));
 }
 #endif
 
@@ -61,7 +63,7 @@ template<typename... Args>
 SHZ_NO_INLINE
 std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& function, Args&&... args) noexcept {
 #if SHZ_BACKEND == SHZ_SH4
-    perf_cntr_timer_enable();
+    perf_cntr_start(PERF_CNTR, PMCR_ELAPSED_TIME_MODE, PMCR_COUNT_CPU_CYCLES);
 #endif
     auto inner = [&]<bool CacheFlush>() SHZ_NO_INLINE SHZ_FUNC_ALIGNAS(32) SHZ_NO_UNROLL_LOOPS {
         uint64_t tmu_sum      = 0;
@@ -77,11 +79,11 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
         SHZ_MEMORY_BARRIER_SOFT();
 
         for(iterations = 0; iterations < BENCHMARK_ITERATION_COUNT; ++iterations) {
-        SHZ_MEMORY_BARRIER_SOFT();
+            SHZ_MEMORY_BARRIER_SOFT();
 #if !defined(SHZ_DISABLE_BENCHMARKS) && (SHZ_BACKEND == SHZ_SH4)
             if constexpr(CacheFlush) {
-                icache_inval_range((uintptr_t)&_executable_start, (size_t)((uintptr_t)&_etext - (uintptr_t)&_executable_start));
                 dcache_purge_all();
+                arch_icache_inval_range((uintptr_t)&_executable_start, (size_t)((uintptr_t)&_etext - (uintptr_t)&_executable_start));
             }
 #endif
 
@@ -92,12 +94,13 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
             PERF_CNTR_START();
             SHZ_MEMORY_BARRIER_SOFT();
 #endif
-            if constexpr(!std::same_as<decltype(res), std::nullptr_t>)
-                [[maybe_unused]] auto tmp =
-                    *res = function(std::forward<Args>(args)...);
-            else
-                function(std::forward<Args>(args)...);
-
+            [](auto r, auto&& fn, auto&&... fargs) {
+                if constexpr(!std::same_as<decltype(r), std::nullptr_t>)
+                    [[maybe_unused]] auto tmp =
+                        *r = fn(std::forward<decltype(fargs)>(fargs)...);
+                else
+                    fn(std::forward<decltype(fargs)>(fargs)...);
+            }(std::forward<decltype(res)>(res), std::forward<decltype(function)>(function), std::forward<decltype(args)>(args)...);
             SHZ_MEMORY_BARRIER_SOFT();
 #if SHZ_BACKEND == SHZ_SH4
             uint64_t perfctr_cnt = PERF_CNTR_STOP();

@@ -138,11 +138,11 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(transform_vec3)
     auto check = [](shz::quat q, volatile shz::vec3 v, shz::vec3 expected) {
-        return q.transform(v) == expected;
+        return (q * v) == expected;
     };
 
     auto cross_check = [](shz::quat q, volatile shz::vec3 v) {
-        return q.transform(v) == shz::vec3(raylibVector3RotateByQuaternion(q, const_cast<shz::vec3&>(v)));
+        return (q * v) == shz::vec3(raylibVector3RotateByQuaternion(q, const_cast<shz::vec3&>(v)));
     };
 
     // identity leaves any vector unchanged
@@ -198,16 +198,18 @@ GBL_TEST_CASE(transform_vec3)
     GBL_TEST_VERIFY(cross_check(shz::quat::from_axis_angle(shz::vec3{1.0f, 1.0f, 1.0f}.direction(), SHZ_F_PI / 4.0f), {-1.0f, 0.5f, 2.0f}));
     GBL_TEST_VERIFY(cross_check(shz::quat::from_angles_xyz(0.5f, 1.0f, 1.5f), {3.0f, -1.0f, 0.0f}));
     GBL_TEST_VERIFY(cross_check(shz::quat::from_angles_xyz(0.3f, 0.7f, 0.2f), {0.0f, 1.0f, -1.0f}));
-
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<shz::vec3>)("shz::quat::transform(shz::vec3)",
-                                   [](const shz::quat& q, const shz::vec3& v) {
-                                        return q.transform(v);
-                                   },
-                                   "Vector3RotateByQuaternion",
-                                   raylibVector3RotateByQuaternion,
-                                   shz::quat::from_angles_xyz(0.5f, 1.0f, 1.5f), shz::vec3{ 43.0f, -232.0f, 344.0f })
-    );
+    {
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<shz::vec3>)("shz::quat::transform(shz::vec3)",
+                                       [](const shz::quat& q, const shz::vec3& v) {
+                                            return q * v;
+                                       },
+                                       "Vector3RotateByQuaternion",
+                                       raylibVector3RotateByQuaternion,
+                                       shz::quat::from_angles_xyz(0.0f, 1.0f, 2.0f),
+                                       shz::vec3{ gblRandf(), gblRandf(), gblRandf() })
+        );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(slerp)

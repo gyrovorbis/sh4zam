@@ -256,15 +256,15 @@ struct vecN: C {
     }
 
     //! Returns the dot product of the given vector and another.
-    SHZ_FORCE_INLINE float dot(CppType other) const noexcept {
+    SHZ_FORCE_INLINE float dot(const CppType& other) const noexcept {
         return shz_vec_dot(*static_cast<const CppType*>(this), other);
     }
 
     //! Returns the dot product of the given vector against two others.
-    SHZ_FORCE_INLINE vec2 dot(CppType v1, CppType v2) const noexcept;
+    SHZ_FORCE_INLINE vec2 dot(const CppType& v1, const CppType& v2) const noexcept;
 
     //! Returns the dot product of the given vector against three others.
-    SHZ_FORCE_INLINE vec3 dot(CppType v1, CppType v2, CppType v3) const noexcept;
+    SHZ_FORCE_INLINE vec3 dot(const CppType& v1, const CppType& v2, const CppType& v3) const noexcept;
 
     //! Returns the magnitude of the given vector.
     SHZ_FORCE_INLINE float magnitude() const noexcept {
@@ -633,12 +633,12 @@ struct vec4: vecN<vec4, shz_vec4_t, 4> {
 using vec4_t = vec4;
 
 template<typename CRTP, typename C, size_t R>
-SHZ_FORCE_INLINE vec2 vecN<CRTP, C, R>::dot(CppType v1, CppType v2) const noexcept {
+SHZ_FORCE_INLINE vec2 vecN<CRTP, C, R>::dot(const CppType& v1, const CppType& v2) const noexcept {
     return shz_vec_dot2(*static_cast<const CRTP*>(this), v1, v2);
 }
 
 template<typename CRTP, typename C, size_t R>
-SHZ_FORCE_INLINE vec3 vecN<CRTP, C, R>::dot(CppType v1, CppType v2, CppType v3) const noexcept {
+SHZ_FORCE_INLINE vec3 vecN<CRTP, C, R>::dot(const CppType& v1, const CppType& v2, const CppType& v3) const noexcept {
     return shz_vec_dot3(*static_cast<const CRTP*>(this), v1, v2, v3);
 }
 

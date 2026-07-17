@@ -451,7 +451,7 @@ namespace shz {
     }
 
     //! Overloaded operator for transforming/rotating a vec3, \p rhs, by a quaternion, \p lhs.
-    SHZ_FORCE_INLINE vec3 operator*(quat lhs, vec3 rhs) noexcept {
+    SHZ_FORCE_INLINE vec3 operator*(const quat& lhs, vec3 rhs) noexcept {
         return lhs.transform(rhs);
     }
 }
