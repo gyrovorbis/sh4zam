@@ -272,10 +272,10 @@ GBL_TEST_CASE(vec3Dot3)
                gblFloatEquals(fipr_res.z, c_res.z, shz::fipr_max_error);
     };
 
-    GBL_TEST_VERIFY(test({ gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() },
-                         { gblRandf(), gblRandf(), gblRandf() }));
+    GBL_TEST_VERIFY(test({ -0.342344f,   890432084.0f,   343244.0f  },
+                         { 0.0000001f,   34342.0324f,   -0.3243242f },
+                         { 12343455.0f, -34234324.4444f, 0.034234f  },
+                         { -1213.433f,   0.0020423f,    -32432.324f }));
     {
         auto l  = shz::vec3{ gblRandf(), gblRandf(), gblRandf() };
         auto r1 = shz::vec3{ gblRandf(), gblRandf(), gblRandf() };
