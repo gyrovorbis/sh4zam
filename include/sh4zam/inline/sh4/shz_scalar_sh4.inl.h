@@ -44,7 +44,9 @@ SHZ_FORCE_INLINE float shz_mag_sqr3f_sh4(float x, float y, float z) SHZ_NOEXCEPT
     register float rx asm("fr8")  = x;
     register float ry asm("fr9")  = y;
     register float rz asm("fr10") = z;
-    register float rw asm("fr11") = 0.0f;
+    register float rw asm("fr11");
+
+    rw = 0.0f;
 
     asm("fipr fv8, fv8"
         : "+f" (rw)

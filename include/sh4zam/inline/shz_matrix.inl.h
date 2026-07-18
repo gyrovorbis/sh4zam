@@ -564,7 +564,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_point3_transpose(const shz_mat4
                          shz_mat4x4_col(mat, 2));
 }
 
-SHZ_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_quat_t shz_mat4x4_to_quat(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     float f, s, m;
 
     if((f = mat->up.y + mat->left.x + mat->forward.z) >= 0.0f) {

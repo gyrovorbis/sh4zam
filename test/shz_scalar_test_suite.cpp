@@ -157,9 +157,9 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(divf_fsrra)
     auto test = [&](float num, float denom) {
-        return gblFloatEquals(shz::divf_fsrra(num, denom),
-                              num / sqrtf(denom * denom),
-                              0.001f);
+        volatile float nom = num;
+        return gblFloatEquals(shz::divf_fsrra(num, denom), num / sqrtf(denom * denom), 0.001f)
+            && gblFloatEquals(shz::divf_fsrra(nom, denom), num / sqrtf(denom * denom), 0.001f);
    };
    GBL_TEST_VERIFY(test(1.0f, 333333.33f));
    //GBL_TEST_VERIFY(test(0.001f, 1.001f));
@@ -175,9 +175,9 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(invf)
     auto test = [&](float value) {
-        return gblFloatEquals(shz::invf(value),
-                              1.0f / value,
-                              0.001f);
+        volatile float volue = value;
+        return gblFloatEquals(shz::invf(value), 1.0f / value, 0.001f)
+            && gblFloatEquals(shz::invf(volue), 1.0f / value, 0.001f);
    };
    GBL_TEST_VERIFY(test(333333.33f));
    GBL_TEST_VERIFY(test(1.001f));
@@ -237,12 +237,12 @@ GBL_TEST_CASE(mag_sqr3f)
     GBL_TEST_VERIFY(test({-1.0f,   0.0f, 3.333f }));
     {
         volatile float a = 1.0f, b = 2.0f, c = 3.0f;
-            (benchmark_cmp<float>)("shz::mag_sqr3f", shz::mag_sqr3f,
-                                   "a*a + b*b + c*c",
-                                   [](volatile float x, volatile float y, volatile float z) {
-                                       return (x * x) + (y * y) + (z * z);
-                                   }, a, b, c
-            );
+        (benchmark_cmp<float>)("shz::mag_sqr3f", shz::mag_sqr3f,
+                               "a*a + b*b + c*c",
+                               [](volatile float x, volatile float y, volatile float z) {
+                                   return (x * x) + (y * y) + (z * z);
+                               }, a, b, c
+        );
     }
 GBL_TEST_CASE_END
 

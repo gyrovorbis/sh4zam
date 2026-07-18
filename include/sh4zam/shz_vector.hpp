@@ -124,7 +124,13 @@ struct vecN: C {
     //! Overloaded "less-than" operator, for comparing vectors.
     friend auto operator<(CppType lhs, CppType rhs) noexcept {
         return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
-    }    
+    }
+
+    //! Generic overloaded operator for assigning a generic "this" type to volatile reference to base C type.
+    auto&& operator=(this auto&& self, const volatile CType other) noexcept {
+        const_cast<std::remove_cvref_t<decltype(self)>&>(self) = CppType(const_cast<CType&>(other));
+        return std::forward<decltype(self)>(self);
+    }
 #endif
 
     //! Overloaded equality operator, for comparing vectors.
@@ -135,12 +141,6 @@ struct vecN: C {
     //! Overloaded unary negation operator, returns the negated vector.
     friend CppType operator-(CppType vec) noexcept {
         return vec.neg();
-    }
-
-    //! Overloaded operator for assigning to volatile reference to base C type.
-    volatile CppType& operator=(volatile CType other) volatile noexcept {
-        *static_cast<CppType*>(const_cast<vecN*>(this)) = CppType(const_cast<CType&>(other));
-        return *static_cast<volatile CppType*>(this);
     }
 
     //! Overloaded operator for adding and accumulating a vector onto another.
@@ -415,6 +415,9 @@ struct vec2: vecN<vec2, shz_vec2_t, 2> {
     // Inherit parent constructors and operators.
     using vecN::vecN;
 
+    // Unhide inherited overload assignment operators.
+    using vecN::operator=;
+
     // Unhide inherited overloaded dot product methods.
     using vecN::dot;
 
@@ -573,6 +576,9 @@ struct vec4: vecN<vec4, shz_vec4_t, 4> {
 
     // Unhide inherited overloaded dot product methods.
     using vecN::dot;
+
+    // Unhide inherited overload assignment operators.
+    using vecN::operator=;
 
     //! Default constructor: does nothing.
     vec4() = default;

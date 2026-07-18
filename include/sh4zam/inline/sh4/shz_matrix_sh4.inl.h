@@ -70,82 +70,61 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3_sh4(const shz_mat4x4_t* mat, shz
     return out;
 }
 
-SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4_sh4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {
-    SHZ_PREFETCH(mat);
+SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_transform_vec4_sh4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {
+    shz_vec4_t res;
 
-    shz_vec4_t* v = &in;
-    const shz_vec4_t* c[4] = {
-        &mat->col[0], &mat->col[1], &mat->col[2], &mat->col[3]
-    };
+    register float vx asm("fr4") = in.x;
+    register float vy asm("fr5") = in.y;
+    register float vz asm("fr6") = in.z;
+    register float vw asm("fr7") = in.w;
 
-    asm(R"(
-        ! Load input vector into FV12
-        fmov.s  @%[v]+, fr12
-        fmov.s  @%[v]+, fr13
-        fmov.s  @%[v]+, fr14
-        fmov.s  @%[v]+, fr15
-
-        ! Prefetch the second half of the matrix
+    asm volatile(R"(
+        fmov.s  @%[c0]+, fr0
         pref    @%[c2]
 
-        ! Load first row into FV0
-        fmov.s  @%[c0]+, fr0
         fmov.s  @%[c1]+, fr1
-        fmov.s  @%[c2]+, fr2
-        fmov.s  @%[c3]+, fr3
-        ! Start loading next row
-        fmov.s  @%[c0]+, fr4   ! Vector instructions need 3 cycles between
-        fmov.s  @%[c1]+, fr5   ! loading arguments and using them.
-
-        ! Calculate output vector's X component
-        fipr    fv12, fv0
-
-        ! Finish loading second row vector
-        fmov.s  @%[c2]+, fr6
-        fmov.s  @%[c3]+, fr7
-        ! Begin loading third row vector
+        fmov.s  @%[c0]+, fr12
+        fmov.s  @%[c1]+, fr13
         fmov.s  @%[c0]+, fr8
         fmov.s  @%[c1]+, fr9
-
-        ! Calculate output vector's Y componennt
-        fipr    fv12, fv4
-
-        ! Finish loading third row vector
-        fmov.s  @%[c2]+, fr10
-        add     #-16, %[v]      ! Point v back to the beginning of the input vector
-        fmov.s  @%[c3]+, fr11
-        fmov.s  fr3, @%[v]      ! Store output vector X component
-        ! Start loading fourth row vector
-        fmov.s  @%[c0]+, fr0
-
-        ! Calculate output vector's Z component
-        fipr    fv12, fv8
-
-        ! Finish loading the fourth row vector
-        fmov.s  @%[c1]+, fr1
         fmov.s  @%[c2]+, fr2
         fmov.s  @%[c3]+, fr3
-        add     #4, %[v]        ! Advance output vector pointer
-        fmov.s  fr7, @%[v]      ! Store output vector Y component
+        fmov.s  @%[c2]+, fr14
+        fipr    fv4, fv0
 
-        ! Calculate output vector's W component
-        fipr    fv12, fv0       ! FUCKING STALL - 4th row vector is still loading (3 cycle delay)
+        fmov.s  @%[c3]+, fr15
+        fmov.s  @%[c2]+, fr10
+        fmov.s  @%[c3]+, fr11
+        fipr    fv4, fv12
 
-        ! Store output vector's Z component
-        add     #4, %[v]        ! Advance output vector pointer
+        fmov.s  @%[c0]+, fr0
+        fmov.s  fr3, @%[v]
+        fipr    fv4, fv8
+
+        fmov.s  @%[c1]+, fr1
+        add     #-16, %[c0]
+        fmov.s  @%[c2]+, fr2
+        add     #4, %[v]
+        fmov.s  @%[c3]+, fr3
+        add     #-16, %[c1]
+        fmov.s  fr15, @%[v]
+        fipr    fv4, fv0
+
+        add     #4, %[v]
         fmov.s  fr11, @%[v]
-
-        ! Store output vector's W component
-        add     #4, %[v]        ! Advance output vector pointer
-        fmov.s  fr3, @%[v]      ! FUCKING STALL - previous FIPR still in pipeline!
+        add     #4, %[v]
+        add     #-16, %[c2]
+        fmov.s  fr3, @%[v]
+        add     #-16, %[c3]
+        add     #-12, %[v]
     )"
-    : [v] "+r" (v), "+m" (in),
-      [c0] "+r" (c[0]), [c1] "+r" (c[1]), [c2] "+r" (c[2]), [c3] "+r" (c[3])
-    : "m" (*mat)
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
-      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+    : "=m" (res)
+    : [v] "r" (&res), "m" (*mat), [vx] "f" (vx), [vy] "f" (vy), [vz] "f" (vz), [vw] "f" (vw),
+      [c0] "r" (&mat->col[0]), [c1] "r" (&mat->col[1]), [c2] "r" (&mat->col[2]), [c3] "r" (&mat->col[3])
+    : "fr0", "fr1", "fr2", "fr3", "fr8", "fr9",
+      "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 
-    return in;
+    return res;
 }
 
 SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4_transpose_sh4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {

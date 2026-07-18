@@ -1294,12 +1294,13 @@ GBL_TEST_CASE(translate)
 
     GBL_TEST_VERIFY(compare_glm(shzRes, glmRes));
 
-
 #if SHZ_BACKEND == SHZ_SH4
     GBL_TEST_VERIFY(
         (benchmark_cmp<void>)(
-            "shz::xmtrx::translate", shz::xmtrx::translate,
-            "mat_translate",         mat_translate,
+            "shz::xmtrx::translate", [](float x, float y, float z) {
+                shz::xmtrx::translate(x, y, z);
+            },
+            "mat_translate", mat_translate,
             100.0f, 200.0f, 300.0f
         )
     );

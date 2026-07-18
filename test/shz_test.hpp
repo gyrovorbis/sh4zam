@@ -49,6 +49,7 @@ SHZ_FORCE_INLINE uint64_t PERF_CNTR_STOP() {
     PMCR_CTRL(PERF_CNTR) &= ~PMCR_RUN;
     return (((uint64_t)PMCTR_HIGH(PERF_CNTR) << 32) | PMCTR_LOW(PERF_CNTR));
 }
+
 #endif
 
 namespace {
@@ -80,10 +81,19 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
 
         for(iterations = 0; iterations < BENCHMARK_ITERATION_COUNT; ++iterations) {
             SHZ_MEMORY_BARRIER_SOFT();
+
 #if !defined(SHZ_DISABLE_BENCHMARKS) && (SHZ_BACKEND == SHZ_SH4)
             if constexpr(CacheFlush) {
-                dcache_purge_all();
-                arch_icache_inval_range((uintptr_t)&_executable_start, (size_t)((uintptr_t)&_etext - (uintptr_t)&_executable_start));
+                [] SHZ_NO_INLINE {
+                    dcache_purge_all();
+#   if KOS_VERSION_BELOW(2, 3, 0)
+                    icache_flush_range((uintptr_t)&_executable_start,
+                                       (size_t)((uintptr_t)&_etext - (uintptr_t)&_executable_start));
+#   else
+                    icache_inval_range((uintptr_t)&_executable_start,
+                                       (size_t)((uintptr_t)&_etext - (uintptr_t)&_executable_start));
+#   endif
+                }();
             }
 #endif
 
@@ -133,7 +143,7 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
         SHZ_MEMORY_BARRIER_SOFT();
 
 #ifndef SHZ_DISABLE_BENCHMARKS
-        std::println("\t{:>25} [{:8}] : {:4}/{:4} cc, {:4} ns, {:2} calls",
+        std::println("\t{:>25} [{:>8}] : {:6}/{:6} cc, {:4} ns, {:2} calls",
               name,
               (CacheFlush)? "UNCACHED" : "CACHED",
               prev,

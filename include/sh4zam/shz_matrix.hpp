@@ -502,7 +502,7 @@ namespace shz {
             return shz_mat4x4_transform_vec3(this, in);
         }
 
-        SHZ_FORCE_INLINE vec4 transform(vec4 in) const noexcept {
+        SHZ_FORCE_INLINE vec4 transform(const vec4& in) const noexcept {
             return shz_mat4x4_transform_vec4(this, in);
         }
 

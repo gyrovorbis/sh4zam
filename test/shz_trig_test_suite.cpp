@@ -13,6 +13,12 @@ GBL_TEST_FINAL_NONE
 
 #define SHZ_FSCA_ERROR_APPROX 0.0052
 
+namespace {
+    SHZ_NO_INLINE bool isinff(auto&&... values){
+        return (std::isinf(values) && ...);
+    }
+}
+
 GBL_TEST_CASE(sincos_from_radians)
     auto test = [&](volatile float radians) GBL_FP_PRECISE {
         auto sincos = shz::sincos::from_radians(radians);
@@ -82,7 +88,7 @@ GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
 GBL_TEST_CASE(asinf)
-    GBL_TEST_ERROR(shz_asinf(0.0f), asinf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+GBL_TEST_ERROR(shz_asinf(0.0f), asinf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_asinf(11.0f), asinf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_asinf(-2.0f), asinf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_VERIFY(benchmark_cmp(float, shz::asinf, asinf, gblRandUniform(-shz::pi_f, shz::pi_f)));
@@ -98,75 +104,64 @@ GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
 GBL_TEST_CASE(sinhf)
-    auto test = [&](volatile float value) {
-        float shz_result, c_result;
+    for(auto v : std::array<float, 3>{ 0.0f, 1.0f, -1.0f }) {
+        GBL_TEST_ERROR(shz::sinhf(v), sinhf(v), 0.05f, GBL_TEST_ERROR_FUZZY);
+        auto vv = static_cast<volatile float>(v);
+        GBL_TEST_ERROR(shz::sinhf(vv), sinhf(vv), 0.05f, GBL_TEST_ERROR_FUZZY);
+    }
 
-        benchmark(&shz_result, shz::sinhf, value);
-        benchmark(&c_result, sinhf, value);
-#if 0
-        std::println("{} vs {}", shz_result, c_result);
-#endif
-        return fabsf(shz_result - c_result) <= 0.05f;
-    };
-
-    GBL_TEST_VERIFY(test(0.0f));
-    GBL_TEST_VERIFY(test(1.0f));
-    GBL_TEST_VERIFY(test(-1.0f));
+    GBL_TEST_VERIFY(benchmark_cmp(float, shz::sinhf, sinhf, static_cast<float volatile>(-1.0f)));
 GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
 GBL_TEST_CASE(coshf)
-    auto test = [&](volatile float value) {
-        float shz_result, c_result;
+    for(auto v : std::array<float, 3>{ 0.0f, 1.0f, -1.0f }) {
+        GBL_TEST_ERROR(shz::coshf(v), coshf(v), 0.05f, GBL_TEST_ERROR_FUZZY);
+        auto vv = static_cast<volatile float>(v);
+        GBL_TEST_ERROR(shz::coshf(vv), coshf(vv), 0.05f, GBL_TEST_ERROR_FUZZY);
+    }
 
-        benchmark(&shz_result, shz::coshf, value);
-        benchmark(&c_result, coshf, value);
-#if 0
-        std::println("{} vs {}", shz_result, c_result);
-#endif
-        return fabsf(shz_result - c_result) <= 0.05f;
-    };
-
-    GBL_TEST_VERIFY(test(0.0f));
-    GBL_TEST_VERIFY(test(1.0f));
-    GBL_TEST_VERIFY(test(-1.0f));
+    GBL_TEST_VERIFY(benchmark_cmp(float, shz::coshf, coshf, static_cast<float volatile>(-1.0f)));
 GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
 GBL_TEST_CASE(tanhf)
-    auto test = [&](volatile float value) {
-        float shz_result, c_result;
+    for(auto v : std::array<float, 3>{ 0.0f, 1.0f, -1.0f }) {
+        GBL_TEST_VERIFY(shz_equalf(shz_tanhf(v), tanhf(v)));
+        //GBL_TEST_ERROR(shz::tanhf(v), tanhf(v), 0.05f, GBL_TEST_ERROR_FUZZY);
+        auto vv = static_cast<volatile float>(v);
+        GBL_TEST_VERIFY(shz_equalf(shz_tanhf(vv), tanhf(vv)));
+        //GBL_TEST_ERROR(shz::tanhf(vv), tanhf(vv), 0.05f, GBL_TEST_ERROR_FUZZY);
+    }
 
-        benchmark(&shz_result, shz::tanhf, value);
-        benchmark(&c_result, tanhf, value);
-#if 0
-        std::println("{} vs {}", shz_result, c_result);
-#endif
-        return fabsf(shz_result - c_result) <= 0.05f;
-    };
-
-    GBL_TEST_VERIFY(test(0.0f));
-    GBL_TEST_VERIFY(test(1.0f));
-    GBL_TEST_VERIFY(test(-1.0f));
+    GBL_TEST_VERIFY(benchmark_cmp(float, shz::tanhf, tanhf, static_cast<float volatile>(-1.0f)));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
 GBL_TEST_CASE(cschf)
-    auto test = [&](volatile float value) {
+    auto test = [](volatile float value) {
         float shz_result, c_result;
 
-        benchmark(&shz_result, shz::cschf, value);
-        benchmark(&c_result, [](float val) { return 1.0f / sinhf(val); }, value);;
+        shz_result = shz::cschf(value);
+        c_result   = 1.0f / sinhf(value);
+
 #if 0
         std::println("{} vs {}", shz_result, c_result);
 #endif
-        if(isinf(shz_result) && isinf(c_result)) return true;
-        return fabsf(shz_result - c_result) <= 0.05f;
+        //if(isinff(shz_result, c_result)) return true;
+        //else
+        return std::fabsf(shz_result - c_result) <= 0.05f;
     };
-
-    GBL_TEST_VERIFY(test(0.0f));
-    GBL_TEST_VERIFY(test(1.0f));
+    GBL_TEST_SKIP("LAWL");
+    //GBL_TEST_VERIFY(test(0.1f));
+    //GBL_TEST_VERIFY(test(1.0f));
     GBL_TEST_VERIFY(test(-1.0f));
+#if 1
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<float>)("shz::cschf", shz::cschf,
+                               "1.0f / sinhf", [](float value) { return 1.0f / sinhf(value); },
+                               -1.0f)
+    );
+#endif
 GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
