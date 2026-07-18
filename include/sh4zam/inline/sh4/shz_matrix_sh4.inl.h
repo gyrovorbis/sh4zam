@@ -73,49 +73,50 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3_sh4(const shz_mat4x4_t* mat, shz
 SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_transform_vec4_sh4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {
     shz_vec4_t res;
 
+    SHZ_PREFETCH(mat);
+
     register float vx asm("fr4") = in.x;
     register float vy asm("fr5") = in.y;
     register float vz asm("fr6") = in.z;
     register float vw asm("fr7") = in.w;
 
-    asm volatile(R"(
-        fmov.s  @%[c0]+, fr0
+    asm(R"(
         pref    @%[c2]
-
-        fmov.s  @%[c1]+, fr1
+        fmov.s  @%[c0]+, fr0
         fmov.s  @%[c0]+, fr12
-        fmov.s  @%[c1]+, fr13
         fmov.s  @%[c0]+, fr8
+        fmov.s  @%[c1]+, fr1
+        fmov.s  @%[c1]+, fr13
         fmov.s  @%[c1]+, fr9
         fmov.s  @%[c2]+, fr2
         fmov.s  @%[c3]+, fr3
         fmov.s  @%[c2]+, fr14
+        fmov.s  @%[c3]+, fr15
         fipr    fv4, fv0
 
-        fmov.s  @%[c3]+, fr15
         fmov.s  @%[c2]+, fr10
         fmov.s  @%[c3]+, fr11
         fipr    fv4, fv12
 
         fmov.s  @%[c0]+, fr0
         fmov.s  fr3, @%[v]
+        add     #-16, %[c0]
         fipr    fv4, fv8
 
         fmov.s  @%[c1]+, fr1
-        add     #-16, %[c0]
-        fmov.s  @%[c2]+, fr2
         add     #4, %[v]
-        fmov.s  @%[c3]+, fr3
+        fmov.s  @%[c2]+, fr2
         add     #-16, %[c1]
+        fmov.s  @%[c3]+, fr3
+        add     #-16, %[c2]
         fmov.s  fr15, @%[v]
+        add     #4, %[v]
         fipr    fv4, fv0
 
-        add     #4, %[v]
+        add     #-16, %[c3]
         fmov.s  fr11, @%[v]
         add     #4, %[v]
-        add     #-16, %[c2]
         fmov.s  fr3, @%[v]
-        add     #-16, %[c3]
         add     #-12, %[v]
     )"
     : "=m" (res)

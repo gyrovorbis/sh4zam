@@ -110,7 +110,7 @@ namespace shz {
             shz_mat4x4_init_translation(this, x, y, z);
         }
 
-        SHZ_FORCE_INLINE void init_translation(vec3 v) noexcept {
+        SHZ_FORCE_INLINE void init_translation(const vec3& v) noexcept {
             init_translation(v.x, v.y, v.z);
         }
 
@@ -118,7 +118,7 @@ namespace shz {
             shz_mat4x4_init_scale(this, x, y, z);
         }
 
-        SHZ_FORCE_INLINE void init_scale(vec3 v) noexcept {
+        SHZ_FORCE_INLINE void init_scale(const vec3& v) noexcept {
             init_scale(v.x, v.y, v.z);
         }
 
@@ -154,11 +154,11 @@ namespace shz {
             shz_mat4x4_init_rotation(this, angle, x, y, z);
         }
 
-        SHZ_FORCE_INLINE void init_rotation(float angle, vec3 axis) noexcept {
+        SHZ_FORCE_INLINE void init_rotation(float angle, const vec3& axis) noexcept {
             init_rotation(angle, axis.x, axis.y, axis.z);
         }
 
-        SHZ_FORCE_INLINE void init_rotation(quat q) noexcept {
+        SHZ_FORCE_INLINE void init_rotation(const quat& q) noexcept {
             shz_mat4x4_init_rotation_quat(this, q);
         }
 
@@ -166,15 +166,15 @@ namespace shz {
             shz_mat4x4_init_diagonal(this, x, y, z, w);
         }
 
-        SHZ_FORCE_INLINE void init_diagonal(vec4 v) noexcept {
+        SHZ_FORCE_INLINE void init_diagonal(const vec4& v) noexcept {
             init_diagonal(v.x, v.y, v.z, v.w);
         }
 
-        SHZ_FORCE_INLINE void init_upper_triangular(float col1, vec2 col2, vec3 col3, vec4 col4) noexcept{
+        SHZ_FORCE_INLINE void init_upper_triangular(float col1, const vec2& col2, const vec3& col3, const vec4& col4) noexcept{
             shz_mat4x4_init_upper_triangular(this, col1, col2, col3, col4);
         }
 
-        SHZ_FORCE_INLINE void init_lower_triangular(vec4 col1, vec3 col2, vec2 col3, float col4) noexcept {
+        SHZ_FORCE_INLINE void init_lower_triangular(const vec4& col1, const vec3& col2, const vec2& col3, float col4) noexcept {
             shz_mat4x4_init_lower_triangular(this, col1, col2, col3, col4);
         }
 
@@ -182,11 +182,11 @@ namespace shz {
             shz_mat4x4_init_symmetric_skew(this, x, y, z);
         }
 
-        SHZ_FORCE_INLINE void init_symmetric_skew(vec3 v) noexcept {
+        SHZ_FORCE_INLINE void init_symmetric_skew(const vec3& v) noexcept {
             init_symmetric_skew(v.x, v.y, v.z);
         }
 
-        SHZ_FORCE_INLINE void init_outer_product(vec4 v1, vec4 v2) noexcept {
+        SHZ_FORCE_INLINE void init_outer_product(const vec4& v1, const vec4& v2) noexcept {
             shz_mat4x4_init_outer_product(this, v1, v2);
         }
 
@@ -202,7 +202,7 @@ namespace shz {
             shz_mat4x4_init_screen(this, width, height);
         }
 
-        SHZ_FORCE_INLINE void init_lookat(vec3 eye, vec3 center, vec3 up) noexcept {
+        SHZ_FORCE_INLINE void init_lookat(const vec3& eye, const vec3& center, const vec3& up) noexcept {
             shz_mat4x4_init_lookat(this, eye, center, up);
         }
 
@@ -266,7 +266,7 @@ namespace shz {
             shz_mat4x4_set_translation(this, x, y, z);
         }
 
-        SHZ_FORCE_INLINE void set_translation(vec3 v) noexcept {
+        SHZ_FORCE_INLINE void set_translation(const vec3& v) noexcept {
             set_translation(v.x, v.y, v.z);
         }
 
@@ -274,11 +274,11 @@ namespace shz {
             shz_mat4x4_set_scale(this, x, y, z);
         }
 
-        SHZ_FORCE_INLINE void set_scale(vec3 v) noexcept {
+        SHZ_FORCE_INLINE void set_scale(const vec3& v) noexcept {
             set_scale(v.x, v.y, v.z);
         }
 
-        SHZ_FORCE_INLINE void set_rotation(quat rot) noexcept {
+        SHZ_FORCE_INLINE void set_rotation(const quat& rot) noexcept {
             shz_mat4x4_set_rotation_quat(this, rot);
         }
 
@@ -286,7 +286,7 @@ namespace shz {
             shz_mat4x4_set_diagonal(this, x, y, z, w);
         }
 
-        SHZ_FORCE_INLINE void set_diagonal(vec4 v) noexcept {
+        SHZ_FORCE_INLINE void set_diagonal(const vec4& v) noexcept {
             set_diagonal(v.x, v.y, v.z, v.w);
         }
 
@@ -317,7 +317,7 @@ namespace shz {
             shz_mat4x4_apply_scale(this, x, y, z);
         }
         
-        SHZ_FORCE_INLINE void apply_scale(vec3 v) noexcept {
+        SHZ_FORCE_INLINE void apply_scale(const vec3& v) noexcept {
             apply_scale(v.x, v.y, v.z);
         }
 
@@ -325,7 +325,7 @@ namespace shz {
             shz_mat4x4_apply_translation(this, x, y, z);
         }
 
-        SHZ_FORCE_INLINE void apply_translation(vec3 v) noexcept {
+        SHZ_FORCE_INLINE void apply_translation(const vec3& v) noexcept {
             apply_translation(v.x, v.y, v.z);
         }
 
@@ -365,7 +365,7 @@ namespace shz {
             apply_rotation(angle, axis.x, axis.y, axis.z);
         }
 
-        SHZ_FORCE_INLINE void apply_rotation(quat q) noexcept {
+        SHZ_FORCE_INLINE void apply_rotation(const quat& q) noexcept {
             shz_mat4x4_apply_rotation_quat(this, q);
         }
 
@@ -494,11 +494,11 @@ namespace shz {
             @{
         */
 
-        SHZ_FORCE_INLINE vec2 transform(vec2 in) const noexcept {
+        SHZ_FORCE_INLINE vec2 transform(const vec2& in) const noexcept {
             return shz_mat4x4_transform_vec2(this, in);
         }
 
-        SHZ_FORCE_INLINE vec3 transform(vec3 in) const noexcept {
+        SHZ_FORCE_INLINE vec3 transform(const vec3& in) const noexcept {
             return shz_mat4x4_transform_vec3(this, in);
         }
 
@@ -506,31 +506,31 @@ namespace shz {
             return shz_mat4x4_transform_vec4(this, in);
         }
 
-        SHZ_FORCE_INLINE vec2 transform_point(vec2 pt) const noexcept {
+        SHZ_FORCE_INLINE vec2 transform_point(const vec2& pt) const noexcept {
             return shz_mat4x4_transform_point2(this, pt);
         }
 
-        SHZ_FORCE_INLINE vec3 transform_point(vec3 pt) const noexcept {
+        SHZ_FORCE_INLINE vec3 transform_point(const vec3& pt) const noexcept {
             return shz_mat4x4_transform_point3(this, pt);
         }
 
-        SHZ_FORCE_INLINE vec2 transform_transpose(vec2 in) const noexcept {
+        SHZ_FORCE_INLINE vec2 transform_transpose(const vec2& in) const noexcept {
             return shz_mat4x4_transform_vec2_transpose(this, in);
         }
 
-        SHZ_FORCE_INLINE vec3 transform_transpose(vec3 in) const noexcept {
+        SHZ_FORCE_INLINE vec3 transform_transpose(const vec3& in) const noexcept {
             return shz_mat4x4_transform_vec3_transpose(this, in);
         }
 
-        SHZ_FORCE_INLINE vec4 transform_transpose(vec4 in) const noexcept {
+        SHZ_FORCE_INLINE vec4 transform_transpose(const vec4& in) const noexcept {
             return shz_mat4x4_transform_vec4_transpose(this, in);
         }
 
-        SHZ_FORCE_INLINE vec2 transform_point_transpose(vec2 pt) const noexcept {
+        SHZ_FORCE_INLINE vec2 transform_point_transpose(const vec2& pt) const noexcept {
             return shz_mat4x4_transform_point2_transpose(this, pt);
         }
 
-        SHZ_FORCE_INLINE vec3 transform_point_transpose(vec3 pt) const noexcept {
+        SHZ_FORCE_INLINE vec3 transform_point_transpose(const vec3& pt) const noexcept {
             return shz_mat4x4_transform_point3_transpose(this, pt);
         }
 

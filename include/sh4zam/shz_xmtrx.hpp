@@ -7,8 +7,6 @@
  *  a secondary back-bank of 16 single-precision floating-point registers.
  *
  *  \todo
- *      - Fourier transforms
- *      - Arbitrarily-sized matrix routines
  *      - shz_rotate_quat()
  *
  *  \author    2025, 2026 Falco Girgis
@@ -84,12 +82,12 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_write_row().
-    SHZ_FORCE_INLINE static void write_row(unsigned int index, vec4 vector) noexcept {
+    SHZ_FORCE_INLINE static void write_row(unsigned int index, const vec4& vector) noexcept {
         shz_xmtrx_write_row(index, vector);
     }
 
     //! C++ wrapper around shz_xmtrx_write_col().
-    SHZ_FORCE_INLINE static void write_col(unsigned int index, vec4 vector) noexcept {
+    SHZ_FORCE_INLINE static void write_col(unsigned int index, const vec4& vector) noexcept {
         shz_xmtrx_write_col(index, vector);
     }
 
@@ -121,7 +119,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_load_unaligned_4x4().
-    SHZ_FORCE_INLINE static void load(std::array<float, 16> array) noexcept {
+    SHZ_FORCE_INLINE static void load(const std::array<float, 16>& array) noexcept {
         load(array.data());
     }
 
@@ -136,7 +134,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_load_transpose_unaligned_4x4().
-    SHZ_FORCE_INLINE static void load_transpose(std::array<float, 16> array) noexcept {
+    SHZ_FORCE_INLINE static void load_transpose(const std::array<float, 16>& array) noexcept {
         load_transpose(array.data());
     }
 
@@ -246,7 +244,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_init_translation().
-    SHZ_FORCE_INLINE static void init_translation(vec3 v) noexcept {
+    SHZ_FORCE_INLINE static void init_translation(const vec3& v) noexcept {
         init_translation(v.x, v.y, v.z);
     }
 
@@ -256,7 +254,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_init_scale().
-    SHZ_FORCE_INLINE static void init_scale(vec3 v) noexcept {
+    SHZ_FORCE_INLINE static void init_scale(const vec3& v) noexcept {
         init_scale(v.x, v.y, v.z);
     }
 
@@ -301,7 +299,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_init_rotation().
-    SHZ_FORCE_INLINE static void init_rotation(float angle, vec3 axis) noexcept {
+    SHZ_FORCE_INLINE static void init_rotation(float angle, const vec3& axis) noexcept {
         init_rotation(angle, axis.x, axis.y, axis.z);
     }
 
@@ -311,17 +309,17 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_init_diagonal().
-    SHZ_FORCE_INLINE static void init_diagonal(vec4 v) noexcept {
+    SHZ_FORCE_INLINE static void init_diagonal(const vec4& v) noexcept {
         init_diagonal(v.x, v.y, v.z, v.w);
     }
 
     //! C++ wrapper around shz_xmtrx_init_upper_triangular().
-    SHZ_FORCE_INLINE static void init_upper_triangular(float col1, vec2 col2, vec3 col3, vec4 col4) noexcept {
+    SHZ_FORCE_INLINE static void init_upper_triangular(float col1, const vec2& col2, const vec3& col3, const vec4& col4) noexcept {
         shz_xmtrx_init_upper_triangular(col1, col2, col3, col4);
     }
 
     //! C++ wrapper around shz_xmtrx_init_lower_diagonal().
-    SHZ_FORCE_INLINE static void init_lower_triangular(vec4 col1, vec3 col2, vec2 col3, float col4) noexcept {
+    SHZ_FORCE_INLINE static void init_lower_triangular(const vec4& col1, const vec3& col2, const vec2& col3, float col4) noexcept {
         shz_xmtrx_init_lower_triangular(col1, col2, col3, col4);
     }
 
@@ -331,7 +329,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_init_outer_product().
-    SHZ_FORCE_INLINE static void init_outer_product(shz_vec4_t a, shz_vec4_t b) noexcept {
+    SHZ_FORCE_INLINE static void init_outer_product(const vec4& a, const vec4& b) noexcept {
         shz_xmtrx_init_outer_product(a, b);
     }
 
@@ -341,7 +339,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_init_lookat().
-    SHZ_FORCE_INLINE static void init_lookat(vec3 eye, vec3 center, vec3 up) noexcept {
+    SHZ_FORCE_INLINE static void init_lookat(const vec3& eye, const vec3& center, const vec3& up) noexcept {
         shz_xmtrx_init_lookat(eye, center, up);
     }
 
@@ -361,7 +359,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_init_rotation_quat().
-    SHZ_FORCE_INLINE static void init_rotation_quat(quat q) noexcept {
+    SHZ_FORCE_INLINE static void init_rotation_quat(const quat& q) noexcept {
         shz_xmtrx_init_rotation_quat(q);
     }
 
@@ -398,7 +396,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_apply_unaligned_4x4().
-    SHZ_FORCE_INLINE static void apply(const std::array<float, 16> array) noexcept {
+    SHZ_FORCE_INLINE static void apply(const std::array<float, 16>& array) noexcept {
         shz_xmtrx_apply_unaligned_4x4(array.data());
     }
 
@@ -413,7 +411,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_apply_transpose_unaligned_4x4().
-    SHZ_FORCE_INLINE static void apply_transpose(const std::array<float, 16> array) noexcept {
+    SHZ_FORCE_INLINE static void apply_transpose(const std::array<float, 16>& array) noexcept {
         shz_xmtrx_apply_transpose_unaligned_4x4(array.data());
     }
 
@@ -428,7 +426,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_apply_reverse_unaligned_4x4().
-    SHZ_FORCE_INLINE static void apply_reverse(const std::array<float, 16> array) noexcept {
+    SHZ_FORCE_INLINE static void apply_reverse(const std::array<float, 16>& array) noexcept {
         shz_xmtrx_apply_reverse_unaligned_4x4(array.data());
     }
 
@@ -443,7 +441,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_apply_reverse_transpose_unaligned_4x4().
-    SHZ_FORCE_INLINE static void apply_reverse_transpose(const std::array<float, 16> array) noexcept {
+    SHZ_FORCE_INLINE static void apply_reverse_transpose(const std::array<float, 16>& array) noexcept {
         shz_xmtrx_apply_reverse_transpose_unaligned_4x4(array.data());
     }
 
@@ -458,7 +456,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_apply_translation().
-    SHZ_FORCE_INLINE static void apply_translation(vec3 v) noexcept {
+    SHZ_FORCE_INLINE static void apply_translation(const vec3& v) noexcept {
         apply_translation(v.x, v.y, v.z);
     }
 
@@ -468,7 +466,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_apply_scale().
-    SHZ_FORCE_INLINE static void apply_scale(vec3 v) noexcept {
+    SHZ_FORCE_INLINE static void apply_scale(const vec3& v) noexcept {
         apply_scale(v.x, v.y, v.z);
     }
 
@@ -513,17 +511,17 @@ struct xmtrx {
     }
 
     // C++ wrapper around shz_xmtrx_apply_rotation().
-        SHZ_FORCE_INLINE static void apply_rotation(float angle, vec3 axis) noexcept {
+        SHZ_FORCE_INLINE static void apply_rotation(float angle, const vec3& axis) noexcept {
         apply_rotation(angle, axis.x, axis.y, axis.z);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_rotation_quat().
-    SHZ_FORCE_INLINE static void apply_rotation_quat(shz_quat_t quat) noexcept {
-        shz_xmtrx_apply_rotation_quat(quat);
+    SHZ_FORCE_INLINE static void apply_rotation_quat(const quat& q) noexcept {
+        shz_xmtrx_apply_rotation_quat(q);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_lookat().
-    SHZ_FORCE_INLINE static void apply_lookat(vec3 eye, vec3 center, vec3 up) noexcept {
+    SHZ_FORCE_INLINE static void apply_lookat(const vec3& eye, const vec3& center, const vec3& up) noexcept {
         shz_xmtrx_apply_lookat(eye, center, up);
     }
 
@@ -640,7 +638,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_rotate().
-    SHZ_FORCE_INLINE static void rotate(float radians, vec3 axis) noexcept {
+    SHZ_FORCE_INLINE static void rotate(float radians, const vec3& axis) noexcept {
         rotate(radians, axis.x, axis.y, axis.z);
     }
 
@@ -699,27 +697,27 @@ struct xmtrx {
 */
 
     //! C++ wrapper around shz_xmtrx_transform_vec4().
-    SHZ_FORCE_INLINE static vec4 transform(shz_vec4_t in) noexcept {
+    SHZ_FORCE_INLINE static vec4 transform(const vec4& in) noexcept {
         return shz_xmtrx_transform_vec4(in);
     }
 
     //! C++ wrapper around shz_xmtrx_transform_vec3().
-    SHZ_FORCE_INLINE static vec3 transform(shz_vec3_t in) noexcept {
+    SHZ_FORCE_INLINE static vec3 transform(const vec3& in) noexcept {
         return shz_xmtrx_transform_vec3(in);
     }
 
     //! C++ wrapper around shz_xmtrx_transform_vec2().
-    SHZ_FORCE_INLINE static vec2 transform(shz_vec2_t in) noexcept {
+    SHZ_FORCE_INLINE static vec2 transform(const vec2& in) noexcept {
         return shz_xmtrx_transform_vec2(in);
     }
 
     //! C++ wrapper around shz_xmtrx_transform_point3().
-    SHZ_FORCE_INLINE static vec3 transform_point(shz_vec3_t pt) noexcept {
+    SHZ_FORCE_INLINE static vec3 transform_point(const vec3& pt) noexcept {
         return shz_xmtrx_transform_point3(pt);
     }
 
     //! C++ wrapper around shz_xmtrx_transform_point2().
-    SHZ_FORCE_INLINE static vec2 transform_point(shz_vec2_t pt) noexcept {
+    SHZ_FORCE_INLINE static vec2 transform_point(const vec2& pt) noexcept {
         return shz_xmtrx_transform_point2(pt);
     }
 
@@ -736,7 +734,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_set_translation().
-    SHZ_FORCE_INLINE void set_translation(vec3 v) noexcept {
+    SHZ_FORCE_INLINE void set_translation(const vec3& v) noexcept {
         set_translation(v.x, v.y, v.z);
     }
 
@@ -775,7 +773,7 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_add_diagonal().
-    SHZ_FORCE_INLINE static void add_diagonal(vec4 v) noexcept {
+    SHZ_FORCE_INLINE static void add_diagonal(const vec4& v) noexcept {
         add_diagonal(v.x, v.y, v.z, v.w);
     }
 
@@ -785,7 +783,7 @@ struct xmtrx {
     }
     
     //! C++ wrapper around shz_xmtrx_add_symmetric_skew().
-    SHZ_FORCE_INLINE static void add_symmetric_skew(vec3 v) noexcept {
+    SHZ_FORCE_INLINE static void add_symmetric_skew(const vec3& v) noexcept {
         add_symmetric_skew(v.x, v.y, v.z);
     }
 

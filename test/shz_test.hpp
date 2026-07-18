@@ -5,7 +5,6 @@
 #include <concepts>
 #include <print>
 #include <chrono>
-
 #include <sh4zam/shz_sh4zam.hpp>
 
 #include <gimbal/algorithms/gimbal_random.h>
@@ -40,9 +39,9 @@
 #   define PMCTR_LOW(o)  ( *((volatile uint32_t *)(0xff100008) + (o << 1)) )
 
 SHZ_FORCE_INLINE void PERF_CNTR_START() {
-    PMCR_CTRL(PERF_CNTR) &= ~PMCR_RUN;
-    PMCR_CTRL(PERF_CNTR) |= PMCR_CLR;
-    PMCR_CTRL(PERF_CNTR) |= PMCR_RUN;
+    PMCR_CTRL(PERF_CNTR) = PMCR_CLR | PMCR_RUN
+                         | (PMCR_COUNT_CPU_CYCLES << PMCR_PMCLK_SHIFT)
+                         | PMCR_ELAPSED_TIME_MODE;
 }
 
 SHZ_FORCE_INLINE uint64_t PERF_CNTR_STOP() {
@@ -63,9 +62,6 @@ namespace {
 template<typename... Args>
 SHZ_NO_INLINE
 std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& function, Args&&... args) noexcept {
-#if SHZ_BACKEND == SHZ_SH4
-    perf_cntr_start(PERF_CNTR, PMCR_ELAPSED_TIME_MODE, PMCR_COUNT_CPU_CYCLES);
-#endif
     auto inner = [&]<bool CacheFlush>() SHZ_NO_INLINE SHZ_FUNC_ALIGNAS(32) SHZ_NO_UNROLL_LOOPS {
         uint64_t tmu_sum      = 0;
         uint64_t sum          = 0;
@@ -85,7 +81,6 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
 #if !defined(SHZ_DISABLE_BENCHMARKS) && (SHZ_BACKEND == SHZ_SH4)
             if constexpr(CacheFlush) {
                 [] SHZ_NO_INLINE {
-                    dcache_purge_all();
 #   if KOS_VERSION_BELOW(2, 3, 0)
                     icache_flush_range((uintptr_t)&_executable_start,
                                        (size_t)((uintptr_t)&_etext - (uintptr_t)&_executable_start));
@@ -93,6 +88,7 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
                     icache_inval_range((uintptr_t)&_executable_start,
                                        (size_t)((uintptr_t)&_etext - (uintptr_t)&_executable_start));
 #   endif
+                    dcache_purge_all();
                 }();
             }
 #endif
@@ -185,27 +181,31 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
     }
 
 #ifndef SHZ_DISABLE_BENCHMARKS
-    double cacheGainz   = ((double)refCacheCyc  ) / ((double)shzCacheCyc  );
+    float cacheGainz   = ((float)refCacheCyc  ) / ((float)shzCacheCyc  );
 
 #   if SHZ_BACKEND == SHZ_SH4
-    double uncacheGainz = ((double)refUncacheCyc) / ((double)shzUncacheCyc);
+    float uncacheGainz = ((float)refUncacheCyc) / ((float)shzUncacheCyc);
 #   else
-    double uncacheGainz = 0.0;
+    float uncacheGainz = 0.0f;
 #   endif
 
     enum {
         EQUAL,
         GAINZ,
+        SKETCH,
         LOSSEZ
     } gainz;
     const char* gainz_str;
 
-    if(cacheGainz > 1.0f || uncacheGainz > 1.0f) {
+    if((cacheGainz > 1.0f && uncacheGainz >= 1.0f) || (cacheGainz >= 1.0f && uncacheGainz > 1.0f)) {
         gainz = GAINZ;
         gainz_str = "GAINZ";
-    } else if(shz_equalf(static_cast<float>(cacheGainz), 1.0f) || shz_equalf(static_cast<float>(uncacheGainz), 1.0f)) {
+    } else if(shz_equalf(cacheGainz, 1.0f) && shz_equalf(uncacheGainz, 1.0f)) {
         gainz = EQUAL;
         gainz_str = "EQUAL";
+    } else if((cacheGainz >= 1.0f && uncacheGainz < 1.0f) || (cacheGainz < 1.0f && uncacheGainz >= 1.0f)) {
+        gainz = SKETCH;
+        gainz_str = "SKETCH";
     } else {
         gainz = LOSSEZ;
         gainz_str = "LOSSEZ";
