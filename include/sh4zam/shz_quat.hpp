@@ -71,37 +71,37 @@ namespace shz {
         }
 
         //! Initializes a quaternion which is a rotation in \p angle radians about the given \p axis.
-        SHZ_FORCE_INLINE static quat from_axis_angle(vec3 axis, float angle) noexcept {
+        SHZ_FORCE_INLINE static quat from_axis_angle(const vec3& axis, float angle) noexcept {
             return shz_quat_from_axis_angle(axis, angle);
         }
 
         //! Creates a quaternion looking in the given direction with the given reference direction.
-        SHZ_FORCE_INLINE static quat from_look_axis(vec3 forward, vec3 up) noexcept {
+        SHZ_FORCE_INLINE static quat from_look_axis(const vec3& forward, const vec3& up) noexcept {
             return shz_quat_from_look_axis(forward, up);
         }
 
         //! Returns the quaternion representing the rotation from the \p start to the \p end axes.
-        SHZ_FORCE_INLINE static quat from_rotated_axis(vec3 start, vec3 end) noexcept {
+        SHZ_FORCE_INLINE static quat from_rotated_axis(const vec3& start, const vec3& end) noexcept {
             return shz_quat_from_rotated_axis(start, end);
         }
 
         //! Returns the quaternion that is linearly interpolating \p q to \p p, by a t factor of `0.0f-1.0f`.
-        SHZ_FORCE_INLINE static quat lerp(quat q, quat p, float t) noexcept {
+        SHZ_FORCE_INLINE static quat lerp(const quat& q, const quat& p, float t) noexcept {
             return shz_quat_lerp(q, p, t);
         }
 
         //! Equivalent to lerp(), except that the resulting quaternion is normalized.
-        SHZ_FORCE_INLINE static quat nlerp(quat q, quat p, float t) noexcept {
+        SHZ_FORCE_INLINE static quat nlerp(const quat& q, const quat& p, float t) noexcept {
             return shz_quat_nlerp(q, p, t);
         }
 
         //! Returns the quaternion that is spherically linearly interpolating \p q to \p p, by a \p t factor of `0.0f-1.0f`.
-        SHZ_FORCE_INLINE static quat slerp(quat q, quat p, float t) noexcept {
+        SHZ_FORCE_INLINE static quat slerp(const quat& q, const quat& p, float t) noexcept {
             return shz_quat_slerp(q, p, t);
         }
 
         //! Evaluates the smooth cubic spherical interpolation (SQUAD) at parameter \p t.
-        SHZ_FORCE_INLINE static quat squad(quat q1, quat q2, quat s1, quat s2, float t) noexcept {
+        SHZ_FORCE_INLINE static quat squad(const quat& q1, const quat& q2, const quat& s1, const quat& s2, float t) noexcept {
             return shz_quat_squad(q1, q2, s1, s2, t);
         }
 
@@ -131,31 +131,27 @@ namespace shz {
 
         //! @}
 
+        //! Generic overloaded operator for assigning a generic "this" type to volatile reference to base C type.
+        template<typename T>
+        SHZ_FORCE_INLINE auto&& operator=(this T&& self, volatile shz_quat_t other) noexcept {
+            const_cast<std::remove_cvref_t<T>&>(self) = quat(const_cast<shz_quat_t&>(other));
+            return std::forward<T>(self);
+        }
+
         /*! \name  Relational Operators
             \brief Overloaded comparison operators
             @{
         */
 
         //! Overloaded space-ship operator for auto-generating lexicographical comparison operators.
-        friend auto operator<=>(quat lhs, quat rhs) noexcept {
+        friend auto operator<=>(const quat& lhs, const quat& rhs) noexcept {
             return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
         }
-
-        //! Returns true if \p lhs is lexicographically less than \p rhs.
-        friend auto operator<(quat lhs, quat rhs) noexcept {
-            return std::lexicographical_compare(lhs.begin(), lhs.end(),
-                                                rhs.begin(), rhs.end());
-        }
 #endif
-        //! Overloaded comparison operator, checks for quaternion equality.
-        friend bool operator==(quat lhs, quat rhs) noexcept {
-            return shz_quat_equal(lhs, rhs);
-        }
 
-        //! Overloaded operator for assigning volatile reference to base C type.
-        volatile quat& operator=(volatile shz_quat_t other) volatile noexcept {
-            *static_cast<quat*>(const_cast<quat*>(this)) = quat(const_cast<shz_quat_t&>(other));
-            return *static_cast<volatile quat*>(this);
+        //! Overloaded comparison operator, checks for quaternion equality.
+        friend bool operator==(const quat& lhs, const quat& rhs) noexcept {
+            return shz_quat_equal(lhs, rhs);
         }
 
         //! @}
@@ -294,12 +290,12 @@ namespace shz {
         */
 
         //! Returns a new quaternion from adding the given quaterion to \p rhs.
-        SHZ_FORCE_INLINE quat add(quat rhs) const noexcept {
+        SHZ_FORCE_INLINE quat add(const quat& rhs) const noexcept {
             return shz_quat_add(*this, rhs);
         }
 
         //! Returns a new quaternion from adding \p rhs from the given quaternion.
-        SHZ_FORCE_INLINE quat sub(quat rhs) const noexcept {
+        SHZ_FORCE_INLINE quat sub(const quat& rhs) const noexcept {
             return shz_quat_sub(*this, rhs);
         }
 
@@ -314,27 +310,27 @@ namespace shz {
         }
 
         //! Returns the dot product between the given quaternion and another.
-        SHZ_FORCE_INLINE float dot(quat other) const noexcept {
+        SHZ_FORCE_INLINE float dot(const quat& other) const noexcept {
             return shz_quat_dot(*this, other);
         }
 
         //! Returns the dot product of the given quaternion against two others.
-        SHZ_FORCE_INLINE vec2 dot(quat q1, quat q2) const noexcept {
+        SHZ_FORCE_INLINE vec2 dot(const quat& q1, const quat& q2) const noexcept {
             return shz_quat_dot2(*this, q1, q2);
         }
 
         //! Returns the dot product of the given quaternion against three others.
-        SHZ_FORCE_INLINE vec3 dot(quat q1, quat q2, quat q3) const noexcept {
+        SHZ_FORCE_INLINE vec3 dot(const quat& q1, const quat& q2, const quat& q3) const noexcept {
             return shz_quat_dot3(*this, q1, q2, q3);
         }
 
         //! Returns a new quaterion from multiplying the given quaternion by another.
-        SHZ_FORCE_INLINE quat mult(quat rhs) const noexcept {
+        SHZ_FORCE_INLINE quat mult(const quat& rhs) const noexcept {
             return shz_quat_mult(*this, rhs);
         }
 
         //! Returns a new quaterion from dividing the given quaternion by another (or multiplying the given quaternion by the inverse of another).
-        SHZ_FORCE_INLINE quat div(quat rhs) const noexcept {
+        SHZ_FORCE_INLINE quat div(const quat& rhs) const noexcept {
             return shz_quat_div(*this, rhs);
         }
 
@@ -346,12 +342,12 @@ namespace shz {
         */
 
         //! Returns the angle in radians between the rotations represented by quaternions \p q and \p p.
-        SHZ_FORCE_INLINE float angle_between(quat p) const noexcept {
+        SHZ_FORCE_INLINE float angle_between(const quat& p) const noexcept {
             return shz_quat_angle_between(*this, p);
         }
 
         //! Rotates quaternion \p from towards quaternion \p to by at most \p max_angle radians.
-        SHZ_FORCE_INLINE quat rotate_towards(shz_quat_t to, float max_angle) const noexcept {
+        SHZ_FORCE_INLINE quat rotate_towards(const quat& to, float max_angle) const noexcept {
             return shz_quat_rotate_towards(*this, to, max_angle);
         }
 
@@ -363,7 +359,7 @@ namespace shz {
         */
 
         //! Returns a new shz::vec3 from transforming \p in by the given quaternion.
-        SHZ_FORCE_INLINE vec3 transform(vec3 in) const noexcept {
+        SHZ_FORCE_INLINE vec3 transform(const vec3& in) const noexcept {
             return shz_quat_transform_vec3(*this, in);
         }
 
@@ -375,22 +371,22 @@ namespace shz {
         }
 
         //! Adds and accumulates \p rhs onto the given quaternion.
-        SHZ_FORCE_INLINE quat operator+=(quat rhs) noexcept {
+        SHZ_FORCE_INLINE quat operator+=(const quat& rhs) noexcept {
             return *this = add(rhs);
         }
 
         //! Subtracts \p rhs from the given quaternion.
-        SHZ_FORCE_INLINE quat operator-=(quat rhs) noexcept {
+        SHZ_FORCE_INLINE quat operator-=(const quat& rhs) noexcept {
             return *this = sub(rhs);
         }
 
         //! Multiplies and accumulates \p rhs into the given quaternion.
-        SHZ_FORCE_INLINE quat operator*=(quat rhs) noexcept {
+        SHZ_FORCE_INLINE quat operator*=(const quat& rhs) noexcept {
             return *this = mult(rhs);
         }
 
         //! Divides the given quaternion by \p rhs.
-        SHZ_FORCE_INLINE quat operator/=(quat rhs) noexcept {
+        SHZ_FORCE_INLINE quat operator/=(const quat& rhs) noexcept {
             return *this = div(rhs);
         }
 
@@ -411,47 +407,47 @@ namespace shz {
     using quat_t = quat;
 
     //! Overloaded operator for adding two quaternions and returning the result.
-    SHZ_FORCE_INLINE quat operator+(quat lhs, quat rhs) noexcept {
+    SHZ_FORCE_INLINE quat operator+(const quat& lhs, const quat& rhs) noexcept {
         return lhs.add(rhs);
     }
 
     //! Overloaded operator for subtracting two quaternions and returning the result.
-    SHZ_FORCE_INLINE quat operator-(quat lhs, quat rhs) noexcept {
+    SHZ_FORCE_INLINE quat operator-(const quat& lhs, const quat& rhs) noexcept {
         return lhs.sub(rhs);
     }
 
     //! Overloaded operator for multiplying two quaternions and returning the result.
-    SHZ_FORCE_INLINE quat operator*(quat lhs, quat rhs) noexcept {
+    SHZ_FORCE_INLINE quat operator*(const quat& lhs, const quat& rhs) noexcept {
         return lhs.mult(rhs);
     }
 
     //! Overloaded operator for dividing \p lhs by \p rhs (or multiplying by the reciprocal of \p rhs) and returning the result.
-    SHZ_FORCE_INLINE quat operator/(quat lhs, quat rhs) noexcept {
+    SHZ_FORCE_INLINE quat operator/(const quat& lhs, const quat& rhs) noexcept {
         return lhs.div(rhs);
     }
 
     //! Overloaded operator for scaling each component of \p lhs by \p rhs and returning the result.
-    SHZ_FORCE_INLINE quat operator*(quat lhs, float rhs) noexcept {
+    SHZ_FORCE_INLINE quat operator*(const quat& lhs, float rhs) noexcept {
         return lhs.scaled(rhs);
     }
 
     //! Overloaded operator for scaling each component of \p rhs by \p lhs and returning the result.
-    SHZ_FORCE_INLINE quat operator*(float lhs, quat rhs) noexcept {
+    SHZ_FORCE_INLINE quat operator*(float lhs, const quat& rhs) noexcept {
         return rhs.scaled(lhs);
     }
 
     //! Overloaded operator for dividing each element of \p lhs by \p rhs and returning the result.
-    SHZ_FORCE_INLINE quat operator/(quat lhs, float rhs) noexcept {
+    SHZ_FORCE_INLINE quat operator/(const quat& lhs, float rhs) noexcept {
         return lhs.scaled(shz_invf(rhs));
     }
 
     //! Overloaded operator for dividing each component of \p rhs by \p lhs.
-    SHZ_FORCE_INLINE quat operator/(float lhs, quat rhs) noexcept {
+    SHZ_FORCE_INLINE quat operator/(float lhs, const quat& rhs) noexcept {
         return rhs.scaled(shz_invf(lhs));
     }
 
     //! Overloaded operator for transforming/rotating a vec3, \p rhs, by a quaternion, \p lhs.
-    SHZ_FORCE_INLINE vec3 operator*(const quat& lhs, vec3 rhs) noexcept {
+    SHZ_FORCE_INLINE vec3 operator*(const quat& lhs, const vec3& rhs) noexcept {
         return lhs.transform(rhs);
     }
 }

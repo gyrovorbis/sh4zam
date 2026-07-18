@@ -137,11 +137,11 @@ GBL_TEST_CASE(from_angles_xyz)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(transform_vec3)
-    auto check = [](shz::quat q, volatile shz::vec3 v, shz::vec3 expected) {
+    auto check = [](shz::quat q, shz::vec3 v, shz::vec3 expected) {
         return (q * v) == expected;
     };
 
-    auto cross_check = [](shz::quat q, volatile shz::vec3 v) {
+    auto cross_check = [](shz::quat q, shz::vec3 v) {
         return (q * v) == shz::vec3(raylibVector3RotateByQuaternion(q, const_cast<shz::vec3&>(v)));
     };
 

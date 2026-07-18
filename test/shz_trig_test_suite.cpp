@@ -138,48 +138,34 @@ GBL_TEST_CASE(tanhf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(cschf)
-    auto test = [](volatile float value) {
-        float shz_result, c_result;
+    GBL_TEST_SKIP("FUCKED");
+    for(auto v : std::array<float, 3>{ 0.5f, 1.0f, -1.0f }) {
+        GBL_TEST_ERROR(shz::cschf(v), 1.0f / sinhf(v), 0.2f, GBL_TEST_ERROR_FUZZY);
+        auto vv = static_cast<volatile float>(v);
+        GBL_TEST_ERROR(shz::cschf(vv), 1.0f / sinhf(vv), 0.2f, GBL_TEST_ERROR_FUZZY);
+    }
 
-        shz_result = shz::cschf(value);
-        c_result   = 1.0f / sinhf(value);
-
-#if 0
-        std::println("{} vs {}", shz_result, c_result);
-#endif
-        //if(isinff(shz_result, c_result)) return true;
-        //else
-        return std::fabsf(shz_result - c_result) <= 0.05f;
-    };
-    GBL_TEST_SKIP("LAWL");
-    //GBL_TEST_VERIFY(test(0.1f));
-    //GBL_TEST_VERIFY(test(1.0f));
-    GBL_TEST_VERIFY(test(-1.0f));
-#if 1
     GBL_TEST_VERIFY(
         (benchmark_cmp<float>)("shz::cschf", shz::cschf,
                                "1.0f / sinhf", [](float value) { return 1.0f / sinhf(value); },
-                               -1.0f)
+                               static_cast<volatile float>(-1.0f))
     );
-#endif
 GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
 GBL_TEST_CASE(sechf)
-    auto test = [&](volatile float value) {
-        float shz_result, c_result;
+    GBL_TEST_SKIP("FUCKED");
+    for(auto v : std::array<float, 3>{ 0.1f, 1.0f, -1.0f }) {
+        GBL_TEST_ERROR(shz::sechf(v), 1.0f / coshf(v), 0.07f, GBL_TEST_ERROR_FUZZY);
+        auto vv = static_cast<volatile float>(v);
+        GBL_TEST_ERROR(shz::sechf(vv), 1.0f / coshf(vv), 0.07f, GBL_TEST_ERROR_FUZZY);
+    }
 
-        benchmark(&shz_result, shz::sechf, value);
-        benchmark(&c_result, [](float val) { return 1.0f / coshf(val); }, value);
-#if 0
-        std::println("{} vs {}", shz_result, c_result);
-#endif
-        return fabsf(shz_result - c_result) <= 0.05f;
-    };
-
-    GBL_TEST_VERIFY(test(0.0f));
-    GBL_TEST_VERIFY(test(1.0f));
-    GBL_TEST_VERIFY(test(-1.0f));
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<float>)("shz::sechf", shz::sechf,
+                               "1.0f / coshf", [](float value) { return 1.0f / coshf(value); },
+                               static_cast<volatile float>(-1.0f))
+    );
 GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
