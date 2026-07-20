@@ -144,6 +144,9 @@ Project                                                   | Description
 [The Cave](https://freakdave.itch.io/dreamcast-the-cave-tech-demo) | FreakDave's SH4ZAM-boosted DC tech demo with impressive lighting and effects.
 [Audio Visualizer](https://www.youtube.com/watch?v=2KR_PtF_33c) | Brielle Garcia's CD Audio Visualizer for Dreamcast, using SH4ZAM math routines.
 [DemoTek](https://youtu.be/GfbITGBcHHY?si=TwwZWQhc9E8sfbyi) | Crash Bandicoot-style 3D platformer, with SH4ZAM'd up scalar math + 3D transforms.
+[QuakeSpasm DC](https://github.com/maximqaxd/quakespasm) | Sega Dreamcast port of QuakeSpasm, with native PVR renderer + SH4ZAM math.
+[Monkey Ball DC](https://www.youtube.com/watch?v=277AUBanFAQ) | Reimplementation of Monkey Ball using GameCube assets from Super Monkey Ball.
+[Elias Daler's Experiments](https://www.youtube.com/watch?v=8S58Di7aMEk) | Renowned PS1 homebrew dev uses SH4ZAM to back his beautiful DC tech demos.
 
 # Conventions
 The following conventions are used throughout the API by default, unless otherwise specified:
