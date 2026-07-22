@@ -14,6 +14,11 @@ union shz_glm_mat4 {
     mat4        glm;
 };
 
+union shz_glm_vec3 {
+    shz::vec3 shz;
+    vec3      glm;
+};
+
 union shz_glm_vec4 {
     shz::vec4 shz;
     vec4      glm;
@@ -102,6 +107,40 @@ GBL_TEST_CASE(inverse)
 
     GBL_TEST_VERIFY(mat.shz == invertedInverted);
     GBL_TEST_VERIFY(test(mat));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(transform_vec3)
+    alignas(32) std::array<uint8_t, sizeof(shz_glm_mat4) + alignof(shz_glm_mat4)> buffer;
+    auto& mat = *reinterpret_cast<shz_glm_mat4*>(buffer.data() + alignof(shz_glm_mat4));
+
+    mat.shz.init_identity();
+    GBL_TEST_VERIFY(mat.shz.transform(shz::vec3( 1.0f, 2.0f, 3.0f )) ==
+                    shz::vec3(  1.0f, 2.0f, 3.0f ));
+
+    mat.shz.apply_scale(1.0f, 2.0f, 3.0f);
+    GBL_TEST_VERIFY(mat.shz.transform(shz::vec3( 1.0f, 2.0f, 3.0f )) ==
+                    shz::vec3(  1.0f, 4.0f, 9.0f ));
+
+    mat.shz.apply_translation(-3.0f, -2.0f, -1.0f);
+    GBL_TEST_VERIFY(mat.shz.transform(shz::vec3( 1.0f, 2.0f, 3.0f )) ==
+                    shz::vec3(  1.0f, 4.0f, 9.0f ));
+
+    mat.shz.apply_self();
+    {
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<shz::vec3>)(
+                "shz::mat4x4::transform_vec3", [](const shz_glm_mat4& m, const shz_glm_vec3& v) {
+                    return m.shz.transform(v.shz);
+                },
+                "glm_mat4_mulv3", [](const shz_glm_mat4& m, const shz_glm_vec3& v) {
+                    shz_glm_vec3 res;
+                    glm_mat4_mulv3(const_cast<mat4&>(m.glm), const_cast<vec3&>(v.glm), 0.0f, res.glm);
+                    return res.shz;
+                },
+                mat, shz_glm_vec3({ gblRandf(), gblRandf(), gblRandf() })
+            )
+        );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(transform_vec4)
@@ -198,5 +237,6 @@ GBL_TEST_CASE_END
 GBL_TEST_REGISTER(copy,
                   swap,
                   inverse,
+                  transform_vec3,
                   transform_vec4,
                   to_quat)
