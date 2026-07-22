@@ -135,7 +135,7 @@ Project                                                   | Description
 [FFFFTT](https://github.com/meisei4/fffftt)               | Audio signal visualizations, with SH4ZAM accelerated FFT and more.
 [Sonic Mania DC](https://github.com/michael-fadely/Sonic-Mania-Decompilation) | Sonic Mania DC port with SH4ZAM acceleration.
 [Simulant Engine](https://gitlab.com/simulant/simulant)   | General-purpose cross-platform engine backed by SH4ZAM math.
-[Meese Engine](https://meese4.github.io/)                 | An open-world voxel game built for the GameCube, using the SH4ZAM SW back-end.
+[Meese Engine](https://meese4.github.io/)                 | Open-world voxel game built for the GameCube, using the SH4ZAM SW back-end.
 [Quake 2 DC](https://github.com/Bruceleeto/Quake2)        | Port of Quake 2 to the DC, with SH4ZAM accelerated matrix math.
 [DCSinge](https://github.com/GPF/DCSinge)                 | Singe API + FMV playback engine on DC using SH4ZAM memory routines.
 [Xash3D DC](https://github.com/maximqaxd/xash3d-fwgs_dc/tree/pvrrender) | SH4ZAM'd up DC port of the Half-Life compatible Xash3D engine.
@@ -146,7 +146,7 @@ Project                                                   | Description
 [DemoTek](https://youtu.be/GfbITGBcHHY?si=TwwZWQhc9E8sfbyi) | Crash Bandicoot-style 3D platformer, with SH4ZAM'd up scalar math + 3D transforms.
 [QuakeSpasm DC](https://github.com/maximqaxd/quakespasm) | Sega Dreamcast port of QuakeSpasm, with native PVR renderer + SH4ZAM math.
 [Monkey Ball DC](https://www.youtube.com/watch?v=277AUBanFAQ) | Reimplementation of Monkey Ball using GameCube assets from Super Monkey Ball.
-[Elias Daler's Experiments](https://www.youtube.com/watch?v=8S58Di7aMEk) | Renowned PS1 homebrew dev uses SH4ZAM to back his beautiful DC tech demos.
+[Elias Daler Experiments](https://www.youtube.com/watch?v=8S58Di7aMEk) | Renowned PS1 homebrew dev uses SH4ZAM for his beautiful DC tech demos.
 
 # Conventions
 The following conventions are used throughout the API by default, unless otherwise specified:
