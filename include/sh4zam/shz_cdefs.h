@@ -148,14 +148,14 @@
 #   define SHZ_LIKELY(e)               __builtin_expect(!!(e), 1)
     //! Tells GCC that the expression is likely to be false (used for conditional and loop optimizations)
 #   define SHZ_UNLIKELY(e)             __builtin_expect(!!(e), 0)
-    //! Tells GCC to use its builtin intrinsic for prefetching (better instruction scheduling than pure ASM pref)
-#   define SHZ_PREFETCH(a)             __builtin_prefetch(a)
     //! Tells GCC the pointer paraemter is unique and is not aliased by another parameter
 #   define SHZ_RESTRICT                __restrict__
     //! Creates a software memory barrier beyond which any loads or stores may not be reordered
 #   define SHZ_MEMORY_BARRIER_SOFT()   asm volatile("" : : : "memory")
     //! Creates a hardware memory barrier beyond which any loads or stores may not be reordered
 #   define SHZ_MEMORY_BARRIER_HARD()   __sync_synchronize()
+    //! Prevents the compiler from reordering instructions beyond the barrier.
+#   define SHZ_INSTR_BARRIER()          asm volatile("")
 #elif defined(SHZ_MSVC)
     //! Forces a function or type to be aligned by \p N bytes.
 #   define SHZ_ALIGNAS(N)              __declspec(align(N))
@@ -193,14 +193,14 @@
 #   define SHZ_LIKELY(e)              (e)
     //! Unimplemented for MSVC.
 #   define SHZ_UNLIKELY(e)            (e)
-    //! Unimplemented for MSVC.
-#   define SHZ_PREFETCH(a)
     //! Tells MSVC the pointer paraemter is unique and is not aliased by another parameter.
 #   define SHZ_RESTRICT               __restrict
     //! Unimplemented for MSVC.
 #   define SHZ_MEMORY_BARRIER_SOFT()
     //! Unimpemented for MSVC.
 #   define SHZ_MEMORY_BARRIER_HARD()
+    //! Prevents the compiler from reordering instructions beyond the barrier.
+#   define SHZ_INSTR_BARRIER()
 #endif
 
 #ifndef __cplusplus

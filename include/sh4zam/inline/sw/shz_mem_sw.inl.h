@@ -19,6 +19,12 @@
 #include <string.h>
 #include <stdalign.h>
 
+#ifdef SHZ_GNUC
+#   define SHZ_PREFETCH_(ptr)  __builtin_prefetch(ptr)
+#else
+#   define SHZ_PREFETCH_(ptr)
+#endif
+
 SHZ_FORCE_INLINE void shz_dcache_alloc_line_sw(void* src) SHZ_NOEXCEPT { (void)src; }
 
 SHZ_FORCE_INLINE void* shz_memcpy_sw(      void* SHZ_RESTRICT dst,

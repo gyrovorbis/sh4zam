@@ -18,7 +18,8 @@
 #include <string.h>
 #include <assert.h>
 
-#define SHZ_FSCHG() asm volatile("fschg")
+#define SHZ_FSCHG()         asm volatile("fschg")
+#define SHZ_PREFETCH(ptr)   asm volatile("pref @%0" : : "r" (ptr))
 
 extern void* shz_memcpy128_sh4_  (void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
 extern void* shz_sq_memcpy32_sh4_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
@@ -175,25 +176,47 @@ SHZ_INLINE void* shz_memcpy2_sh4(void*       SHZ_RESTRICT dst,
     size_t blocks = bytes >> 3; // Block size of 16 bytes
 
     if(blocks) {
+        s += 8;
+
         do {
-            s += 8;
-            SHZ_PREFETCH(s); // Prefetch 16 bytes for next iteration
-            d[7] = *(--s);
-            d[6] = *(--s);
-            d[5] = *(--s);
-            d[4] = *(--s);
-            d[3] = *(--s);
-            d[2] = *(--s);
-            d[1] = *(--s);
-            d[0] = *(--s);
-            d += 8;
-            s += 8;
+            const uint16_t r0 = *(--s);
+            const uint16_t r1 = *(--s);
+            const uint16_t r2 = *(--s);
+            const uint16_t r3 = *(--s);
+            const uint16_t r4 = *(--s);
+            const uint16_t r5 = *(--s);
+            const uint16_t r6 = *(--s);
+            const uint16_t r7 = *(--s);
+            s += 16;
+            *d++ = r7;
+            *d++ = r6;
+            *d++ = r5;
+            *d++ = r4;
+            *d++ = r3;
+            *d++ = r2;
+            *d++ = r1;
+            *d++ = r0;
         } while(SHZ_LIKELY(--blocks));
         bytes &= 0x7;
     }
 
-    while(SHZ_LIKELY(bytes--))
-        d[bytes] = s[bytes];
+    if(SHZ_LIKELY(bytes)) {
+       uint32_t diff = (uintptr_t)d - (((uintptr_t)s) + 4);
+       uintptr_t scratch;
+
+        asm(R"(
+            .align 2
+            0:
+                dt      %[cnt]
+                mov.w   @%[in]+, %[scr]
+                bf.s    0b
+                mov.w   %[scr], @(%[offset], %[in])
+        )"
+        : [scr] "=&r" (scratch), [in] "+&r" (s),
+          [cnt] "+&r" (bytes), "=m" (*((uint16_t (*)[])d))
+        : [offset] "z" (diff), "m" (*((const uint16_t (*)[])s))
+        : "t");
+    }
 
     return dst;
 }
@@ -210,26 +233,48 @@ SHZ_INLINE void* shz_memcpy4_sh4(void*       SHZ_RESTRICT dst,
 
     size_t blocks = bytes >> 3;
 
-    if(blocks) {
+   if(blocks) {
+        s += 8;
+
         do {
-            s += 8;
-            SHZ_PREFETCH(s); // Prefetch 32 bytes for next iteration
-            d[7] = *(--s);
-            d[6] = *(--s);
-            d[5] = *(--s);
-            d[4] = *(--s);
-            d[3] = *(--s);
-            d[2] = *(--s);
-            d[1] = *(--s);
-            d[0] = *(--s);
-            d += 8;
-            s += 8;
+            const uint32_t r0 = *(--s);
+            const uint32_t r1 = *(--s);
+            const uint32_t r2 = *(--s);
+            const uint32_t r3 = *(--s);
+            const uint32_t r4 = *(--s);
+            const uint32_t r5 = *(--s);
+            const uint32_t r6 = *(--s);
+            const uint32_t r7 = *(--s);
+            s += 16;
+            *d++ = r7;
+            *d++ = r6;
+            *d++ = r5;
+            *d++ = r4;
+            *d++ = r3;
+            *d++ = r2;
+            *d++ = r1;
+            *d++ = r0;
         } while(SHZ_LIKELY(--blocks));
         bytes &= 0x7;
     }
 
-    while(SHZ_LIKELY(bytes--))
-        d[bytes] = s[bytes];
+    if(SHZ_LIKELY(bytes)) {
+       uint32_t diff = (uintptr_t)d - (((uintptr_t)s) + 4);
+       uintptr_t scratch;
+
+        asm(R"(
+            .align 2
+            0:
+                dt      %[cnt]
+                mov.l   @%[in]+, %[scr]
+                bf.s    0b
+                mov.l   %[scr], @(%[offset], %[in])
+        )"
+        : [scr] "=&r" (scratch), [in] "+&r" (s),
+          [cnt] "+&r" (bytes), "=m" (*((uint32_t (*)[])d))
+        : [offset] "z" (diff), "m" (*((const uint32_t (*)[])s))
+        : "t");
+    }
 
     return dst;
 }
@@ -242,7 +287,6 @@ SHZ_INLINE void* shz_memcpy8_sh4(      void* SHZ_RESTRICT dst,
 
     assert(!(bytes % 8) && !((uintptr_t)dst & 7) && !((uintptr_t)src & 7));
 
-    SHZ_PREFETCH(s);
     SHZ_FSCHG();
 
     bytes >>= 3;
@@ -263,7 +307,7 @@ SHZ_INLINE void* shz_memcpy8_sh4(      void* SHZ_RESTRICT dst,
        uint32_t diff = (uintptr_t)d - (((uintptr_t)s) + 8);
 
         asm(R"(
-            .align 2 
+            .align 2
             0:
                 dt       %[cnt]
                 fmov.d   @%[in]+, dr4
@@ -410,6 +454,8 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
           uint8_t *d = (      uint8_t *)dst;
     size_t copied;
 
+    SHZ_PREFETCH(src);
+
     if(bytes < 32) {
         shz_memcpy1_sh4(d, s, bytes);
 
@@ -421,6 +467,8 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
             d     += copied;
             s     += copied;
         }
+
+        SHZ_PREFETCH(s);
 
         copied = 0;
         if(!(((uintptr_t)s) & 0x7)) {
