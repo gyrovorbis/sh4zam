@@ -90,8 +90,9 @@ namespace shz {
             shz_mat4x4_init_identity(this);
         }
 
+        SHZ_DEPRECATED("Operation is always safe now. Use default version.")
         SHZ_FORCE_INLINE void init_identity_safe() noexcept {
-            shz_mat4x4_init_identity_safe(this);
+            shz_mat4x4_init_identity(this);
         }
 
         SHZ_FORCE_INLINE void init_zero() noexcept {

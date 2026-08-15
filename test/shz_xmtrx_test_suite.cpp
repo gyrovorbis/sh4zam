@@ -341,7 +341,7 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_identity_safe)
     randomize_xmtrx_();
-    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::init_identity();
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                   { 1.0f, 0.0f, 0.0f, 0.0f,
                     0.0f, 1.0f, 0.0f, 0.0f,
@@ -387,6 +387,19 @@ GBL_TEST_CASE(init_translation)
                     0.0f, 1.0f, 0.0f, -20.0f,
                     0.0f, 0.0f, 1.0f, 30.0f,
                     0.0f, 0.0f, 0.0f, 1.0f }));
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)(
+            "shz::xmtrx::init_translation", [](float x, float y, float z) {
+                shz::xmtrx::init_translation(x, y, z);
+            },
+            "glm_translate_make", [](float x, float y, float z) {
+                static volatile mat4 m;
+                volatile vec3 t = { x, y, z };
+                glm_translate_make(*const_cast<mat4*>(&m), *const_cast<vec3*>(&t));
+            },
+            10.0f, -20.0f, 30.0f
+        )
+    );
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_scale)
@@ -397,6 +410,20 @@ GBL_TEST_CASE(init_scale)
                     0.0f, -3.0f, 0.0f, 0.0f,
                     0.0f, 0.0f, -4.0f, 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f}));
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)(
+            "shz::xmtrx::init_scale", [](float x, float y, float z) {
+                shz::xmtrx::init_scale(x, y, z);
+            },
+            "glm_scale_make", [](float x, float y, float z) {
+                static volatile mat4 m;
+                volatile vec3 s = { x, y, z };
+                glm_scale_make(*const_cast<mat4*>(&m), *const_cast<vec3*>(&s));
+            },
+            -2.0f, -3.0f, -4.0f
+        )
+    );
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_rotation_x)
@@ -821,7 +848,7 @@ GBL_TEST_CASE(apply_translation)
     // Expectation: Only touches translation parts of the matrix
     {
         randomize_xmtrx_();
-        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::init_identity();
         shz::xmtrx::apply_translation(10.0f, -20.0f, 30.0f);
 
         GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
@@ -851,7 +878,7 @@ GBL_TEST_CASE(apply_translation)
     // Expectation: Translations added together rather than overwritten.
     {
         randomize_xmtrx_();
-        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::init_identity();
 
         shz::xmtrx::apply_translation(2.0f, 3.0f, -4.0f);
         shz::xmtrx::apply_translation(5.0f, 6.0f,  7.0f);
@@ -907,7 +934,7 @@ GBL_TEST_CASE(set_translation)
     // Expectation: Same result as init_translation()/a fresh translation matrix.
     {
         randomize_xmtrx_();
-        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::init_identity();
         shz::xmtrx::set_translation(10.0f, -20.0f, 30.0f);
 
         GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
@@ -938,7 +965,7 @@ GBL_TEST_CASE(set_translation)
     // Expectation: The second call fully replaces the first, unlike apply_translation().
     {
         randomize_xmtrx_();
-        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::init_identity();
 
         shz::xmtrx::set_translation(2.0f, 3.0f, -4.0f);
         shz::xmtrx::set_translation(5.0f, 6.0f, 7.0f);
@@ -973,7 +1000,7 @@ GBL_TEST_CASE(get_translation)
     // Extract from a fresh translation matrix.
     {
         randomize_xmtrx_();
-        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::init_identity();
         shz::xmtrx::set_translation(10.0f, -20.0f, 30.0f);
 
         GBL_TEST_VERIFY(shz::xmtrx::get_translation() == shz::vec3(10.0f, -20.0f, 30.0f));
@@ -997,7 +1024,7 @@ GBL_TEST_CASE(get_translation)
     // Extract from a matrix with a zero/negative translation.
     {
         randomize_xmtrx_();
-        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::init_identity();
         shz::xmtrx::set_translation(0.0f, -0.0f, -5.0f);
 
         GBL_TEST_VERIFY(shz::xmtrx::get_translation() == shz::vec3(0.0f, 0.0f, -5.0f));
@@ -1031,7 +1058,7 @@ GBL_TEST_CASE(apply_scale)
     // Expectation: Diagonal scale cells filled in the 3x3 part.
     {
         randomize_xmtrx_();
-        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::init_identity();
         shz::xmtrx::apply_scale(10.0f, -20.0f, 30.0f);
         GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                     { 10.0f, 0.0f, 0.0f, 0.0f,
@@ -1058,7 +1085,7 @@ GBL_TEST_CASE(apply_scale)
     // Expectation: All scale cells of the 3x3 part of the matrix filled with 0.0f
     {
         randomize_xmtrx_();
-        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::init_identity();
 
         shz::xmtrx::apply_scale(0.0f, 0.0f, 0.0f);
 
@@ -1089,7 +1116,7 @@ GBL_TEST_CASE(apply_scale)
     // Expectation: Scale values should multiply NOT overwrite
     {
         randomize_xmtrx_();
-        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::init_identity();
 
         shz::xmtrx::apply_scale(2.0f, 3.0f, 4.0f);
         shz::xmtrx::apply_scale(5.0f, 6.0f, 7.0f);
@@ -1120,6 +1147,23 @@ GBL_TEST_CASE(apply_scale)
 
             GBL_TEST_VERIFY(compare_glm(res, m_glm));
         }
+    }
+
+    {
+        volatile mat4 xmtrx = GLM_MAT4_IDENTITY_INIT;
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)(
+                "shz::xmtrx::apply_scale", [](float x, float y, float z) {
+                    shz::xmtrx::apply_scale(x, y, z);
+                },
+                "glm_scale", [&](float x, float y, float z) {
+                    volatile vec3 s = { x, y, z };
+                    glm_scale(*const_cast<mat4*>(&xmtrx), *const_cast<vec3*>(&s));
+                },
+                2.0f, 3.0f, 4.0f
+            )
+        );
     }
 GBL_TEST_CASE_END
 
@@ -1421,7 +1465,7 @@ GBL_TEST_CASE(translate)
     mat4 glmRes;
     shz::mat4x4 shzRes;
 
-    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::init_identity();
     shz::xmtrx::scale(2.0f, 2.0f, 2.0f);
     shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
 
@@ -1471,7 +1515,7 @@ GBL_TEST_CASE(scale)
     mat4 glmScaleRes;
     shz::mat4x4 shzScaleRes;
 
-    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::init_identity();
     shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
     shz::xmtrx::scale(2.0f, 2.0f, 2.0f);
 
@@ -1518,7 +1562,7 @@ GBL_TEST_CASE(rotate_x)
 
     shz::mat4x4 shzRotRes;
     mat4 glmRotRes;
-    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::init_identity();
     shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
     shz::xmtrx::rotate_x(rotation_factor);
     shz::xmtrx::store(&shzRotRes);
@@ -1554,7 +1598,7 @@ GBL_TEST_CASE(rotate_y)
 
     shz::mat4x4 shzRotRes;
     mat4 glmRotRes;
-    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::init_identity();
     shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
     shz::xmtrx::rotate_y(rotation_factor);
     shz::xmtrx::store(&shzRotRes);
@@ -1579,7 +1623,7 @@ GBL_TEST_CASE(rotate_z)
 
     shz::mat4x4 shzRotRes;
     mat4 glmRotRes;
-    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::init_identity();
     shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
     shz::xmtrx::rotate_z(rotation_factor);
     shz::xmtrx::store(&shzRotRes);
@@ -1599,7 +1643,7 @@ GBL_TEST_CASE(rotate_z)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_ortho)
-    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::init_identity();
     shz::xmtrx::apply_ortho(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f);
     union {
         alignas(16) mat4 cmat;
@@ -1617,7 +1661,7 @@ GBL_TEST_CASE(apply_ortho)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_frustum)
-    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::init_identity();
     shz::xmtrx::apply_frustum(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f);
     union {
         alignas(16) mat4 cmat;
@@ -1643,7 +1687,7 @@ GBL_TEST_CASE(apply_perspective)
         shz::mat4x4 shzcmat;
     } cunion;
 
-    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::init_identity();
     shz::xmtrx::apply_perspective(shz::deg_to_rad(45.0f), 640.0f / 480.0f, 0.0f);
     glm_perspective_infinite_rh_no(shz::deg_to_rad(45.0f), 640.0f / 480.0f, 0.0f, cunion.cmat);
     shz::mat4x4 shzmat;
@@ -1658,7 +1702,7 @@ GBL_TEST_CASE(apply_perspective)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_screen)
-    shz::xmtrx::init_identity_safe();
+    shz::xmtrx::init_identity();
     shz::xmtrx::apply_screen(640.0f, 480.0f);
 
     shz::mat4x4 applied_screen_mat;
@@ -1696,7 +1740,7 @@ GBL_TEST_CASE(apply_lookat)
     auto test = [](shz::vec3 eye, shz::vec3 center, shz::vec3 up) {
         shz::mat4x4 shzMat, cglmMat;
 
-        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::init_identity();
         shz::xmtrx::apply_lookat(eye, center, up);
         shz::xmtrx::store(&shzMat);
 

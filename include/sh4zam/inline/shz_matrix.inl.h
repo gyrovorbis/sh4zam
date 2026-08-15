@@ -25,7 +25,7 @@ SHZ_INLINE void shz_mat4x4_init_identity(shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE void shz_mat4x4_init_identity_safe(shz_mat4x4_t* mat) SHZ_NOEXCEPT {
-    shz_xmtrx_init_identity_safe();
+    shz_xmtrx_init_identity();
     shz_xmtrx_store_4x4(mat);
 }
 

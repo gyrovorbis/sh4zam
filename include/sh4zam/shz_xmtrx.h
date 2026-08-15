@@ -217,20 +217,18 @@ SHZ_INLINE void shz_xmtrx_store_2x2(shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
     @{
 */
 
-/*! Quickly initializes XMTRX to be a 4D identity matrix.
-
-    \warning This routine will not properly zero-out NaN values!
-
-    \sa shz_xmtrx_init_identity_safe()
-*/
+//! Initializes XMTRX to the 4x4 identity matrix.
 SHZ_INLINE void shz_xmtrx_init_identity(void) SHZ_NOEXCEPT;
 
 /*! Safely initializes XMTRX to be a 4D identity matrix.
 
-    This routine is guaranteed to properly initialize XMTRX, regardless of NaN values.
+    \deprecated
+    shz_xmtrx_init_identity() is already safe now by default. This routine
+    simply calls directly into it and should not be used.
 
     \sa shz_xmtrx_init_identity()
 */
+SHZ_DEPRECATED("Operation is always safe now. Use default version.")
 SHZ_INLINE void shz_xmtrx_init_identity_safe(void) SHZ_NOEXCEPT;
 
 //! Initializes XMTRX to contain the value of 0.0f for each element.

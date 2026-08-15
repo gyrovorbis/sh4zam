@@ -88,21 +88,23 @@ typedef shz_mat4x4_t shz_mat4x4;
    @{
 */
 
-/*! Initializes the given matrix to the identity matrix as fast as possible.
+/*! Initializes the given matrix to the 4x4 identity matrix.
 
-    \warning This routine will NOT zero out NaNs properly!
     \warning This routine clobbers XMTRX.
-
-    \sa shz_mat4x4_init_identity_safe()
 */
 SHZ_INLINE void shz_mat4x4_init_identity(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
-/*! Initializes the given matrix to the identity matrix, safely zeroing out NaN values.
+/*! Safely initializes the given matrix to the 4x4 identity matrix.
 
     \warning This routine clobbers XMTRX.
 
+    \deprecated
+    shz_mat4x4_init_identity() is already safe now by default. This routine
+    simply calls directly into it and should not be used.
+
     \sa shz_mat4x4_init_identity()
 */
+SHZ_DEPRECATED("Operation is always safe now. Use default version.")
 SHZ_INLINE void shz_mat4x4_init_identity_safe(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
 /*! Initializes the given matrix with all 0s for its element values.

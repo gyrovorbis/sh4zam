@@ -219,8 +219,9 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_init_identity_safe().
+    SHZ_DEPRECATED("Operation is always safe now. Use default version.")
     SHZ_FORCE_INLINE static void init_identity_safe() noexcept {
-        shz_xmtrx_init_identity_safe();
+        shz_xmtrx_init_identity();
     }
 
     //! C++ wrapper around shz_xmtrx_init_zero().

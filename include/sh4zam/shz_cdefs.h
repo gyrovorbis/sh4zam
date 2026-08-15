@@ -144,6 +144,8 @@
 #   define SHZ_CONST                   __attribute__((const))
     //! Tells GCC that the decorated pointer may be breaking strict aliasing rules for C and C++
 #   define SHZ_ALIASING                __attribute__((__may_alias__))
+    //! Emits a warning that a symbol has been deprecated with a message, upon use.
+#   define SHZ_DEPRECATED(m)           __attribute__((deprecated(m)))
     //! Tells GCC that the expression is likely to be true (used for conditional and loop optimizations)
 #   define SHZ_LIKELY(e)               __builtin_expect(!!(e), 1)
     //! Tells GCC that the expression is likely to be false (used for conditional and loop optimizations)
@@ -189,6 +191,8 @@
 #   define SHZ_CONST                   constexpr
     //! MSVC already doesn't optimize for strict aliasing rules.
 #   define SHZ_ALIASING
+    //! Emits a warning that a symbol has been deprecated with a message, upon use.
+#   define SHZ_DEPRECATED(m)           __declspec(deprecated(m))
     //! Unimplemented for MSVC.
 #   define SHZ_LIKELY(e)              (e)
     //! Unimplemented for MSVC.
