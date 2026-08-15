@@ -399,7 +399,7 @@ SHZ_INLINE void shz_xmtrx_apply_3x4(const shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
 //! Multiplies and accumulates the given 3x3 matrix onto XMTRX, not modifying other elements.
 SHZ_INLINE void shz_xmtrx_apply_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT;
 
-//! Multiplies and accumulateas the transpose of the given 3x3 matrix onto XMTRX, not modifying other elements.
+//! Multiplies and accumulates the transpose of the given 3x3 matrix onto XMTRX, not modifying other elements.
 SHZ_INLINE void shz_xmtrx_apply_transpose_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates the given 2x2 matrix onto XMTRX, not modifying other elements.

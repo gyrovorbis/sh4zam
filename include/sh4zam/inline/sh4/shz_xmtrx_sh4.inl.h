@@ -2050,7 +2050,7 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_x_sh4(float x) SHZ_NOEXCEPT {
         fmov    fr4, fr9
         fmov    fr5, fr10
         fneg    fr9
-        fmul    fr8, fr11
+        fldi0   fr11
         fmov    fr4, fr6
         fldi0   fr4
 
