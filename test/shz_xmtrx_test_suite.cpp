@@ -6,7 +6,6 @@
 #include <gimbal/gimbal_algorithms.h>
 #include <print>
 
-#include <cglm/cglm.h>
 #include <cglm/clipspace/ortho_rh_no.h>
 #include <cglm/clipspace/view_rh.h>
 #include <cglm/clipspace/persp_rh_no.h>
@@ -1357,24 +1356,19 @@ GBL_TEST_CASE(apply_store_unaligned_4x4)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_apply_store_4x4)
-    union shz_glm_mat4_t {
-        shz_mat4x4_t shz;
-        mat4         glm;
-    };
-
-   shz_glm_mat4_t shzRes, glmRes;
-   shz_glm_mat4_t mat1 = { .shz = {
+   shz_glm_mat4 shzRes, glmRes;
+   shz_glm_mat4 mat1 = { .shz = shz::mat4x4({
         .left    = { -13.0f,  2.0f,  3.0f, -0.0001f },
         .up      = {  4.0f,  -5.0f,  6.0f, 12.3232f },
         .forward = {  7.0f,   8.0f,  9.0f, 882.023f },
         .pos     = { 11.0f, -12.0f, 13.0f, -0.0435f }
-   }};
-   shz_glm_mat4_t mat2 = { .shz = {
+   })};
+   shz_glm_mat4 mat2 = { .shz = shz_mat4x4({
         .left    = { 11.0f,    2.5f, -3.333f, -4.0343f },
         .up      = { -46.0f,  -5.0f,  0.777f, 9999.34f,},
         .forward = { -75.0f, 0.008f, -99.44f, 0.23233f },
         .pos     = { 11.0f,   12.0f, 13.888f, -345.88f }
-   }};
+   })};
 
     (benchmark)(nullptr, "shz::xmtrx::load_apply_store_4x4()",
                 static_cast<void(*)(shz_mat4x4_t*, const shz_mat4x4_t&, const shz_mat4x4_t&)>(
@@ -1459,14 +1453,14 @@ GBL_TEST_CASE(translate)
     );
 #endif
 {
-    shz::mat4x4 xmtrx;
-    volatile shz::vec3 axis = { 1.0f, 2.0f, 3.0f };
+    shz_glm_mat4 xmtrx;
+    shz_glm_vec3 axis = { .shz = {1.0f, 2.0f, 3.0f} };
         (benchmark_cmp<void>)(
-            "shz::xmtrx::translate", [](shz::vec3 axis) { shz::xmtrx::scale(axis); },
-            "glm_translate",         [&](shz::vec3 axis) { glm_translate(*reinterpret_cast<mat4*>(&xmtrx),
-                                                                      *reinterpret_cast<vec3*>(axis.e));
-                                                                }, axis
-                                                            );
+            "shz::xmtrx::translate", [](shz_glm_vec3 axis) { shz::xmtrx::scale(axis.shz); },
+            "glm_translate",        [&](shz_glm_vec3 axis) {
+                                            glm_translate(xmtrx.glm, axis.glm);
+                                     }, axis
+        );
     }
 GBL_TEST_CASE_END
 
@@ -1497,21 +1491,21 @@ GBL_TEST_CASE(scale)
     GBL_TEST_VERIFY(compare_glm(shzScaleRes, glmScaleRes));
 
     {
-        shz::mat4x4 xmtrx;
-        volatile shz::vec3 axis = { 1.0f, 2.0f, 3.0f };
+        mat4 xmtrx;
+        shz_glm_vec3 axis = { .shz = {1.0f, 2.0f, 3.0f} };
 
         (benchmark_cmp<void>)(
-            "shz::xmtrx::scale", [](shz::vec3 axis)  { shz::xmtrx::scale(axis); },
-            "glm_scale",         [&](shz::vec3 axis) { glm_scale(*reinterpret_cast<mat4*>(&xmtrx),
-                                                                 *reinterpret_cast<vec3*>(axis.e));
-                                                                }, axis
+            "shz::xmtrx::scale", [](shz_glm_vec3 axis)  { shz::xmtrx::scale(axis.shz); },
+            "glm_scale",        [&](shz_glm_vec3 axis) {
+                                        glm_scale(xmtrx, axis.glm);
+                                }, axis
         );
 
 #if SHZ_BACKEND == SHZ_SH4
         (benchmark_cmp<void>)(
             "shz::xmtrx::scale", [](shz::vec3 axis) { shz::xmtrx::scale(axis); },
             "mat_scale",         [](shz::vec3 axis) { mat_scale(axis.x, axis.y, axis.z);
-                                                    }, axis
+                                                    }, axis.shz
         );
 #endif
     }
@@ -1946,18 +1940,17 @@ GBL_TEST_CASE(transform_vec4)
     }
 
     {
-        volatile shz::mat4x4 xmtrx;
-        volatile shz::vec4 axis = { 1.0f, 2.0f, 3.0f, 4.0f };
+        volatile mat4 xmtrx;
+        shz_glm_vec4 axis = { .shz = {1.0f, 2.0f, 3.0f, 4.0f} };
 
         (benchmark_cmp<shz::vec4>)(
-            "shz::xmtrx::transform", [](shz::vec4 axis) { return shz::xmtrx::transform(axis); },
-            "glm_mat4_mulv",         [&](shz::vec4 axis) {
-                vec4 dst;
-                glm_mat4_mulv(*reinterpret_cast<mat4*>(const_cast<shz::mat4x4*>(&xmtrx)),
-                              *reinterpret_cast<vec4*>(axis.e), dst);
-                return shz::vec4{dst[0], dst[1], dst[2], dst[3] };
-                                                                }, axis
-                                                            );
+            "shz::xmtrx::transform", [](shz_glm_vec4 axis) { return shz::xmtrx::transform(axis.shz); },
+            "glm_mat4_mulv",         [&](shz_glm_vec4 axis) {
+                shz_glm_vec4 dst;
+                glm_mat4_mulv(*const_cast<mat4*>(&xmtrx), axis.glm, dst.glm);
+                return dst.shz;
+            }, axis
+        );
     }
 GBL_TEST_CASE_END
 

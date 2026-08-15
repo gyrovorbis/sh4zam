@@ -6,6 +6,7 @@
 #include <print>
 #include <chrono>
 #include <sh4zam/shz_sh4zam.hpp>
+#include <cglm/cglm.h>
 
 #include <gimbal/algorithms/gimbal_random.h>
 
@@ -229,5 +230,20 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
 }
 
 #define benchmark_cmp(retType, shzFn, refFn, ...) (benchmark_cmp<retType>)(#shzFn, shzFn, #refFn, refFn __VA_OPT__(,) __VA_ARGS__)
+
+union shz_glm_mat4 {
+    shz::mat4x4 shz;
+    mat4        glm;
+};
+
+union shz_glm_vec3 {
+    shz::vec3 shz;
+    vec3      glm;
+};
+
+union shz_glm_vec4 {
+    shz::vec4 shz;
+    vec4      glm;
+};
 
 #endif

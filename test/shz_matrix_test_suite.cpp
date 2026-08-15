@@ -9,21 +9,6 @@ GBL_TEST_FIXTURE_NONE
 GBL_TEST_INIT_NONE
 GBL_TEST_FINAL_NONE
 
-union shz_glm_mat4 {
-    shz::mat4x4 shz;
-    mat4        glm;
-};
-
-union shz_glm_vec3 {
-    shz::vec3 shz;
-    vec3      glm;
-};
-
-union shz_glm_vec4 {
-    shz::vec4 shz;
-    vec4      glm;
-};
-
 bool operator==(const shz::quat& shz, const versor& glm) {
     return (shz_equalf(shz.x, glm[0]) && shz_equalf(shz.y, glm[1]) && shz_equalf(shz.z, glm[2]) && shz_equalf(shz.w, glm[3]))
         || (shz_equalf(-shz.x, glm[0]) && shz_equalf(-shz.y, glm[1]) && shz_equalf(-shz.z, glm[2]) && shz_equalf(-shz.w, glm[3]));
