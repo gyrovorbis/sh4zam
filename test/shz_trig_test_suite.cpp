@@ -78,6 +78,22 @@ GBL_TEST_CASE(sincos_from_degrees)
     GBL_TEST_CALL(test(-SHZ_F_PI * 3.41f / 45.656f));
 GBL_TEST_CASE_END
 
+SHZ_NO_FAST_MATH
+GBL_TEST_CASE(sinf)
+    GBL_TEST_ERROR(shz::sinf(0.0f), sinf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz::sinf(11.0f), sinf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz::sinf(-2.0f), sinf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_VERIFY(benchmark_cmp(float, shz::sinf, sinf, gblRandUniform(-shz::pi_f, shz::pi_f)));
+GBL_TEST_CASE_END
+
+SHZ_NO_FAST_MATH
+GBL_TEST_CASE(cosf)
+    GBL_TEST_ERROR(shz::cosf(0.0f), cosf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz::cosf(11.0f), cosf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz::cosf(-2.0f), cosf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_VERIFY(benchmark_cmp(float, shz::cosf, cosf, gblRandUniform(-shz::pi_f, shz::pi_f)));
+GBL_TEST_CASE_END
+
 GBL_FP_PRECISE
 GBL_TEST_CASE(atanf)
     GBL_TEST_ERROR(shz_atanf(0.0f), atanf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
@@ -88,7 +104,7 @@ GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
 GBL_TEST_CASE(asinf)
-GBL_TEST_ERROR(shz_asinf(0.0f), asinf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz_asinf(0.0f), asinf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_asinf(11.0f), asinf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_asinf(-2.0f), asinf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_VERIFY(benchmark_cmp(float, shz::asinf, asinf, gblRandUniform(-shz::pi_f, shz::pi_f)));
@@ -314,6 +330,8 @@ GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(sincos_from_radians,
                   sincos_from_degrees,
+                  sinf,
+                  cosf,
                   atanf,
                   asinf,
                   acosf,

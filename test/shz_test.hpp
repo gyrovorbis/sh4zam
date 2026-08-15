@@ -46,7 +46,7 @@ SHZ_FORCE_INLINE void PERF_CNTR_START() {
 
 SHZ_FORCE_INLINE uint64_t PERF_CNTR_STOP() {
     PMCR_CTRL(PERF_CNTR) &= ~PMCR_RUN;
-    return (((uint64_t)PMCTR_HIGH(PERF_CNTR) << 32) | PMCTR_LOW(PERF_CNTR));
+    return (((uint64_t)(PMCTR_HIGH(PERF_CNTR) & 0xfff) << 32) | PMCTR_LOW(PERF_CNTR));
 }
 
 #endif
@@ -63,11 +63,11 @@ template<typename... Args>
 SHZ_NO_INLINE
 std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& function, Args&&... args) noexcept {
     auto inner = [&]<bool CacheFlush>() SHZ_NO_INLINE SHZ_FUNC_ALIGNAS(32) SHZ_NO_UNROLL_LOOPS {
-        uint64_t tmu_sum      = 0;
-        uint64_t sum          = 0;
-        uint64_t prev         = 0;
-        unsigned matches      = 0;
-        int      iterations   = 0;
+        uint64_t tmu_sum    = 0;
+        uint64_t sum        = 0;
+        uint64_t prev       = 0;
+        unsigned matches    = 0;
+        int      iterations = CacheFlush? -1 : 0;
 
 #if SHZ_BACKEND == SHZ_SH4
         SHZ_MEMORY_BARRIER_SOFT();
@@ -75,7 +75,7 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
 #endif
         SHZ_MEMORY_BARRIER_SOFT();
 
-        for(iterations = 0; iterations < BENCHMARK_ITERATION_COUNT; ++iterations) {
+        for(; iterations < BENCHMARK_ITERATION_COUNT; ++iterations) {
             SHZ_MEMORY_BARRIER_SOFT();
 
 #if !defined(SHZ_DISABLE_BENCHMARKS) && (SHZ_BACKEND == SHZ_SH4)
@@ -111,6 +111,8 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
 #if SHZ_BACKEND == SHZ_SH4
             uint64_t perfctr_cnt = PERF_CNTR_STOP();
 #endif
+            // If we're warming up the cache for the first iteration, don't add metrics.
+            if(iterations == -1) continue;
             SHZ_MEMORY_BARRIER_SOFT();
             uint64_t tmu_stop = ns_gettime64();
             SHZ_MEMORY_BARRIER_SOFT();
@@ -123,8 +125,11 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
 #endif
             sum += cnt;
             if(cnt == prev) {
-                if(++matches == BENCHMARK_ITERATION_MATCHES)
+                if(++matches == BENCHMARK_ITERATION_MATCHES) {
+                    // Have to increment ourselves upon early exit.
+                    ++iterations;
                     break;
+                }
             } else {
                 prev = cnt;
                 matches = 0;
@@ -143,8 +148,8 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
               name,
               (CacheFlush)? "UNCACHED" : "CACHED",
               prev,
-              sum       / iterations,
-              tmu_sum   / iterations,
+              sum     / iterations,
+              tmu_sum / iterations,
               iterations);
 #endif
         return (iterations < BENCHMARK_ITERATION_COUNT)? prev : (sum / iterations);

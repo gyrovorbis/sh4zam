@@ -41,6 +41,9 @@
     for maximal gainz, when not debugging.
  */
 
+ //! Used to prepopulate the cache line mapping to the given address, before it is used.
+ #define SHZ_PREFETCH(ptr)  SHZ_PREFETCH_(ptr)
+
 SHZ_DECLS_BEGIN
 
 /*! \name  C stdlib Replacements

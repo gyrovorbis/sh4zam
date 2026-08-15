@@ -147,6 +147,7 @@ Project                                                   | Description
 [QuakeSpasm DC](https://github.com/maximqaxd/quakespasm) | Sega Dreamcast port of QuakeSpasm, with native PVR renderer + SH4ZAM math.
 [Monkey Ball DC](https://www.youtube.com/watch?v=277AUBanFAQ) | Reimplementation of Monkey Ball using GameCube assets from Super Monkey Ball.
 [Elias Daler Experiments](https://www.youtube.com/watch?v=8S58Di7aMEk) | Renowned PS1 homebrew dev uses SH4ZAM for his beautiful DC tech demos.
+[Diddy Kong Racing DC](https://github.com/Bruceleeto/Diddy-Kong-Racing) | Rare's renowned N64 kart racer, ported to the DC. SH4ZAMed to all hell for gainz.
 
 # Conventions
 The following conventions are used throughout the API by default, unless otherwise specified:

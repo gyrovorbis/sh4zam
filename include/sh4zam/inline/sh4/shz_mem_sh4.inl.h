@@ -19,7 +19,7 @@
 #include <assert.h>
 
 #define SHZ_FSCHG()         asm volatile("fschg")
-#define SHZ_PREFETCH(ptr)   asm volatile("pref @%0" : : "r" (ptr))
+#define SHZ_PREFETCH_(ptr)  asm volatile("pref @%0" : : "r" (ptr))
 
 extern void* shz_memcpy128_sh4_  (void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
 extern void* shz_sq_memcpy32_sh4_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
@@ -489,8 +489,8 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
 
         bytes -= copied;
         if(bytes) {
-            d     += copied;
-            s     += copied;
+            d += copied;
+            s += copied;
             shz_memcpy1_sh4_(d, s, bytes);
         }
     }

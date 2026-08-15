@@ -29,8 +29,6 @@ SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_vec3_sh4(const shz_mat4x4_t* ma
 SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_transform_vec4_sh4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {
     shz_vec4_t res;
 
-    SHZ_PREFETCH(mat);
-
     register float vx asm("fr4") = in.x;
     register float vy asm("fr5") = in.y;
     register float vz asm("fr6") = in.z;

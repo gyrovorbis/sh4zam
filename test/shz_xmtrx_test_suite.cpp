@@ -322,6 +322,7 @@ GBL_TEST_CASE_END
 
 
 GBL_TEST_CASE(init_identity)
+    volatile mat4 transform;
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
@@ -329,6 +330,14 @@ GBL_TEST_CASE(init_identity)
                     0.0f, 1.0f, 0.0f, 0.0f,
                     0.0f, 0.0f, 1.0f, 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f}));
+
+        (benchmark_cmp<void>)(
+            "shz::xmtrx::init_identity", shz::xmtrx::init_identity,
+            "glm_mat4_identity",         [&] {
+                glm_mat4_identity(*const_cast<mat4*>(&transform));
+                (void)transform;
+            });
+            transform[0][0] = -16.0f;
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_identity_safe)
@@ -551,7 +560,7 @@ GBL_TEST_CASE(init_outer_product)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_4x4)
-    alignas(32) shz::mat4x4 in;
+    alignas(32) shz::mat4x4 in, xmtrx;
 
     in.init_translation(1.0f, 2.0f, 3.0f);
     shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
@@ -566,10 +575,14 @@ GBL_TEST_CASE(apply_4x4)
                                 }));
 
 #if SHZ_BACKEND == SHZ_SH4
+
     GBL_TEST_VERIFY(
         (benchmark_cmp<void>)(
             "shz::xmtrx::apply", [](shz::mat4x4& m) { shz::xmtrx::apply(m); },
-            "mat_apply",         [](shz::mat4x4& m) { mat_apply((const matrix_t*)&m); },
+            "glm_mat4_mul",      [&](shz::mat4x4& m) { glm_mat4_mul(*reinterpret_cast<mat4*>(&xmtrx),
+                                                                    *reinterpret_cast<mat4*>(&m),
+                                                                    *reinterpret_cast<mat4*>(&xmtrx));
+                                                                },
             in
         )
     );
@@ -872,6 +885,146 @@ GBL_TEST_CASE(apply_translation)
         }
     }
 
+    {
+        mat4 xmtrx = GLM_MAT4_IDENTITY_INIT;
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)(
+                "shz::xmtrx::apply_translation", [](float x, float y, float z) {
+                    shz::xmtrx::apply_translation(x, y, z);
+                },
+                "glm_translate", [&](float x, float y, float z) {
+                    vec3 t = { x, y, z };
+                    glm_translate(xmtrx, t);
+                },
+                100.0f, 200.0f, 300.0f
+            )
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(set_translation)
+    // Set against identity.
+    // Expectation: Same result as init_translation()/a fresh translation matrix.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::set_translation(10.0f, -20.0f, 30.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    { 1.0f, 0.0f, 0.0f, 10.0f,
+                      0.0f, 1.0f, 0.0f, -20.0f,
+                      0.0f, 0.0f, 1.0f, 30.0f,
+                      0.0f, 0.0f, 0.0f, 1.0f }));
+    }
+
+    // Set against pre-filled matrix.
+    // Expectation: ONLY the translation column (XF12/13/14) is overwritten;
+    // everything else--including the bottom-right w component--is left untouched.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_fill(32.0f);
+        shz::xmtrx::set_translation(20.0f, -100.0f, -60.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        32.0f, 32.0f, 32.0f, 20.0f,
+                        32.0f, 32.0f, 32.0f, -100.0f,
+                        32.0f, 32.0f, 32.0f, -60.0f,
+                        32.0f, 32.0f, 32.0f, 32.0f
+                    }));
+    }
+
+    // Test overwrite (NOT composition) semantics.
+    // Expectation: The second call fully replaces the first, unlike apply_translation().
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity_safe();
+
+        shz::xmtrx::set_translation(2.0f, 3.0f, -4.0f);
+        shz::xmtrx::set_translation(5.0f, 6.0f, 7.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        1.0f, 0.0f, 0.0f, 5.0f,
+                        0.0f, 1.0f, 0.0f, 6.0f,
+                        0.0f, 0.0f, 1.0f, 7.0f,
+                        0.0f, 0.0f, 0.0f, 1.0f
+                    }));
+    }
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)(
+            "shz::xmtrx::set_translation", [](float x, float y, float z) {
+                shz::xmtrx::set_translation(x, y, z);
+            },
+            "glm direct column write", [](float x, float y, float z) {
+                static volatile mat4 m = GLM_MAT4_IDENTITY_INIT;
+                m[3][0] = x;
+                m[3][1] = y;
+                m[3][2] = z;
+                (void)m;
+            },
+            100.0f, 200.0f, 300.0f
+        )
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(get_translation)
+    // Extract from a fresh translation matrix.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::set_translation(10.0f, -20.0f, 30.0f);
+
+        GBL_TEST_VERIFY(shz::xmtrx::get_translation() == shz::vec3(10.0f, -20.0f, 30.0f));
+    }
+
+    // Extract from an arbitrary, fully-populated matrix.
+    // Expectation: Only the translation column is read back; rotation/scale/w are ignored.
+    {
+        randomize_xmtrx_();
+        alignas(32) shz_mat4x4_t mat4 = {
+            .left    = { -1.0f,   2.0f,  3.0f,  8.0f },
+            .up      = {  4.0f,  -5.0f,  6.0f,  7.0f },
+            .forward = {  7.0f,   8.0f,  9.0f, 10.0f },
+            .pos     = { 11.0f, -12.0f, 13.0f, 14.0f }
+        };
+        shz::xmtrx::load(mat4);
+
+        GBL_TEST_VERIFY(shz::xmtrx::get_translation() == shz::vec3(11.0f, -12.0f, 13.0f));
+    }
+
+    // Extract from a matrix with a zero/negative translation.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity_safe();
+        shz::xmtrx::set_translation(0.0f, -0.0f, -5.0f);
+
+        GBL_TEST_VERIFY(shz::xmtrx::get_translation() == shz::vec3(0.0f, 0.0f, -5.0f));
+    }
+
+    {
+        ::mat4 glmMat = GLM_MAT4_IDENTITY_INIT;
+        glmMat[3][0] = 100.0f;
+        glmMat[3][1] = -200.0f;
+        glmMat[3][2] = 300.0f;
+        shz::xmtrx::load(reinterpret_cast<const float*>(glmMat));
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<shz::vec3>)(
+                "shz::xmtrx::get_translation", [] { return shz::xmtrx::get_translation(); },
+                "glm_vec3(mat[3])",            [&] {
+                    union {
+                        shz::vec3 shz;
+                        vec3      glm;
+                    } v3;
+                    glm_vec3(glmMat[3], v3.glm);
+                    return v3.shz;
+                }
+            )
+        );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_scale)
@@ -1305,6 +1458,16 @@ GBL_TEST_CASE(translate)
         )
     );
 #endif
+{
+    shz::mat4x4 xmtrx;
+    volatile shz::vec3 axis = { 1.0f, 2.0f, 3.0f };
+        (benchmark_cmp<void>)(
+            "shz::xmtrx::translate", [](shz::vec3 axis) { shz::xmtrx::scale(axis); },
+            "glm_translate",         [&](shz::vec3 axis) { glm_translate(*reinterpret_cast<mat4*>(&xmtrx),
+                                                                      *reinterpret_cast<vec3*>(axis.e));
+                                                                }, axis
+                                                            );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(scale)
@@ -1333,6 +1496,26 @@ GBL_TEST_CASE(scale)
 
     GBL_TEST_VERIFY(compare_glm(shzScaleRes, glmScaleRes));
 
+    {
+        shz::mat4x4 xmtrx;
+        volatile shz::vec3 axis = { 1.0f, 2.0f, 3.0f };
+
+        (benchmark_cmp<void>)(
+            "shz::xmtrx::scale", [](shz::vec3 axis)  { shz::xmtrx::scale(axis); },
+            "glm_scale",         [&](shz::vec3 axis) { glm_scale(*reinterpret_cast<mat4*>(&xmtrx),
+                                                                 *reinterpret_cast<vec3*>(axis.e));
+                                                                }, axis
+        );
+
+#if SHZ_BACKEND == SHZ_SH4
+        (benchmark_cmp<void>)(
+            "shz::xmtrx::scale", [](shz::vec3 axis) { shz::xmtrx::scale(axis); },
+            "mat_scale",         [](shz::vec3 axis) { mat_scale(axis.x, axis.y, axis.z);
+                                                    }, axis
+        );
+#endif
+    }
+
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_x)
@@ -1358,6 +1541,17 @@ GBL_TEST_CASE(rotate_x)
     glm_rotate_x(glmRotRes, rotation_factor, glmRotRes);
 
     GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
+{
+    shz::mat4x4 xmtrx;
+    volatile float angle = shz::pi_f;
+    volatile shz::vec3 axis = { 1.0f, 2.0f, 3.0f };
+        (benchmark_cmp<void>)(
+            "shz::xmtrx::rotate", [](float angle, shz::vec3 axis) { shz::xmtrx::rotate(angle, axis.x, axis.y, axis.z); },
+            "glm_rotate",         [&](float angle, shz::vec3 axis) { glm_rotate(*reinterpret_cast<mat4*>(&xmtrx),
+                                                                      angle, *reinterpret_cast<vec3*>(axis.e));
+                                                                }, angle, axis
+                                                            );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_y)
@@ -1750,6 +1944,21 @@ GBL_TEST_CASE(transform_vec4)
         dist = vout.distance(vdest.shz);
         GBL_TEST_VERIFY(dist <= 0.001f);
     }
+
+    {
+        volatile shz::mat4x4 xmtrx;
+        volatile shz::vec4 axis = { 1.0f, 2.0f, 3.0f, 4.0f };
+
+        (benchmark_cmp<shz::vec4>)(
+            "shz::xmtrx::transform", [](shz::vec4 axis) __attribute__((always_inline)) { return shz::xmtrx::transform(axis); },
+            "glm_mat4_mulv",         [&](shz::vec4 axis) {
+                vec4 dst;
+                glm_mat4_mulv(*reinterpret_cast<mat4*>(const_cast<shz::mat4x4*>(&xmtrx)),
+                              *reinterpret_cast<vec4*>(axis.e), dst);
+                return shz::vec4{dst[0], dst[1], dst[2], dst[3] };
+                                                                }, axis
+                                                            );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(transform_vec3)
@@ -1863,6 +2072,8 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_reverse_transpose_4x4,
                   apply_reverse_transpose_unaligned_4x4,
                   apply_translation,
+                  get_translation,
+                  set_translation,
                   apply_scale,
                   apply_rotation_x,
                   apply_rotation_y,

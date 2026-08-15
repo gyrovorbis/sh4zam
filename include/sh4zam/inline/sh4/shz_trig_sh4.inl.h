@@ -32,7 +32,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16_sh4(uint16_t radians16) SHZ_NOEXCEPT
         : "fpul", "fr8", "fr9");
 #endif
 
-    return (shz_sincos_t){ rsin, rcos };
+    return SHZ_INIT(shz_sincos_t, rsin, rcos);
 }
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_sh4(float radians) SHZ_NOEXCEPT {
@@ -52,7 +52,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_sh4(float radians) SHZ_NOEXCEPT {
     : "f" (r)
     : "fpul", "fr8", "fr9");
 
-    return (shz_sincos_t){ rsin, rcos };
+    return SHZ_INIT(shz_sincos_t, rsin, rcos);
 #endif
 }
 
@@ -73,7 +73,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg_sh4(float degrees) SHZ_NOEXCEPT {
      : "f" (d)
      : "fpul", "fr8", "fr9");
 
-    return (shz_sincos_t){ rsin, rcos };
+    return SHZ_INIT(shz_sincos_t, rsin, rcos);
 #endif
 }
 //! \endcond
