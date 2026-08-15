@@ -1950,7 +1950,7 @@ GBL_TEST_CASE(transform_vec4)
         volatile shz::vec4 axis = { 1.0f, 2.0f, 3.0f, 4.0f };
 
         (benchmark_cmp<shz::vec4>)(
-            "shz::xmtrx::transform", [](shz::vec4 axis) __attribute__((always_inline)) { return shz::xmtrx::transform(axis); },
+            "shz::xmtrx::transform", [](shz::vec4 axis) { return shz::xmtrx::transform(axis); },
             "glm_mat4_mulv",         [&](shz::vec4 axis) {
                 vec4 dst;
                 glm_mat4_mulv(*reinterpret_cast<mat4*>(const_cast<shz::mat4x4*>(&xmtrx)),

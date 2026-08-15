@@ -14,6 +14,8 @@
 #define SHZ_MATRIX_SH4_INL_H
 
 SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_vec3_sh4(const shz_mat4x4_t* mat, shz_vec3_t v) SHZ_NOEXCEPT {
+    SHZ_PREFETCH(mat->elem2D[2]);
+
     return shz_vec3_dot3(v,
                          shz_vec3_init(mat->elem2D[0][0],
                                        mat->elem2D[1][0],
