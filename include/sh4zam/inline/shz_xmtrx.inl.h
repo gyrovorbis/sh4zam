@@ -107,10 +107,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_load_aligned4_4x4(const float matrix[16]) SHZ_NO
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_load_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
     if(!((uintptr_t)matrix & 7))
         shz_xmtrx_load_4x4((const shz_mat4x4_t*)matrix);
     else
         shz_xmtrx_load_aligned4_4x4(matrix);
+#else
+    shz_xmtrx_load_aligned4_4x4(matrix);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_load_cols_4x4(const shz_vec4_t* c1,
@@ -143,9 +147,12 @@ SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_4x4(const shz_mat4x4_t* matrix) S
 #endif
 }
 
-// Just straight up forward it, as shz_xmtrx_load_transpose_4x4() never required alignment anyway.
 SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_load_transpose_4x4((const shz_mat4x4_t*)matrix);
+#else
+    shz_xmtrx_load_transpose_unaligned_4x4_sw(matrix);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_load_3x4(const shz_mat3x4_t* mat) SHZ_NOEXCEPT {
@@ -219,10 +226,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_store_aligned4_4x4(float matrix[16]) SHZ_NOEXCEP
 }
 
 SHZ_INLINE void shz_xmtrx_store_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
     if(!((uintptr_t)matrix & 7))
         shz_xmtrx_store_4x4((shz_mat4x4_t*)matrix);
     else
         shz_xmtrx_store_aligned4_4x4(matrix);
+#else
+    shz_xmtrx_store_aligned4_4x4(matrix);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_store_transpose_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
@@ -233,9 +244,12 @@ SHZ_FORCE_INLINE void shz_xmtrx_store_transpose_4x4(shz_mat4x4_t* matrix) SHZ_NO
 #endif
 }
 
-// Just forward it directly to shz_xmtrx_store_transpose_4x4(), which never even required over-alignment...
 SHZ_FORCE_INLINE void shz_xmtrx_store_transpose_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_store_transpose_4x4((shz_mat4x4_t*)matrix);
+#else
+    shz_xmtrx_store_transpose_unaligned_4x4_sw(matrix);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_store_3x4(shz_mat3x4_t* mat) SHZ_NOEXCEPT {
@@ -472,10 +486,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_aligned4_4x4(const float matrix[16]) SHZ_N
 }
 
 SHZ_INLINE void shz_xmtrx_apply_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
     if(!((uintptr_t)matrix & 0x7))
         shz_xmtrx_apply_4x4((const shz_mat4x4_t*)matrix);
     else
         shz_xmtrx_apply_aligned4_4x4(matrix);
+#else
+    shz_xmtrx_apply_aligned4_4x4(matrix);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_transpose_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
@@ -487,7 +505,11 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_transpose_4x4(const shz_mat4x4_t* matrix) 
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_transpose_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_apply_transpose_4x4((const shz_mat4x4_t*)matrix);
+#else
+    shz_xmtrx_apply_transpose_unaligned_4x4_sw(matrix);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
@@ -507,10 +529,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_aligned4_4x4(const float matrix[16
 }
 
 SHZ_INLINE void shz_xmtrx_apply_reverse_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
     if(!((uintptr_t)matrix & 0x7))
         shz_xmtrx_apply_reverse_4x4((const shz_mat4x4_t*)matrix);
     else
         shz_xmtrx_apply_reverse_aligned4_4x4(matrix);
+#else
+    shz_xmtrx_apply_reverse_aligned4_4x4(matrix);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_transpose_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
@@ -522,7 +548,11 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_transpose_4x4(const shz_mat4x4_t* 
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_transpose_unaligned_4x4(const float matrix[16]) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_apply_reverse_transpose_4x4((const shz_mat4x4_t*)matrix);
+#else
+    shz_xmtrx_apply_reverse_transpose_aligned4_4x4_sw(matrix);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_3x4(const shz_mat3x4_t* mat) SHZ_NOEXCEPT {
@@ -806,6 +836,24 @@ SHZ_INLINE void shz_xmtrx_rotate(float angle, float x, float y, float z) SHZ_NOE
     shz_xmtrx_rotate_sh4(angle, x, y, z);
 #else
     shz_xmtrx_rotate_sw(angle, x, y, z);
+#endif
+}
+
+/* ========== Reverse GL Transformations ========== */
+
+SHZ_FORCE_INLINE void shz_xmtrx_translate_reverse(float x, float y, float z) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_translate_reverse_sh4(x, y, z);
+#else
+    shz_xmtrx_translate_reverse_sw(x, y, z);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_scale_reverse(float x, float y, float z) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_scale_reverse_sh4(x, y, z);
+#else
+    shz_xmtrx_scale_reverse_sw(x, y, z);
 #endif
 }
 

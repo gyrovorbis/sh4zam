@@ -117,6 +117,31 @@ static inline void shz_xmtrx_rmul4x4_cols_(const shz_vec4_t* a) {
     xmtrx_state_->col[3] = r3;
 }
 
+/* state = A * state (reverse multiply: load A from a raw float array, transform
+   each column of old state). See shz_xmtrx_rmul4x4_cols_(). */
+static inline void shz_xmtrx_rmul4x4_colsf_(const float b[16]) {
+    shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
+    shz_vec4_t old[4];
+    old[0] = xmtrx_state_->col[0];
+    old[1] = xmtrx_state_->col[1];
+    old[2] = xmtrx_state_->col[2];
+    old[3] = xmtrx_state_->col[3];
+
+    xmtrx_state_->col[0] = shz_vec4_init(b[ 0], b[ 1], b[ 2], b[ 3]);
+    xmtrx_state_->col[1] = shz_vec4_init(b[ 4], b[ 5], b[ 6], b[ 7]);
+    xmtrx_state_->col[2] = shz_vec4_init(b[ 8], b[ 9], b[10], b[11]);
+    xmtrx_state_->col[3] = shz_vec4_init(b[12], b[13], b[14], b[15]);
+
+    shz_vec4_t r0 = shz_xmtrx_ftrv_(old[0]);
+    shz_vec4_t r1 = shz_xmtrx_ftrv_(old[1]);
+    shz_vec4_t r2 = shz_xmtrx_ftrv_(old[2]);
+    shz_vec4_t r3 = shz_xmtrx_ftrv_(old[3]);
+    xmtrx_state_->col[0] = r0;
+    xmtrx_state_->col[1] = r1;
+    xmtrx_state_->col[2] = r2;
+    xmtrx_state_->col[3] = r3;
+}
+
 /* ========== Accessors ========== */
 
 SHZ_FORCE_INLINE float shz_xmtrx_read_sw(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT {
@@ -231,7 +256,11 @@ SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_4x4_sw(const shz_mat4x4_t* matrix
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_unaligned_4x4_sw(const float matrix[16]) SHZ_NOEXCEPT {
-    shz_xmtrx_load_transpose_4x4_sw((const shz_mat4x4_t*)matrix);
+    shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
+    xmtrx_state_->col[0] = shz_vec4_init(matrix[0], matrix[4], matrix[ 8], matrix[12]);
+    xmtrx_state_->col[1] = shz_vec4_init(matrix[1], matrix[5], matrix[ 9], matrix[13]);
+    xmtrx_state_->col[2] = shz_vec4_init(matrix[2], matrix[6], matrix[10], matrix[14]);
+    xmtrx_state_->col[3] = shz_vec4_init(matrix[3], matrix[7], matrix[11], matrix[15]);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_load_3x4_sw(const shz_mat3x4_t* mat) SHZ_NOEXCEPT {
@@ -314,7 +343,11 @@ SHZ_FORCE_INLINE void shz_xmtrx_store_transpose_4x4_sw(shz_mat4x4_t* matrix) SHZ
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_store_transpose_unaligned_4x4_sw(float matrix[16]) SHZ_NOEXCEPT {
-    shz_xmtrx_store_transpose_4x4_sw((shz_mat4x4_t*)matrix);
+    const shz_vec4_t* s = shz_xmtrx_state_()->col;
+    matrix[ 0] = s[0].x; matrix[ 1] = s[1].x; matrix[ 2] = s[2].x; matrix[ 3] = s[3].x;
+    matrix[ 4] = s[0].y; matrix[ 5] = s[1].y; matrix[ 6] = s[2].y; matrix[ 7] = s[3].y;
+    matrix[ 8] = s[0].z; matrix[ 9] = s[1].z; matrix[10] = s[2].z; matrix[11] = s[3].z;
+    matrix[12] = s[0].w; matrix[13] = s[1].w; matrix[14] = s[2].w; matrix[15] = s[3].w;
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_store_3x4_sw(shz_mat3x4_t* mat) SHZ_NOEXCEPT {
@@ -538,12 +571,21 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_transpose_4x4_sw(const shz_mat4x4_t* matri
     shz_xmtrx_mul4x4_cols_(transposed);
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_apply_transpose_unaligned_4x4_sw(const float matrix[16]) SHZ_NOEXCEPT {
+    shz_vec4_t transposed[4];
+    transposed[0] = shz_vec4_init(matrix[0], matrix[4], matrix[ 8], matrix[12]);
+    transposed[1] = shz_vec4_init(matrix[1], matrix[5], matrix[ 9], matrix[13]);
+    transposed[2] = shz_vec4_init(matrix[2], matrix[6], matrix[10], matrix[14]);
+    transposed[3] = shz_vec4_init(matrix[3], matrix[7], matrix[11], matrix[15]);
+    shz_xmtrx_mul4x4_cols_(transposed);
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_4x4_sw(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     shz_xmtrx_rmul4x4_cols_(SHZ_XMTRX_COLS_(matrix));
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_aligned4_4x4_sw(const float matrix[16]) SHZ_NOEXCEPT {
-    shz_xmtrx_apply_reverse_4x4_sw((const shz_mat4x4_t*)matrix);
+    shz_xmtrx_rmul4x4_colsf_(matrix);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_transpose_4x4_sw(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
@@ -557,7 +599,12 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_transpose_4x4_sw(const shz_mat4x4_
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_transpose_aligned4_4x4_sw(const float matrix[16]) SHZ_NOEXCEPT {
-    shz_xmtrx_apply_reverse_transpose_4x4_sw((const shz_mat4x4_t*)matrix);
+    shz_vec4_t transposed[4];
+    transposed[0] = shz_vec4_init(matrix[0], matrix[4], matrix[ 8], matrix[12]);
+    transposed[1] = shz_vec4_init(matrix[1], matrix[5], matrix[ 9], matrix[13]);
+    transposed[2] = shz_vec4_init(matrix[2], matrix[6], matrix[10], matrix[14]);
+    transposed[3] = shz_vec4_init(matrix[3], matrix[7], matrix[11], matrix[15]);
+    shz_xmtrx_rmul4x4_cols_(transposed);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_3x4_sw(const shz_mat3x4_t* mat) SHZ_NOEXCEPT {
@@ -928,6 +975,26 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_sw(float angle, float x, float y, float z
     shz_xmtrx_mul4x4_cols_(rot);
 }
 
+/* ========== Reverse GL-style API ========== */
+
+SHZ_FORCE_INLINE void shz_xmtrx_translate_reverse_sw(float x, float y, float z) SHZ_NOEXCEPT {
+    shz_vec4_t t[4];
+    t[0] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
+    t[1] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
+    t[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
+    t[3] = shz_vec4_init(x,    y,    z,    1.0f);
+    shz_xmtrx_rmul4x4_cols_(t);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_scale_reverse_sw(float x, float y, float z) SHZ_NOEXCEPT {
+    shz_vec4_t s[4];
+    s[0] = shz_vec4_init(x,    0.0f, 0.0f, 0.0f);
+    s[1] = shz_vec4_init(0.0f, y,    0.0f, 0.0f);
+    s[2] = shz_vec4_init(0.0f, 0.0f, z,    0.0f);
+    s[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+    shz_xmtrx_rmul4x4_cols_(s);
+}
+
 /* ========== Compound Operations ========== */
 
 SHZ_FORCE_INLINE void shz_xmtrx_load_apply_4x4_sw(const shz_mat4x4_t* matrix1,
@@ -954,7 +1021,15 @@ SHZ_INLINE void shz_xmtrx_apply_store_4x4_sw(shz_mat4x4_t* out,
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_store_aligned4_4x4_sw(float out[16], const float in[16]) SHZ_NOEXCEPT {
-    shz_xmtrx_apply_store_4x4_sw((shz_mat4x4_t*)out, (const shz_mat4x4_t*)in);
+    shz_vec4_t r0 = shz_xmtrx_ftrv_(shz_vec4_init(in[ 0], in[ 1], in[ 2], in[ 3]));
+    shz_vec4_t r1 = shz_xmtrx_ftrv_(shz_vec4_init(in[ 4], in[ 5], in[ 6], in[ 7]));
+    shz_vec4_t r2 = shz_xmtrx_ftrv_(shz_vec4_init(in[ 8], in[ 9], in[10], in[11]));
+    shz_vec4_t r3 = shz_xmtrx_ftrv_(shz_vec4_init(in[12], in[13], in[14], in[15]));
+
+    out[ 0] = r0.x; out[ 1] = r0.y; out[ 2] = r0.z; out[ 3] = r0.w;
+    out[ 4] = r1.x; out[ 5] = r1.y; out[ 6] = r1.z; out[ 7] = r1.w;
+    out[ 8] = r2.x; out[ 9] = r2.y; out[10] = r2.z; out[11] = r2.w;
+    out[12] = r3.x; out[13] = r3.y; out[14] = r3.z; out[15] = r3.w;
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_load_apply_store_unaligned_4x4_sw(float out[16],

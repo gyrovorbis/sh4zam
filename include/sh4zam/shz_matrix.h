@@ -583,6 +583,25 @@ SHZ_INLINE void shz_mat4x4_rotate(shz_mat4x4_t* mat, float radians, float xAxis,
 
 //!@}
 
+/*! \name  Reverse GL Transformations
+    \brief Pre-multiplication variants of OpenGL-style 4x4 matrix transforms.
+    @{
+*/
+
+/*! Pre-multiplies and accumulates the given matrix onto the 3D translation matrix with the given components.
+
+    \warning This routin clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_translate_reverse(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+
+/*! Pre-multiplies and accumulates the given matrix onto the 3D scaling matrix with the given components.
+
+    \warning This routine clobbers XMTRX
+*/
+SHZ_INLINE void shz_mat4x4_scale_reverse(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+
+//! @}
+
 /*! \name  Transforming
     \brief Routines for transforming vectors and points by a matrix.
     @{

@@ -351,10 +351,20 @@ SHZ_INLINE void shz_mat4x4_translate(shz_mat4x4_t* mat, float x, float y, float 
     shz_xmtrx_store_4x4(mat);
 }
 
+SHZ_INLINE void shz_mat4x4_translate_reverse(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
+    shz_xmtrx_init_translation(x, y, z);
+    shz_xmtrx_apply_store_4x4(mat, mat);
+}
+
 SHZ_INLINE void shz_mat4x4_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(mat);
     shz_xmtrx_scale(x, y, z);
     shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_scale_reverse(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
+    shz_xmtrx_init_scale(x, y, z);
+    shz_xmtrx_apply_store_4x4(mat, mat);
 }
 
 SHZ_INLINE void shz_mat4x4_rotate_x(shz_mat4x4_t* mat, float radians) SHZ_NOEXCEPT {

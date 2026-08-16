@@ -1702,6 +1702,76 @@ SHZ_INLINE void shz_xmtrx_apply_transpose_4x4_sh4(const shz_mat4x4_t* matrix) SH
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
+SHZ_INLINE void shz_xmtrx_translate_reverse_sh4(float x, float y, float z) SHZ_NOEXCEPT {
+    register float fr12 asm("fr12") = x;
+    register float fr13 asm("fr13") = y;
+    register float fr14 asm("fr14") = z;
+    uintptr_t zero;
+
+    asm volatile(R"(
+        mov     #0, %[z]
+        fldi0   fr1
+        lds     %[z], fpul
+        fldi1   fr0
+        float   fpul, fr2
+        fldi1   fr5
+        float   fpul, fr3
+        fldi0   fr4
+        float   fpul, fr7
+        fldi1   fr15
+        float   fpul, fr8
+        fldi0   fr9
+        float   fpul, fr6
+        fldi1   fr10
+        float   fpul, fr11
+        frchg
+        ftrv    xmtrx, fv0
+        ftrv    xmtrx, fv4
+        ftrv    xmtrx, fv8
+        ftrv    xmtrx, fv12
+        frchg
+    )"
+    : [z] "=r" (zero)
+    : "f" (fr12), "f" (fr13), "f" (fr14)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr15", "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_scale_reverse_sh4(float x, float y, float z) SHZ_NOEXCEPT {
+    register float fr0  asm("fr0")  = x;
+    register float fr5  asm("fr5")  = y;
+    register float fr10 asm("fr10") = z;
+    uintptr_t zero;
+
+    asm volatile(R"(
+        mov     #0, %[z]
+        fldi0   fr1
+        lds     %[z], fpul
+        float   fpul, fr2
+        fldi0   fr3
+        float   fpul, fr4
+        fldi0   fr6
+        float   fpul, fr7
+        fldi0   fr8
+        float   fpul, fr9
+        fldi0   fr11
+        float   fpul, fr12
+        fldi0   fr13
+        float   fpul, fr14
+        fldi1   fr15
+        frchg
+        ftrv    xmtrx, fv0
+        ftrv    xmtrx, fv4
+        ftrv    xmtrx, fv8
+        ftrv    xmtrx, fv12
+        frchg
+    )"
+    : [z] "=r" (zero)
+    : "f" (fr0), "f" (fr5), "f" (fr10)
+    : "fr1", "fr2", "fr3", "fr4", "fr6", "fr7",
+      "fr8", "fr9", "fr11", "fr12", "fr13", "fr14", "fr15", "fpul");
+}
+
 SHZ_INLINE void shz_xmtrx_apply_reverse_4x4_sh4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     uintptr_t scratch;
 

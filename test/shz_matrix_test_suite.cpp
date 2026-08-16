@@ -183,6 +183,84 @@ GBL_TEST_CASE(transform_vec4)
     }
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(translate_reverse)
+    alignas(32) shz_glm_mat4 mat;
+
+    mat.shz.init_identity();
+    mat.shz.apply_scale(2.0f, 3.0f, 4.0f);
+
+    shz_glm_mat4 before;
+    before.shz = mat.shz;
+
+    mat.shz.translate_reverse(10.0f, -20.0f, 30.0f);
+
+    // Expectation: mat = T(x,y,z) * mat_old--i.e. the pre-existing scale must
+    // NOT affect the newly-applied translation column, unlike translate().
+    shz_glm_mat4 expected;
+    {
+        mat4 t;
+        vec3 tv = { 10.0f, -20.0f, 30.0f };
+        glm_translate_make(t, tv);
+        glm_mat4_mul(t, before.glm, expected.glm);
+    }
+
+    GBL_TEST_VERIFY(mat.shz == expected.shz);
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)("shz::mat4x4::translate_reverse",
+                              [](shz_glm_mat4& m, float x, float y, float z) {
+                                  m.shz.translate_reverse(x, y, z);
+                              },
+                              "glm translate_reverse",
+                              [](shz_glm_mat4& m, float x, float y, float z) {
+                                  mat4 t;
+                                  vec3 v = { x, y, z };
+                                  glm_translate_make(t, v);
+                                  glm_mat4_mul(t, m.glm, m.glm);
+                              },
+                              mat, 100.0f, 200.0f, 300.0f)
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(scale_reverse)
+    alignas(32) shz_glm_mat4 mat;
+
+    mat.shz.init_identity();
+    mat.shz.apply_translation(1.0f, 2.0f, 3.0f);
+
+    shz_glm_mat4 before;
+    before.shz = mat.shz;
+
+    mat.shz.scale_reverse(2.0f, 3.0f, 4.0f);
+
+    // Expectation: mat = S(x,y,z) * mat_old--i.e. the pre-existing translation
+    // column DOES get scaled, unlike scale(), which leaves it untouched.
+    shz_glm_mat4 expected;
+    {
+        mat4 s;
+        vec3 sv = { 2.0f, 3.0f, 4.0f };
+        glm_scale_make(s, sv);
+        glm_mat4_mul(s, before.glm, expected.glm);
+    }
+
+    GBL_TEST_VERIFY(mat.shz == expected.shz);
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)("shz::mat4x4::scale_reverse",
+                              [](shz_glm_mat4& m, float x, float y, float z) {
+                                  m.shz.scale_reverse(x, y, z);
+                              },
+                              "glm scale_reverse",
+                              [](shz_glm_mat4& m, float x, float y, float z) {
+                                  mat4 s;
+                                  vec3 v = { x, y, z };
+                                  glm_scale_make(s, v);
+                                  glm_mat4_mul(s, m.glm, m.glm);
+                              },
+                              mat, 2.0f, 3.0f, 4.0f)
+    );
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(to_quat)
     auto test = [](shz_glm_mat4& mat) {
         shz::quat shzQuat = mat.shz.to_quat();
@@ -224,4 +302,6 @@ GBL_TEST_REGISTER(copy,
                   inverse,
                   transform_vec3,
                   transform_vec4,
+                  translate_reverse,
+                  scale_reverse,
                   to_quat)

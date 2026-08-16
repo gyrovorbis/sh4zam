@@ -1508,6 +1508,142 @@ GBL_TEST_CASE(translate)
     }
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(translate_reverse)
+    // Against identity.
+    // Expectation: Order doesn't matter against identity, so this matches translate().
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity();
+        shz::xmtrx::translate_reverse(10.0f, -20.0f, 30.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    { 1.0f, 0.0f, 0.0f, 10.0f,
+                      0.0f, 1.0f, 0.0f, -20.0f,
+                      0.0f, 0.0f, 1.0f, 30.0f,
+                      0.0f, 0.0f, 0.0f, 1.0f }));
+    }
+
+    // Test pre-multiply (NOT post-multiply) order versus a non-identity matrix.
+    // Expectation: XMTRX = T(x,y,z) * XMTRX_old, so the translation column is
+    // NOT scaled by the existing matrix--unlike translate(), which composes
+    // as XMTRX_old * T and therefore DOES scale it (see the "translate" test case).
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity();
+        shz::xmtrx::scale(2.0f, 2.0f, 2.0f);
+        shz::xmtrx::translate_reverse(1.0f, 2.0f, 3.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        2.0f, 0.0f, 0.0f, 1.0f,
+                        0.0f, 2.0f, 0.0f, 2.0f,
+                        0.0f, 0.0f, 2.0f, 3.0f,
+                        0.0f, 0.0f, 0.0f, 1.0f
+                    }));
+
+        // Cross-check versus cglm doing the pre-multiply by hand.
+        shz::mat4x4 shzRes;
+        shz::xmtrx::store(&shzRes);
+
+        mat4 glmScale, glmTranslate, glmRes;
+        vec3 sc = { 2.0f, 2.0f, 2.0f };
+        vec3 tl = { 1.0f, 2.0f, 3.0f };
+
+        glm_scale_make(glmScale, sc);
+        glm_translate_make(glmTranslate, tl);
+        glm_mat4_mul(glmTranslate, glmScale, glmRes);
+
+        GBL_TEST_VERIFY(compare_glm(shzRes, glmRes));
+    }
+
+    {
+        volatile mat4 xmtrx = GLM_MAT4_IDENTITY_INIT;
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)(
+                "shz::xmtrx::translate_reverse", [](float x, float y, float z) {
+                    shz::xmtrx::translate_reverse(x, y, z);
+                },
+                "glm translate_reverse", [&](float x, float y, float z) {
+                    volatile mat4 t;
+                    volatile vec3 v = { x, y, z };
+                    glm_translate_make(*const_cast<mat4*>(&t), *const_cast<vec3*>(&v));
+                    glm_mat4_mul(*const_cast<mat4*>(&t), *const_cast<mat4*>(&xmtrx), *const_cast<mat4*>(&xmtrx));
+                },
+                100.0f, 200.0f, 300.0f
+            )
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(scale_reverse)
+    // Against identity.
+    // Expectation: Order doesn't matter against identity, so this matches scale().
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity();
+        shz::xmtrx::scale_reverse(-2.0f, -3.0f, -4.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    { -2.0f, 0.0f, 0.0f, 0.0f,
+                      0.0f, -3.0f, 0.0f, 0.0f,
+                      0.0f, 0.0f, -4.0f, 0.0f,
+                      0.0f, 0.0f, 0.0f, 1.0f }));
+    }
+
+    // Test pre-multiply (NOT post-multiply) order versus a non-identity matrix.
+    // Expectation: XMTRX = S(x,y,z) * XMTRX_old, so the EXISTING translation column
+    // gets scaled--unlike scale(), which composes as XMTRX_old * S and therefore
+    // leaves a prior translation untouched (see the "scale" test case).
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity();
+        shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+        shz::xmtrx::scale_reverse(2.0f, 2.0f, 2.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        2.0f, 0.0f, 0.0f, 2.0f,
+                        0.0f, 2.0f, 0.0f, 4.0f,
+                        0.0f, 0.0f, 2.0f, 6.0f,
+                        0.0f, 0.0f, 0.0f, 1.0f
+                    }));
+
+        // Cross-check versus cglm doing the pre-multiply by hand.
+        shz::mat4x4 shzRes;
+        shz::xmtrx::store(&shzRes);
+
+        mat4 glmTranslate, glmScale, glmRes;
+        vec3 tl = { 1.0f, 2.0f, 3.0f };
+        vec3 sc = { 2.0f, 2.0f, 2.0f };
+
+        glm_translate_make(glmTranslate, tl);
+        glm_scale_make(glmScale, sc);
+        glm_mat4_mul(glmScale, glmTranslate, glmRes);
+
+        GBL_TEST_VERIFY(compare_glm(shzRes, glmRes));
+    }
+
+    {
+        volatile mat4 xmtrx = GLM_MAT4_IDENTITY_INIT;
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)(
+                "shz::xmtrx::scale_reverse", [](float x, float y, float z) {
+                    shz::xmtrx::scale_reverse(x, y, z);
+                },
+                "glm scale_reverse", [&](float x, float y, float z) {
+                    volatile mat4 s;
+                    volatile vec3 v = { x, y, z };
+                    glm_scale_make(*const_cast<mat4*>(&s), *const_cast<vec3*>(&v));
+                    glm_mat4_mul(*const_cast<mat4*>(&s), *const_cast<mat4*>(&xmtrx), *const_cast<mat4*>(&xmtrx));
+                },
+                2.0f, 3.0f, 4.0f
+            )
+        );
+    }
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(scale)
     vec3 sc = { 2.0f, 2.0f, 2.0f };
     vec3 tl = { 1.0f, 2.0f, 3.0f };
@@ -2129,7 +2265,9 @@ GBL_TEST_REGISTER(read_write_registers,
                   load_apply_store_4x4,
                   load_apply_store_unaligned_4x4,
                   translate,
+                  translate_reverse,
                   scale,
+                  scale_reverse,
                   rotate_x,
                   rotate_y,
                   rotate_z,

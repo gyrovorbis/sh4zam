@@ -553,6 +553,19 @@ SHZ_INLINE void shz_xmtrx_rotate(float radians, float xAxis, float yAxis, float 
 
 //!@}
 
+/*! \name  Reverse GL Transformations
+    \brief Pre-multiplication variants of OpenGL-style 4x4 matrix transforms.
+    @{
+*/
+
+//! Pre-multiplies and accumulates XMTRX onto the 3D translation matrix with the given components.
+SHZ_INLINE void shz_xmtrx_translate_reverse(float x, float y, float z) SHZ_NOEXCEPT;
+
+//! Pre-multiplies and accumulates XMTRX onto the 3D scaling matrix with the given components.
+SHZ_INLINE void shz_xmtrx_scale_reverse(float x, float y, float z) SHZ_NOEXCEPT;
+
+//!@}
+
 /*! \name  Compound Operations
     \brief Multiple operations combined into one pipelined transaction.
     @{

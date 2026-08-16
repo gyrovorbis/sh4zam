@@ -467,6 +467,45 @@ namespace shz {
 
         //! @}
 
+        /*! \name  Reverse GL Transformations
+            \brief Pre-multiplication variants of OpenGL-style 4x4 matrix transforms.
+            @{
+        */
+
+        /*! Pre-multiplies and accumulates the given matrix onto the 3D translation matrix with the given components.
+
+            \warning This routin clobbers XMTRX.
+        */
+        SHZ_FORCE_INLINE void translate_reverse(float x, float y, float z) noexcept {
+            shz_mat4x4_translate_reverse(this, x, y, z);
+        }
+
+        /*! Pre-multiplies and accumulates the given matrix onto the 3D translation matrix with the given position vector.
+
+            \warning This routin clobbers XMTRX.
+        */
+        SHZ_FORCE_INLINE void translate_reverse(const shz::vec3& pos) noexcept {
+            translate_reverse(pos.x, pos.y, pos.z);
+        }
+
+        /*! Pre-multiplies and accumulates the given matrix onto the 3D scaling matrix with the given components.
+
+            \warning This routine clobbers XMTRX
+        */
+        SHZ_FORCE_INLINE void scale_reverse(float x, float y, float z) noexcept {
+            shz_mat4x4_scale_reverse(this, x, y, z);
+        }
+
+        /*! Pre-multiplies and accumulates the given matrix onto the 3D scaling matrix with the given size vector.
+
+            \warning This routine clobbers XMTRX
+        */
+        SHZ_FORCE_INLINE void scale_reverse(const shz::vec3& size) noexcept {
+            scale_reverse(size.x, size.y, size.z);
+        }
+
+        //! @}
+
         /*! \name  Multiplication
             \brief Routines for multiplying two matrices and storing the result in a third.
             @{

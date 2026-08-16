@@ -643,6 +643,30 @@ struct xmtrx {
         rotate(radians, axis.x, axis.y, axis.z);
     }
 
+/*! \name  Reverse GL Transformations
+    \brief Pre-multiplication variants of OpenGL-style 4x4 matrix transforms.
+    @{
+*/
+    //! Pre-multiplies and accumulates XMTRX onto the 3D translation matrix with the given components.
+    SHZ_FORCE_INLINE static void translate_reverse(float x, float y, float z) noexcept {
+        shz_xmtrx_translate_reverse(x, y, z);
+    }
+
+    //! Pre-multiplies and accumulates XMTRX onto the 3D translation matrix with the given translation vector.
+    SHZ_FORCE_INLINE static void translate_reverse(const shz::vec3& pos) noexcept {
+        translate_reverse(pos.x, pos.y, pos.z);
+    }
+
+    //! Pre-multiplies and accumulatse XMTRX onto the 3D scaling matrix with the given components.
+    SHZ_FORCE_INLINE static void scale_reverse(float x, float y, float z) noexcept {
+        shz_xmtrx_scale_reverse(x, y, z);
+    }
+
+    //! Pre-multiplies and accumulatse XMTRX onto the 3D scaling matrix with the given size vector.
+    SHZ_FORCE_INLINE static void scale_reverse(const shz::vec3& size) noexcept {
+        scale_reverse(size.x, size.y, size.z);
+    }
+
 //! @}
 
 /*! \name  Compound Operations
