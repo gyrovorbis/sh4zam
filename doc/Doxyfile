@@ -2499,7 +2499,8 @@ PREDEFINED             = __attribute__((x))= \
                          SHZ_ALIGNAS(x)= \
                          aligned((x))= \
                          SHZ_FORCE_INLINE= \
-                         SHZ_INLINE= 
+                         SHZ_INLINE= \
+                         SHZ_DEPRECATED(x)= 
                     
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this

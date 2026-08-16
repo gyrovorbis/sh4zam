@@ -135,18 +135,18 @@ Project                                                   | Description
 [FFFFTT](https://github.com/meisei4/fffftt)               | Audio signal visualizations, with SH4ZAM accelerated FFT and more.
 [Sonic Mania DC](https://github.com/michael-fadely/Sonic-Mania-Decompilation) | Sonic Mania DC port with SH4ZAM acceleration.
 [Simulant Engine](https://gitlab.com/simulant/simulant)   | General-purpose cross-platform engine backed by SH4ZAM math.
-[Meese Engine](https://meese4.github.io/)                 | Open-world voxel game built for the GameCube, using the SH4ZAM SW back-end.
+[Meese Engine](https://meese4.github.io/)                 | Open-world voxel game built for the GC, using the SH4ZAM SW back-end.
 [Quake 2 DC](https://github.com/Bruceleeto/Quake2)        | Port of Quake 2 to the DC, with SH4ZAM accelerated matrix math.
 [DCSinge](https://github.com/GPF/DCSinge)                 | Singe API + FMV playback engine on DC using SH4ZAM memory routines.
 [Xash3D DC](https://github.com/maximqaxd/xash3d-fwgs_dc/tree/pvrrender) | SH4ZAM'd up DC port of the Half-Life compatible Xash3D engine.
-[Gael Force](https://mrtheplague1.itch.io/gael-force)     | Tactical RPG featuring 2D sprites in 3D worlds with dynamic lights, using SH4ZAM.
+[Gael Force](https://mrtheplague1.itch.io/gael-force)     | Stylized tactical RPG with sprites, 3D worlds, and dynamic lighting effects.
 [DMS-Engine](https://github.com/Bruceleeto/DMS-Engine)    | Bruceleet's "Dreamcast Mesh Shit" Engine, SH4ZAM'd to hell with skinning.
 [The Cave](https://freakdave.itch.io/dreamcast-the-cave-tech-demo) | FreakDave's SH4ZAM-boosted DC tech demo with impressive lighting and effects.
 [Audio Visualizer](https://www.youtube.com/watch?v=2KR_PtF_33c) | Brielle Garcia's CD Audio Visualizer for Dreamcast, using SH4ZAM math routines.
-[DemoTek](https://youtu.be/GfbITGBcHHY?si=TwwZWQhc9E8sfbyi) | Crash Bandicoot-style 3D platformer, with SH4ZAM'd up scalar math + 3D transforms.
+[DemoTek](https://youtu.be/GfbITGBcHHY?si=TwwZWQhc9E8sfbyi) | Crash Bandicoot-style 3D platformer, with SH4ZAM'd up 3D transform math.
 [QuakeSpasm DC](https://github.com/maximqaxd/quakespasm) | Sega Dreamcast port of QuakeSpasm, with native PVR renderer + SH4ZAM math.
-[Monkey Ball DC](https://www.youtube.com/watch?v=277AUBanFAQ) | Reimplementation of Monkey Ball using GameCube assets from Super Monkey Ball.
-[Elias Daler Experiments](https://www.youtube.com/watch?v=8S58Di7aMEk) | Renowned PS1 homebrew dev uses SH4ZAM for his beautiful DC tech demos.
+[Monkey Ball DC](https://www.youtube.com/watch?v=277AUBanFAQ) | Reimplementation of Monkey Ball using GameCube assets from Super MB.
+[Elias Daler Work](https://www.youtube.com/watch?v=8S58Di7aMEk) | Renowned PS1 homebrew dev uses SH4ZAM for his beautiful DC experiments.
 [Diddy Kong Racing DC](https://github.com/Bruceleeto/Diddy-Kong-Racing) | Rare's renowned N64 kart racer, ported to the DC. SH4ZAMed to all hell for gainz.
 
 # Conventions

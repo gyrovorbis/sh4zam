@@ -1055,7 +1055,7 @@ SHZ_INLINE void shz_xmtrx_init_identity_sh4(void) SHZ_NOEXCEPT {
     uintptr_t zero;
 
     asm volatile(R"(
-    .align 5
+    .align 4
         mov     #0, %[z]
         frchg
         fldi1   fr0
@@ -1974,7 +1974,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation_sh4(void) SHZ_NOEXCEPT {
     shz_vec3_t pos;
 
     asm volatile(R"(
-    .align 5
+    .align 4
         add     #12, %[p]
         frchg
         fmov.s  fr14, @-%[p]
