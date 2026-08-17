@@ -41,14 +41,12 @@ SHZ_FORCE_INLINE float shz_dot6f_sh4(float x1, float y1, float z1,
 }
 
 SHZ_FORCE_INLINE float shz_mag_sqr3f_sh4(float x, float y, float z) SHZ_NOEXCEPT {
-    register float rx asm("fr8")  = x;
-    register float ry asm("fr9")  = y;
-    register float rz asm("fr10") = z;
-    register float rw asm("fr11");
+    register float rx asm("fr4") = x;
+    register float ry asm("fr5") = y;
+    register float rz asm("fr6") = z;
+    register float rw asm("fr7") = 0.0f;
 
-    rw = 0.0f;
-
-    asm("fipr fv8, fv8"
+    asm("fipr fv4, fv4"
         : "+f" (rw)
         : "f" (rx), "f" (ry), "f" (rz));
 

@@ -1053,6 +1053,134 @@ GBL_TEST_CASE(get_translation)
     }
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(set_scale)
+    // Set against identity.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity();
+        shz::xmtrx::set_scale(-2.0f, -3.0f, -4.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    { -2.0f, 0.0f, 0.0f, 0.0f,
+                      0.0f, -3.0f, 0.0f, 0.0f,
+                      0.0f, 0.0f, -4.0f, 0.0f,
+                      0.0f, 0.0f, 0.0f, 1.0f }));
+    }
+
+    // Set against a pre-filled matrix.
+    // Expectation: The ENTIRE upper-left 3x3 block is overwritten with a clean
+    // diagonal--off-diagonal terms are zeroed too, not just the diagonal set.
+    // Only row 3 (w) and the translation column are left untouched.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_fill(32.0f);
+        shz::xmtrx::set_scale(20.0f, -100.0f, -60.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        20.0f, 0.0f, 0.0f, 32.0f,
+                        0.0f, -100.0f, 0.0f, 32.0f,
+                        0.0f, 0.0f, -60.0f, 32.0f,
+                        32.0f, 32.0f, 32.0f, 32.0f
+                    }));
+    }
+
+    // Test overwrite (NOT composition) semantics.
+    // Expectation: The second call fully replaces the first, unlike apply_scale().
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity();
+
+        shz::xmtrx::set_scale(2.0f, 3.0f, -4.0f);
+        shz::xmtrx::set_scale(5.0f, 6.0f, 7.0f);
+
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                    {
+                        5.0f, 0.0f, 0.0f, 0.0f,
+                        0.0f, 6.0f, 0.0f, 0.0f,
+                        0.0f, 0.0f, 7.0f, 0.0f,
+                        0.0f, 0.0f, 0.0f, 1.0f
+                    }));
+    }
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)(
+            "shz::xmtrx::set_scale", [](float x, float y, float z) {
+                shz::xmtrx::set_scale(x, y, z);
+            },
+            "glm direct diagonal write", [](float x, float y, float z) {
+                static volatile mat4 m = GLM_MAT4_IDENTITY_INIT;
+                m[0][0] = x;    m[0][1] = 0.0f; m[0][2] = 0.0f;
+                m[1][0] = 0.0f; m[1][1] = y;    m[1][2] = 0.0f;
+                m[2][0] = 0.0f; m[2][1] = 0.0f; m[2][2] = z;
+                (void)m;
+            },
+            -2.0f, -3.0f, -4.0f
+        )
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(get_scale)
+    // Extract from a fresh, axis-aligned scale.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity();
+        shz::xmtrx::set_scale(10.0f, -20.0f, 30.0f);
+
+        GBL_TEST_VERIFY(shz::xmtrx::get_scale() == shz::vec3(10.0f, 20.0f, 30.0f));
+    }
+
+    // Extract from a matrix with scale composed under a rotation.
+    // Expectation: Per-axis magnitude extraction recovers the correct scale
+    // regardless of rotation, since rotating a column doesn't change its length.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity();
+        shz::xmtrx::apply_rotation_x(shz::deg_to_rad(30.0f));
+        shz::xmtrx::apply_rotation_y(shz::deg_to_rad(60.0f));
+        shz::xmtrx::apply_scale(3.0f, 4.0f, 5.0f);
+
+        shz::mat4x4 mat;
+        shz::xmtrx::store(&mat);
+
+        mat4 glmMat;
+        vec3 glmScale;
+        memcpy(glmMat, &mat, sizeof(glmMat));
+        glm_decompose_scalev(glmMat, glmScale);
+
+        shz::vec3 scale = shz::xmtrx::get_scale();
+        GBL_TEST_VERIFY(shz_equalf(scale.x, glmScale[0]));
+        GBL_TEST_VERIFY(shz_equalf(scale.y, glmScale[1]));
+        GBL_TEST_VERIFY(shz_equalf(scale.z, glmScale[2]));
+    }
+
+    {
+        shz::xmtrx::init_identity();
+        shz::xmtrx::apply_rotation_x(shz::deg_to_rad(30.0f));
+        shz::xmtrx::apply_rotation_y(shz::deg_to_rad(60.0f));
+        shz::xmtrx::apply_scale(3.0f, 4.0f, 5.0f);
+
+        shz::mat4x4 mat;
+        shz::xmtrx::store(&mat);
+
+        alignas(32) volatile mat4 glmMat;
+        memcpy(*const_cast<mat4*>(&glmMat), &mat, sizeof(glmMat));
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<shz::vec3>)(
+                "shz::xmtrx::get_scale", [] {
+                    return shz::xmtrx::get_scale();
+                },
+                "glm_decompose_scalev", [&] {
+                    volatile shz_glm_vec3 s;
+                    glm_decompose_scalev(*const_cast<mat4*>(&glmMat), *const_cast<vec3*>(&s.glm));
+                    return s.shz;
+                }
+            )
+        );
+    }
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(apply_scale)
     // Apply against identity.
     // Expectation: Diagonal scale cells filled in the 3x3 part.
@@ -2247,6 +2375,8 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_translation,
                   get_translation,
                   set_translation,
+                  set_scale,
+                  get_scale,
                   apply_scale,
                   apply_rotation_x,
                   apply_rotation_y,

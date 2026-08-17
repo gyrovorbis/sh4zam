@@ -301,6 +301,13 @@ SHZ_INLINE shz_vec4_t shz_mat4x4_col(const shz_mat4x4_t* mat, size_t col) SHZ_NO
 //! Returns the translational components from the 4th column as a 3D vector.
 SHZ_INLINE shz_vec3_t shz_mat4x4_get_translation(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
+/*! Exracts the 3D scale factors from the given 4x4 matrix.
+
+    \warning This routine assumes \p mat is a standard TRS-style transform matrix,
+             without shearing or reflection.
+*/
+SHZ_INLINE shz_vec3_t shz_mat4x4_get_scale(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
 //! Returns the determinant of the given 4x4 matrix.
 SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 

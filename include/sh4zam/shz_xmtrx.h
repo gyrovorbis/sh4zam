@@ -732,6 +732,9 @@ SHZ_INLINE shz_vec3_t shz_xmtrx_transform_point3(shz_vec3_t pt) SHZ_NOEXCEPT;
 //! Sets only the translational components of XMTRX to the given values.
 SHZ_INLINE void shz_xmtrx_set_translation(float x, float y, float z) SHZ_NOEXCEPT;
 
+//! Sets only the inner 3x3 submatrix of XMTRX to be a scaling matrix.
+SHZ_INLINE void shz_xmtrx_set_scale(float x, float y, float z) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name Getters
@@ -741,6 +744,13 @@ SHZ_INLINE void shz_xmtrx_set_translation(float x, float y, float z) SHZ_NOEXCEP
 
 //! Returns the translational components from the last column of XMTRX, as a 3D vector.
 SHZ_INLINE shz_vec3_t shz_xmtrx_get_translation(void) SHZ_NOEXCEPT;
+
+/*! Returns the scaling components from the inner 3x3 matrix of XMTRX, as a 3D vector.
+
+    \warning This routine assumes XMTRX is a standard TRS-style transform matrix,
+             without shearing or reflection.
+*/
+SHZ_INLINE shz_vec3_t shz_xmtrx_get_scale(void) SHZ_NOEXCEPT;
 
 //! @}
 

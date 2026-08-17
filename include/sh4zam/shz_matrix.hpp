@@ -240,6 +240,15 @@ namespace shz {
             return shz_mat4x4_get_translation(this);
         }
 
+        /*! Returns the scaling components from the inner 3x3 matrix of XMTRX, as a 3D vector.
+
+            \warning This routine assumes XMTRX is a standard TRS-style transform matrix,
+                     without shearing or reflection.
+        */
+        SHZ_FORCE_INLINE vec3 get_scale() const noexcept {
+            return shz_mat4x4_get_scale(this);
+        }
+
         //! @}
 
         /*! \name  Setting

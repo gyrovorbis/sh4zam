@@ -595,11 +595,27 @@ SHZ_FORCE_INLINE void shz_xmtrx_set_translation(float x, float y, float z) SHZ_N
 #endif
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_set_scale(float x, float y, float z) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_set_scale_sh4(x, y, z);
+#else
+    shz_xmtrx_set_scale_sw(x, y, z);
+#endif
+}
+
 SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation(void) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     return shz_xmtrx_get_translation_sh4();
 #else
     return shz_xmtrx_get_translation_sw();
+#endif
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_scale(void) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_xmtrx_get_scale_sh4();
+#else
+    return shz_xmtrx_get_scale_sw();
 #endif
 }
 

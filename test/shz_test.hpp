@@ -112,11 +112,14 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
 #if SHZ_BACKEND == SHZ_SH4
             uint64_t perfctr_cnt = PERF_CNTR_STOP();
 #endif
-            // If we're warming up the cache for the first iteration, don't add metrics.
-            if(iterations == -1) continue;
             SHZ_MEMORY_BARRIER_SOFT();
             uint64_t tmu_stop = ns_gettime64();
             SHZ_MEMORY_BARRIER_SOFT();
+
+            // If we're warming up the cache for the first iteration, don't add metrics.
+            if(iterations == -1)
+                continue;
+
             uint64_t tmu_cnt = tmu_stop - tmu_start;
             tmu_sum         += tmu_cnt;
 #if SHZ_BACKEND == SHZ_SH4

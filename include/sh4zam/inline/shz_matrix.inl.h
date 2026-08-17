@@ -178,10 +178,18 @@ SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_get_translation(const shz_mat4x4_t* mat) 
     return mat->pos.xyz;
 }
 
+SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_get_scale(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_mat4x4_get_scale_sh4(mat);
+#else
+    return shz_mat4x4_get_scale_sw(mat);
+#endif
+}
+
 SHZ_INLINE void shz_mat4x4_set_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
-    mat->elem2D[0][0] = x;
-    mat->elem2D[1][1] = y;
-    mat->elem2D[2][2] = z;
+    mat->elem2D[0][0] = x;    mat->elem2D[0][1] = 0.0f; mat->elem2D[0][2] = 0.0f;
+    mat->elem2D[1][0] = 0.0f; mat->elem2D[1][1] = y;    mat->elem2D[1][2] = 0.0f;
+    mat->elem2D[2][0] = 0.0f; mat->elem2D[2][1] = 0.0f; mat->elem2D[2][2] = z;
 }
 
 SHZ_INLINE void shz_mat4x4_set_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT {

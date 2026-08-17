@@ -759,8 +759,18 @@ struct xmtrx {
     }
 
     //! C++ wrapper around shz_xmtrx_set_translation().
-    SHZ_FORCE_INLINE void set_translation(const vec3& v) noexcept {
+    SHZ_FORCE_INLINE static void set_translation(const vec3& v) noexcept {
         set_translation(v.x, v.y, v.z);
+    }
+
+    //! Sets only the inner 3x3 submatrix to be a 3D scale matrix with the given components.
+    SHZ_FORCE_INLINE static void set_scale(float x, float y, float z) noexcept {
+        shz_xmtrx_set_scale(x, y, z);
+    }
+
+    //! Sets only the inner 3x3 submatrix to be a 3D scale matrix with the given scale vector.
+    SHZ_FORCE_INLINE static void set_scale(const shz::vec3& size) noexcept {
+        set_scale(size.x, size.y, size.z);
     }
 
 //! @}
@@ -773,6 +783,15 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_set_translation().
     SHZ_FORCE_INLINE static vec3 get_translation() noexcept {
         return shz_xmtrx_get_translation();
+    }
+
+    /*! Returns the scaling components from the inner 3x3 matrix of XMTRX, as a 3D vector.
+
+        \warning This routine assumes XMTRX is a standard TRS-style transform matrix,
+                 without shearing or reflection.
+    */
+    SHZ_FORCE_INLINE static vec3 get_scale() noexcept {
+        return shz_xmtrx_get_scale();
     }
 
 //! @}

@@ -2040,6 +2040,34 @@ SHZ_FORCE_INLINE void shz_xmtrx_set_translation_sh4(float x, float y, float z) S
     : "fpul");
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_set_scale_sh4(float x, float y, float z) SHZ_NOEXCEPT {
+    register float fr4 asm("fr4") = x;
+    register float fr5 asm("fr5") = z;
+    register float fr7 asm("fr7") = y;
+    uintptr_t zero;
+
+    asm volatile(R"(
+        mov     #0, %[z]
+        frchg
+        lds     %[z], fpul
+        fschg
+        fmov    xd4, dr0
+        float   fpul, fr2
+        fmov    xd6, dr4
+        fschg
+        float   fpul, fr4
+        fmov    fr1, fr10
+        float   fpul, fr8
+        fldi0   fr9
+        float   fpul, fr1
+        fldi0   fr6
+        frchg
+    )"
+    : [z] "=r" (zero)
+    : "f" (fr4), "f" (fr5), "f" (fr7)
+    : "fpul");
+}
+
 SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation_sh4(void) SHZ_NOEXCEPT {
     shz_vec3_t pos;
 
@@ -2056,6 +2084,48 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation_sh4(void) SHZ_NOEXCEPT {
     : [p] "r" (&pos));
 
     return pos;
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_scale_sh4(void) SHZ_NOEXCEPT {
+    register float fr3  asm("fr3");
+    register float fr7  asm("fr7");
+    register float fr11 asm("fr11");
+
+    uintptr_t zero;
+
+    asm volatile(R"(
+        mov       #0, %[z]
+        fschg
+        lds       %[z], fpul
+        fmov      xd10, dr10
+        float     fpul, fr11
+        fmov      xd8, dr8
+        fmov      xd6, dr6
+        fipr      fv8, fv8
+        fmov      xd4, dr4
+        float     fpul, fr7
+        fmov      xd2, dr2
+        fipr      fv4, fv4
+        fmov      xd0, dr0
+        float     fpul, fr3
+        fschg
+        fipr      fv0, fv0
+        fmov      fr11, fr10
+        fsrra     fr11
+        fmov      fr7, fr6
+        fsrra     fr7
+        fmov      fr3, fr2
+        fsrra     fr3
+        fmul      fr10, fr11
+        fmul      fr6, fr7
+        fmul      fr2, fr3
+    )"
+    : "=f" (fr3), "=f" (fr7), "=f" (fr11), [z] "=r" (zero)
+    :
+    : "fpul", "fr0", "fr1", "fr2", "fr4",
+      "fr5", "fr6", "fr8", "fr9", "fr10");
+
+    return shz_vec3_init(fr3, fr7, fr11);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_translation_sh4(float x, float y, float z) SHZ_NOEXCEPT {

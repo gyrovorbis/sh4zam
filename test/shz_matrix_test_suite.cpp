@@ -252,12 +252,122 @@ GBL_TEST_CASE(scale_reverse)
                               },
                               "glm scale_reverse",
                               [](shz_glm_mat4& m, float x, float y, float z) {
-                                  mat4 s;
-                                  vec3 v = { x, y, z };
-                                  glm_scale_make(s, v);
-                                  glm_mat4_mul(s, m.glm, m.glm);
+                                  volatile mat4 s;
+                                  volatile vec3 v = { x, y, z };
+                                  glm_scale_make(*const_cast<mat4*>(&s), *const_cast<vec3*>(&v));
+                                  glm_mat4_mul(*const_cast<mat4*>(&s), m.glm, m.glm);
                               },
                               mat, 2.0f, 3.0f, 4.0f)
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(set_scale)
+    alignas(32) shz_glm_mat4 mat;
+
+    // Set against identity.
+    {
+        mat.shz.init_identity();
+        mat.shz.set_scale(-2.0f, -3.0f, -4.0f);
+
+        shz_glm_mat4 expected;
+        glm_mat4_identity(expected.glm);
+        expected.glm[0][0] = -2.0f;
+        expected.glm[1][1] = -3.0f;
+        expected.glm[2][2] = -4.0f;
+
+        GBL_TEST_VERIFY(mat.shz == expected.shz);
+    }
+
+    // Set against a matrix with existing rotation + translation.
+    // Expectation: set_scale() replaces the linear 3x3 part wholesale--the
+    // rotation's off-diagonal terms get wiped out, not blended with. The
+    // translation column is left completely untouched.
+    {
+        mat.shz.init_identity();
+        mat.shz.apply_rotation_x(shz::deg_to_rad(42.0f));
+        mat.shz.apply_translation(1.0f, 2.0f, 3.0f);
+
+        shz::vec3 priorTranslation = mat.shz.get_translation();
+
+        mat.shz.set_scale(5.0f, 6.0f, 7.0f);
+
+        GBL_TEST_VERIFY(mat.shz.elem2D[0][0] == 5.0f);
+        GBL_TEST_VERIFY(mat.shz.elem2D[1][1] == 6.0f);
+        GBL_TEST_VERIFY(mat.shz.elem2D[2][2] == 7.0f);
+        GBL_TEST_VERIFY(mat.shz.elem2D[0][1] == 0.0f);
+        GBL_TEST_VERIFY(mat.shz.elem2D[0][2] == 0.0f);
+        GBL_TEST_VERIFY(mat.shz.elem2D[1][0] == 0.0f);
+        GBL_TEST_VERIFY(mat.shz.elem2D[1][2] == 0.0f);
+        GBL_TEST_VERIFY(mat.shz.elem2D[2][0] == 0.0f);
+        GBL_TEST_VERIFY(mat.shz.elem2D[2][1] == 0.0f);
+        GBL_TEST_VERIFY(mat.shz.get_translation() == priorTranslation);
+    }
+
+    // Test overwrite (NOT composition) semantics.
+    {
+        mat.shz.init_identity();
+        mat.shz.set_scale(2.0f, 3.0f, -4.0f);
+        mat.shz.set_scale(5.0f, 6.0f, 7.0f);
+
+        GBL_TEST_VERIFY(mat.shz.get_scale() == shz::vec3(5.0f, 6.0f, 7.0f));
+    }
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)("shz::mat4x4::set_scale",
+                              [](shz_glm_mat4& m, float x, float y, float z) {
+                                  m.shz.set_scale(x, y, z);
+                              },
+                              "glm direct diagonal write",
+                              [](shz_glm_mat4& m, float x, float y, float z) {
+                                  m.glm[0][0] = x;    m.glm[0][1] = 0.0f; m.glm[0][2] = 0.0f;
+                                  m.glm[1][0] = 0.0f; m.glm[1][1] = y;    m.glm[1][2] = 0.0f;
+                                  m.glm[2][0] = 0.0f; m.glm[2][1] = 0.0f; m.glm[2][2] = z;
+                              },
+                              mat, -2.0f, -3.0f, -4.0f)
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(get_scale)
+    alignas(32) shz_glm_mat4 mat;
+
+    // Extract from a fresh, axis-aligned scale.
+    {
+        mat.shz.init_identity();
+        mat.shz.set_scale(10.0f, -20.0f, 30.0f);
+
+        GBL_TEST_VERIFY(mat.shz.get_scale() == shz::vec3(10.0f, 20.0f, 30.0f));
+    }
+
+    // Extract from a matrix with scale composed under a rotation.
+    // Expectation: Per-axis magnitude extraction recovers the correct scale
+    // regardless of rotation, since rotating a column doesn't change its length.
+    {
+        mat.shz.init_identity();
+        mat.shz.apply_rotation_x(shz::deg_to_rad(30.0f));
+        mat.shz.apply_rotation_y(shz::deg_to_rad(60.0f));
+        mat.shz.apply_scale(3.0f, 4.0f, 5.0f);
+
+        vec3 glmScale;
+        glm_decompose_scalev(mat.glm, glmScale);
+
+        shz::vec3 scale = mat.shz.get_scale();
+        GBL_TEST_VERIFY(shz_equalf(scale.x, glmScale[0]));
+        GBL_TEST_VERIFY(shz_equalf(scale.y, glmScale[1]));
+        GBL_TEST_VERIFY(shz_equalf(scale.z, glmScale[2]));
+    }
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec3>)("shz::mat4x4::get_scale",
+                                   [](const shz_glm_mat4& m) {
+                                       return m.shz.get_scale();
+                                   },
+                                   "glm_decompose_scalev",
+                                   [](const shz_glm_mat4& m) {
+                                       volatile shz_glm_vec3 s;
+                                       glm_decompose_scalev(const_cast<mat4&>(m.glm), const_cast<vec3&>(s.glm));
+                                       return s.shz;
+                                   },
+                                   mat)
     );
 GBL_TEST_CASE_END
 
@@ -304,4 +414,6 @@ GBL_TEST_REGISTER(copy,
                   transform_vec4,
                   translate_reverse,
                   scale_reverse,
+                  set_scale,
+                  get_scale,
                   to_quat)
