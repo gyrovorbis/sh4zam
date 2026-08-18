@@ -626,6 +626,22 @@ namespace shz {
             shz_mat4x4_decompose(this, translation, rotation, scale);
         }
 
+        /*! Adds and accumulates a scaled 4x4 matrix into the given matrix.
+
+            Each component of \p joint_matrix will be multiplied by \p weight, with the result
+            being added to the existing value of that component in \p dst.
+
+            This is useful for accumulating weighted joint matrices onto an initially
+            zeroed-out matrix.
+
+            \warning This routine clobbers XMTRX.
+
+            \sa shz_mat4x4_init_zero()
+        */
+        SHZ_FORCE_INLINE void blend(const shz_mat4x4_t& joint_matrix, float weight) noexcept {
+            shz_mat4x4_blend(this, &joint_matrix, weight);
+        }
+
         //! @}
     };
 

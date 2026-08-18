@@ -698,6 +698,12 @@ SHZ_INLINE void shz_mat4x4_copy_unaligned(shz_mat4x4_t* dst, const float src[16]
     shz_xmtrx_store_4x4(dst);
 }
 
+SHZ_FORCE_INLINE void shz_mat4x4_blend(shz_mat4x4_t* dst, const shz_mat4x4_t* joint_matrix, float weight) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(dst);
+    shz_xmtrx_blend(joint_matrix, weight);
+    shz_xmtrx_store_4x4(dst);
+}
+
 SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3(const shz_mat3x3_t* mat, shz_vec3_t v) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     return shz_mat3x3_transform_vec3_sh4(mat, v);

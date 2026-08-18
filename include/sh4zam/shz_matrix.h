@@ -852,6 +852,20 @@ SHZ_INLINE void shz_mat4x4_copy_unaligned(shz_mat4x4_t* dst, const float src[16]
 */
 SHZ_INLINE void shz_mat4x4_swap(shz_mat4x4_t* matA, shz_mat4x4_t* matB) SHZ_NOEXCEPT;
 
+/*! Adds and accumulates a scaled 4x4 matrix into the given matrix.
+
+    Each component of \p joint_matrix will be multiplied by \p weight, with the result
+    being added to the existing value of that component in \p dst.
+
+    This is useful for accumulating weighted joint matrices onto an initially
+    zeroed-out matrix.
+
+    \warning This routine clobbers XMTRX.
+
+    \sa shz_mat4x4_init_zero()
+*/
+SHZ_INLINE void shz_mat4x4_blend(shz_mat4x4_t* dst, const shz_mat4x4_t* joint_matrix, float weights) SHZ_NOEXCEPT;
+
 //! @}
 
 //! \cond UNDOCUMENTED

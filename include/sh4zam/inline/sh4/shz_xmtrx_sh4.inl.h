@@ -3441,6 +3441,55 @@ SHZ_INLINE void shz_xmtrx_abs_sh4(void) SHZ_NOEXCEPT {
     )");
 }
 
+SHZ_INLINE void shz_xmtrx_blend_sh4(const shz_mat4x4_t* joint_matrix, float weight) SHZ_NOEXCEPT {
+    register float fr0 asm("fr0") = weight;
+
+    asm volatile(R"(
+        fschg
+        fmov    xd0, dr2
+        fmov    xd2, dr4
+        fmov    xd4, dr6
+        fmov    dr0, xd0
+        fmov.d  @%[j]+, dr8
+        add     #24, %[j]
+        pref    @%[j]
+        fmac    fr0, fr8, fr2
+        add     #-24, %[j]
+        fmov.d  @%[j]+, dr10
+        fmac    fr0, fr9, fr3
+        fmov.d  @%[j]+, dr8
+        fmac    fr0, fr10, fr4
+        fmac    fr0, fr11, fr5
+        fmac    fr0, fr8, fr6
+        fmac    fr0, fr9, fr7
+        frchg
+        fmov.d  @%[j]+, dr2
+        fmov.d  @%[j]+, dr4
+        fmac    fr0, fr2, fr6
+        fmac    fr0, fr3, fr7
+        fmov.d  @%[j]+, dr2
+        fmac    fr0, fr4, fr8
+        fmac    fr0, fr5, fr9
+        fmov.d  @%[j]+, dr4
+        fmac    fr0, fr2, fr10
+        fmac    fr0, fr3, fr11
+        fmov.d  @%[j]+, dr2
+        fmac    fr0, fr4, fr12
+        fmac    fr0, fr5, fr13
+        fmov    xd6, dr4
+        fmac    fr0, fr2, fr14
+        fmac    fr0, fr3, fr15
+        fmov    xd4, dr2
+        fmov    xd2, dr0
+        fschg
+        frchg
+    )"
+    : [j] "+r" (joint_matrix)
+    : "f" (fr0), "m" (*joint_matrix)
+    : "fr2", "fr3", "fr4", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11");
+}
+
 SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_sh4(shz_vec4_t vec) SHZ_NOEXCEPT {
     register float rx asm("fr8")  = vec.x;
     register float ry asm("fr9")  = vec.y;

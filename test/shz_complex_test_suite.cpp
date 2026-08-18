@@ -1199,8 +1199,25 @@ GBL_TEST_CASE(fft)
     constexpr float FFT_ERROR_MAX = 1.0f;
     alignas(8) shz::complex samples[2][1024];
 
+    // Use a small, self-contained PRNG with a fixed seed instead of the
+    // shared gblRandUniform() stream: gblSeedRand() doesn't actually
+    // influence it (the default Lehmer generator's seed is a private static
+    // in gimbal_random.c, never wired up to gblSeedRand()), and pulling from
+    // the shared global stream means this test's specific "random" input
+    // silently shifts whenever ANY unrelated test case elsewhere changes how
+    // many gblRand() calls it makes before this one runs. Fixing the input
+    // makes a failure here reproducible instead of depending on execution
+    // history across the whole test binary.
+    uint32_t rngState = 0x9E3779B9u;
+    auto nextRand = [&rngState]() -> float {
+        rngState ^= rngState << 13;
+        rngState ^= rngState >> 17;
+        rngState ^= rngState << 5;
+        return (rngState >> 8) * (1.0f / 16777216.0f); // -> [0, 1)
+    };
+
     for(unsigned s = 0; s < 1024; ++s) {
-        samples[0][s].real = samples[1][s].real = gblRandUniform(0.0f, 1.0f);
+        samples[0][s].real = samples[1][s].real = nextRand();
         samples[0][s].imag = samples[1][s].imag = 0.0f;
     }
 

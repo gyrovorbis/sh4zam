@@ -802,6 +802,19 @@ float shz_xmtrx_determinant(void) SHZ_NOEXCEPT;
 */
 void shz_xmtrx_invert(void) SHZ_NOEXCEPT;
 
+/*! Adds and accumulates a scaled 4x4 matrix onto XMTRX.
+
+    Each component of \p joint_matrix will be multiplied by \p weight, with the result
+    being added to the existing value of that component of XMTRX.
+
+    This is useful for accumulating weighted joint matrices onto an initially
+    zeroed-out XMTRX. This allows for in-place construction of a skin matrix, which can
+    then be directly used to transform the vertices of a mesh against for animation.
+
+    \sa shz_xmtrx_init_zero()
+*/
+SHZ_INLINE void shz_xmtrx_blend(const shz_mat4x4_t* joint_matrix, float weight) SHZ_NOEXCEPT;
+
 //! @}
 
 #include "inline/shz_xmtrx.inl.h"

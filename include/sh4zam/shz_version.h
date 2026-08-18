@@ -23,7 +23,7 @@ extern "C" {
 */
 
 #define SHZ_VERSION_MAJOR   0   //!< Compile-time SH4ZAM major version.
-#define SHZ_VERSION_MINOR   7   //!< Compile-time SH4ZAM minor version.
+#define SHZ_VERSION_MINOR   8   //!< Compile-time SH4ZAM minor version.
 #define SHZ_VERSION_PATCH   0   //!< Compile-time Sh4ZAM patch version.
 
 //! Current SH4ZAM full compile-time version identifier, integer-compatible.

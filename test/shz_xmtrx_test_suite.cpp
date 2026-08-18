@@ -2154,6 +2154,90 @@ GBL_TEST_CASE(load_apply_store_3x3)
             GBL_TEST_VERIFY(shz_equalf(shzRes.shz.elem2D[i][j], glmRes.shz.elem2D[i][j]));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(blend)
+    // Blend a single joint matrix onto a known starting matrix.
+    // Expectation: XMTRX[i] = XMTRX_old[i] + joint[i] * weight, for all 16
+    // elements--a straight per-element weighted accumulate, matching the
+    // skeletal-skinning blend semantics (see shz_xmtrx_blend_sw()).
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_fill(2.0f);
+
+        alignas(32) shz_mat4x4_t joint = { .elem = {
+             1.0f,  2.0f,  3.0f,  4.0f,
+             5.0f,  6.0f,  7.0f,  8.0f,
+             9.0f, 10.0f, 11.0f, 12.0f,
+            13.0f, 14.0f, 15.0f, 16.0f
+        }};
+
+        shz::xmtrx::blend(joint, 0.5f);
+
+        shz::mat4x4 result;
+        shz::xmtrx::store(&result);
+
+        for(int i = 0; i < 16; ++i)
+            GBL_TEST_VERIFY(shz_equalf(result.elem[i], 2.0f + joint.elem[i] * 0.5f));
+    }
+
+    // Accumulate multiple weighted joints from zero--the standard skeletal
+    // skinning pattern: start the working matrix at zero and blend() in each
+    // influencing bone's weighted contribution.
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_zero();
+
+        alignas(32) shz_mat4x4_t joint1 = { .elem = {
+              1.0f,   0.0f,   0.0f,  0.0f,
+              0.0f,   1.0f,   0.0f,  0.0f,
+              0.0f,   0.0f,   1.0f,  0.0f,
+             10.0f,  20.0f,  30.0f,  1.0f
+        }};
+        alignas(32) shz_mat4x4_t joint2 = { .elem = {
+              2.0f,   0.0f,   0.0f,  0.0f,
+              0.0f,   2.0f,   0.0f,  0.0f,
+              0.0f,   0.0f,   2.0f,  0.0f,
+             -5.0f,  -6.0f,  -7.0f,  1.0f
+        }};
+
+        shz::xmtrx::blend(joint1, 0.25f);
+        shz::xmtrx::blend(joint2, 0.75f);
+
+        shz::mat4x4 result;
+        shz::xmtrx::store(&result);
+
+        for(int i = 0; i < 16; ++i) {
+            float expected = joint1.elem[i] * 0.25f + joint2.elem[i] * 0.75f;
+            GBL_TEST_VERIFY(shz_equalf(result.elem[i], expected));
+        }
+    }
+
+    {
+        alignas(32) shz_mat4x4_t joint = { .elem = {
+             1.0f,  2.0f,  3.0f,  4.0f,
+             5.0f,  6.0f,  7.0f,  8.0f,
+             9.0f, 10.0f, 11.0f, 12.0f,
+            13.0f, 14.0f, 15.0f, 16.0f
+        }};
+
+        alignas(32) std::array<float, 16> accum{};
+
+        shz::xmtrx::init_zero();
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)(
+                "shz::xmtrx::blend", [](const shz_mat4x4_t& j, float w) {
+                    shz::xmtrx::blend(j, w);
+                },
+                "naive per-element accum", [&](const shz_mat4x4_t& j, float w) {
+                    for(int i = 0; i < 16; ++i)
+                        accum[i] += j.elem[i] * w;
+                },
+                joint, 0.5f
+            )
+        );
+    }
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(transform_vec4)
     shz::vec4 v{
         3.0f, 2.0f, 1.0f, 0.0f
@@ -2411,6 +2495,7 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_3x4,
                   load_apply_store_3x4,
                   load_apply_store_3x3,
+                  blend,
                   transform_vec4,
                   transform_vec3,
                   transform_vec2,

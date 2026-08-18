@@ -30,3 +30,10 @@ void shz_xmtrx_load_apply_store_3x3_sw(shz_mat3x3_t* out,
     shz_xmtrx_apply_3x3(matrix2);
     shz_xmtrx_store_3x3(out);
 }
+
+void shz_xmtrx_blend_sw(const shz_mat4x4_t* joint_matrix, float weight) {
+    shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
+
+    for(int i = 0; i < 16; ++i)
+        xmtrx_state_->elem[i] += joint_matrix->elem[i] * weight;
+}
