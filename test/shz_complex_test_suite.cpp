@@ -213,7 +213,7 @@ GBL_TEST_CASE(csubf)
         [](volatile shz::complex a) { return shz::csubf(const_cast<const shz::complex&>(a), shz::complex{3.0f, 4.0f}); },
         "operator-(complex)",
         [](volatile shz::complex a) {
-            auto r = std::complex<float>(a.real, a.imag) - std::complex<float>(3.0f, 4.0f);
+            auto r = std::complex<float>(static_cast<float>(a.real), static_cast<float>(a.imag)) - std::complex<float>(3.0f, 4.0f);
             return shz::complex{r.real(), r.imag()};
         },
         shz::complex{1.0f, 2.0f}));
