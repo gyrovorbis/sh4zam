@@ -501,6 +501,10 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_sw(float angle, float xAxis, float
     xmtrx_state_->col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_dir_sw(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_sw(angle, x, y, z);
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_init_symmetric_skew_sw(float x, float y, float z) SHZ_NOEXCEPT {
     shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
     xmtrx_state_->col[0] = shz_vec4_init(0.0f, -z,    y,   0.0f);

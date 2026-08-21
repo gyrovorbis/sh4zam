@@ -37,8 +37,8 @@ SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_transform_vec4_sh4(const shz_mat4x4_t* ma
     register float vw asm("fr7") = in.w;
 
     asm(R"(
-        pref    @%[c2]
         fmov.s  @%[c0]+, fr0
+        pref    @%[c2]
         fmov.s  @%[c0]+, fr12
         fmov.s  @%[c0]+, fr8
         fmov.s  @%[c1]+, fr1

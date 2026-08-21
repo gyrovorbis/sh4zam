@@ -291,8 +291,25 @@ SHZ_INLINE void shz_xmtrx_init_rotation_zxy(float zAngle, float xAngle, float yA
 */
 SHZ_INLINE void shz_xmtrx_init_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
 
-//! Initializes XMTRX to a 3D rotation matrix of \p angle radians about the given \p axis.
+/*! Initializes XMTRX to a 3D rotation matrix of \p angle radians about the vector with the given components.
+
+    \note This routine works similarly to glRotatef() applied to an identitiy matrix. The given
+          axis will automatically be normalized internally.
+
+    \sa shz_xmtrx_init_rotation_dir()
+*/
 SHZ_INLINE void shz_xmtrx_init_rotation(float angle, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
+
+/*! Initializes XMTRX to contain a 3D rotation matrix of \p angle radians about the given \p axis.
+
+    This is a faster version of shz_xmtrx_init_rotation() or glRotatef() which requires being passed a unit
+    vector for the rotation axis.
+
+    \warning The vector components representing the axis of rotation must be prenormalized!
+
+    \sa shz_xmtrx_init_rotation()
+*/
+SHZ_INLINE void shz_xmtrx_init_rotation_dir(float angle, float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Initializes XMTRX to be a diagonal matrix with the given diagonal values.
 SHZ_INLINE void shz_xmtrx_init_diagonal(float x, float y, float z, float w) SHZ_NOEXCEPT;

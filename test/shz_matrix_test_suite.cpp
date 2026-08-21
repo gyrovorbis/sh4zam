@@ -244,21 +244,22 @@ GBL_TEST_CASE(scale_reverse)
     }
 
     GBL_TEST_VERIFY(mat.shz == expected.shz);
-
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<void>)("shz::mat4x4::scale_reverse",
-                              [](shz_glm_mat4& m, float x, float y, float z) {
-                                  m.shz.scale_reverse(x, y, z);
-                              },
-                              "glm scale_reverse",
-                              [](shz_glm_mat4& m, float x, float y, float z) {
-                                  volatile mat4 s;
-                                  volatile vec3 v = { x, y, z };
-                                  glm_scale_make(*const_cast<mat4*>(&s), *const_cast<vec3*>(&v));
-                                  glm_mat4_mul(*const_cast<mat4*>(&s), m.glm, m.glm);
-                              },
-                              mat, 2.0f, 3.0f, 4.0f)
-    );
+    {
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::mat4x4::scale_reverse",
+                                  [](shz_glm_mat4& m, float x, float y, float z) {
+                                      m.shz.scale_reverse(x, y, z);
+                                  },
+                                  "glm scale_reverse",
+                                  [](shz_glm_mat4& m, float x, float y, float z) {
+                                      static volatile mat4 s;
+                                      volatile vec3 v = { x, y, z };
+                                      glm_scale_make(*const_cast<mat4*>(&s), *const_cast<vec3*>(&v));
+                                      glm_mat4_mul(*const_cast<mat4*>(&s), m.glm, m.glm);
+                                  },
+                                  mat, 2.0f, 3.0f, 4.0f)
+        );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(set_scale)
@@ -368,6 +369,51 @@ GBL_TEST_CASE(get_scale)
                                        return s.shz;
                                    },
                                    mat)
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_rotation_dir)
+    alignas(32) shz_glm_mat4 mat;
+
+    // Rotating about a standard basis axis should match the dedicated
+    // init_rotation_x() routine exactly (axis-angle is a strict generalization).
+    {
+        float angle = shz::deg_to_rad(42.0f);
+
+        mat.shz.init_rotation_dir(angle, shz::vec3(1.0f, 0.0f, 0.0f));
+
+        shz_glm_mat4 expected;
+        expected.shz.init_rotation_x(angle);
+
+        GBL_TEST_VERIFY(mat.shz == expected.shz);
+    }
+
+    // Rotate around a non-trivial (non-axis-aligned) normalized direction,
+    // cross-checked against cglm's equivalent from-scratch construction.
+    {
+        shz::vec3 dir   = shz::vec3(1.0f, 1.0f, 1.0f).direction();
+        float     angle = shz::deg_to_rad(42.0f);
+
+        mat.shz.init_rotation_dir(angle, dir);
+
+        shz_glm_mat4 expected;
+        vec3 glmDir = { dir.x, dir.y, dir.z };
+        glm_rotate_make(expected.glm, angle, glmDir);
+
+        GBL_TEST_VERIFY(mat.shz == expected.shz);
+    }
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)("shz::mat4x4::init_rotation_dir",
+                              [](shz_glm_mat4& m, float angle, float x, float y, float z) {
+                                  m.shz.init_rotation_dir(angle, x, y, z);
+                              },
+                              "glm_rotate_make",
+                              [](shz_glm_mat4& m, float angle, float x, float y, float z) {
+                                  vec3 axis = { x, y, z };
+                                  glm_rotate_make(m.glm, angle, axis);
+                              },
+                              mat, shz::deg_to_rad(42.0f), 0.5773503f, 0.5773503f, 0.5773503f)
     );
 GBL_TEST_CASE_END
 
@@ -493,5 +539,6 @@ GBL_TEST_REGISTER(copy,
                   scale_reverse,
                   set_scale,
                   get_scale,
+                  init_rotation_dir,
                   blend,
                   to_quat)

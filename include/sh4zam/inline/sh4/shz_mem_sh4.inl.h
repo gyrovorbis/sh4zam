@@ -330,33 +330,36 @@ SHZ_FORCE_INLINE void* shz_memset8_sh4(void* dst, uint64_t value, size_t bytes) 
     return shz_memset8_sh4_(dst, value, bytes);
 }
 
+SHZ_COLD
 SHZ_FORCE_INLINE void* shz_memcpy32_sh4(      void* SHZ_RESTRICT dst,
                                         const void* SHZ_RESTRICT src,
                                         size_t                   bytes) SHZ_NOEXCEPT {
           shz_alias_uint64_t* d = (      shz_alias_uint64_t*)dst;
     const shz_alias_uint64_t* s = (const shz_alias_uint64_t*)src;
 
+    SHZ_PREFETCH(src);
+
     assert(!(bytes % 32) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
 
     size_t cnt = (bytes >> 5);
+    size_t rem = (cnt & 0x3);
 
-    if(SHZ_LIKELY(cnt >= 8)) {
-        size_t copied = bytes / 128 * 128;
-        shz_memcpy128_sh4_(d, s, copied);
-        cnt -= copied / 32;
-        d += copied / sizeof(uint64_t);
-        s += copied / sizeof(uint64_t);
+    if(SHZ_LIKELY(rem)) {
+        const shz_alias_uint64_t* p = s;
+
+        SHZ_FSCHG();
+        do {
+            SHZ_PREFETCH(p += 4);
+            shz_memcpy32_load_sh4_(&s);
+            shz_dcache_alloc_line(d);
+            shz_memcpy32_store_sh4_(&d);
+            d += 4;
+        } while(--rem);
+        SHZ_FSCHG();
     }
 
-    while(SHZ_LIKELY(cnt--)) {
-        SHZ_FSCHG();
-        shz_memcpy32_load_sh4_(&s);
-        shz_dcache_alloc_line(d);
-        shz_memcpy32_store_sh4_(&d);
-        SHZ_PREFETCH(s);
-        SHZ_FSCHG();
-        d += 4;
-    }
+    if((cnt >>= 2))
+        shz_memcpy128_sh4_(d, s, (cnt << 7));
 
     return dst;
 }
@@ -458,10 +461,11 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
 
     if(bytes < 32) {
         shz_memcpy1_sh4(d, s, bytes);
-
     } else {
-        if(((uintptr_t)d & 31)) {
-            copied = 32 - ((uintptr_t)d & 31);
+        uintptr_t prelude = ((uintptr_t)d & 31);
+
+        if(prelude) {
+            copied = 32 - prelude;
             shz_memcpy1_sh4_(d, s, copied);
             bytes -= copied;
             d     += copied;
@@ -489,8 +493,9 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
 
         bytes -= copied;
         if(bytes) {
-            d += copied;
             s += copied;
+            SHZ_PREFETCH(s);
+            d += copied;
             shz_memcpy1_sh4_(d, s, bytes);
         }
     }

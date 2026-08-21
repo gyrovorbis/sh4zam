@@ -159,6 +159,14 @@ namespace shz {
             init_rotation(angle, axis.x, axis.y, axis.z);
         }
 
+        SHZ_FORCE_INLINE void init_rotation_dir(float angle, float x, float y, float z) noexcept {
+            shz_mat4x4_init_rotation_dir(this, angle, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void init_rotation_dir(float angle, const vec3& dir) noexcept {
+            init_rotation_dir(angle, dir.x, dir.y, dir.z);
+        }
+
         SHZ_FORCE_INLINE void init_rotation(const quat& q) noexcept {
             shz_mat4x4_init_rotation_quat(this, q);
         }

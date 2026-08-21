@@ -386,6 +386,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_rotation(float angle, float x, float y, flo
 #endif
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_dir(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_init_rotation_dir_sh4(angle, x, y, z);
+#else
+    shz_xmtrx_init_rotation_dir_sw(angle, x, y, z);
+#endif
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_init_translation(float x, float y, float z) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_init_translation_sh4(x, y, z);

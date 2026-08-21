@@ -21,50 +21,18 @@ SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra_sh4(float x) SHZ_NOEXCEPT {
     return x;
 }
 
-SHZ_FORCE_INLINE float shz_dot6f_sh4(float x1, float y1, float z1,
-                                    float x2, float y2, float z2) SHZ_NOEXCEPT {
-    register float rx1 asm("fr8")  = x1;
-    register float ry1 asm("fr9")  = y1;
-    register float rz1 asm("fr10") = z1;
-    register float rw1 asm("fr11") = 0.0f;
-    register float rx2 asm("fr12") = x2;
-    register float ry2 asm("fr13") = y2;
-    register float rz2 asm("fr14") = z2;
-    register float rw2 asm("fr15");
-
-    asm("fipr fv8, fv12"
-        : "=f" (rw2)
-        : "f" (rx1), "f" (ry1), "f" (rz1), "f" (rw1),
-          "f" (rx2), "f" (ry2), "f" (rz2));
-
-    return rw2;
-}
-
-SHZ_FORCE_INLINE float shz_mag_sqr3f_sh4(float x, float y, float z) SHZ_NOEXCEPT {
-    register float rx asm("fr4") = x;
-    register float ry asm("fr5") = y;
-    register float rz asm("fr6") = z;
-    register float rw asm("fr7") = 0.0f;
-
-    asm("fipr fv4, fv4"
-        : "+f" (rw)
-        : "f" (rx), "f" (ry), "f" (rz));
-
-    return rw;
-}
-
 SHZ_FORCE_INLINE float shz_dot8f_sh4(float x1, float y1, float z1, float w1,
-                                    float x2, float y2, float z2, float w2) SHZ_NOEXCEPT {
-    register float rx1 asm("fr8")  = x1;
-    register float ry1 asm("fr9")  = y1;
-    register float rz1 asm("fr10") = z1;
-    register float rw1 asm("fr11") = w1;
-    register float rx2 asm("fr12") = x2;
-    register float ry2 asm("fr13") = y2;
-    register float rz2 asm("fr14") = z2;
-    register float rw2 asm("fr15") = w2;
+                                     float x2, float y2, float z2, float w2) SHZ_NOEXCEPT {
+    register float rx1 asm("fr4")  = y1;
+    register float ry1 asm("fr5")  = x1;
+    register float rz1 asm("fr6")  = w1;
+    register float rw1 asm("fr7")  = z1;
+    register float rx2 asm("fr8")  = y2;
+    register float ry2 asm("fr9")  = x2;
+    register float rz2 asm("fr10") = w2;
+    register float rw2 asm("fr11") = z2;
 
-    asm("fipr fv8, fv12"
+    asm("fipr fv4, fv8"
         : "+f" (rw2)
         : "f" (rx1), "f" (ry1), "f" (rz1), "f" (rw1),
           "f" (rx2), "f" (ry2), "f" (rz2));
@@ -72,17 +40,27 @@ SHZ_FORCE_INLINE float shz_dot8f_sh4(float x1, float y1, float z1, float w1,
     return rw2;
 }
 
+SHZ_FORCE_INLINE float shz_dot6f_sh4(float x1, float y1, float z1,
+                                     float x2, float y2, float z2) SHZ_NOEXCEPT {
+    return shz_dot8f_sh4(x1, y1, z1, 0.0f,
+                         x2, y2, z2, 0.0f);
+}
+
 SHZ_FORCE_INLINE float shz_mag_sqr4f_sh4(float x, float y, float z, float w) SHZ_NOEXCEPT {
-    register float rx asm("fr8")  = x;
-    register float ry asm("fr9")  = y;
-    register float rz asm("fr10") = z;
-    register float rw asm("fr11") = w;
+    register float ry asm("fr4") = y;
+    register float rx asm("fr5") = x;
+    register float rw asm("fr6") = w;
+    register float rz asm("fr7") = z;
 
-    asm("fipr fv8, fv8"
-        : "+f" (rw)
-        : "f" (rx), "f" (ry), "f" (rz));
+    asm("fipr fv4, fv4"
+        : "+f" (rz)
+        : "f" (rx), "f" (ry), "f" (rw));
 
-    return rw;
+    return rz;
+}
+
+SHZ_FORCE_INLINE float shz_mag_sqr3f_sh4(float x, float y, float z) SHZ_NOEXCEPT {
+    return shz_mag_sqr4f_sh4(x, y, z, 0.0f);
 }
 
 #if 1

@@ -225,22 +225,43 @@ GBL_TEST_CASE(vec3Dot)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3Dot2)
-   auto test = [&](shz::vec3 vec1,
-                   shz::vec3 vec2,
-                   shz::vec3 vec3)
+   auto test = [&](volatile shz::vec3 vec1,
+                   volatile shz::vec3 vec2,
+                   volatile shz::vec3 vec3)
    {
-        shz::vec2 fipr_res, c_res;
+        shz::vec3 v1 = vec1;
+        shz::vec3 v2 = vec2;
+        shz::vec3 v3 = vec3;
 
-        benchmark(&fipr_res, [&]{ return vec1.dot(vec2, vec3); });
+        auto scalar = [](const shz::vec3& l,
+                         const shz::vec3& r1,
+                         const shz::vec3& r2) {
+                            return shz::vec2 {
+                                l.x * r1.x + l.y * r1.y + l.z * r1.z,
+                                l.x * r2.x + l.y * r2.y + l.z * r2.z
+                            };
+                        };
 
-        benchmark(&c_res, [&]{ return shz::vec2 {
-                                    vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z,
-                                    vec1.x * vec3.x + vec1.y * vec3.y + vec1.z * vec3.z
-                                };
-                           });
+        shz::vec2 fipr_res = v1.dot(v2, v3);
+        shz::vec2 c_res = scalar(v1, v2, v3);
 
-        return gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
-               gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error);
+        bool success = gblFloatEquals(fipr_res.x, c_res.x, shz::fipr_max_error) &&
+                       gblFloatEquals(fipr_res.y, c_res.y, shz::fipr_max_error);
+
+        /*success &=*/ [&](const shz::vec3& l,
+                       const shz::vec3& r1,
+                       const shz::vec3& r2) SHZ_NO_INLINE {
+            return (benchmark_cmp<shz::vec2>)("shz::vec3::dot2",
+                                   [](const shz::vec3& l,
+                                      const shz::vec3& r1,
+                                      const shz::vec3& r2) {
+                                       return l.dot(r1, r2);
+                                   },
+                                   "scalar",
+                                   scalar,
+                                   l, r1, r2);
+        }(v1, v2, v3);
+        return success;
     };
 
     GBL_TEST_VERIFY(test({ -0.342344f,    890432084.0f, 343244.0f },

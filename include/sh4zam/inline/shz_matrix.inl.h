@@ -94,6 +94,11 @@ SHZ_INLINE void shz_mat4x4_init_rotation(shz_mat4x4_t* mat, float angle, float x
     shz_xmtrx_store_4x4(mat);
 }
 
+SHZ_FORCE_INLINE void shz_mat4x4_init_rotation_dir(shz_mat4x4_t* mat, float angle, float x, float y, float z) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_dir(angle, x, y, z);
+    shz_xmtrx_store_4x4(mat);
+}
+
 SHZ_INLINE void shz_mat4x4_set_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
 SHZ_INLINE void shz_mat4x4_init_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT {
 	shz_mat4x4_set_rotation_quat(m, q);
@@ -186,7 +191,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_get_scale(const shz_mat4x4_t* mat) SHZ_NO
 #endif
 }
 
-SHZ_INLINE void shz_mat4x4_set_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_mat4x4_set_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
     mat->elem2D[0][0] = x;    mat->elem2D[0][1] = 0.0f; mat->elem2D[0][2] = 0.0f;
     mat->elem2D[1][0] = 0.0f; mat->elem2D[1][1] = y;    mat->elem2D[1][2] = 0.0f;
     mat->elem2D[2][0] = 0.0f; mat->elem2D[2][1] = 0.0f; mat->elem2D[2][2] = z;

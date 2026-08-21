@@ -179,11 +179,27 @@ SHZ_INLINE void shz_mat4x4_init_rotation_zxy(shz_mat4x4_t* mat, float zAngle, fl
 */
 SHZ_INLINE void shz_mat4x4_init_rotation_yxz(shz_mat4x4_t* mat, float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
 
-/*! Initializes the given matrix to a 3D rotation matrix about the given \p axis rotated by \p angle radians.
+/*! Initializes the given 4x4 matrix to a 3D rotation matrix of \p angle radians about the vector with the given components.
+
+    \note This routine works similarly to glRotatef() applied to an identitiy matrix. The given
+          axis will automatically be normalized internally.
 
     \warning This routine clobbers XMTRX.
+
+    \sa shz_mat4x4_init_rotation_dir()
 */
 SHZ_INLINE void shz_mat4x4_init_rotation(shz_mat4x4_t* mat, float radians, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
+
+/*! Initializes the given 4x4 matrix to contain a 3D rotation matrix of \p angle radians about the given direction.
+
+    This is a faster version of shz_mat4x4_init_rotation() or glRotatef() which requires being passed a unit vector
+    for the rotation axis.
+
+    \warning The vector components representing the axis of rotation must be prenormalized!
+
+    \sa shz_mat4x4_init_rotation()
+*/
+SHZ_INLINE void shz_mat4x4_init_rotation_dir(shz_mat4x4_t* mat, float angle, float x, float y, float z) SHZ_NOEXCEPT;
 
 /*! Initializes the given matrix to a 3D rotation matrix with its orientation given by a quaternion.
 

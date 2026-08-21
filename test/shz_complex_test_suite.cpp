@@ -210,15 +210,16 @@ GBL_TEST_CASE(csubf)
     GBL_TEST_VERIFY(test({0.0f,  0.0f}, {3.0f, -2.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::csubf",
-        [](shz::complex a) { return shz::csubf(a, shz::complex{3.0f, 4.0f}); },
+        [](volatile shz::complex a) { return shz::csubf(const_cast<const shz::complex&>(a), shz::complex{3.0f, 4.0f}); },
         "operator-(complex)",
-        [](shz::complex a) {
+        [](volatile shz::complex a) {
             auto r = std::complex<float>(a.real, a.imag) - std::complex<float>(3.0f, 4.0f);
             return shz::complex{r.real(), r.imag()};
         },
         shz::complex{1.0f, 2.0f}));
 GBL_TEST_CASE_END
 
+GBL_FP_PRECISE
 GBL_TEST_CASE(cmulf)
     auto test = [](shz::complex a, shz::complex b) {
         std::complex<float> ra(a.real, a.imag), rb(b.real, b.imag);
@@ -273,6 +274,7 @@ GBL_TEST_CASE(cdivf)
         shz::complex{1.0f, 2.0f}));
 GBL_TEST_CASE_END
 
+GBL_FP_PRECISE
 GBL_TEST_CASE(cscalef)
     auto test = [](shz::complex c, float s) {
         shz::complex result = shz::cscalef(c, s);
@@ -284,13 +286,13 @@ GBL_TEST_CASE(cscalef)
     GBL_TEST_VERIFY(test({0.0f,  0.0f},  5.0f));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::cscalef",
-        [](shz::complex a) { return shz::cscalef(a, 2.0f); },
+        [](const shz::complex& a) { return shz::cscalef(a, 2.0f); },
         "operator*(float)",
-        [](shz::complex a) {
+        [](const shz::complex& a) {
             auto r = std::complex<float>(a.real, a.imag) * 2.0f;
             return shz::complex{r.real(), r.imag()};
         },
-        shz::complex{1.0f, 2.0f}));
+        shz::complex{gblRandf(), gblRandf()}));
 GBL_TEST_CASE_END
 
 GBL_FP_PRECISE

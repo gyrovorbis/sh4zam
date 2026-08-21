@@ -483,6 +483,75 @@ GBL_TEST_CASE(init_rotation)
 
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(init_rotation_dir)
+    // Rotating about a standard basis axis should match the dedicated
+    // init_rotation_x() routine exactly (axis-angle is a strict generalization).
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_rotation_dir(shz::pi_f, shz::vec3(1.0f, 0.0f, 0.0f));
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                      { 1.0f, 0.0f, 0.0f, 0.0f,
+                        0.0f, cosf(SHZ_F_PI), -sinf(SHZ_F_PI), 0.0f,
+                        0.0f, sinf(SHZ_F_PI), cosf(SHZ_F_PI), 0.0f,
+                        0.0f, 0.0f, 0.0f, 1.0f}));
+    }
+
+    // Rotate around a non-trivial (non-axis-aligned) normalized axis, cross-
+    // checked against cglm's equivalent from-scratch construction.
+    {
+        randomize_xmtrx_();
+
+        shz::vec3 axis  = shz::vec3(1.0f, 1.0f, 1.0f).direction();
+        float     angle = shz::deg_to_rad(42.0f);
+
+        shz::xmtrx::init_rotation_dir(angle, axis);
+
+        shz::mat4x4 result;
+        shz::xmtrx::store(&result);
+
+        mat4 glmResult;
+        vec3 glmAxis = { axis.x, axis.y, axis.z };
+        glm_rotate_make(glmResult, angle, glmAxis);
+
+        GBL_TEST_VERIFY(compare_glm(result, glmResult));
+    }
+
+    {
+        GBL_TEST_VERIFY(
+            [] SHZ_NO_INLINE {
+                shz::vec3 axis  = shz::vec3(1.0f, 1.0f, 1.0f).direction();
+                float     angle = shz::deg_to_rad(42.0f);
+                volatile mat4 m;
+
+                bool success =
+                    (benchmark_cmp<void>)(
+                        "shz::xmtrx::init_rotation_dir", [](float angle, const shz::vec3& dir) {
+                            shz::xmtrx::init_rotation_dir(angle, dir);
+                        },
+                        "glm_rotate_make", [&](float angle, const shz::vec3& dir) {
+                            volatile vec3 a = { dir.x, dir.y, dir.z };
+                            glm_rotate_make(const_cast<mat4&>(m), angle, const_cast<vec3&>(a));
+                        },
+                        angle, axis
+                    );
+
+                success &=
+                    (benchmark_cmp<void>)(
+                        "shz::xmtrx::init_rotation_dir", [](float angle, const shz::vec3& dir) {
+                            shz::xmtrx::init_rotation_dir(angle, dir);
+                        },
+                        "Old version:", [](float angle, const shz::vec3& axis) {
+                            shz::xmtrx::init_rotation(angle, axis);
+                        },
+                        angle, axis
+                    );
+
+                return success;
+            }()
+        );
+    }
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(init_diagonal)
     randomize_xmtrx_();
     shz::xmtrx::init_diagonal(-1.0f, 2.0f, 3.0f, 4.0f);
@@ -2439,6 +2508,7 @@ GBL_TEST_REGISTER(read_write_registers,
                   init_rotation_zyx,
                   init_rotation_yxz,
                   init_rotation,
+                  init_rotation_dir,
                   init_diagonal,
                   init_upper_triangular,
                   init_lower_triangular,

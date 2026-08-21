@@ -304,6 +304,11 @@ struct xmtrx {
         init_rotation(angle, axis.x, axis.y, axis.z);
     }
 
+    //! C++ wrapper around shz_xmtrx_init_rotation_axis_angle().
+    SHZ_FORCE_INLINE static void init_rotation_dir(float angle, const vec3& dir) noexcept {
+        shz_xmtrx_init_rotation_dir(angle, dir.x, dir.y, dir.z);
+    }
+
     //! C++ wrapper around shz_xmtrx_init_diagonal().
     SHZ_FORCE_INLINE static void init_diagonal(float x, float y, float z, float w) noexcept {
         shz_xmtrx_init_diagonal(x, y, z, w);

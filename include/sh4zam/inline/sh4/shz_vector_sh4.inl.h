@@ -296,58 +296,56 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec2_dot3_sh4(shz_vec2_t l, shz_vec2_t r1, shz_v
 #endif
 }
 
-SHZ_COLD
 SHZ_FORCE_INLINE shz_vec2_t shz_vec3_dot2_sh4(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2) SHZ_NOEXCEPT {
 #if 1 // FINALLY FUCKING GODDAMN GAINZ!!!
-    register float lx asm("fr4") = l.x;
-    register float ly asm("fr5") = l.y;
-    register float lz asm("fr6") = l.z;
-    register float lw asm("fr7") = 0.0f;
+    register float lx asm("fr5") = l.x;
+    register float ly asm("fr4") = l.y;
+    register float lz asm("fr7") = l.z;
+    register float lw asm("fr6") = 0.0f;
 
-    register float r1x asm("fr8")  = r1.x;
-    register float r1y asm("fr9")  = r1.y;
-    register float r1z asm("fr10") = r1.z;
-    register float r1w asm("fr11");
+    register float r1x asm("fr9")  = r1.x;
+    register float r1y asm("fr8")  = r1.y;
+    register float r1z asm("fr11") = r1.z;
+    register float r1w asm("fr10") = 0.0f;
 
-    register float r2x asm("fr0") = r2.x;
-    register float r2y asm("fr1") = r2.y;
-    register float r2z asm("fr2") = r2.z;
-    register float r2w asm("fr3");
+    register float r2x asm("fr1") = r2.x;
+    register float r2y asm("fr0") = r2.y;
+    register float r2z asm("fr3") = r2.z;
+    register float r2w asm("fr2") = 0.0f;
 
     asm("fipr   fv4, fv8\n"
-        : "+f" (r1w)
+        : "+f" (r1z)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
-          "f" (r1x), "f" (r1y), "f" (r1z));
+          "f" (r1x), "f" (r1y), "f" (r1w));
 
     asm("fipr   fv4, fv0\n"
-        : "=f" (r2w)
+        : "+f" (r2z)
         : "f" (lx), "f" (ly), "f" (lz), "f" (lw),
-          "f" (r2x), "f" (r2y), "f" (r2z));
+          "f" (r2x), "f" (r2y), "f" (r2w));
 
-    return shz_vec2_init(r1w, r2w);
+    return shz_vec2_init(r1z, r2z);
 #else
-    return shz_vec2_init(l.x * r1.x + l.y * r1.y + l.z * r1.z,
-                         l.x * r2.x + l.y * r2.y + l.z * r2.z);
+    return shz_vec2_init(shz_vec3_dot(l, r1),
+                         shz_vec3_dot(l, r2));
 #endif
 }
 
-SHZ_COLD
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_dot3_sh4(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2, shz_vec3_t r3) SHZ_NOEXCEPT {
 #if 1
-    register float lx asm("fr4") = l.x;
-    register float ly asm("fr5") = l.y;
+    register float lx asm("fr5") = l.x;
+    register float ly asm("fr4") = l.y;
     register float lz asm("fr6") = l.z;
     register float lw asm("fr7") = 0.0f;
 
-    register float r1x asm("fr8")  = r1.x;
-    register float r1y asm("fr9")  = r1.y;
+    register float r1x asm("fr9")  = r1.x;
+    register float r1y asm("fr8")  = r1.y;
     register float r1z asm("fr10") = r1.z;
-    register float r1w asm("fr11");
+    register float r1w asm("fr11") = 0.0f;
 
-    register float r2x asm("fr0") = r2.x;
-    register float r2y asm("fr1") = r2.y;
+    register float r2x asm("fr1") = r2.x;
+    register float r2y asm("fr0") = r2.y;
     register float r2z asm("fr2") = r2.z;
-    register float r2w asm("fr3");
+    register float r2w asm("fr3") = 0.0f;
 
     asm("fipr   fv4, fv8\n"
         : "+f" (r1w)
@@ -372,9 +370,11 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_dot3_sh4(shz_vec3_t l, shz_vec3_t r1, shz_v
 
     return shz_vec3_init(r2x, r2w, r1w);
 #else
+/*
     return shz_vec3_init(l.x * r1.x + l.y * r1.y + l.z * r1.z,
                          l.x * r2.x + l.y * r2.y + l.z * r2.z,
                          l.x * r3.x + l.y * r3.y + l.z * r3.z);
+                         */
 #endif
 }
 

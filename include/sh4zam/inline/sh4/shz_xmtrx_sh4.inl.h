@@ -1055,7 +1055,6 @@ SHZ_INLINE void shz_xmtrx_init_identity_sh4(void) SHZ_NOEXCEPT {
     uintptr_t zero;
 
     asm volatile(R"(
-    .align 4
         mov     #0, %[z]
         frchg
         fldi1   fr0
@@ -1327,7 +1326,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation_z_sh4(float z) SHZ_NOEXCEPT {
     : "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_init_rotation_sh4(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_sh4(float angle, float x, float y, float z) SHZ_NOEXCEPT {
     register float x_ asm("fr4") = x;
     register float y_ asm("fr5") = y;
     register float z_ asm("fr6") = z;
@@ -1399,6 +1398,81 @@ SHZ_INLINE void shz_xmtrx_init_rotation_sh4(float angle, float x, float y, float
       "fr12", "fr13", "fr14", "fr15", "fpul");
 }
 
+/* Rodrigues' rotation formula, s = sin(angle), c = cos(angle), t = 1 - c,
+   (x, y, z) = normalized axis. Column-major XMTRX layout, XF[4*col + row]:
+
+       XF0  = x*x*t + c    XF4  = x*y*t - z*s  XF8  = x*z*t + y*s  XF12 = 0
+       XF1  = x*y*t + z*s  XF5  = y*y*t + c    XF9  = y*z*t - x*s  XF13 = 0
+       XF2  = x*z*t - y*s  XF6  = y*z*t + x*s  XF10 = z*z*t + c    XF14 = 0
+       XF3  = 0            XF7  = 0            XF11 = 0            XF15 = 1
+*/
+SHZ_INLINE void shz_xmtrx_init_rotation_dir_sh4(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+    register float fr4 asm("fr4") = x;
+    register float fr5 asm("fr5") = y;
+    register float fr6 asm("fr6") = z;
+    register float fr7 asm("fr7") = angle * SHZ_FSCA_RAD_FACTOR;
+
+    asm volatile(R"(
+        ftrc    fr7, fpul
+        fschg
+        frchg
+        fmov    xd4, dr12           ! fr12 = x, fr13 = y
+        fsca    fpul, dr8           ! fr8  = s, fr9 = c
+        fmov    xd6, dr14           ! fr14 = z
+        fschg
+        fldi1   fr15                ! fr15 = 1
+        fmov    fr8, fr10           ! fr10 = s
+    .align 2
+        fmov    fr8, fr7            ! fr7  = s
+        fsub    fr9, fr15           ! fr15 = t = 1-c
+        fmov    fr8, fr11           ! fr11 = s
+        fmul    fr14, fr7           ! fr7  = z*s
+        fmov    fr15, fr0           ! fr0  = t
+        fmul    fr13, fr11          ! fr11 = y*s
+        fmov    fr7, fr1            ! fr1  = z*s
+        fmul    fr12, fr0           ! fr0  = x*t
+        fmov    fr11, fr8           ! fr8  = y*s
+        fmac    fr0, fr13, fr1      ! fr1  = x*y*t + z*s  => XF1
+        fneg    fr11                ! fr11 = -y*s
+        fmac    fr0, fr14, fr8      ! fr8  = x*z*t + y*s  => XF8
+        fmov    fr11, fr2           ! fr2  = -y*s
+        fneg    fr7                 ! fr7  = -z*s
+        fmac    fr0, fr14, fr2      ! fr2  = x*z*t - y*s  => XF2
+        fmov    fr7, fr4            ! fr4  = -z*s
+        fmac    fr0, fr13, fr4      ! fr4  = x*y*t - z*s  => XF4
+        fmov    fr9, fr6            ! fr6  = c
+        fmov    fr10, fr3           ! fr3  = s
+        fmac    fr0, fr12, fr6      ! fr6  = x*x*t + c    => XF0
+        fmov    fr15, fr0           ! fr0  = t
+        fmul    fr12, fr3           ! fr3  = x*s
+        fmov    fr9, fr5            ! fr5  = c
+        fmul    fr13, fr0           ! fr0  = y*t
+        flds    fr6, fpul           ! fpul = XF0 value
+        fmov    fr3, fr6            ! fr6  = x*s
+        fmac    fr0, fr13, fr5      ! fr5  = y*y*t + c    => XF5
+        fneg    fr3                 ! fr3  = -x*s
+        fmac    fr0, fr14, fr6      ! fr6  = y*z*t + x*s  => XF6
+        fmov    fr9, fr10           ! fr10 = c
+        fmul    fr14, fr15          ! fr15 = z*t
+        fmov    fr3, fr9            ! fr9  = -x*s
+        fldi0   fr7                 ! fr7  = 0            => XF7
+        fmac    fr0, fr14, fr9      ! fr9  = y*z*t - x*s  => XF9
+        fmov    fr15, fr0           ! fr0  = z*t
+        fmac    fr0, fr14, fr10     ! fr10 = z*z*t + c    => XF10
+        fsts    fpul, fr0           ! fr0                 => XF0
+        flds    fr7, fpul
+        fldi1   fr15                ! fr15 = 1            => XF15
+        float   fpul, fr12          ! fr12 = 0            => XF12
+        fldi0   fr11                ! fr11 = 0            => XF11
+        float   fpul, fr14          ! fr14 = 0            => XF14
+        fldi0   fr13                ! fr13 = 0            => XF13
+        float   fpul, fr3           ! fr3  = 0            => XF3
+        frchg
+    )"
+    :
+    : "f" (fr4), "f" (fr5), "f" (fr6), "f" (fr7)
+    : "fpul");
+}
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_translation_sh4(float x, float y, float z) SHZ_NOEXCEPT {
     register float fr4 asm("fr4") = x;
@@ -2072,7 +2146,6 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation_sh4(void) SHZ_NOEXCEPT {
     shz_vec3_t pos;
 
     asm volatile(R"(
-    .align 4
         add     #12, %[p]
         frchg
         fmov.s  fr14, @-%[p]
@@ -3486,8 +3559,8 @@ SHZ_INLINE void shz_xmtrx_blend_sh4(const shz_mat4x4_t* joint_matrix, float weig
     )"
     : [j] "+r" (joint_matrix)
     : "f" (fr0), "m" (*joint_matrix)
-    : "fr2", "fr3", "fr4", "fr6", "fr7",
-      "fr8", "fr9", "fr10", "fr11");
+    : "fr2", "fr3", "fr4", "fr5", "fr6",
+      "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_sh4(shz_vec4_t vec) SHZ_NOEXCEPT {
