@@ -38,7 +38,7 @@
 
 // Attempt to detect default back-end for the given build environment.
 #ifndef SHZ_BACKEND
-#   ifdef __DREAMCAST__
+#   if defined(__SH4_SINGLE__) || defined(__SH4_SINGLE_ONLY__)
 #       define SHZ_BACKEND SHZ_SH4  // Dreamcast builds use SH4 back-end.
 #   else
 #       define SHZ_BACKEND SHZ_SW   // Everything else uses SW C back-end.
