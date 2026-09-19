@@ -48,7 +48,7 @@ PROJECT_NAME           = "SH4ZAM!"
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = 0.8.0
+PROJECT_NUMBER         = 0.8.1
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -2500,7 +2500,8 @@ PREDEFINED             = __attribute__((x))= \
                          aligned((x))= \
                          SHZ_FORCE_INLINE= \
                          SHZ_INLINE= \
-                         SHZ_DEPRECATED(x)= 
+                         SHZ_DEPRECATED(x)= \
+                         SHZ_NOEXCEPT=noexcept
                     
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this

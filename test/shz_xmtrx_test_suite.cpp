@@ -1224,6 +1224,25 @@ GBL_TEST_CASE(get_scale)
     }
 
     {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity();
+        shz::xmtrx::set_scale(0.0f, 0.0f, 0.0f);
+
+        shz::vec3 scale = shz::xmtrx::get_scale();
+
+        GBL_TEST_VERIFY(scale == shz::vec3(0.0f, 0.0f, 0.0f));
+    }
+
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_zero();
+
+        shz::vec3 scale = shz::xmtrx::get_scale();
+
+        GBL_TEST_VERIFY(scale == shz::vec3(0.0f, 0.0f, 0.0f));
+    }
+
+    {
         shz::xmtrx::init_identity();
         shz::xmtrx::apply_rotation_x(shz::deg_to_rad(30.0f));
         shz::xmtrx::apply_rotation_y(shz::deg_to_rad(60.0f));

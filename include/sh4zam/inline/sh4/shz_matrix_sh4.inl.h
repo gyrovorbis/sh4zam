@@ -425,19 +425,20 @@ SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3_transpose_sh4(const shz_mat3x3_t
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_get_scale_sh4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
-    register float fr3  asm("fr3");
-    register float fr7  asm("fr7");
-    register float fr11 asm("fr11");
-    uintptr_t zero, scratch;
+    register float fr2  asm("fr2");
+    register float fr6  asm("fr6");
+    register float fr10 asm("fr10");
+    uintptr_t zero;
 
     asm(R"(
-        mov       %[m], %[s]
         mov       #0, %[z]
-        add       #32, %[s]
-        lds       %[z], fpul
         fschg
+        lds       %[z], fpul
         fmov.d    @%[m]+, dr8
-        nop
+        add       #28, %[m]
+        pref      @%[m]
+        add       #-28, %[m]
+        float     fpul, fr12
         fmov.d    @%[m]+, dr10
         float     fpul, fr11
         fmov.d    @%[m]+, dr4
@@ -447,26 +448,33 @@ SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_get_scale_sh4(const shz_mat4x4_t* mat) SH
         fmov      @%[m]+, dr0
         fipr      fv4, fv4
         fmov      @%[m]+, dr2
-        float     fpul, fr3
+        fcmp/eq   fr11, fr12
+        fldi0     fr3
         fschg
         fipr      fv0, fv0
         fmov      fr11, fr10
         fsrra     fr11
-        fmov      fr7, fr6
+        bt/s      1f
+        fcmp/eq   fr7, fr12
+        fmul      fr11, fr10
+    1:  fmov      fr7, fr6
         fsrra     fr7
-        fmov      fr3, fr2
+        bt/s      2f
+        fcmp/eq   fr3, fr12
+        fmul      fr7, fr6
+    2:  fmov      fr3, fr2
         fsrra     fr3
-        fmul      fr10, fr11
-        fmul      fr6, fr7
-        fmul      fr2, fr3
+        bt        3f
+        fmul      fr3, fr2
+    3:
     )"
-    : "=f" (fr3), "=f" (fr7), "=f" (fr11),
-      [z] "=r" (zero), [s] "=r" (scratch), [m] "+r" (mat)
+    : "=f" (fr2), "=f" (fr6), "=f" (fr10),
+      [z] "=r" (zero), [m] "+r" (mat)
     : "m" (*mat)
-    : "fpul", "fr0", "fr1", "fr2", "fr4",
-      "fr5", "fr6", "fr8", "fr9", "fr10");
+    : "fpul", "fr0", "fr1", "fr3", "fr4",
+      "fr5", "fr7", "fr8", "fr9", "fr11", "fr12");
 
-    return shz_vec3_init(fr11, fr7, fr3);
+    return shz_vec3_init(fr10, fr6, fr2);
 }
 
 #endif

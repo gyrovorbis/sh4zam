@@ -18,7 +18,7 @@
 #include <math.h>
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16_sw(uint16_t radians16) SHZ_NOEXCEPT {
-    float radians = ((float)radians16 / 65535.0f) * 2.0f * SHZ_F_PI;
+    float radians = ((float)radians16 / (float)(UINT16_MAX + 1)) * SHZ_F_TAU;
  
     return SHZ_INIT(shz_sincos_t, sinf(radians), cosf(radians));
 }

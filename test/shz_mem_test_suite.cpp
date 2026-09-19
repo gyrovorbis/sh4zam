@@ -194,6 +194,41 @@ GBL_TEST_CASE(memcpy_primitive_64)
 #endif
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(memcpy_alignment_sweep)
+    alignas(32) static uint8_t srcbuf[512];
+    alignas(32) static uint8_t dstbuf[512];
+    alignas(32) static uint8_t refbuf[512];
+
+    for(unsigned i = 0; i < sizeof(srcbuf); ++i)
+        srcbuf[i] = (uint8_t)(i * 7u + 3u);
+
+    unsigned failCount = 0;
+
+    for(unsigned soff = 0; soff <= 8; ++soff)
+        for(unsigned doff = 0; doff <= 8; ++doff)
+            for(unsigned n = 1; n <= 300; ++n) {
+                memset(dstbuf, 0xAA, sizeof(dstbuf));
+                memset(refbuf, 0xAA, sizeof(refbuf));
+
+                shz::memcpy(dstbuf + doff, srcbuf + soff, n);
+                ::memcpy(refbuf + doff, srcbuf + soff, n);
+
+                if(::memcmp(dstbuf, refbuf, sizeof(dstbuf))) {
+                    ++failCount;
+                    if(failCount <= 8) {
+                        unsigned bad = 0;
+                        while(bad < sizeof(dstbuf) && dstbuf[bad] == refbuf[bad])
+                            ++bad;
+                        std::println("FAIL soff={} doff={} n={:3}: first bad byte {}, "
+                                     "got {:#x} want {:#x}",
+                                     soff, doff, n, bad, dstbuf[bad], refbuf[bad]);
+                    }
+                }
+            }
+
+    GBL_TEST_VERIFY(!failCount);
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(memcpy1,
                   memcpy2,
                   memcpy4,
@@ -210,4 +245,5 @@ GBL_TEST_REGISTER(memcpy1,
                   memcpy_primitive_8,
                   memcpy_primitive_16,
                   memcpy_primitive_32,
-                  memcpy_primitive_64)
+                  memcpy_primitive_64,
+                  memcpy_alignment_sweep)

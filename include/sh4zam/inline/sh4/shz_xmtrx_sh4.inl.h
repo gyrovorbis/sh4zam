@@ -2160,9 +2160,9 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation_sh4(void) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_scale_sh4(void) SHZ_NOEXCEPT {
-    register float fr3  asm("fr3");
-    register float fr7  asm("fr7");
-    register float fr11 asm("fr11");
+    register float fr2  asm("fr2");
+    register float fr6  asm("fr6");
+    register float fr10 asm("fr10");
 
     uintptr_t zero;
 
@@ -2173,6 +2173,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_scale_sh4(void) SHZ_NOEXCEPT {
         fmov      xd10, dr10
         float     fpul, fr11
         fmov      xd8, dr8
+        float     fpul, fr12
         fmov      xd6, dr6
         fipr      fv8, fv8
         fmov      xd4, dr4
@@ -2180,25 +2181,33 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_scale_sh4(void) SHZ_NOEXCEPT {
         fmov      xd2, dr2
         fipr      fv4, fv4
         fmov      xd0, dr0
-        float     fpul, fr3
+        fcmp/eq   fr11, fr12
+        fldi0     fr3
         fschg
         fipr      fv0, fv0
         fmov      fr11, fr10
         fsrra     fr11
-        fmov      fr7, fr6
+        bt/s      1f
+        fcmp/eq   fr7, fr12
+        fmul      fr11, fr10
+    1:  fmov      fr7, fr6
         fsrra     fr7
-        fmov      fr3, fr2
+        bt/s      2f
+        fcmp/eq   fr3, fr12
+        fmul      fr7, fr6
+    2:  fmov      fr3, fr2
         fsrra     fr3
-        fmul      fr10, fr11
-        fmul      fr6, fr7
-        fmul      fr2, fr3
+        bt        3f
+        fmul      fr3, fr2
+    3:
     )"
-    : "=f" (fr3), "=f" (fr7), "=f" (fr11), [z] "=r" (zero)
+    : "=f" (fr2), "=f" (fr6), "=f" (fr10),
+      [z] "=r" (zero)
     :
-    : "fpul", "fr0", "fr1", "fr2", "fr4",
-      "fr5", "fr6", "fr8", "fr9", "fr10");
+    : "fpul", "fr0", "fr1", "fr3", "fr4",
+      "fr5", "fr7", "fr8", "fr9", "fr11", "fr12");
 
-    return shz_vec3_init(fr3, fr7, fr11);
+    return shz_vec3_init(fr2, fr6, fr10);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_translation_sh4(float x, float y, float z) SHZ_NOEXCEPT {
@@ -2836,32 +2845,37 @@ SHZ_INLINE void shz_xmtrx_apply_perspective_sh4(float fov, float aspect, float z
 // 	0.0f      | 0.0f      | 1.0f      | 0.0f
 //  0.0f      | 0.0f      | 0.0f      | 1.0f
 // ****************************************************************
+//! \todo shz_xmtrx_init_scren_sh4(): Could be WAY faster.
 SHZ_INLINE void shz_xmtrx_init_screen_sh4(float width, float height) SHZ_NOEXCEPT {
+    uintptr_t zero;
+
     width  *= 0.5f;
     height *= 0.5f;
 
     asm volatile(R"(
+        mov     #0, %[z]
         frchg
+        lds     %[z], fpul
         fldi0   fr1
         fmov.s  @%[h], fr13
-        fmul    fr1, fr2
+        float   fpul, fr2
         fmov.s  @%[w], fr0
-        fmul    fr1, fr3
+        float   fpul, fr3
         fldi1   fr15
-        fmul    fr1, fr4
+        float   fpul, fr4
         fmov    fr13, fr5
-        fmul    fr1, fr14
+        float   fpul, fr14
         fmov    fr0, fr12
-        fmul    fr1, fr11
+        float   fpul, fr11
         fldi1   fr10
-        fmul    fr1, fr6
+        float   fpul, fr6
         fneg    fr5
-        fmul    fr1, fr7
+        float   fpul, fr7
         fldi0   fr8
-        fmul    fr1, fr9
+        fldi0   fr9
         frchg
     )"
-    :
+    : [z] "=&r" (zero)
     : [w] "r" (&width), [h] "r" (&height),
       "m" (width), "m" (height)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
@@ -2939,10 +2953,14 @@ SHZ_INLINE void shz_xmtrx_init_permutation_wxyz_sh4(void) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE void shz_xmtrx_apply_permutation_wxyz_sh4(void) SHZ_NOEXCEPT {
+    uintptr_t zero;
+
     asm volatile(R"(
+        mov     #0, %[z]
         fldi0   fr0
+        lds     %[z], fpul
         fldi1   fr1
-        fmul    fr0, fr2
+        float   fpul, fr2
         fldi0   fr3
         fldi0   fr4
         ftrv    xmtrx, fv0
@@ -2966,7 +2984,7 @@ SHZ_INLINE void shz_xmtrx_apply_permutation_wxyz_sh4(void) SHZ_NOEXCEPT {
 
         frchg
     )"
-    :
+    : [z] "=r" (zero)
     :
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
@@ -2999,7 +3017,7 @@ SHZ_INLINE void shz_xmtrx_apply_permutation_yzwx_sh4(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         fldi0   fr0
         fldi0   fr1
-        fmul    fr0, fr2
+        fldi0   fr2
         fldi1   fr3
         fldi1   fr4
         ftrv    xmtrx, fv0
@@ -3056,7 +3074,7 @@ SHZ_INLINE void shz_xmtrx_apply_permutation_wzyx_sh4(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         fldi0 fr0
         fldi0 fr1
-        fmul  fr0, fr2
+        fldi0 fr2
         fldi1 fr3
         fldi0 fr4
         ftrv  xmtrx,fv0
@@ -3084,7 +3102,7 @@ SHZ_INLINE void shz_xmtrx_apply_permutation_wzyx_sh4(void) SHZ_NOEXCEPT {
     :
     :
     : "fr0","fr1","fr2","fr3","fr4","fr5","fr6","fr7",
-    "fr8","fr9","fr10","fr11","fr12","fr13","fr14","fr15");
+      "fr8","fr9","fr10","fr11","fr12","fr13","fr14","fr15");
 }
 
 SHZ_INLINE void shz_xmtrx_apply_self_sh4(void) SHZ_NOEXCEPT {
