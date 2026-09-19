@@ -60,7 +60,7 @@ namespace shz {
         */
 #ifdef SHZ_CPP23
         //! Overloaded subscript operator -- allows for indexing complex numbers like a 2-element array.
-        SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) noexcept {
+        SHZ_FORCE_INLINE decltype(auto) operator[](this auto&& self, size_t index) noexcept {
             return std::forward_like<decltype(self)>(reinterpret_cast<const float*>(&self)[index]);
         }
 

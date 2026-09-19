@@ -2,8 +2,8 @@
     \brief   C++ routines for operating upon quaternions.
     \ingroup quat
 
-    \todo
-        - overload arithmetic operators
+    This file contains the C++ implementation of the SH4ZAM
+    quaternion math API.
 
     \author    2025, 2026 Falco Girgis
     \copyright MIT License
@@ -115,7 +115,7 @@ namespace shz {
         */
 
         //! Overloaded subscript operator for indexing into the quaternion like an array.
-        SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) noexcept {
+        SHZ_FORCE_INLINE decltype(auto) operator[](this auto&& self, size_t index) noexcept {
             return std::forward<decltype(self)>(self).e[index];
         }
 

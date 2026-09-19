@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 set(SHZ_VERSION_MAJOR 0)
 set(SHZ_VERSION_MINOR 8)
-set(SHZ_VERSION_PATCH 0)
+set(SHZ_VERSION_PATCH 1)
 set(SHZ_VERSION ${SHZ_VERSION_MAJOR}.${SHZ_VERSION_MINOR}.${SHZ_VERSION_PATCH})
 
 project(sh4zam
@@ -86,6 +86,19 @@ else()
          include/sh4zam/inline/sw/shz_xmtrx_sw.inl.h)
 endif()
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR
+    CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
+    CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+
+    option(SHZ_SAVE_TEMPS "Save intermediate compilation files." OFF)
+
+    if(SHZ_SAVE_TEMPS)
+        message("Saving temporaries enabled: disabling LTO!")
+        add_compile_options(-save-temps=obj)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
+    endif()
+endif()
+
 # Allow a parent project to control how sh4zam is built. simulant builds it as
 # an OBJECT library so the sh4zam object files are embedded directly into
 # libsimulant.a, meaning downstream users don't have to link sh4zam themselves.
@@ -111,13 +124,13 @@ option(SHZ_ENABLE_PIC "Enable position-independent code." OFF)
 
 if(SHZ_ENABLE_PIC)
     set(CMAKE_POSITION_INDEPENDENT_CODE SHZ_ENABLE_PIC)
-endif(SHZ_ENABLE_PIC)
+endif()
 
 option(SHZ_ENABLE_TESTS "Enable SH4ZAM Unit Tests" OFF)
 
 if(SHZ_ENABLE_TESTS)
     add_subdirectory(test)
-endif(SHZ_ENABLE_TESTS)
+endif()
 
 if(PLATFORM_DREAMCAST OR MSVC)
     set(SHZ_TLS_MODEL_DEFAULT "IMPLICIT")

@@ -16,6 +16,8 @@ endif
 # CMake artifact directory
 CMAKE_BUILD_DIR := build
 
+SHZ_SAVE_TEMPS ?= off
+
 ################# PUBLIC RULES ##################
 
 # Builds static library only.
@@ -87,7 +89,7 @@ update:
 
 # CMake-generated Makefile.
 $(CMAKE_BUILD_DIR)/Makefile: CMakeLists.txt
-	kos-cmake -S $(<D) -DSHZ_ENABLE_TESTS=on -B $(@D)
+	kos-cmake -S $(<D) -DSHZ_ENABLE_TESTS=on -DSHZ_SAVE_TEMPS=$(SHZ_SAVE_TEMPS) -B $(@D)
 
 # Statically linked library artifact.
 .PHONY: $(CMAKE_BUILD_DIR)/libsh4zam.a

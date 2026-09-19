@@ -150,7 +150,15 @@ static void apply_model_matrix(shz_vec3_t pos,
     shz_xmtrx_apply_rotation_y(rot.y);
 }
 
-//! Renders a single one of Bruce's balls.
+/*! Renders a single one of Bruce's balls.
+
+    NOTE: We are explicitly disabling loop unrolling of this absolutely
+          critical routine, on account of we have already pipelined and
+          constructed the loop very well, so unrolling it further would
+          just lead to code bloat and hurt performance due to icache
+          misses and increased register pressure.
+*/
+SHZ_NO_UNROLL_LOOPS
 static void render_sphere(float radius, 
                           uint32_t base_color, 
                           pvr_dr_state_t* dr_state) {

@@ -357,6 +357,23 @@ GBL_TEST_CASE(get_scale)
         GBL_TEST_VERIFY(shz_equalf(scale.z, glmScale[2]));
     }
 
+    {
+        mat.shz.init_identity();
+        mat.shz.set_scale(0.0f, 0.0f, 0.0f);
+
+        shz::vec3 scale = mat.shz.get_scale();
+
+        GBL_TEST_VERIFY(scale == shz::vec3(0.0f, 0.0f, 0.0f));
+    }
+
+    {
+        mat.shz.init_zero();
+
+        shz::vec3 scale = mat.shz.get_scale();
+
+        GBL_TEST_VERIFY(scale == shz::vec3(0.0f, 0.0f, 0.0f));
+    }
+
     GBL_TEST_VERIFY(
         (benchmark_cmp<shz::vec3>)("shz::mat4x4::get_scale",
                                    [](const shz_glm_mat4& m) {

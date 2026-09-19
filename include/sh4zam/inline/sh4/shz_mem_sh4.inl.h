@@ -197,11 +197,12 @@ SHZ_INLINE void* shz_memcpy2_sh4(void*       SHZ_RESTRICT dst,
             *d++ = r1;
             *d++ = r0;
         } while(SHZ_LIKELY(--blocks));
+        s -= 8;
         bytes &= 0x7;
     }
 
     if(SHZ_LIKELY(bytes)) {
-       uint32_t diff = (uintptr_t)d - (((uintptr_t)s) + 4);
+       uint32_t diff = (uintptr_t)d - (((uintptr_t)s) + 2);
        uintptr_t scratch;
 
         asm(R"(
@@ -255,6 +256,7 @@ SHZ_INLINE void* shz_memcpy4_sh4(void*       SHZ_RESTRICT dst,
             *d++ = r1;
             *d++ = r0;
         } while(SHZ_LIKELY(--blocks));
+        s -= 8;
         bytes &= 0x7;
     }
 

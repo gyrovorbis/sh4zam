@@ -20,6 +20,8 @@
 namespace shz {
     //! Floating-point constant approximation for Pi.
     constexpr float pi_f            = SHZ_F_PI;
+    //! Floating-point constant approximation for Pi*2.
+    constexpr float tau_f           = SHZ_F_TAU;
     //! Floating-point constant approximation for Pi/2.
     constexpr float pi_f_2          = SHZ_F_PI_2;
     //! Floating-point constant approximation for Pi/4.
@@ -41,7 +43,7 @@ namespace shz {
     */
     struct sincos: shz_sincos_t {
         //! Converting constructor from C struct.
-        SHZ_FORCE_INLINE sincos(shz_sincos_t val) noexcept:
+        SHZ_FORCE_INLINE sincos(const shz_sincos_t& val) noexcept:
             shz_sincos_t(val) {}
 
         //! Returns a new sin/cos pair from the given angle in radians.

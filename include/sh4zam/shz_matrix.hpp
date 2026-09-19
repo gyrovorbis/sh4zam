@@ -45,7 +45,7 @@ namespace shz {
         }
 
         //! Overloaded subscript operator -- allows for indexing matrices like an array.
-        SHZ_FORCE_INLINE auto&& operator[](this auto&& self, size_t index) noexcept {
+        SHZ_FORCE_INLINE decltype(auto) operator[](this auto&& self, size_t index) noexcept {
             return std::forward<decltype(self)>(self).elem[index];
         }
 

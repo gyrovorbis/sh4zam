@@ -679,9 +679,10 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation_sw(void) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_scale_sw(void) SHZ_NOEXCEPT {
     shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
-    return shz_vec3_init(shz_vec3_magnitude(xmtrx_state_->col[0].xyz),
-                         shz_vec3_magnitude(xmtrx_state_->col[1].xyz),
-                         shz_vec3_magnitude(xmtrx_state_->col[2].xyz));
+
+    return shz_vec3_init(shz_sqrtf(shz_vec3_magnitude_sqr(xmtrx_state_->col[0].xyz)),
+                         shz_sqrtf(shz_vec3_magnitude_sqr(xmtrx_state_->col[1].xyz)),
+                         shz_sqrtf(shz_vec3_magnitude_sqr(xmtrx_state_->col[2].xyz)));
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_translation_sw(float x, float y, float z) SHZ_NOEXCEPT {

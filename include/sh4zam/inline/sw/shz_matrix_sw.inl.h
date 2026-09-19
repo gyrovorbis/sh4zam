@@ -51,9 +51,9 @@ SHZ_INLINE void shz_mat4x4_copy_sw(shz_mat4x4_t* dst, const shz_mat4x4_t* src) S
 }
 
 SHZ_INLINE shz_vec3_t shz_mat4x4_get_scale_sw(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
-    return shz_vec3_init(shz_vec3_magnitude(mat->col[0].xyz),
-                         shz_vec3_magnitude(mat->col[1].xyz),
-                         shz_vec3_magnitude(mat->col[2].xyz));
+    return shz_vec3_init(shz_sqrtf(shz_vec3_magnitude_sqr(mat->col[0].xyz)),
+                         shz_sqrtf(shz_vec3_magnitude_sqr(mat->col[1].xyz)),
+                         shz_sqrtf(shz_vec3_magnitude_sqr(mat->col[2].xyz)));
 }
 
 SHZ_INLINE void shz_mat4x4_swap_sw(shz_mat4x4_t* matA, shz_mat4x4_t* matB) SHZ_NOEXCEPT {
