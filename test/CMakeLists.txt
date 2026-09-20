@@ -38,6 +38,15 @@ add_executable(Sh4zamTests
 target_include_directories(Sh4zamTests
     PRIVATE ..)
 
+# Exercise the fast-math inline backend even when the main suite is strict.
+# Do not let LTO fold the call back into the constant-input implementation.
+if(CMAKE_C_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
+    target_sources(Sh4zamTests PRIVATE shz_trig_fast_test.c)
+    set_source_files_properties(shz_trig_fast_test.c PROPERTIES
+        COMPILE_FLAGS "-ffast-math -fno-lto")
+    target_compile_definitions(Sh4zamTests PRIVATE SHZ_TEST_FAST_MATH)
+endif()
+
 set(LIBS libGimbal sh4zam cglm)
 
 if(PLATFORM_DREAMCAST)
@@ -56,4 +65,3 @@ option(SHZ_DISABLE_BENCHMARKS "Disable SH4ZAM test benchmarks" OFF)
 if(SHZ_DISABLE_BENCHMARKS)
     target_compile_definitions(Sh4zamTests PRIVATE SHZ_DISABLE_BENCHMARKS)
 endif(SHZ_DISABLE_BENCHMARKS)
-
