@@ -24,9 +24,10 @@
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16_sh4(uint16_t radians16) SHZ_NOEXCEPT {
     float rsin, rcos;
 
-#if __FAST_MATH__
-    rsin = __builtin_sinf(radians16 / SHZ_F_TAU);
-    rcos = __builtin_cosf(radians16 / SHZ_F_TAU);
+#ifdef __FAST_MATH__
+    const float radians = radians16 * (SHZ_F_TAU / (float)(UINT16_MAX + 1));
+    rsin = __builtin_sinf(radians);
+    rcos = __builtin_cosf(radians);
 #else
     asm(R"(
             lds  %2, fpul

@@ -19,6 +19,31 @@ namespace {
     }
 }
 
+#ifdef SHZ_TEST_FAST_MATH
+extern "C" shz_sincos_t shz_test_sincosu16_fast(uint16_t angle);
+
+GBL_FP_PRECISE
+GBL_TEST_CASE(sincos_u16_fast_math)
+    // Cover quadrants, their neighbors, non-cardinal angles, and wraparound.
+    constexpr uint16_t angles[] = {
+        0, 1, 8192, 12345, 16383, 16384, 16385, 32767, 32768, 32769,
+        49151, 49152, 49153, 65534, 65535
+    };
+    constexpr double tau = 6.283185307179586476925286766559;
+
+    for(uint16_t angle : angles) {
+        const auto actual = shz_test_sincosu16_fast(angle);
+        const double radians = angle * (tau / 65536.0);
+
+        GBL_TEST_VERIFY(std::isfinite(actual.sin) && std::isfinite(actual.cos));
+        GBL_TEST_ERROR(actual.sin, std::sin(radians), 0.0003,
+                       GBL_TEST_ERROR_ABSOLUTE);
+        GBL_TEST_ERROR(actual.cos, std::cos(radians), 0.0003,
+                       GBL_TEST_ERROR_ABSOLUTE);
+    }
+GBL_TEST_CASE_END
+#endif
+
 GBL_TEST_CASE(sincos_from_radians)
     auto test = [&](volatile float radians) GBL_FP_PRECISE {
         auto sincos = shz::sincos::from_radians(radians);
@@ -330,6 +355,9 @@ GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(sincos_from_radians,
                   sincos_from_degrees,
+#ifdef SHZ_TEST_FAST_MATH
+                  sincos_u16_fast_math,
+#endif
                   sinf,
                   cosf,
                   atanf,
