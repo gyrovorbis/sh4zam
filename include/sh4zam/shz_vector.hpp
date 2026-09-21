@@ -499,6 +499,40 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
     SHZ_FORCE_INLINE vec3(const sincos& azimuth, const sincos& elevation) noexcept:
         vecN(shz_vec3_from_sincos(azimuth, elevation)) {}
 
+/*! \name  Rotations
+    \brief Routines for rotating a given vector.
+
+    \warning
+    These should only be used for one-off rotations, as it's much faster to apply the
+    same rotation against a batch of multiple vectors by going through the XMTRX API.
+
+    @{
+*/
+    /*! Rotates a 3D vector about the X axis by the given number of radians.
+
+        \sa shz::xmtrx::apply_rotation_x()
+    */
+    SHZ_FORCE_INLINE vec3 rotate_x(float angle) const noexcept {
+        return shz_vec3_rotate_x(*this, angle);
+    }
+
+    /*! Rotates a 3D vector about the Y axis by the given number of radians.
+
+        \sa shz::xmtrx::apply_rotation_y()
+    */
+    SHZ_FORCE_INLINE vec3 rotate_y(float angle) const noexcept {
+        return shz_vec3_rotate_y(*this, angle);
+    }
+
+    /*! Rotates a 3D vector about the Z axis by the given number of radians.
+
+        \sa shz::xmtrx::apply_rotation_z()
+    */
+    SHZ_FORCE_INLINE vec3 rotate_z(float angle) const noexcept {
+        return shz_vec3_rotate_z(*this, angle);
+    }
+//! @}
+
     //! Returns 2 3D vectors which are normalized and orthogonal to the two input vectors as a std::pair<>.
     SHZ_FORCE_INLINE static auto orthonormalize(const vec3& in1, const vec3& in2) noexcept {
         vec3 out1, out2;

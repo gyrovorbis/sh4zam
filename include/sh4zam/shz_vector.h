@@ -632,6 +632,36 @@ SHZ_INLINE shz_vec3_t shz_vec3_from_angles_deg(float azimuth, float elevation) S
 //! Rotates the given 2D vector about the Z axis by the given angle in radians.
 SHZ_INLINE shz_vec2_t shz_vec2_rotate(shz_vec2_t vec, float radians) SHZ_NOEXCEPT;
 
+/*! Rotates the given 3D vector about the X axis by the given angle in radians.
+
+    \warning
+    This routine should only be used for one-off rotations of a single vector.
+    To rotate multiple vectors in a batch, use the XMTRX API.
+
+    \sa shz_xmtrx_apply_rotation_x()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_x(shz_vec3_t vec, float radians) SHZ_NOEXCEPT;
+
+/*! Rotates the given 3D vector about the Y axis by the given angle in radians.
+
+    \warning
+    This routine should only be used for one-off rotations of a single vector.
+    To rotate multiple vectors in a batch, use the XMTRX API.
+
+    \sa shz_xmtrx_apply_rotation_y()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_y(shz_vec3_t vec, float radians) SHZ_NOEXCEPT;
+
+/*! Rotates the given 3D vector about the Z axis by the given angle in radians.
+
+    \warning
+    This routine should only be used for one-off rotations of a single vector.
+    To rotate multiple vectors in a batch, use the XMTRX API.
+
+    \sa shz_xmtrx_apply_rotation_z()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_z(shz_vec3_t vec, float radians) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Extending

@@ -446,6 +446,30 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_rotate(shz_vec2_t vec, float radians) SHZ_N
                          vec.x * sincos.sin + vec.y * sincos.cos);
 }
 
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_x(shz_vec3_t vec, float radians) SHZ_NOEXCEPT {
+    const shz_sincos_t sc = shz_sincosf(radians);
+
+    return shz_vec3_init(vec.x,
+                         vec.y * sc.cos - vec.z * sc.sin,
+                         vec.y * sc.sin + vec.z * sc.cos);
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_y(shz_vec3_t vec, float radians) SHZ_NOEXCEPT {
+    const shz_sincos_t sc = shz_sincosf(radians);
+
+    return shz_vec3_init(vec.x * sc.cos + vec.z * sc.sin,
+                         vec.y,
+                         vec.z * sc.cos - vec.x * sc.sin);
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_z(shz_vec3_t vec, float radians) SHZ_NOEXCEPT {
+    const shz_sincos_t sc = shz_sincosf(radians);
+
+    return shz_vec3_init(vec.x * sc.cos - vec.y * sc.sin,
+                         vec.x * sc.sin + vec.y * sc.cos,
+                         vec.z);
+}
+
 SHZ_INLINE shz_vec2_t shz_vec2_refract(shz_vec2_t incidence, shz_vec2_t normal, float eta) SHZ_NOEXCEPT {
     const float dot = shz_vec2_dot(incidence, normal);
     const float k   = 1.0f - eta * eta * (1.0f - dot * dot);
