@@ -150,6 +150,9 @@ SHZ_INLINE void shz_xmtrx_load_transpose_unaligned_4x4(const float matrix[16]) S
 //! Loads the given 3x4 matrix into XMTRX, initializing its remaining elements to identity.
 SHZ_INLINE void shz_xmtrx_load_3x4(const shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
 
+//! Loads XMTRX with the transpose of the given 3x4 matrix, initializing the bottom row to identity.
+SHZ_INLINE void shz_xmtrx_load_transpose_3x4(const shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
+
 /*! Loads the 3x4 matrix formed from the given 3 4D column vectors into XMTRX.
 
     All remaining elements are initialized to identity matrix values.
@@ -169,6 +172,17 @@ SHZ_INLINE void shz_xmtrx_load_cols_4x3(const shz_vec4_t* c1,
 SHZ_INLINE void shz_xmtrx_load_rows_3x4(const shz_vec4_t* r1,
                                         const shz_vec4_t* r2,
                                         const shz_vec4_t* r3) SHZ_NOEXCEPT;
+
+/*! Loads the 3x4 matrix formed from the given 4 3D column vectors into XMTRX.
+
+    All remaining elements are initialized to identity matrix values.
+
+    \sa shz_xmtrx_load_rows_3x4()
+*/
+SHZ_INLINE void shz_xmtrx_load_cols_3x4(const shz_vec3_t* c1,
+                                        const shz_vec3_t* c2,
+                                        const shz_vec3_t* c3,
+                                        const shz_vec3_t* c4) SHZ_NOEXCEPT;
 
 //! Loads the given 3x3 matrix into XMTRX, initalizing its remaining elements to identity.
 SHZ_INLINE void shz_xmtrx_load_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT;
@@ -200,6 +214,9 @@ SHZ_INLINE void shz_xmtrx_store_transpose_unaligned_4x4(float matrix[16]) SHZ_NO
 
 //! Stores the top-left 3x4 values currently held within XMTRX into the given matrix.
 SHZ_INLINE void shz_xmtrx_store_3x4(shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
+
+//! Stores the transpose of the top-left 3x4 values currently held within XMTRX into the given matrix.
+SHZ_INLINE void shz_xmtrx_store_transpose_3x4(shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
 
 //! Stores the top-left 3x3 values currently held within XMTRX into the given matrix.
 SHZ_INLINE void shz_xmtrx_store_3x3(shz_mat3x3_t* matrix) SHZ_NOEXCEPT;
@@ -410,6 +427,15 @@ SHZ_INLINE void shz_xmtrx_apply_reverse_transpose_unaligned_4x4(const float matr
 
 //! Multiplies and accumulates the given 3x4 matrix onto XMTRX, not modifying other elements.
 SHZ_INLINE void shz_xmtrx_apply_3x4(const shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates the transpose of the given 3x4 matrix onto XMTRX, not modifying other elements.
+SHZ_INLINE void shz_xmtrx_apply_transpose_3x4(const shz_mat3x4_t* matrix) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX onto \p matrix, storing the result as XMTRX.
+SHZ_INLINE void shz_xmtrx_apply_reverse_3x4(const shz_mat3x4_t* mat) SHZ_NOEXCEPT;
+
+//! Multiplies and accumulates XMTRX onto the transpose of \p matrix, storing the result as XMTRX.
+SHZ_INLINE void shz_xmtrx_apply_reverse_transpose_3x4(const shz_mat3x4_t* mat) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates the given 3x3 matrix onto XMTRX, not modifying other elements.
 SHZ_INLINE void shz_xmtrx_apply_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT;
@@ -678,6 +704,20 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
 SHZ_INLINE void shz_xmtrx_load_apply_store_unaligned_4x4(float out[16],
                                                          const float matrix1[16],
                                                          const float matrix2[16]) SHZ_NOEXCEPT;
+
+/*! Loads XMTRX with the result of applying \p matrix2 onto \p matrix1.
+
+    This operation is equivalent to:
+        shz_xmtrx_load_3x4(matrix1);
+        shz_xmtrx_apply_3x4(matrix2);
+
+    However, it has been optimized and pipelined for performing the load
+    and multiply in parallel.
+
+    \sa shz_xmtrx_load_3x4(), shz_xmtrx_apply_3x4(), shz_xmtrx_load_apply_store_3x4()
+*/
+SHZ_INLINE void shz_xmtrx_load_apply_3x4(const shz_mat3x4_t* matrix1,
+                                         const shz_mat3x4_t* matrix2) SHZ_NOEXCEPT;
 
 /*! Loads XMTRX with the 3x4 result of applying \p matrix2 onto \p matrix1, storing the result.
 

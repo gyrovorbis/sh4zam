@@ -17,6 +17,7 @@
 #endif
 
 #define BENCHMARK_ITERATION_MATCHES     3
+#define BENCHMARK_CMP_ROUNDS            4
 
 #if SHZ_BACKEND == SHZ_SH4
 #   define PERF_CNTR       PRFC1
@@ -87,158 +88,193 @@ namespace {
     }
 }
 
+struct benchmark_stats {
+    uint64_t cycles;
+    uint64_t last;
+    uint64_t avg;
+    uint64_t ns;
+    uint64_t pc2_last;
+    uint64_t pc2_avg;
+    unsigned iterations;
+    bool     converged;
+};
+
+template<bool CacheFlush, typename... Args>
+SHZ_NO_INLINE SHZ_FUNC_ALIGNAS(32) SHZ_NO_UNROLL_LOOPS
+benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noexcept {
+    uint64_t tmu_sum    = 0;
+    uint64_t flush_sum  = 0;
+    uint64_t sum        = 0;
+    uint64_t prev       = 0;
+    uint64_t pc2_sum    = 0;
+    uint64_t pc2_prev   = 0;
+    unsigned matches    = 0;
+    int      iterations = -1;
+    bool     converged  = false;
+
+#if SHZ_BACKEND == SHZ_SH4
+    SHZ_INSTR_BARRIER();
+    auto state = irq_disable();
+#endif
+    SHZ_INSTR_BARRIER();
+    /* On SH4, PMCR already gives us a real per-iteration cycle count, so
+       the TMU read (a genuine function call down to hardware registers)
+       is just supplementary "ns" reporting -- no reason to pay its call
+       overhead (and register pressure) twice per iteration. Hoisted out
+       uniformly across backends: other backends don't have a perf-counter
+       equivalent yet, but will, and should follow the same shape when
+       they do. */
+    uint64_t tmu_start = ns_gettime64();
+    SHZ_INSTR_BARRIER();
+
+    for(; iterations < BENCHMARK_ITERATION_COUNT; ++iterations) {
+        SHZ_INSTR_BARRIER();
+
+#if !defined(SHZ_DISABLE_BENCHMARKS) && (SHZ_BACKEND == SHZ_SH4)
+        if constexpr(CacheFlush) {
+            flush_sum += [] SHZ_NO_INLINE {
+                SHZ_INSTR_BARRIER();
+                uint64_t flush_start = ns_gettime64();
+                SHZ_INSTR_BARRIER();
+                /* The icache is direct-mapped (arch/cache.h), so any
+                   contiguous range >= its size hits every index exactly
+                   once -- invalidating the whole cache. Passing the full
+                   .text range here instead re-invalidates those same
+                   256 entries hundreds of times over (2.5MB / 32B is
+                   ~81000 loop iterations vs. the 256 actually needed),
+                   and dominates UNCACHED benchmark wall time for no
+                   benefit: the end state is identical either way. */
+#   if KOS_VERSION_BELOW(2, 3, 0)
+                icache_flush_range((uintptr_t)&_executable_start,
+                                   ARCH_CACHE_L1_ICACHE_SIZE);
+#   else
+                icache_inval_range((uintptr_t)&_executable_start,
+                                   ARCH_CACHE_L1_ICACHE_SIZE);
+#   endif
+                dcache_purge_all();
+                return ns_gettime64() - flush_start;
+            }();
+            SHZ_INSTR_BARRIER();
+        }
+#endif
+
+        SHZ_INSTR_BARRIER();
+#if SHZ_BACKEND == SHZ_SH4
+        PERF_CNTR_START();
+        if constexpr(CacheFlush)
+            PERF_CNTR2_START(PMCR_PIPELINE_FREEZE_BY_DCACHE_MISS_MODE);
+        else
+            PERF_CNTR2_START(PMCR_PARALLEL_INSTRUCTION_ISSUED_MODE);
+        SHZ_INSTR_BARRIER();
+#endif
+        [](auto r, auto&& fn, auto&&... fargs) {
+            if constexpr(!std::same_as<decltype(r), std::nullptr_t>)
+                [[maybe_unused]] auto tmp =
+                    *r = fn(std::forward<decltype(fargs)>(fargs)...);
+            else
+                fn(std::forward<decltype(fargs)>(fargs)...);
+        }(std::forward<decltype(res)>(res), std::forward<decltype(function)>(function), std::forward<decltype(args)>(args)...);
+        SHZ_INSTR_BARRIER();
+#if SHZ_BACKEND == SHZ_SH4
+        uint64_t perfctr_cnt = PERF_CNTR_STOP();
+        uint64_t pc2_cnt     = PERF_CNTR2_STOP();
+#endif
+        SHZ_INSTR_BARRIER();
+
+        // If we're warming up the cache for the first iteration, don't add metrics.
+        if(iterations == -1)
+            continue;
+
+#if SHZ_BACKEND == SHZ_SH4
+        const auto& cnt = perfctr_cnt;
+        pc2_sum  += pc2_cnt;
+        pc2_prev  = pc2_cnt;
+#else
+        /* TODO: swap in a real perf-counter read once this backend has one. */
+        uint64_t cnt = 0;
+#endif
+        sum += cnt;
+        if(cnt == prev) {
+            if(++matches == BENCHMARK_ITERATION_MATCHES) {
+                // Have to increment ourselves upon early exit.
+                ++iterations;
+                converged = true;
+                break;
+            }
+        } else {
+            prev = cnt;
+            matches = 0;
+        }
+        SHZ_INSTR_BARRIER();
+    }
+
+    SHZ_INSTR_BARRIER();
+    uint64_t tmu_stop = ns_gettime64();
+    tmu_sum          = (tmu_stop - tmu_start) - flush_sum;
+#if SHZ_BACKEND == SHZ_SH4
+    SHZ_INSTR_BARRIER();
+    irq_restore(state);
+#endif
+    SHZ_INSTR_BARRIER();
+
+    benchmark_stats stats;
+    stats.last       = prev;
+    stats.avg        = iterations? (sum / iterations) : 0;
+    stats.ns         = iterations? (tmu_sum / iterations) : 0;
+#if SHZ_BACKEND == SHZ_SH4
+    stats.pc2_last   = pc2_prev;
+    stats.pc2_avg    = iterations? (pc2_sum / iterations) : 0;
+#else
+    stats.pc2_last   = 0;
+    stats.pc2_avg    = 0;
+#endif
+    stats.iterations = iterations;
+    stats.converged  = converged;
+    stats.cycles     = converged? prev : stats.avg;
+    return stats;
+}
+
+inline void benchmark_print(const char* name, bool cacheFlush, const benchmark_stats& s) noexcept {
+#ifndef SHZ_DISABLE_BENCHMARKS
+#   if SHZ_BACKEND == SHZ_SH4
+    std::println("\t{:>30} [{:>8}] : {:6}/{:6} cc, {:6} ns, {:3}/{:3} {}, {:2} calls",
+          name,
+          cacheFlush? "UNCACHED" : "CACHED",
+          s.last,
+          s.avg,
+          s.ns,
+          s.pc2_last,
+          s.pc2_avg,
+          cacheFlush? "dcf" : "iss",
+          s.iterations);
+#   else
+    std::println("\t{:>30} [{:>8}] : {:6}/{:6} cc, {:4} ns, {:2} calls",
+          name,
+          cacheFlush? "UNCACHED" : "CACHED",
+          s.last,
+          s.avg,
+          s.ns,
+          s.iterations);
+#   endif
+#else
+    (void)name; (void)cacheFlush; (void)s;
+#endif
+}
+
 template<typename... Args>
 SHZ_NO_INLINE
 std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& function, Args&&... args) noexcept {
-    auto inner = [&]<bool CacheFlush>() SHZ_NO_INLINE SHZ_FUNC_ALIGNAS(32) SHZ_NO_UNROLL_LOOPS {
-        uint64_t tmu_sum    = 0;
-        uint64_t flush_sum  = 0;
-        uint64_t sum        = 0;
-        uint64_t prev       = 0;
-        uint64_t pc2_sum    = 0;
-        uint64_t pc2_prev   = 0;
-        unsigned matches    = 0;
-        int      iterations = -1;
-        bool     converged  = false;
-
 #if SHZ_BACKEND == SHZ_SH4
-        SHZ_INSTR_BARRIER();
-        auto state = irq_disable();
-#endif
-        SHZ_INSTR_BARRIER();
-        /* On SH4, PMCR already gives us a real per-iteration cycle count, so
-           the TMU read (a genuine function call down to hardware registers)
-           is just supplementary "ns" reporting -- no reason to pay its call
-           overhead (and register pressure) twice per iteration. Hoisted out
-           uniformly across backends: other backends don't have a perf-counter
-           equivalent yet, but will, and should follow the same shape when
-           they do. */
-        uint64_t tmu_start = ns_gettime64();
-        SHZ_INSTR_BARRIER();
-
-        for(; iterations < BENCHMARK_ITERATION_COUNT; ++iterations) {
-            SHZ_INSTR_BARRIER();
-
-#if !defined(SHZ_DISABLE_BENCHMARKS) && (SHZ_BACKEND == SHZ_SH4)
-            if constexpr(CacheFlush) {
-                flush_sum += [] SHZ_NO_INLINE {
-                    SHZ_INSTR_BARRIER();
-                    uint64_t flush_start = ns_gettime64();
-                    SHZ_INSTR_BARRIER();
-                    /* The icache is direct-mapped (arch/cache.h), so any
-                       contiguous range >= its size hits every index exactly
-                       once -- invalidating the whole cache. Passing the full
-                       .text range here instead re-invalidates those same
-                       256 entries hundreds of times over (2.5MB / 32B is
-                       ~81000 loop iterations vs. the 256 actually needed),
-                       and dominates UNCACHED benchmark wall time for no
-                       benefit: the end state is identical either way. */
-#   if KOS_VERSION_BELOW(2, 3, 0)
-                    icache_flush_range((uintptr_t)&_executable_start,
-                                       ARCH_CACHE_L1_ICACHE_SIZE);
-#   else
-                    icache_inval_range((uintptr_t)&_executable_start,
-                                       ARCH_CACHE_L1_ICACHE_SIZE);
-#   endif
-                    dcache_purge_all();
-                    return ns_gettime64() - flush_start;
-                }();
-                SHZ_INSTR_BARRIER();
-            }
-#endif
-
-            SHZ_INSTR_BARRIER();
-#if SHZ_BACKEND == SHZ_SH4
-            PERF_CNTR_START();
-            if constexpr(CacheFlush)
-                PERF_CNTR2_START(PMCR_PIPELINE_FREEZE_BY_DCACHE_MISS_MODE);
-            else
-                PERF_CNTR2_START(PMCR_PARALLEL_INSTRUCTION_ISSUED_MODE);
-            SHZ_INSTR_BARRIER();
-#endif
-            [](auto r, auto&& fn, auto&&... fargs) {
-                if constexpr(!std::same_as<decltype(r), std::nullptr_t>)
-                    [[maybe_unused]] auto tmp =
-                        *r = fn(std::forward<decltype(fargs)>(fargs)...);
-                else
-                    fn(std::forward<decltype(fargs)>(fargs)...);
-            }(std::forward<decltype(res)>(res), std::forward<decltype(function)>(function), std::forward<decltype(args)>(args)...);
-            SHZ_INSTR_BARRIER();
-#if SHZ_BACKEND == SHZ_SH4
-            uint64_t perfctr_cnt = PERF_CNTR_STOP();
-            uint64_t pc2_cnt     = PERF_CNTR2_STOP();
-#endif
-            SHZ_INSTR_BARRIER();
-
-            // If we're warming up the cache for the first iteration, don't add metrics.
-            if(iterations == -1)
-                continue;
-
-#if SHZ_BACKEND == SHZ_SH4
-            const auto& cnt = perfctr_cnt;
-            pc2_sum  += pc2_cnt;
-            pc2_prev  = pc2_cnt;
+    const benchmark_stats uncached = benchmark_measure<true>(res, function, args...);
+    benchmark_print(name, true, uncached);
+    const uint64_t uncachedCycles = uncached.cycles;
 #else
-            /* TODO: swap in a real perf-counter read once this backend has one. */
-            uint64_t cnt = 0;
+    const uint64_t uncachedCycles = 0;
 #endif
-            sum += cnt;
-            if(cnt == prev) {
-                if(++matches == BENCHMARK_ITERATION_MATCHES) {
-                    // Have to increment ourselves upon early exit.
-                    ++iterations;
-                    converged = true;
-                    break;
-                }
-            } else {
-                prev = cnt;
-                matches = 0;
-            }
-            SHZ_INSTR_BARRIER();
-        }
+    const benchmark_stats cached = benchmark_measure<false>(res, function, args...);
+    benchmark_print(name, false, cached);
 
-        SHZ_INSTR_BARRIER();
-        uint64_t tmu_stop = ns_gettime64();
-        tmu_sum          = (tmu_stop - tmu_start) - flush_sum;
-#if SHZ_BACKEND == SHZ_SH4
-        SHZ_INSTR_BARRIER();
-        irq_restore(state);
-#endif
-        SHZ_INSTR_BARRIER();
-
-#ifndef SHZ_DISABLE_BENCHMARKS
-#   if SHZ_BACKEND == SHZ_SH4
-        std::println("\t{:>30} [{:>8}] : {:6}/{:6} cc, {:6} ns, {:3}/{:3} {}, {:2} calls",
-              name,
-              (CacheFlush)? "UNCACHED" : "CACHED",
-              prev,
-              sum     / iterations,
-              tmu_sum / iterations,
-              pc2_prev,
-              pc2_sum / iterations,
-              (CacheFlush)? "dcf" : "iss",
-              iterations);
-#   else
-        std::println("\t{:>30} [{:>8}] : {:6}/{:6} cc, {:4} ns, {:2} calls",
-              name,
-              (CacheFlush)? "UNCACHED" : "CACHED",
-              prev,
-              sum     / iterations,
-              tmu_sum / iterations,
-              iterations);
-#   endif
-#endif
-        return converged ? prev : (sum / iterations);
-    };
-
-    return std::make_pair(
-#if SHZ_BACKEND == SHZ_SH4
-        inner.template operator()<true>(),
-#else
-        0,
-#endif
-        inner.template operator()<false>()
-    );
+    return std::make_pair(uncachedCycles, cached.cycles);
 }
 
 #define benchmark(res, f, ...) (benchmark)(res, #f, f __VA_OPT__(,) __VA_ARGS__)
@@ -249,17 +285,52 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
                    const char* refName, RefFn&& refFn,
                    Args&&... args) noexcept
 {
-    uint64_t shzUncacheCyc, shzCacheCyc, refUncacheCyc, refCacheCyc;
+    benchmark_stats shzUncache{}, shzCache{}, refUncache{}, refCache{};
+
+    auto measure = [&]<bool CacheFlush>(auto res, benchmark_stats& shzBest, benchmark_stats& refBest) {
+        for(unsigned round = 0; round < BENCHMARK_CMP_ROUNDS; ++round) {
+            benchmark_stats shzCur, refCur;
+
+            if(round & 1) {
+                refCur = benchmark_measure<CacheFlush>(res, refFn, args...);
+                shzCur = benchmark_measure<CacheFlush>(res, shzFn, args...);
+            } else {
+                shzCur = benchmark_measure<CacheFlush>(res, shzFn, args...);
+                refCur = benchmark_measure<CacheFlush>(res, refFn, args...);
+            }
+
+            if(!round || shzCur.cycles < shzBest.cycles) shzBest = shzCur;
+            if(!round || refCur.cycles < refBest.cycles) refBest = refCur;
+        }
+    };
+
+    auto run = [&](auto res) {
+#if SHZ_BACKEND == SHZ_SH4
+        measure.template operator()<true>(res, shzUncache, refUncache);
+#endif
+        measure.template operator()<false>(res, shzCache, refCache);
+    };
 
     if constexpr(std::same_as<R, void> || std::same_as<R, std::nullptr_t>) {
-        std::tie(shzUncacheCyc, shzCacheCyc) = (benchmark)(nullptr, shzName, std::forward<ShzFn>(shzFn), std::forward<Args>(args)...);
-        std::tie(refUncacheCyc, refCacheCyc) = (benchmark)(nullptr, refName, std::forward<RefFn>(refFn), std::forward<Args>(args)...);
+        run(nullptr);
     } else {
         volatile R result;
-
-        std::tie(shzUncacheCyc, shzCacheCyc) = (benchmark)(&result, shzName, std::forward<ShzFn>(shzFn), std::forward<Args>(args)...);
-        std::tie(refUncacheCyc, refCacheCyc) = (benchmark)(&result, refName, std::forward<RefFn>(refFn), std::forward<Args>(args)...);
+        run(&result);
     }
+
+#if SHZ_BACKEND == SHZ_SH4
+    benchmark_print(shzName, true,  shzUncache);
+#endif
+    benchmark_print(shzName, false, shzCache);
+#if SHZ_BACKEND == SHZ_SH4
+    benchmark_print(refName, true,  refUncache);
+#endif
+    benchmark_print(refName, false, refCache);
+
+    const uint64_t shzUncacheCyc = shzUncache.cycles;
+    const uint64_t shzCacheCyc   = shzCache.cycles;
+    const uint64_t refUncacheCyc = refUncache.cycles;
+    const uint64_t refCacheCyc   = refCache.cycles;
 
 #ifndef SHZ_DISABLE_BENCHMARKS
     float cacheGainz   = ((float)refCacheCyc  ) / ((float)shzCacheCyc  );
@@ -295,9 +366,17 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
     // to run first -- real hardware jitter inherent to the cold-cache
     // methodology, not a code regression. UNCACHED's absolute budget is set
     // wide enough to absorb that.
+    //
+    // The absolute budget only shields SMALL relative swings, though: past a
+    // clear percentage margin, a result is a real win/loss no matter how few
+    // cycles it amounts to (get_scale's cached 76-vs-69, 7 cycles but 10%,
+    // is a GAINZ; set_scale's uncached 152-vs-132, 15%, stays under the
+    // wider UNCACHED margin and remains noise).
     constexpr float    BENCHMARK_TOLERANCE_PCT_CACHED   = 0.05f;
+    constexpr float    BENCHMARK_CLEAR_PCT_CACHED       = 0.08f;
     constexpr uint64_t BENCHMARK_TOLERANCE_ABS_CACHED   = 10;
     constexpr float    BENCHMARK_TOLERANCE_PCT_UNCACHED = 0.05f;
+    constexpr float    BENCHMARK_CLEAR_PCT_UNCACHED     = 0.20f;
     constexpr uint64_t BENCHMARK_TOLERANCE_ABS_UNCACHED = 24;
 
     enum {
@@ -310,18 +389,20 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
     const char* gainz_str;
 
     enum axis { WORSE, NOISE, BETTER };
-    auto classify = [](float g, uint64_t shzCyc, uint64_t refCyc, float pctTol, uint64_t absTol) {
+    auto classify = [](float g, uint64_t shzCyc, uint64_t refCyc, float pctTol, float clearPct, uint64_t absTol) {
         uint64_t absDiff = (shzCyc > refCyc) ? (shzCyc - refCyc) : (refCyc - shzCyc);
-        if(absDiff <= absTol) return NOISE;
-        if(g > 1.0f + pctTol) return BETTER;
-        if(g < 1.0f - pctTol) return WORSE;
-        return NOISE;
+        float    pctDiff = (g > 1.0f) ? (g - 1.0f) : (1.0f / g - 1.0f);
+        if(pctDiff <= pctTol) return NOISE;
+        if(absDiff <= absTol && pctDiff <= clearPct) return NOISE;
+        return (g > 1.0f) ? BETTER : WORSE;
     };
 
     axis cacheAxis   = classify(cacheGainz,   shzCacheCyc,   refCacheCyc,
-                                BENCHMARK_TOLERANCE_PCT_CACHED, BENCHMARK_TOLERANCE_ABS_CACHED);
+                                BENCHMARK_TOLERANCE_PCT_CACHED, BENCHMARK_CLEAR_PCT_CACHED,
+                                BENCHMARK_TOLERANCE_ABS_CACHED);
     axis uncacheAxis = classify(uncacheGainz, shzUncacheCyc, refUncacheCyc,
-                                BENCHMARK_TOLERANCE_PCT_UNCACHED, BENCHMARK_TOLERANCE_ABS_UNCACHED);
+                                BENCHMARK_TOLERANCE_PCT_UNCACHED, BENCHMARK_CLEAR_PCT_UNCACHED,
+                                BENCHMARK_TOLERANCE_ABS_UNCACHED);
 
     if(shz_equalf(cacheGainz, 1.0f) && shz_equalf(uncacheGainz, 1.0f)) {
         gainz = EQUAL;

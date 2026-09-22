@@ -123,6 +123,11 @@ struct xmtrx {
         load(array.data());
     }
 
+    //! C++ wrapper around shz_xmtrx_load_3x4().
+    SHZ_FORCE_INLINE static void load(const shz_mat3x4_t& mat) noexcept {
+        shz_xmtrx_load_3x4(&mat);
+    }
+
     //! C++ wrapper around shz_xmtrx_load_transpose_4x4().
     SHZ_FORCE_INLINE static void load_transpose(const shz_mat4x4_t& mat4) noexcept {
         shz_xmtrx_load_transpose_4x4(&mat4);
@@ -138,6 +143,11 @@ struct xmtrx {
         load_transpose(array.data());
     }
 
+    //! C++ wrapper around shz_xmtrx_load_transpose_3x4().
+    SHZ_FORCE_INLINE static void load_transpose(const shz_mat3x4_t& mat) noexcept {
+        shz_xmtrx_load_transpose_3x4(&mat);
+    }
+
     //! C++ wrapper around shz_xmtrx_load_wxyz_4x4().
     SHZ_FORCE_INLINE static void load_wxyz(const shz_mat4x4_t& mat4) noexcept {
         shz_xmtrx_load_wxyz_4x4(&mat4);
@@ -151,6 +161,14 @@ struct xmtrx {
         shz_xmtrx_load_cols_4x4(&c1, &c2, &c3, &c4);
     }
 
+    //! C++ wrapper around shz_xmtrx_load_cols_3x4().
+    SHZ_FORCE_INLINE static void load_cols(const shz_vec3_t& c1,
+                                           const shz_vec3_t& c2,
+                                           const shz_vec3_t& c3,
+                                           const shz_vec3_t& c4) noexcept {
+        shz_xmtrx_load_cols_3x4(&c1, &c2, &c3, &c4);
+    }
+
     //! C++ wrapper around shz_xmtrx_load_rows_4x4().
     SHZ_FORCE_INLINE static void load_rows(const shz_vec4_t& r1,
                                            const shz_vec4_t& r2,
@@ -159,9 +177,11 @@ struct xmtrx {
         shz_xmtrx_load_rows_4x4(&r1, &r2, &r3, &r4);
     }
 
-    //! C++ wrapper around shz_xmtrx_load_3x4().
-    SHZ_FORCE_INLINE static void load(const shz_mat3x4_t& mat) noexcept {
-        shz_xmtrx_load_3x4(&mat);
+    //! C++ wrapper around shz_xmtrx_load_rows_3x4().
+    SHZ_FORCE_INLINE static void load_rows(const shz_vec4_t& r1,
+                                           const shz_vec4_t& r2,
+                                           const shz_vec4_t& r3) noexcept {
+        shz_xmtrx_load_rows_3x4(&r1, &r2, &r3);
     }
 
 //! @}
@@ -179,6 +199,11 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_store_unaligned_4x4().
     SHZ_FORCE_INLINE static void store(float cArray[16]) noexcept {
         shz_xmtrx_store_unaligned_4x4(cArray);
+    }
+
+    //! C++ wrapper around shz_xmtrx_store_3x4().
+    SHZ_FORCE_INLINE static void store(shz_mat3x4_t* mat) noexcept {
+        shz_xmtrx_store_3x4(mat);
     }
 
     //! C++ wrapper around shz_xmtrx_store_unaligned_4x4().
@@ -201,9 +226,9 @@ struct xmtrx {
         store_transpose(array->data());
     }
 
-    //! C++ wrapper around shz_xmtrx_store_3x4().
-    SHZ_FORCE_INLINE static void store(shz_mat3x4_t* mat) noexcept {
-        shz_xmtrx_store_3x4(mat);
+    //! C++ wrapper around shz_xmtrx_store_transpose_3x4().
+    SHZ_FORCE_INLINE static void store_transpose(shz_mat3x4_t* mat) noexcept {
+        shz_xmtrx_store_transpose_3x4(mat);
     }
 
 //! @}
@@ -406,6 +431,11 @@ struct xmtrx {
         shz_xmtrx_apply_unaligned_4x4(array.data());
     }
 
+    //! C++ wrapper around shz_xmtrx_apply_3x4().
+    SHZ_FORCE_INLINE static void apply(const shz_mat3x4_t& mat) noexcept {
+        shz_xmtrx_apply_3x4(&mat);
+    }
+
     //! C++ wrapper around shz_xmtrx_apply_transpose_4x4().
     SHZ_FORCE_INLINE static void apply_transpose(const shz_mat4x4_t& mat4) noexcept {
         shz_xmtrx_apply_transpose_4x4(&mat4);
@@ -419,6 +449,11 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_apply_transpose_unaligned_4x4().
     SHZ_FORCE_INLINE static void apply_transpose(const std::array<float, 16>& array) noexcept {
         shz_xmtrx_apply_transpose_unaligned_4x4(array.data());
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_transpose_3x4().
+    SHZ_FORCE_INLINE static void apply_transpose(const shz_mat3x4_t& mat) noexcept {
+        shz_xmtrx_apply_transpose_3x4(&mat);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_reverse_4x4().
@@ -436,6 +471,11 @@ struct xmtrx {
         shz_xmtrx_apply_reverse_unaligned_4x4(array.data());
     }
 
+    //! C++ wrapper around shz_xmtrx_apply_reverse_3x4().
+    SHZ_FORCE_INLINE static void apply_reverse(const shz_mat3x4_t& mat) noexcept {
+        shz_xmtrx_apply_reverse_3x4(&mat);
+    }
+
     //! C++ wrapper around shz_xmtrx_apply_reverse_transpose_4x4().
     SHZ_FORCE_INLINE static void apply_reverse_transpose(const shz_mat4x4_t& mat4) noexcept {
         shz_xmtrx_apply_reverse_transpose_4x4(&mat4);
@@ -451,9 +491,9 @@ struct xmtrx {
         shz_xmtrx_apply_reverse_transpose_unaligned_4x4(array.data());
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_3x4().
-    SHZ_FORCE_INLINE static void apply(const shz_mat3x4_t& mat) noexcept {
-        shz_xmtrx_apply_3x4(&mat);
+    //! C++ wrapper around shz_xmtrx_apply_reverse_transpose_3x4().
+    SHZ_FORCE_INLINE static void apply_reverse_transpose(const shz_mat3x4_t& mat) noexcept {
+        shz_xmtrx_apply_reverse_transpose_3x4(&mat);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_translation().
@@ -687,6 +727,11 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_load_apply_unaligned_4x4().
     SHZ_FORCE_INLINE static void load_apply(const float matrix1[16], const float matrix2[16]) noexcept {
         shz_xmtrx_load_apply_unaligned_4x4(matrix1, matrix2);
+    }
+
+    //! C++ wrapper around shz_xmtrx_load_apply_3x4().
+    SHZ_FORCE_INLINE static void load_apply(const shz_mat3x4_t& mat1, const shz_mat3x4_t& mat2) noexcept {
+        shz_xmtrx_load_apply_3x4(&mat1, &mat2);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_store_4x4().

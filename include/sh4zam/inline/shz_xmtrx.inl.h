@@ -163,6 +163,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_load_3x4(const shz_mat3x4_t* mat) SHZ_NOEXCEPT {
 #endif
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_3x4(const shz_mat3x4_t* mat) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_load_transpose_3x4_sh4(mat);
+#else
+    shz_xmtrx_load_transpose_3x4_sw(mat);
+#endif
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_load_cols_4x3(const shz_vec4_t* c1,
                                               const shz_vec4_t* c2,
                                               const shz_vec4_t* c3) SHZ_NOEXCEPT {
@@ -180,6 +188,17 @@ SHZ_FORCE_INLINE void shz_xmtrx_load_rows_3x4(const shz_vec4_t* r1,
     shz_xmtrx_load_rows_3x4_sh4(r1, r2, r3);
 #else
     shz_xmtrx_load_rows_3x4_sw(r1, r2, r3);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_load_cols_3x4(const shz_vec3_t* c1,
+                                              const shz_vec3_t* c2,
+                                              const shz_vec3_t* c3,
+                                              const shz_vec3_t* c4) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_load_cols_3x4_sh4(c1, c2, c3, c4);
+#else
+    shz_xmtrx_load_cols_3x4_sw(c1, c2, c3, c4);
 #endif
 }
 
@@ -257,6 +276,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_store_3x4(shz_mat3x4_t* mat) SHZ_NOEXCEPT {
     shz_xmtrx_store_3x4_sh4(mat);
 #else
     shz_xmtrx_store_3x4_sw(mat);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_store_transpose_3x4(shz_mat3x4_t* mat) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_store_transpose_3x4_sh4(mat);
+#else
+    shz_xmtrx_store_transpose_3x4_sw(mat);
 #endif
 }
 
@@ -568,6 +595,30 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_3x4(const shz_mat3x4_t* mat) SHZ_NOEXCEPT 
     shz_xmtrx_apply_3x4_sh4(mat);
 #else
     shz_xmtrx_apply_3x4_sw(mat);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_apply_transpose_3x4(const shz_mat3x4_t* mat) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_apply_transpose_3x4_sh4(mat);
+#else
+    shz_xmtrx_apply_transpose_3x4_sw(mat);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_3x4(const shz_mat3x4_t* mat) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_apply_reverse_3x4_sh4(mat);
+#else
+    shz_xmtrx_apply_reverse_3x4_sw(mat);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_apply_reverse_transpose_3x4(const shz_mat3x4_t* mat) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_apply_reverse_transpose_3x4_sh4(mat);
+#else
+    shz_xmtrx_apply_reverse_transpose_3x4_sw(mat);
 #endif
 }
 
@@ -929,6 +980,15 @@ SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
     shz_xmtrx_load_apply_store_4x4_sh4(out, mat1, mat2);
 #else
     shz_xmtrx_load_apply_store_4x4_sw(out, mat1, mat2);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_load_apply_3x4(const shz_mat3x4_t* matrix1,
+                                               const shz_mat3x4_t* matrix2) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_load_apply_3x4_sh4(matrix1, matrix2);
+#else
+    shz_xmtrx_load_apply_3x4_sw(matrix1, matrix2);
 #endif
 }
 

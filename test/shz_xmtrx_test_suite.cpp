@@ -294,8 +294,10 @@ GBL_TEST_CASE(store_aligned32_4x4)
     auto* cMat = reinterpret_cast<shz::mat4x4*>(buffer + 8);
 
 
-    benchmark(nullptr, shz_xmtrx_store_4x4, cMat);
-    benchmark(nullptr, shz_xmtrx_store_4x4, &shzMat);
+    (benchmark)(nullptr, "shz::xmtrx::store_4x4 [unaligned32]",
+                [&] { shz::xmtrx::store(cMat); });
+    (benchmark)(nullptr, "shz::xmtrx::store_4x4 [aligned32]",
+                [&] { shz::xmtrx::store(&shzMat); });
 
     std::array<float, 16> array = std::to_array(shzMat.elem);
 
@@ -1630,13 +1632,9 @@ GBL_TEST_CASE(load_apply_store_4x4)
         .pos     = { 11.0f,   12.0f, 13.888f, -345.88f }
    })};
 
-    (benchmark)(nullptr, "shz::xmtrx::load_apply_store_4x4()",
-                static_cast<void(*)(shz_mat4x4_t*, const shz_mat4x4_t&, const shz_mat4x4_t&)>(
-                    shz::xmtrx::load_apply_store
-                ), &shzRes.shz, mat1.shz, mat2.shz);
-
-    (benchmark)(nullptr, "glm_mat4_mul",
-                glm_mat4_mul, mat1.glm, mat2.glm, glmRes.glm);
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::load_apply_store_4x4()", [&] { shz::xmtrx::load_apply_store(&shzRes.shz, mat1.shz, mat2.shz); },
+        "glm_mat4_mul",                       [&] { glm_mat4_mul(mat1.glm, mat2.glm, glmRes.glm); }));
 
 #if 0
     for(unsigned i = 0; i < 4; ++i)
@@ -2116,7 +2114,7 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_3x4)
     randomize_xmtrx_();
-    shz_mat3x4_t mat = {
+    alignas(32) shz_mat3x4_t mat = {
         .left    = { -1.0f,   2.0f,  3.0f },
         .up      = {  4.0f,  -5.0f,  6.0f },
         .forward = {  7.0f,   8.0f,  9.0f },
@@ -2129,17 +2127,131 @@ GBL_TEST_CASE(load_3x4)
                      4.0f,  -5.0f,  6.0f, 0.0f,
                      7.0f,   8.0f,  9.0f, 0.0f,
                     11.0f, -12.0f, 13.0f, 1.0f })));
+
+    (benchmark)(nullptr, "shz::xmtrx::load_3x4", [&] { shz::xmtrx::load(mat); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_transpose_3x4)
+    randomize_xmtrx_();
+    alignas(32) shz_mat3x4_t mat = { .elem = {
+        -1.0f,   2.0f,  3.0f,   4.0f,
+         5.0f,  -6.0f,  7.0f,   8.0f,
+         9.0f,  10.0f, 11.0f, -12.0f
+    }};
+
+    shz::xmtrx::load_transpose(mat);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, {
+                    -1.0f,   2.0f,  3.0f,   4.0f,
+                     5.0f,  -6.0f,  7.0f,   8.0f,
+                     9.0f,  10.0f, 11.0f, -12.0f,
+                     0.0f,   0.0f,  0.0f,   1.0f }));
+
+    (benchmark)(nullptr, "shz::xmtrx::load_transpose_3x4",
+                [&] { shz::xmtrx::load_transpose(mat); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_rows_3x4)
+    randomize_xmtrx_();
+
+    alignas(32)
+    shz::vec4 r1 = { -1.0f,   2.0f,  3.0f,  8.0f };
+    shz::vec4 r2 = {  4.0f,  -5.0f,  6.0f,  7.0f };
+    shz::vec4 r3 = {  7.0f,   8.0f,  9.0f, 10.0f };
+
+    shz::xmtrx::load_rows(r1, r2, r3);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, {
+                    -1.0f,   2.0f,  3.0f,  8.0f,
+                     4.0f,  -5.0f,  6.0f,  7.0f,
+                     7.0f,   8.0f,  9.0f, 10.0f,
+                     0.0f,   0.0f,  0.0f,  1.0f }));
+
+    (benchmark)(nullptr, "shz::xmtrx::load_rows_3x4",
+                [&] { shz::xmtrx::load_rows(r1, r2, r3); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_cols_3x4)
+    randomize_xmtrx_();
+    shz::vec3 c1 = { -1.0f,   2.0f,  3.0f };
+    shz::vec3 c2 = {  4.0f,  -5.0f,  6.0f };
+    shz::vec3 c3 = {  7.0f,   8.0f,  9.0f };
+    shz::vec3 c4 = { 10.0f, -11.0f, 12.0f };
+
+    shz::xmtrx::load_cols(c1, c2, c3, c4);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, {
+                    -1.0f,   4.0f,  7.0f,  10.0f,
+                     2.0f,  -5.0f,  8.0f, -11.0f,
+                     3.0f,   6.0f,  9.0f,  12.0f,
+                     0.0f,   0.0f,  0.0f,   1.0f }));
+
+    {
+        randomize_xmtrx_();
+        shz::vec3 packed[4] = { c1, c2, c3, c4 };
+
+        shz::xmtrx::load_cols(packed[0], packed[1], packed[2], packed[3]);
+        GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, {
+                        -1.0f,   4.0f,  7.0f,  10.0f,
+                         2.0f,  -5.0f,  8.0f, -11.0f,
+                         3.0f,   6.0f,  9.0f,  12.0f,
+                         0.0f,   0.0f,  0.0f,   1.0f }));
+    }
+
+    {
+        randomize_xmtrx_();
+        shz::vec4 r1 = { c1.x, c2.x, c3.x, c4.x };
+        shz::vec4 r2 = { c1.y, c2.y, c3.y, c4.y };
+        shz::vec4 r3 = { c1.z, c2.z, c3.z, c4.z };
+        shz::mat4x4 fromRows, fromCols;
+
+        shz::xmtrx::load_rows(r1, r2, r3);
+        shz::xmtrx::store(&fromRows);
+        shz::xmtrx::load_cols(c1, c2, c3, c4);
+        shz::xmtrx::store(&fromCols);
+
+        for(unsigned i = 0; i < 16; ++i)
+            GBL_TEST_VERIFY(fromCols.elem[i] == fromRows.elem[i]);
+    }
+
+    (benchmark)(nullptr, "shz::xmtrx::load_cols_3x4",
+                [&] { shz::xmtrx::load_cols(c1, c2, c3, c4); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(store_3x4)
     randomize_xmtrx_();
-    shz_mat3x4_t mat;
+    alignas(32) shz_mat3x4_t mat;
     shz::mat4x4 mat4;
     shz::xmtrx::store(&mat);
     shz::xmtrx::load(mat);
     shz::xmtrx::store(&mat4);
     std::array<float, 16> array = std::to_array(mat4.elem);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
+
+    (benchmark)(nullptr, "shz::xmtrx::store_3x4", [&] { shz::xmtrx::store(&mat); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(store_transpose_3x4)
+    randomize_xmtrx_();
+    shz_mat3x4_t src = { .elem = {
+        -1.0f,   2.0f,  3.0f,   4.0f,
+         5.0f,  -6.0f,  7.0f,   8.0f,
+         9.0f,  10.0f, 11.0f, -12.0f
+    }};
+
+    shz::xmtrx::load_transpose(src);
+
+    shz_mat3x4_t dst;
+    shz::xmtrx::store_transpose(&dst);
+
+    for(unsigned i = 0; i < 12; ++i)
+        GBL_TEST_VERIFY(shz_equalf(dst.elem[i], src.elem[i]));
+
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, {
+                    -1.0f,   2.0f,  3.0f,   4.0f,
+                     5.0f,  -6.0f,  7.0f,   8.0f,
+                     9.0f,  10.0f, 11.0f, -12.0f,
+                     0.0f,   0.0f,  0.0f,   1.0f }));
+
+    (benchmark)(nullptr, "shz::xmtrx::store_transpose_3x4",
+                [&] { shz::xmtrx::store_transpose(&dst); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_3x4)
@@ -2158,6 +2270,207 @@ GBL_TEST_CASE(apply_3x4)
                      4.0f,  -5.0f,  6.0f, 0.0f,
                      7.0f,   8.0f,  9.0f, 0.0f,
                     11.0f, -12.0f, 13.0f, 1.0f })));
+
+    (benchmark)(nullptr, "shz::xmtrx::apply_3x4", [&] { shz::xmtrx::apply(mat); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_transpose_3x4)
+    randomize_xmtrx_();
+    alignas(32) shz_mat3x4_t mat = { .elem = {
+        -1.0f,   2.0f,  3.0f,   4.0f,
+         5.0f,  -6.0f,  7.0f,   8.0f,
+         9.0f,  10.0f, 11.0f, -12.0f
+    }};
+
+    shz::xmtrx::init_identity();
+    shz::xmtrx::apply_transpose(mat);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, {
+                    -1.0f,   2.0f,  3.0f,   4.0f,
+                     5.0f,  -6.0f,  7.0f,   8.0f,
+                     9.0f,  10.0f, 11.0f, -12.0f,
+                     0.0f,   0.0f,  0.0f,   1.0f }));
+
+    {
+        alignas(32) shz_mat4x4_t wide = { .elem = {
+            -1.0f,   2.0f,  3.0f,   4.0f,
+             5.0f,  -6.0f,  7.0f,   8.0f,
+             9.0f,  10.0f, 11.0f, -12.0f,
+             0.0f,   0.0f,  0.0f,   1.0f
+        }};
+
+        shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+        shz::xmtrx::apply_transpose(mat);
+        shz::mat4x4 narrow;
+        shz::xmtrx::store(&narrow);
+
+        shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+        shz::xmtrx::apply_transpose(wide);
+        shz::mat4x4 reference;
+        shz::xmtrx::store(&reference);
+
+        for(unsigned i = 0; i < 16; ++i)
+            GBL_TEST_VERIFY(shz_equalf(narrow.elem[i], reference.elem[i]));
+    }
+
+    (benchmark)(nullptr, "shz::xmtrx::apply_transpose_3x4",
+                [&] { shz::xmtrx::apply_transpose(mat); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_reverse_3x4)
+    shz_mat3x4_t mat = {
+        .left    = { -1.0f,   2.0f,  3.0f },
+        .up      = {  4.0f,  -5.0f,  6.0f },
+        .forward = {  7.0f,   8.0f,  9.0f },
+        .pos     = { 11.0f, -12.0f, 13.0f }
+    };
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_identity();
+    shz::xmtrx::apply_reverse(mat);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                  transpose({
+                    -1.0f,   2.0f,  3.0f, 0.0f,
+                     4.0f,  -5.0f,  6.0f, 0.0f,
+                     7.0f,   8.0f,  9.0f, 0.0f,
+                    11.0f, -12.0f, 13.0f, 1.0f })));
+
+    {
+        alignas(32) shz_mat4x4_t wide = { .elem = {
+            -1.0f,   2.0f,  3.0f, 0.0f,
+             4.0f,  -5.0f,  6.0f, 0.0f,
+             7.0f,   8.0f,  9.0f, 0.0f,
+            11.0f, -12.0f, 13.0f, 1.0f
+        }};
+        shz::mat4x4 narrow, reference, forward;
+
+        randomize_xmtrx_();
+        shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+        shz::xmtrx::apply_reverse(mat);
+        shz::xmtrx::store(&narrow);
+
+        shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+        shz::xmtrx::apply_reverse(wide);
+        shz::xmtrx::store(&reference);
+
+        shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+        shz::xmtrx::apply(mat);
+        shz::xmtrx::store(&forward);
+
+        for(unsigned i = 0; i < 16; ++i)
+            GBL_TEST_VERIFY(shz_equalf(narrow.elem[i], reference.elem[i]));
+
+        GBL_TEST_VERIFY(!shz_equalf(narrow.elem[1], forward.elem[1]));
+    }
+
+    (benchmark)(nullptr, "shz::xmtrx::apply_reverse_3x4", [&] { shz::xmtrx::apply_reverse(mat); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_reverse_transpose_3x4)
+    alignas(32) shz_mat3x4_t mat = { .elem = {
+        -1.0f,   2.0f,  3.0f,   4.0f,
+         5.0f,  -6.0f,  7.0f,   8.0f,
+         9.0f,  10.0f, 11.0f, -12.0f
+    }};
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_identity();
+    shz::xmtrx::apply_reverse_transpose(mat);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, {
+                    -1.0f,   2.0f,  3.0f,   4.0f,
+                     5.0f,  -6.0f,  7.0f,   8.0f,
+                     9.0f,  10.0f, 11.0f, -12.0f,
+                     0.0f,   0.0f,  0.0f,   1.0f }));
+
+    {
+        alignas(32) shz_mat4x4_t wide = { .elem = {
+            -1.0f,   2.0f,  3.0f,   4.0f,
+             5.0f,  -6.0f,  7.0f,   8.0f,
+             9.0f,  10.0f, 11.0f, -12.0f,
+             0.0f,   0.0f,  0.0f,   1.0f
+        }};
+        shz::mat4x4 narrow, reference, forward;
+
+        randomize_xmtrx_();
+        shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+        shz::xmtrx::apply_reverse_transpose(mat);
+        shz::xmtrx::store(&narrow);
+
+        shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+        shz::xmtrx::apply_reverse_transpose(wide);
+        shz::xmtrx::store(&reference);
+
+        shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+        shz::xmtrx::apply_transpose(mat);
+        shz::xmtrx::store(&forward);
+
+        for(unsigned i = 0; i < 16; ++i)
+            GBL_TEST_VERIFY(shz_equalf(narrow.elem[i], reference.elem[i]));
+
+        GBL_TEST_VERIFY(!shz_equalf(narrow.elem[1], forward.elem[1]));
+    }
+
+    (benchmark)(nullptr, "shz::xmtrx::apply_reverse_transpose_3x4", [&] { shz::xmtrx::apply_reverse_transpose(mat); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_apply_3x4)
+    shz_mat3x4_t mat1 = {
+        .left    = { 1.0f, 0.0f, 0.0f },
+        .up      = { 0.0f, 1.0f, 0.0f },
+        .forward = { 0.0f, 0.0f, 1.0f },
+        .pos     = { 0.0f, 0.0f, 0.0f }
+    };
+    shz_mat3x4_t mat2 = {
+        .left    = { 1.0f, 0.0f, 0.0f },
+        .up      = { 0.0f, 1.0f, 0.0f },
+        .forward = { 0.0f, 0.0f, 1.0f },
+        .pos     = { 1.0f, 2.0f, 3.0f }
+    };
+
+    randomize_xmtrx_();
+    shz::xmtrx::load_apply(mat1, mat2);
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
+                                {
+                                    1.0f, 0.0f, 0.0f, 1.0f,
+                                    0.0f, 1.0f, 0.0f, 2.0f,
+                                    0.0f, 0.0f, 1.0f, 3.0f,
+                                    0.0f, 0.0f, 0.0f, 1.0f }));
+
+    {
+        alignas(32) shz_mat3x4_t a = {
+            .left    = { -13.0f,   2.0f,  3.0f },
+            .up      = {  4.0f,  -5.0f,  6.0f },
+            .forward = {  7.0f,   8.0f,  9.0f },
+            .pos     = { 11.0f, -12.0f, 13.0f }
+        };
+        alignas(32) shz_mat3x4_t b = {
+            .left    = { 11.0f,    2.5f, -3.333f },
+            .up      = { -46.0f,  -5.0f,  0.777f },
+            .forward = { -75.0f, 0.008f, -99.44f },
+            .pos     = { 11.0f,   12.0f, 13.888f }
+        };
+        shz::mat4x4 fused, separate;
+
+        randomize_xmtrx_();
+        shz::xmtrx::load_apply(a, b);
+        shz::xmtrx::store(&fused);
+
+        randomize_xmtrx_();
+        shz::xmtrx::load(a);
+        shz::xmtrx::apply(b);
+        shz::xmtrx::store(&separate);
+
+        for(unsigned i = 0; i < 16; ++i)
+            GBL_TEST_VERIFY(shz_equalf(fused.elem[i], separate.elem[i]));
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::load_apply_3x4", [&] {
+                shz::xmtrx::load_apply(a, b);
+            },
+            "shz::xmtrx::load + apply 3x4", [&] {
+                shz::xmtrx::load(a);
+                shz::xmtrx::apply(b);
+            }));
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_apply_store_3x4)
@@ -2175,8 +2488,9 @@ GBL_TEST_CASE(load_apply_store_3x4)
         .pos     = { 11.0f,   12.0f, 13.888f }
    };
 
-   (benchmark)(nullptr, "shz::xmtrx::load_apply_store_3x4", [&] { shz::xmtrx::load_apply_store(&shzRes, mat1, mat2); });
-   (benchmark)(nullptr, "R_ConcatTransforms", [&] {
+   GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::load_apply_store_3x4", [&] { shz::xmtrx::load_apply_store(&shzRes, mat1, mat2); },
+        "R_ConcatTransforms", [&] {
         q2Res.elem2D[0][0] = mat1.elem2D[0][0] * mat2.elem2D[0][0] + mat1.elem2D[1][0] * mat2.elem2D[0][1] + mat1.elem2D[2][0] * mat2.elem2D[0][2];
         q2Res.elem2D[1][0] = mat1.elem2D[0][0] * mat2.elem2D[1][0] + mat1.elem2D[1][0] * mat2.elem2D[1][1] + mat1.elem2D[2][0] * mat2.elem2D[1][2];
         q2Res.elem2D[2][0] = mat1.elem2D[0][0] * mat2.elem2D[2][0] + mat1.elem2D[1][0] * mat2.elem2D[2][1] + mat1.elem2D[2][0] * mat2.elem2D[2][2];
@@ -2189,7 +2503,7 @@ GBL_TEST_CASE(load_apply_store_3x4)
         q2Res.elem2D[1][2] = mat1.elem2D[0][2] * mat2.elem2D[1][0] + mat1.elem2D[1][2] * mat2.elem2D[1][1] + mat1.elem2D[2][2] * mat2.elem2D[1][2];
         q2Res.elem2D[2][2] = mat1.elem2D[0][2] * mat2.elem2D[2][0] + mat1.elem2D[1][2] * mat2.elem2D[2][1] + mat1.elem2D[2][2] * mat2.elem2D[2][2];
         q2Res.elem2D[3][2] = mat1.elem2D[0][2] * mat2.elem2D[3][0] + mat1.elem2D[1][2] * mat2.elem2D[3][1] + mat1.elem2D[2][2] * mat2.elem2D[3][2] + mat1.elem2D[3][2];
-    });
+    }));
 
 #if 0
    for(unsigned i = 0; i < 4; ++i)
@@ -2580,8 +2894,16 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_screen,
                   apply_lookat,
                   load_3x4,
+                  load_transpose_3x4,
+                  load_rows_3x4,
+                  load_cols_3x4,
                   store_3x4,
+                  store_transpose_3x4,
                   apply_3x4,
+                  apply_transpose_3x4,
+                  apply_reverse_3x4,
+                  apply_reverse_transpose_3x4,
+                  load_apply_3x4,
                   load_apply_store_3x4,
                   load_apply_store_3x3,
                   blend,

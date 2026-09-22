@@ -14,74 +14,97 @@
 #define SHZ_MATRIX_SH4_INL_H
 
 SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_vec3_sh4(const shz_mat4x4_t* mat, shz_vec3_t v) SHZ_NOEXCEPT {
-    SHZ_PREFETCH(mat->elem2D[2]);
+    register float vx asm("fr4") = v.x;
+    register float vy asm("fr5") = v.y;
+    register float vz asm("fr6") = v.z;
+    register float ox asm("fr8");
+    register float oy asm("fr11");
+    register float oz asm("fr3");
 
-    return shz_vec3_dot3(v,
-                         shz_vec3_init(mat->elem2D[0][0],
-                                       mat->elem2D[1][0],
-                                       mat->elem2D[2][0]),
-                         shz_vec3_init(mat->elem2D[0][1],
-                                       mat->elem2D[1][1],
-                                       mat->elem2D[2][1]),
-                         shz_vec3_init(mat->elem2D[0][2],
-                                       mat->elem2D[1][2],
-                                       mat->elem2D[2][2]));
+    asm(R"(
+        fmov.s    @%[m]+, fr0
+        add       #28, %[m]
+        pref      @%[m]
+        add       #-28, %[m]
+        fldi0     fr7
+        fmov.s    @%[m]+, fr8
+        add       #8, %[m]
+        fmov.s    @%[m]+, fr1
+        fmov.s    @%[m]+, fr9
+        add       #8, %[m]
+        fldi0     fr3
+        fmov.s    @%[m]+, fr2
+        fmov.s    @%[m]+, fr10
+        fldi0     fr11
+        add       #-32, %[m]
+        fipr      fv4, fv0
+        fmov.s    @%[m], fr0
+        add       #16, %[m]
+        fmov.s    @%[m], fr1
+        fipr      fv4, fv8
+        add       #16, %[m]
+        fmov.s    @%[m], fr2
+        fmov      fr3, fr8
+        fldi0     fr3
+        fipr      fv4, fv0
+    )"
+    : [m] "+&r" (mat), "=&f" (ox), "=&f" (oy), "=&f" (oz)
+    : "f" (vx), "f" (vy), "f" (vz), "m" (*mat)
+    : "fr0", "fr1", "fr2", "fr7", "fr9", "fr10");
+
+    return shz_vec3_init(ox, oy, oz);
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_transform_vec4_sh4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {
-    shz_vec4_t res;
-
     register float vx asm("fr4") = in.x;
     register float vy asm("fr5") = in.y;
     register float vz asm("fr6") = in.z;
     register float vw asm("fr7") = in.w;
+    register float ox asm("fr12");
+    register float oy asm("fr13");
+    register float oz asm("fr3");
+    register float ow asm("fr11");
 
     asm(R"(
-        fmov.s  @%[c0]+, fr0
-        pref    @%[c2]
-        fmov.s  @%[c0]+, fr12
-        fmov.s  @%[c0]+, fr8
-        fmov.s  @%[c1]+, fr1
-        fmov.s  @%[c1]+, fr13
-        fmov.s  @%[c1]+, fr9
-        fmov.s  @%[c2]+, fr2
-        fmov.s  @%[c3]+, fr3
-        fmov.s  @%[c2]+, fr14
-        fmov.s  @%[c3]+, fr15
-        fipr    fv4, fv0
-
-        fmov.s  @%[c2]+, fr10
-        fmov.s  @%[c3]+, fr11
-        fipr    fv4, fv12
-
-        fmov.s  @%[c0]+, fr0
-        fmov.s  fr3, @%[v]
-        add     #-16, %[c0]
-        fipr    fv4, fv8
-
-        fmov.s  @%[c1]+, fr1
-        add     #4, %[v]
-        fmov.s  @%[c2]+, fr2
-        add     #-16, %[c1]
-        fmov.s  @%[c3]+, fr3
-        add     #-16, %[c2]
-        fmov.s  fr15, @%[v]
-        add     #4, %[v]
-        fipr    fv4, fv0
-
-        add     #-16, %[c3]
-        fmov.s  fr11, @%[v]
-        add     #4, %[v]
-        fmov.s  fr3, @%[v]
-        add     #-12, %[v]
+        fmov.s    @%[m]+, fr0
+        add       #28, %[m]
+        pref      @%[m]
+        add       #-28, %[m]
+        fmov.s    @%[m]+, fr8
+        add       #8, %[m]
+        fmov.s    @%[m]+, fr1
+        fmov.s    @%[m]+, fr9
+        add       #8, %[m]
+        fmov.s    @%[m]+, fr2
+        fmov.s    @%[m]+, fr10
+        add       #8, %[m]
+        fmov.s    @%[m]+, fr3
+        fmov.s    @%[m]+, fr11
+        add       #-48, %[m]
+        fipr      fv4, fv0
+        fmov.s    @%[m]+, fr0
+        fipr      fv4, fv8
+        fmov.s    @%[m]+, fr8
+        add       #8, %[m]
+        fmov.s    @%[m]+, fr1
+        fmov.s    @%[m]+, fr9
+        add       #8, %[m]
+        fmov.s    @%[m]+, fr2
+        fmov.s    @%[m]+, fr10
+        fmov      fr3, fr12
+        add       #8, %[m]
+        fmov      fr11, fr13
+        fmov.s    @%[m]+, fr3
+        fmov.s    @%[m]+, fr11
+        fipr      fv4, fv0
+        add       #-64, %[m]
+        fipr      fv4, fv8
     )"
-    : "=m" (res)
-    : [v] "r" (&res), "m" (*mat), [vx] "f" (vx), [vy] "f" (vy), [vz] "f" (vz), [vw] "f" (vw),
-      [c0] "r" (&mat->col[0]), [c1] "r" (&mat->col[1]), [c2] "r" (&mat->col[2]), [c3] "r" (&mat->col[3])
-    : "fr0", "fr1", "fr2", "fr3", "fr8", "fr9",
-      "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+    : "=&f" (ox), "=&f" (oy), "=&f" (oz), "=&f" (ow)
+    : "m" (*mat), [m] "r" (mat), "f" (vx), "f" (vy), "f" (vz), "f" (vw)
+    : "fr0", "fr1", "fr2", "fr8", "fr9", "fr10");
 
-    return res;
+    return shz_vec4_init(ox, oy, oz, ow);
 }
 
 SHZ_INLINE shz_vec4_t shz_mat4x4_transform_vec4_transpose_sh4(const shz_mat4x4_t* mat, shz_vec4_t in) SHZ_NOEXCEPT {
@@ -424,57 +447,57 @@ SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3_transpose_sh4(const shz_mat3x3_t
     return out;
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_get_scale_sh4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
-    register float fr2  asm("fr2");
-    register float fr6  asm("fr6");
-    register float fr10 asm("fr10");
+SHZ_INLINE shz_vec3_t shz_mat4x4_get_scale_sh4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+    register float fr1 asm("fr1");
+    register float fr5 asm("fr5");
+    register float fr9 asm("fr9");
     uintptr_t zero;
+    uintptr_t pref = (uintptr_t)mat + 32;
 
     asm(R"(
+        pref      @%[m]
         mov       #0, %[z]
         fschg
         lds       %[z], fpul
         fmov.d    @%[m]+, dr8
-        add       #28, %[m]
-        pref      @%[m]
-        add       #-28, %[m]
-        float     fpul, fr12
+        pref      @%[p]
         fmov.d    @%[m]+, dr10
         float     fpul, fr11
         fmov.d    @%[m]+, dr4
-        fipr      fv8, fv8
-        fmov      @%[m]+, dr6
+        fmov.d    @%[m]+, dr6
         float     fpul, fr7
-        fmov      @%[m]+, dr0
-        fipr      fv4, fv4
-        fmov      @%[m]+, dr2
-        fcmp/eq   fr11, fr12
+        fipr      fv8, fv8
+        fmov.d    @%[m]+, dr0
+        float     fpul, fr10
+        fmov.d    @%[m]+, dr2
         fldi0     fr3
-        fschg
+        fipr      fv4, fv4
         fipr      fv0, fv0
-        fmov      fr11, fr10
+        fmov      dr10, dr8
         fsrra     fr11
-        bt/s      1f
-        fcmp/eq   fr7, fr12
-        fmul      fr11, fr10
-    1:  fmov      fr7, fr6
+        fmov      dr6, dr4
         fsrra     fr7
-        bt/s      2f
-        fcmp/eq   fr3, fr12
-        fmul      fr7, fr6
-    2:  fmov      fr3, fr2
+        fmov      dr2, dr0
         fsrra     fr3
-        bt        3f
-        fmul      fr3, fr2
+        fcmp/eq   fr9, fr10
+        bt/s      1f
+        fcmp/eq   fr5, fr10
+        fmul      fr11, fr9
+    1:  bt/s      2f
+        fcmp/eq   fr1, fr10
+        fmul      fr7, fr5
+    2:  bt/s      3f
+        fschg
+        fmul      fr3, fr1
     3:
     )"
-    : "=f" (fr2), "=f" (fr6), "=f" (fr10),
-      [z] "=r" (zero), [m] "+r" (mat)
-    : "m" (*mat)
-    : "fpul", "fr0", "fr1", "fr3", "fr4",
-      "fr5", "fr7", "fr8", "fr9", "fr11", "fr12");
+    : "=f" (fr1), "=f" (fr5), "=f" (fr9),
+      [z] "=&r" (zero), [m] "+r" (mat)
+    : "m" (*mat), [p] "r" (pref)
+    : "fpul", "fr0", "fr2", "fr3", "fr4",
+      "fr6", "fr7", "fr8", "fr10", "fr11");
 
-    return shz_vec3_init(fr10, fr6, fr2);
+    return shz_vec3_init(fr9, fr5, fr1);
 }
 
 #endif

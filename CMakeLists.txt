@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10...3.31)
 
 set(SHZ_VERSION_MAJOR 0)
-set(SHZ_VERSION_MINOR 8)
-set(SHZ_VERSION_PATCH 1)
+set(SHZ_VERSION_MINOR 9)
+set(SHZ_VERSION_PATCH 0)
 set(SHZ_VERSION ${SHZ_VERSION_MAJOR}.${SHZ_VERSION_MINOR}.${SHZ_VERSION_PATCH})
 
 project(sh4zam
