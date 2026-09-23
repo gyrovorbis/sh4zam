@@ -22,305 +22,255 @@ void shz_xmtrx_load_apply_store_4x4_sh4(shz_mat4x4_t* out, const shz_mat4x4_t* m
 void shz_xmtrx_load_apply_store_3x4_sh4(shz_mat3x4_t* out, const shz_mat3x4_t* mat1, const shz_mat3x4_t* mat2);
 void shz_xmtrx_load_apply_store_3x3_sh4(shz_mat3x3_t* out, const shz_mat3x3_t* mat1, const shz_mat3x3_t* mat2);
 
-SHZ_INLINE float shz_xmtrx_read_sh4(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT {
-#define FP_REG_BACK_TO_FRONT_(reg)    \
-    asm volatile(                     \
-        "\n\tfrchg"                   \
-        "\n\tflds    fr"#reg", fpul"  \
-        "\n\tfrchg"                   \
-        "\n\tfsts    fpul, %0"        \
+SHZ_FORCE_INLINE float shz_xmtrx_read_sh4(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT {
+    float value;
+
+#define SHZ_XFER_FPR_(reg)          \
+    asm volatile(                   \
+        "\n\tfrchg"                 \
+        "\n\tflds fr"#reg", fpul"   \
+        "\n\tfrchg"                 \
+        "\n\tfsts fpul, %0"         \
     : "=f"(value) : : "fpul")
 
-    float value = 0.0f;
     switch(xf) {
-    case SHZ_XMTRX_XF0:  FP_REG_BACK_TO_FRONT_( 0); break;
-    case SHZ_XMTRX_XF1:  FP_REG_BACK_TO_FRONT_( 1); break;
-    case SHZ_XMTRX_XF2:  FP_REG_BACK_TO_FRONT_( 2); break;
-    case SHZ_XMTRX_XF3:  FP_REG_BACK_TO_FRONT_( 3); break;
-    case SHZ_XMTRX_XF4:  FP_REG_BACK_TO_FRONT_( 4); break;
-    case SHZ_XMTRX_XF5:  FP_REG_BACK_TO_FRONT_( 5); break;
-    case SHZ_XMTRX_XF6:  FP_REG_BACK_TO_FRONT_( 6); break;
-    case SHZ_XMTRX_XF7:  FP_REG_BACK_TO_FRONT_( 7); break;
-    case SHZ_XMTRX_XF8:  FP_REG_BACK_TO_FRONT_( 8); break;
-    case SHZ_XMTRX_XF9:  FP_REG_BACK_TO_FRONT_( 9); break;
-    case SHZ_XMTRX_XF10: FP_REG_BACK_TO_FRONT_(10); break;
-    case SHZ_XMTRX_XF11: FP_REG_BACK_TO_FRONT_(11); break;
-    case SHZ_XMTRX_XF12: FP_REG_BACK_TO_FRONT_(12); break;
-    case SHZ_XMTRX_XF13: FP_REG_BACK_TO_FRONT_(13); break;
-    case SHZ_XMTRX_XF14: FP_REG_BACK_TO_FRONT_(14); break;
-    case SHZ_XMTRX_XF15: FP_REG_BACK_TO_FRONT_(15); break;
+        case SHZ_XMTRX_XF0:  SHZ_XFER_FPR_( 0); break;
+        case SHZ_XMTRX_XF1:  SHZ_XFER_FPR_( 1); break;
+        case SHZ_XMTRX_XF2:  SHZ_XFER_FPR_( 2); break;
+        case SHZ_XMTRX_XF3:  SHZ_XFER_FPR_( 3); break;
+        case SHZ_XMTRX_XF4:  SHZ_XFER_FPR_( 4); break;
+        case SHZ_XMTRX_XF5:  SHZ_XFER_FPR_( 5); break;
+        case SHZ_XMTRX_XF6:  SHZ_XFER_FPR_( 6); break;
+        case SHZ_XMTRX_XF7:  SHZ_XFER_FPR_( 7); break;
+        case SHZ_XMTRX_XF8:  SHZ_XFER_FPR_( 8); break;
+        case SHZ_XMTRX_XF9:  SHZ_XFER_FPR_( 9); break;
+        case SHZ_XMTRX_XF10: SHZ_XFER_FPR_(10); break;
+        case SHZ_XMTRX_XF11: SHZ_XFER_FPR_(11); break;
+        case SHZ_XMTRX_XF12: SHZ_XFER_FPR_(12); break;
+        case SHZ_XMTRX_XF13: SHZ_XFER_FPR_(13); break;
+        case SHZ_XMTRX_XF14: SHZ_XFER_FPR_(14); break;
+        case SHZ_XMTRX_XF15: SHZ_XFER_FPR_(15); break;
+        default: assert(false);
     }
-    return value;
 
-#undef FP_REG_BACK_TO_FRONT_
+#undef SHZ_XFER_FPR_
+
+    return value;
 }
 
-SHZ_INLINE void shz_xmtrx_write_sh4(shz_xmtrx_reg_t xf, float value) SHZ_NOEXCEPT {
-#define FP_REG_FRONT_TO_BACK_(reg)    \
-    asm volatile(                     \
-        "\n\tflds   %0, fpul"         \
-        "\n\tfrchg"                   \
-        "\n\tfsts   fpul, fr"#reg     \
-        "\n\tfrchg"                   \
+SHZ_FORCE_INLINE void shz_xmtrx_write_sh4(shz_xmtrx_reg_t xf, float value) SHZ_NOEXCEPT {
+#define SHZ_XFER_FPR_(reg)       \
+    asm volatile(                \
+        "\n\tflds %0, fpul"      \
+        "\n\tfrchg"              \
+        "\n\tfsts fpul, fr"#reg  \
+        "\n\tfrchg"              \
     : : "f" (value) : "fpul")
 
     switch(xf) {
-    case SHZ_XMTRX_XF0:  FP_REG_FRONT_TO_BACK_( 0); break;
-    case SHZ_XMTRX_XF1:  FP_REG_FRONT_TO_BACK_( 1); break;
-    case SHZ_XMTRX_XF2:  FP_REG_FRONT_TO_BACK_( 2); break;
-    case SHZ_XMTRX_XF3:  FP_REG_FRONT_TO_BACK_( 3); break;
-    case SHZ_XMTRX_XF4:  FP_REG_FRONT_TO_BACK_( 4); break;
-    case SHZ_XMTRX_XF5:  FP_REG_FRONT_TO_BACK_( 5); break;
-    case SHZ_XMTRX_XF6:  FP_REG_FRONT_TO_BACK_( 6); break;
-    case SHZ_XMTRX_XF7:  FP_REG_FRONT_TO_BACK_( 7); break;
-    case SHZ_XMTRX_XF8:  FP_REG_FRONT_TO_BACK_( 8); break;
-    case SHZ_XMTRX_XF9:  FP_REG_FRONT_TO_BACK_( 9); break;
-    case SHZ_XMTRX_XF10: FP_REG_FRONT_TO_BACK_(10); break;
-    case SHZ_XMTRX_XF11: FP_REG_FRONT_TO_BACK_(11); break;
-    case SHZ_XMTRX_XF12: FP_REG_FRONT_TO_BACK_(12); break;
-    case SHZ_XMTRX_XF13: FP_REG_FRONT_TO_BACK_(13); break;
-    case SHZ_XMTRX_XF14: FP_REG_FRONT_TO_BACK_(14); break;
-    case SHZ_XMTRX_XF15: FP_REG_FRONT_TO_BACK_(15); break;
+        case SHZ_XMTRX_XF0:  SHZ_XFER_FPR_( 0); break;
+        case SHZ_XMTRX_XF1:  SHZ_XFER_FPR_( 1); break;
+        case SHZ_XMTRX_XF2:  SHZ_XFER_FPR_( 2); break;
+        case SHZ_XMTRX_XF3:  SHZ_XFER_FPR_( 3); break;
+        case SHZ_XMTRX_XF4:  SHZ_XFER_FPR_( 4); break;
+        case SHZ_XMTRX_XF5:  SHZ_XFER_FPR_( 5); break;
+        case SHZ_XMTRX_XF6:  SHZ_XFER_FPR_( 6); break;
+        case SHZ_XMTRX_XF7:  SHZ_XFER_FPR_( 7); break;
+        case SHZ_XMTRX_XF8:  SHZ_XFER_FPR_( 8); break;
+        case SHZ_XMTRX_XF9:  SHZ_XFER_FPR_( 9); break;
+        case SHZ_XMTRX_XF10: SHZ_XFER_FPR_(10); break;
+        case SHZ_XMTRX_XF11: SHZ_XFER_FPR_(11); break;
+        case SHZ_XMTRX_XF12: SHZ_XFER_FPR_(12); break;
+        case SHZ_XMTRX_XF13: SHZ_XFER_FPR_(13); break;
+        case SHZ_XMTRX_XF14: SHZ_XFER_FPR_(14); break;
+        case SHZ_XMTRX_XF15: SHZ_XFER_FPR_(15); break;
+        default: assert(false);
     }
 
 #undef FP_REG_FRONT_TO_BACK_
 }
 
-SHZ_INLINE shz_vec4_t shz_xmtrx_read_row_sh4(unsigned int index) SHZ_NOEXCEPT {
-    assert(index < 4);
+SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_read_col_sh4(unsigned idx) SHZ_NOEXCEPT {
+    register float x asm("fr4");
+    register float y asm("fr5");
+    register float z asm("fr6");
+    register float w asm("fr7");
 
+#define SHZ_XFER_XDR_(M, N)     \
+    asm volatile(               \
+        "\n\tfschg"             \
+        "\n\tfmov xd"#M", dr4"  \
+        "\n\tfmov xd"#N", dr6"  \
+        "\n\tfschg"             \
+    : "=f" (x), "=f" (y), "=f" (z), "=f" (w))
+
+    switch(idx) {
+        case 0: SHZ_XFER_XDR_( 0,  2); break;
+        case 1: SHZ_XFER_XDR_( 4,  6); break;
+        case 2: SHZ_XFER_XDR_( 8, 10); break;
+        case 3: SHZ_XFER_XDR_(12, 14); break;
+        default: assert(false);
+    }
+
+#undef SHZ_XFER_XDR_
+
+    return shz_vec4_init(x, y, z, w);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_write_col_sh4(unsigned idx, shz_vec4_t vals) SHZ_NOEXCEPT {
+    register float x asm("fr4") = vals.x;
+    register float y asm("fr5") = vals.y;
+    register float z asm("fr6") = vals.z;
+    register float w asm("fr7") = vals.w;
+
+#define SHZ_XFER_XDR_(M, N)    \
+    asm volatile(              \
+        "\n\tfschg"            \
+        "\n\tfmov dr4, xd"#M   \
+        "\n\tfmov dr6, xd"#N   \
+        "\n\tfschg"            \
+    : : "f" (x), "f" (y), "f" (z), "f" (w))
+
+    switch(idx) {
+        case 0: SHZ_XFER_XDR_( 0,  2); break;
+        case 1: SHZ_XFER_XDR_( 4,  6); break;
+        case 2: SHZ_XFER_XDR_( 8, 10); break;
+        case 3: SHZ_XFER_XDR_(12, 14); break;
+        default: assert(false);
+    }
+
+#undef SHZ_XFER_XDR_
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_read_row_sh4(unsigned idx) SHZ_NOEXCEPT {
     shz_vec4_t value;
 
-    SHZ_FRCHG();
-    switch(index) {
-    case 0:
-        asm volatile(R"(
-            fmov.s  fr0,  @%[x]
-            fmov.s  fr4,  @%[y]
-            fmov.s  fr8,  @%[z]
-            fmov.s  fr12, @%[w]
-        )"
-        : "=m" (value.x), "=m" (value.y),
-          "=m" (value.z), "=m" (value.w)
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
-        break;
-    case 1:
-        asm volatile(R"(
-            fmov.s  fr1,  @%[x]
-            fmov.s  fr5,  @%[y]
-            fmov.s  fr9,  @%[z]
-            fmov.s  fr13, @%[w]
-        )"
-        : "=m" (value.x), "=m" (value.y),
-          "=m" (value.z), "=m" (value.w)
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
-        break;
-    case 2:
-        asm volatile(R"(
-            fmov.s  fr2,  @%[x]
-            fmov.s  fr6,  @%[y]
-            fmov.s  fr10, @%[z]
-            fmov.s  fr14, @%[w]
-        )"
-        : "=m" (value.x), "=m" (value.y),
-          "=m" (value.z), "=m" (value.w)
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
-        break;
-    case 3:
-        asm volatile(R"(
-            fmov.s  fr3,  @%[x]
-            fmov.s  fr7,  @%[y]
-            fmov.s  fr11, @%[z]
-            fmov.s  fr15, @%[w]
-        )"
-        : "=m" (value.x), "=m" (value.y),
-          "=m" (value.z), "=m" (value.w)
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
-        break;
+#define SHZ_XFER_ROW_(X, Y, Z, W)    \
+    asm volatile(                    \
+        "\n\tadd     #16, %[r]"      \
+        "\n\tfrchg"                  \
+        "\n\tfmov.s  fr"#W", @-%[r]" \
+        "\n\tfmov.s  fr"#Z", @-%[r]" \
+        "\n\tfmov.s  fr"#Y", @-%[r]" \
+        "\n\tfmov.s  fr"#X", @-%[r]" \
+        "\n\tfrchg"                  \
+    : "=m" (value)                   \
+    : [r] "r" (&value))
+
+    switch(idx) {
+        case 0: SHZ_XFER_ROW_(0, 4,  8, 12); break;
+        case 1: SHZ_XFER_ROW_(1, 5,  9, 13); break;
+        case 2: SHZ_XFER_ROW_(2, 6, 10, 14); break;
+        case 3: SHZ_XFER_ROW_(3, 7, 11, 15); break;
+        default: assert(false);
     }
-    SHZ_FRCHG();
+
+#undef SHZ_XFER_ROW_
 
     return value;
 }
 
-SHZ_INLINE void shz_xmtrx_write_row_sh4(unsigned int index, shz_vec4_t value) SHZ_NOEXCEPT {
-    assert(index < 4);
+SHZ_FORCE_INLINE void shz_xmtrx_write_row_sh4(unsigned idx, shz_vec4_t vals) SHZ_NOEXCEPT {
+    uintptr_t in = (uintptr_t)&vals;
 
-    SHZ_FRCHG();
-    switch(index) {
-    case 0:
-        asm volatile(R"(
-            fmov.s  @%[x], fr0
-            fmov.s  @%[y], fr4
-            fmov.s  @%[z], fr8
-            fmov.s  @%[w], fr12
-        )"
-        :
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w),
-          "m" (value));
-        break;
-    case 1:
-        asm volatile(R"(
-            fmov.s  @%[x], fr1
-            fmov.s  @%[y], fr5
-            fmov.s  @%[z], fr9
-            fmov.s  @%[w], fr13
-        )"
-        :
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w),
-          "m" (value));
-        break;
-    case 2:
-        asm volatile(R"(
-            fmov.s  @%[x], fr2
-            fmov.s  @%[y], fr6
-            fmov.s  @%[z], fr10
-            fmov.s  @%[w], fr14
-        )"
-        :
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w),
-          "m" (value));
-        break;
-    case 3:
-        asm volatile(R"(
-            fmov.s  @%[x], fr3
-            fmov.s  @%[y], fr7
-            fmov.s  @%[z], fr11
-            fmov.s  @%[w], fr15
-        )"
-        :
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w),
-          "m" (value));
-        break;
+#define SHZ_XFER_ROW_(X, Y, Z, W)   \
+    asm volatile(                   \
+        "\n\tfrchg"                 \
+        "\n\tfmov.s  @%[r]+, fr"#X  \
+        "\n\tfmov.s  @%[r]+, fr"#Y  \
+        "\n\tfmov.s  @%[r]+, fr"#Z  \
+        "\n\tfmov.s  @%[r]+, fr"#W  \
+        "\n\tfrchg"                 \
+    : [r] "+r" (in) : "m" (vals))
+
+    switch(idx) {
+        case 0: SHZ_XFER_ROW_(0, 4,  8, 12); break;
+        case 1: SHZ_XFER_ROW_(1, 5,  9, 13); break;
+        case 2: SHZ_XFER_ROW_(2, 6, 10, 14); break;
+        case 3: SHZ_XFER_ROW_(3, 7, 11, 15); break;
+        default: assert(false);
     }
-    SHZ_FRCHG();
+
+#undef SHZ_XFER_ROW_
 }
 
-SHZ_INLINE shz_vec4_t shz_xmtrx_read_col_sh4(unsigned int index) SHZ_NOEXCEPT {
-    assert(index < 4);
+#define SHZ_SWAP_FPR_(M, N)  \
+    "flds  fr"#M", fpul\n\t"  \
+    "fmov  fr"#N", fr"#M"\n\t" \
+    "fsts  fpul, fr"#N"\n\t"
 
-    shz_vec4_t value;
+#define SHZ_SWAP_FVR_(X, Y, Z, W, A, B, C, D) \
+    asm volatile( \
+        "frchg\n\t" \
+        SHZ_SWAP_FPR_(X, A) \
+        SHZ_SWAP_FPR_(Y, B) \
+        SHZ_SWAP_FPR_(Z, C) \
+        SHZ_SWAP_FPR_(W, D) \
+        "frchg\n\t" \
+    : : : "fpul")
 
-    SHZ_FRCHG();
-    switch(index) {
-    case 0:
-        asm volatile(R"(
-            fmov.s  fr0, @%[x]
-            fmov.s  fr1, @%[y]
-            fmov.s  fr2, @%[z]
-            fmov.s  fr3, @%[w]
-        )"
-        : "=m" (value.x), "=m" (value.y),
-          "=m" (value.z), "=m" (value.w)
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
-        break;
-    case 1:
-        asm volatile(R"(
-            fmov.s  fr4, @%[x]
-            fmov.s  fr5, @%[y]
-            fmov.s  fr6, @%[z]
-            fmov.s  fr7, @%[w]
-        )"
-        : "=m" (value.x), "=m" (value.y),
-          "=m" (value.z), "=m" (value.w)
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
-        break;
-    case 2:
-        asm volatile(R"(
-            fmov.s  fr8,  @%[x]
-            fmov.s  fr9,  @%[y]
-            fmov.s  fr10, @%[z]
-            fmov.s  fr11, @%[w]
-        )"
-        : "=m" (value.x), "=m" (value.y),
-          "=m" (value.z), "=m" (value.w)
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
-        break;
-    case 3:
-        asm volatile(R"(
-            fmov.s  fr12, @%[x]
-            fmov.s  fr13, @%[y]
-            fmov.s  fr14, @%[z]
-            fmov.s  fr15, @%[w]
-        )"
-        : "=m" (value.x), "=m" (value.y),
-          "=m" (value.z), "=m" (value.w)
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w));
-        break;
+SHZ_FORCE_INLINE void shz_xmtrx_swap_cols_sh4(unsigned idx1, unsigned idx2) SHZ_NOEXCEPT {
+    assert(idx1 <= 3 && idx2 <= 3);
+
+    if(idx1 == 0) {
+        switch(idx2) {
+            case 1: SHZ_SWAP_FVR_(0, 1, 2, 3,  4,  5,  6,  7); break;
+            case 2: SHZ_SWAP_FVR_(0, 1, 2, 3,  8,  9, 10, 11); break;
+            case 3: SHZ_SWAP_FVR_(0, 1, 2, 3, 12, 13, 14, 15); break;
+        }
+    } else if(idx1 == 1) {
+        switch(idx2) {
+            case 0: SHZ_SWAP_FVR_(4, 5, 6, 7,  0,  1,  2,  3); break;
+            case 2: SHZ_SWAP_FVR_(4, 5, 6, 7,  8,  9, 10, 11); break;
+            case 3: SHZ_SWAP_FVR_(4, 5, 6, 7, 12, 13, 14, 15); break;
+        }
+    } else if(idx1 == 2) {
+        switch(idx2) {
+            case 0: SHZ_SWAP_FVR_(8, 9, 10, 11,  0,  1,  2,  3); break;
+            case 1: SHZ_SWAP_FVR_(8, 9, 10, 11,  4,  5,  6,  7); break;
+            case 3: SHZ_SWAP_FVR_(8, 9, 10, 11, 12, 13, 14, 15); break;
+        }
+    } else /* if(idx1 == 3) */ {
+        switch(idx2) {
+            case 0: SHZ_SWAP_FVR_(12, 13, 14, 15, 0, 1,  2,  3); break;
+            case 1: SHZ_SWAP_FVR_(12, 13, 14, 15, 4, 5,  6,  7); break;
+            case 2: SHZ_SWAP_FVR_(12, 13, 14, 15, 8, 9, 10, 11); break;
+        }
     }
-    SHZ_FRCHG();
-
-    return value;
 }
 
-SHZ_INLINE void shz_xmtrx_write_col_sh4(unsigned int index, shz_vec4_t value) SHZ_NOEXCEPT {
-    assert(index < 4);
+SHZ_FORCE_INLINE void shz_xmtrx_swap_rows_sh4(unsigned idx1, unsigned idx2) SHZ_NOEXCEPT {
+    assert(idx1 <= 3 && idx2 <= 3);
 
-    SHZ_FRCHG();
-    switch(index) {
-    case 0:
-        asm volatile(R"(
-            fmov.s  @%[x], fr0
-            fmov.s  @%[y], fr1
-            fmov.s  @%[z], fr2
-            fmov.s  @%[w], fr3
-        )"
-        :
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w),
-          "m" (value));
-        break;
-    case 1:
-        asm volatile(R"(
-            fmov.s  @%[x], fr4
-            fmov.s  @%[y], fr5
-            fmov.s  @%[z], fr6
-            fmov.s  @%[w], fr7
-        )"
-        :
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w),
-          "m" (value));
-        break;
-    case 2:
-        asm volatile(R"(
-            fmov.s  @%[x], fr8
-            fmov.s  @%[y], fr9
-            fmov.s  @%[z], fr10
-            fmov.s  @%[w], fr11
-        )"
-        :
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w),
-          "m" (value));
-        break;
-    case 3:
-        asm volatile(R"(
-            fmov.s  @%[x], fr12
-            fmov.s  @%[y], fr13
-            fmov.s  @%[z], fr14
-            fmov.s  @%[w], fr15
-        )"
-        :
-        : [x] "r" (&value.x), [y] "r" (&value.y),
-          [z] "r" (&value.z), [w] "r" (&value.w),
-          "m" (value));
-        break;
+    if(idx1 == 0) {
+        switch(idx2) {
+            case 1: SHZ_SWAP_FVR_(0, 4, 8, 12, 1, 5,  9, 13); break;
+            case 2: SHZ_SWAP_FVR_(0, 4, 8, 12, 2, 6, 10, 14); break;
+            case 3: SHZ_SWAP_FVR_(0, 4, 8, 12, 3, 7, 11, 15); break;
+        }
+    } else if(idx1 == 1) {
+        switch(idx2) {
+            case 0: SHZ_SWAP_FVR_(1, 5, 9, 13, 0, 4,  8, 12); break;
+            case 2: SHZ_SWAP_FVR_(1, 5, 9, 13, 2, 6, 10, 14); break;
+            case 3: SHZ_SWAP_FVR_(1, 5, 9, 13, 3, 7, 11, 15); break;
+        }
+    } else if(idx1 == 2) {
+        switch(idx2) {
+            case 0: SHZ_SWAP_FVR_(2, 6, 10, 14, 0, 4,  8, 12); break;
+            case 1: SHZ_SWAP_FVR_(2, 6, 10, 14, 1, 5,  9, 13); break;
+            case 3: SHZ_SWAP_FVR_(2, 6, 10, 14, 3, 7, 11, 15); break;
+        }
+    } else /* if(idx1 == 3) */ {
+        switch(idx2) {
+            case 0: SHZ_SWAP_FVR_(3, 7, 11, 15, 0, 4,  8, 12); break;
+            case 1: SHZ_SWAP_FVR_(3, 7, 11, 15, 1, 5,  9, 13); break;
+            case 2: SHZ_SWAP_FVR_(3, 7, 11, 15, 2, 6, 10, 14); break;
+        }
     }
-    SHZ_FRCHG();
 }
+
+#undef SHZ_SWAP_FVR_
+#undef SHZ_SWAP_FPR_
 
 SHZ_INLINE void shz_xmtrx_load_4x4_sh4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(

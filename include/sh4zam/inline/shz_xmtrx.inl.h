@@ -67,17 +67,19 @@ SHZ_FORCE_INLINE void shz_xmtrx_write_col(unsigned int index, shz_vec4_t value) 
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_swap_rows(unsigned int index1, unsigned int index2) SHZ_NOEXCEPT {
-    shz_vec4_t v1 = shz_xmtrx_read_row(index1);
-    shz_vec4_t v2 = shz_xmtrx_read_row(index2);
-    shz_xmtrx_write_row(index1, v2);
-    shz_xmtrx_write_row(index2, v1);
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_swap_rows_sh4(index1, index2);
+#else
+    shz_xmtrx_swap_rows_sw(index1, index2);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_swap_cols(unsigned int index1, unsigned int index2) SHZ_NOEXCEPT {
-    shz_vec4_t v1 = shz_xmtrx_read_col(index1);
-    shz_vec4_t v2 = shz_xmtrx_read_col(index2);
-    shz_xmtrx_write_col(index1, v2);
-    shz_xmtrx_write_col(index2, v1);
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_swap_cols_sh4(index1, index2);
+#else
+    shz_xmtrx_swap_cols_sw(index1, index2);
+#endif
 }
 
 /* ========== Loading ========== */
