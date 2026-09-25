@@ -16,4 +16,5 @@
     [SH4 Optimization Tips](https://dreamcast.wiki/Development#Optimization)|Dreamcast.wiki's list of useful optimization tips.
     [Reversing SH4 Vector Instructions](https://drk.emudev.org/blog/sh4-fpu/ )|Deep-dive into how FIPR, FTRV, FSCA, and FSRRA actually work on the HW.
     [SH4 Vector FPU Calculator](https://drk.emudev.org/sh4-vector-calculator/)|Interactive calculator, visualizing the circuitry of the SH4 VFPU.
+    [SuperH Manuals](https://github.com/KitsunebiGames/SuperH-Manuals)|GitHub repository containing a collection of manuals for the SuperH architecture.
 */

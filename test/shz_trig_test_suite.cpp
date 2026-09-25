@@ -38,12 +38,12 @@ GBL_TEST_CASE(sincos_from_radians)
     };
 
     GBL_TEST_CALL(test(0.0f));
-    GBL_TEST_CALL(test(SHZ_F_PI));
-    GBL_TEST_CALL(test(SHZ_F_PI * -2.0f));
-    GBL_TEST_CALL(test(SHZ_F_PI * 3.01f / 2.0f));
-    GBL_TEST_CALL(test(-SHZ_F_PI));
-    GBL_TEST_CALL(test(-SHZ_F_PI * -2.777f));
-    GBL_TEST_CALL(test(-SHZ_F_PI * 3.41f / 45.656f));
+    GBL_TEST_CALL(test(shz::pi_f));
+    GBL_TEST_CALL(test(shz::pi_f * -2.0f));
+    GBL_TEST_CALL(test(shz::pi_f * 3.01f / 2.0f));
+    GBL_TEST_CALL(test(-shz::pi_f));
+    GBL_TEST_CALL(test(-shz::pi_f * -2.777f));
+    GBL_TEST_CALL(test(-shz::pi_f * 3.41f / 45.656f));
 GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
@@ -70,12 +70,12 @@ GBL_TEST_CASE(sincos_from_degrees)
         GBL_CTX_END();
     };
     GBL_TEST_CALL(test(0.0f));
-    GBL_TEST_CALL(test(SHZ_F_PI));
-    GBL_TEST_CALL(test(SHZ_F_PI * -2.0f));
-    GBL_TEST_CALL(test(SHZ_F_PI * 3.01f / 2.0f));
-    GBL_TEST_CALL(test(-SHZ_F_PI));
-    GBL_TEST_CALL(test(-SHZ_F_PI * -2.777f));
-    GBL_TEST_CALL(test(-SHZ_F_PI * 3.41f / 45.656f));
+    GBL_TEST_CALL(test(shz::pi_f));
+    GBL_TEST_CALL(test(shz::pi_f * -2.0f));
+    GBL_TEST_CALL(test(shz::pi_f * 3.01f / 2.0f));
+    GBL_TEST_CALL(test(-shz::pi_f));
+    GBL_TEST_CALL(test(-shz::pi_f * -2.777f));
+    GBL_TEST_CALL(test(-shz::pi_f * 3.41f / 45.656f));
 GBL_TEST_CASE_END
 
 SHZ_NO_FAST_MATH
@@ -316,8 +316,8 @@ GBL_TEST_CASE(benches)
     volatile float result;
 
     for(volatile unsigned i = 0; i < 1; ++i) {
-        float random = gblRandUniform(-SHZ_F_PI, SHZ_F_PI);
-        float random2 = gblRandUniform(-SHZ_F_PI, SHZ_F_PI);
+        float random = gblRandUniform(-shz::pi_f, shz::pi_f);
+        float random2 = gblRandUniform(-shz::pi_f, shz::pi_f);
         benchmark(&result, shz::atan2f, random, random2);
         benchmark(&result, atan2f, random, random2);
         printf("\n");

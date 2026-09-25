@@ -86,7 +86,7 @@ GBL_TEST_CASE(inverse)
     mat.shz.init_identity();
     mat.shz.apply_scale(2.0f, 3.0f, 4.0f);
     mat.shz.apply_translation(10.0f, 20.0f, 30.0f);
-    mat.shz.apply_rotation_x(SHZ_F_PI);
+    mat.shz.apply_rotation_x(shz::pi_f);
     mat.shz.inverse(&inverted);
     inverted.inverse(&invertedInverted);
 

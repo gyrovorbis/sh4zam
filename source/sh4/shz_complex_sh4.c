@@ -10,6 +10,11 @@
  *  \copyright  MIT License
  */
 
+
+// Force this translation unit to use the SH4 back-end.
+#undef  SHZ_BACKEND
+#define SHZ_BACKEND     SHZ_SH4
+
 #include "sh4zam/shz_complex.h"
 #include "sh4zam/shz_xmtrx.h"
 

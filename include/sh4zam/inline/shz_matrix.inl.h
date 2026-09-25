@@ -754,7 +754,7 @@ SHZ_INLINE void shz_mat3x3_scale(shz_mat3x3_t* dst, const shz_mat3x3_t* src, flo
 
 SHZ_INLINE void shz_mat3x3_transpose(const shz_mat3x3_t* mtrx,
                           shz_mat3x3_t* out) SHZ_NOEXCEPT {
-    shz_xmtrx_load_transpose_3x3((const float*)mtrx);
+    shz_xmtrx_load_transpose_3x3(mtrx);
     shz_xmtrx_store_3x3(out);
 }
 

@@ -19,7 +19,7 @@
 #define BENCHMARK_ITERATION_MATCHES     3
 #define BENCHMARK_CMP_ROUNDS            4
 
-#if SHZ_BACKEND == SHZ_SH4
+#if SHZ_TARGET == SHZ_SH4
 #   define PERF_CNTR       PRFC1
 #   define PERF_CNTR2      PRFC0
 
@@ -78,13 +78,9 @@ SHZ_FORCE_INLINE uint64_t PERF_CNTR2_STOP() {
 
 namespace {
     inline uint64_t ns_gettime64(void) noexcept {
-#if SHZ_BACKEND == SHZ_SH4
-        return timer_ns_gettime64();
-#else
         return std::chrono::duration_cast<std::chrono::nanoseconds>(
             std::chrono::high_resolution_clock::now().time_since_epoch()
         ).count();
-#endif
     }
 }
 
@@ -106,13 +102,15 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
     uint64_t flush_sum  = 0;
     uint64_t sum        = 0;
     uint64_t prev       = 0;
+    int      iterations = -1;
+    bool     converged  = false;
+#if SHZ_TARGET == SHZ_SH4
     uint64_t pc2_sum    = 0;
     uint64_t pc2_prev   = 0;
     unsigned matches    = 0;
-    int      iterations = -1;
-    bool     converged  = false;
+#endif
 
-#if SHZ_BACKEND == SHZ_SH4
+#if SHZ_TARGET == SHZ_SH4
     SHZ_INSTR_BARRIER();
     auto state = irq_disable();
 #endif
@@ -130,7 +128,7 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
     for(; iterations < BENCHMARK_ITERATION_COUNT; ++iterations) {
         SHZ_INSTR_BARRIER();
 
-#if !defined(SHZ_DISABLE_BENCHMARKS) && (SHZ_BACKEND == SHZ_SH4)
+#if !defined(SHZ_DISABLE_BENCHMARKS) && (SHZ_TARGET == SHZ_SH4)
         if constexpr(CacheFlush) {
             flush_sum += [] SHZ_NO_INLINE {
                 SHZ_INSTR_BARRIER();
@@ -159,7 +157,7 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
 #endif
 
         SHZ_INSTR_BARRIER();
-#if SHZ_BACKEND == SHZ_SH4
+#if SHZ_TARGET == SHZ_SH4
         PERF_CNTR_START();
         if constexpr(CacheFlush)
             PERF_CNTR2_START(PMCR_PIPELINE_FREEZE_BY_DCACHE_MISS_MODE);
@@ -175,7 +173,7 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
                 fn(std::forward<decltype(fargs)>(fargs)...);
         }(std::forward<decltype(res)>(res), std::forward<decltype(function)>(function), std::forward<decltype(args)>(args)...);
         SHZ_INSTR_BARRIER();
-#if SHZ_BACKEND == SHZ_SH4
+#if SHZ_TARGET == SHZ_SH4
         uint64_t perfctr_cnt = PERF_CNTR_STOP();
         uint64_t pc2_cnt     = PERF_CNTR2_STOP();
 #endif
@@ -185,7 +183,7 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
         if(iterations == -1)
             continue;
 
-#if SHZ_BACKEND == SHZ_SH4
+#if SHZ_TARGET == SHZ_SH4
         const auto& cnt = perfctr_cnt;
         pc2_sum  += pc2_cnt;
         pc2_prev  = pc2_cnt;
@@ -194,6 +192,7 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
         uint64_t cnt = 0;
 #endif
         sum += cnt;
+#if SHZ_TARGET == SHZ_SH4
         if(cnt == prev) {
             if(++matches == BENCHMARK_ITERATION_MATCHES) {
                 // Have to increment ourselves upon early exit.
@@ -205,13 +204,14 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
             prev = cnt;
             matches = 0;
         }
+#endif
         SHZ_INSTR_BARRIER();
     }
 
     SHZ_INSTR_BARRIER();
     uint64_t tmu_stop = ns_gettime64();
     tmu_sum          = (tmu_stop - tmu_start) - flush_sum;
-#if SHZ_BACKEND == SHZ_SH4
+#if SHZ_TARGET == SHZ_SH4
     SHZ_INSTR_BARRIER();
     irq_restore(state);
 #endif
@@ -221,7 +221,7 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
     stats.last       = prev;
     stats.avg        = iterations? (sum / iterations) : 0;
     stats.ns         = iterations? (tmu_sum / iterations) : 0;
-#if SHZ_BACKEND == SHZ_SH4
+#if SHZ_TARGET == SHZ_SH4
     stats.pc2_last   = pc2_prev;
     stats.pc2_avg    = iterations? (pc2_sum / iterations) : 0;
 #else
@@ -236,7 +236,7 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
 
 inline void benchmark_print(const char* name, bool cacheFlush, const benchmark_stats& s) noexcept {
 #ifndef SHZ_DISABLE_BENCHMARKS
-#   if SHZ_BACKEND == SHZ_SH4
+#   if SHZ_TARGET == SHZ_SH4
     std::println("\t{:>30} [{:>8}] : {:6}/{:6} cc, {:6} ns, {:3}/{:3} {}, {:2} calls",
           name,
           cacheFlush? "UNCACHED" : "CACHED",
@@ -264,7 +264,7 @@ inline void benchmark_print(const char* name, bool cacheFlush, const benchmark_s
 template<typename... Args>
 SHZ_NO_INLINE
 std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& function, Args&&... args) noexcept {
-#if SHZ_BACKEND == SHZ_SH4
+#if SHZ_TARGET == SHZ_SH4
     const benchmark_stats uncached = benchmark_measure<true>(res, function, args...);
     benchmark_print(name, true, uncached);
     const uint64_t uncachedCycles = uncached.cycles;
@@ -305,7 +305,7 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
     };
 
     auto run = [&](auto res) {
-#if SHZ_BACKEND == SHZ_SH4
+#if SHZ_TARGET == SHZ_SH4
         measure.template operator()<true>(res, shzUncache, refUncache);
 #endif
         measure.template operator()<false>(res, shzCache, refCache);
@@ -318,27 +318,34 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
         run(&result);
     }
 
-#if SHZ_BACKEND == SHZ_SH4
+#if SHZ_TARGET == SHZ_SH4
     benchmark_print(shzName, true,  shzUncache);
 #endif
     benchmark_print(shzName, false, shzCache);
-#if SHZ_BACKEND == SHZ_SH4
+#if SHZ_TARGET == SHZ_SH4
     benchmark_print(refName, true,  refUncache);
 #endif
     benchmark_print(refName, false, refCache);
 
+#if SHZ_TARGET == SHZ_SH4
     const uint64_t shzUncacheCyc = shzUncache.cycles;
     const uint64_t shzCacheCyc   = shzCache.cycles;
     const uint64_t refUncacheCyc = refUncache.cycles;
     const uint64_t refCacheCyc   = refCache.cycles;
+#else
+    const uint64_t shzUncacheCyc = shzUncache.ns;
+    const uint64_t shzCacheCyc   = shzCache.ns;
+    const uint64_t refUncacheCyc = refUncache.ns;
+    const uint64_t refCacheCyc   = refCache.ns;
+#endif
 
 #ifndef SHZ_DISABLE_BENCHMARKS
-    float cacheGainz   = ((float)refCacheCyc  ) / ((float)shzCacheCyc  );
+    float cacheGainz   = shzCacheCyc?   ((float)refCacheCyc   / (float)shzCacheCyc  ) : 1.0f;
 
-#   if SHZ_BACKEND == SHZ_SH4
-    float uncacheGainz = ((float)refUncacheCyc) / ((float)shzUncacheCyc);
+#   if SHZ_TARGET == SHZ_SH4
+    float uncacheGainz = shzUncacheCyc? ((float)refUncacheCyc / (float)shzUncacheCyc) : 1.0f;
 #   else
-    float uncacheGainz = 0.0f;
+    float uncacheGainz = cacheGainz;
 #   endif
 
     // Ratios within this band of 1.0 are indistinguishable from the kind of
@@ -379,7 +386,7 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
     constexpr float    BENCHMARK_CLEAR_PCT_UNCACHED     = 0.20f;
     constexpr uint64_t BENCHMARK_TOLERANCE_ABS_UNCACHED = 24;
 
-    enum {
+    [[maybe_unused]] enum {
         EQUAL,
         GAINZ,
         APPROX,
@@ -421,7 +428,11 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
         gainz_str = "LOSSEZ";
     }
 
+#   if SHZ_TARGET == SHZ_SH4
     std::println("* [   {:6}  ]:\t{:.4f}x / {:.4f}x [UNCACHED / CACHED]", gainz_str, uncacheGainz, cacheGainz);
+#   else
+    std::println("* [   {:6}  ]:\t{:.4f}x [WALL CLOCK]", gainz_str, cacheGainz);
+#   endif
 
 #   if SHZ_BACKEND == SHZ_SH4
     return gainz != LOSSEZ;

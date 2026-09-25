@@ -1,3 +1,21 @@
+/*! \file
+ *  \brief   Out-of-line SW implementation of XMTRX routines.
+ *  \ingroup complex
+ *
+ *  This file contains the out-of-line generic SW routines
+ *  which back the XMTRX API, including the thread-local
+ *  emulated XMTRX registers, which are only fetched via
+ *  the shz_xmtrx_state_() accessor for access within the
+ *  inline routines for the SW back-end.
+ *
+ *  \author     2026 Falco Girgis
+ *  \copyright  MIT License
+ */
+
+ // Force this translation unit to use the SW back-end.
+#undef  SHZ_BACKEND
+#define SHZ_BACKEND     SHZ_SW
+
 #include "sh4zam/shz_xmtrx.h"
 #include "sh4zam/shz_matrix.h"
 

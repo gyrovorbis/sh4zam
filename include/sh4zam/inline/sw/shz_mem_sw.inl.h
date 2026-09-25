@@ -70,13 +70,37 @@ SHZ_FORCE_INLINE void* shz_memcpy32_sw(      void* SHZ_RESTRICT dst,
 SHZ_FORCE_INLINE void* shz_sq_memcpy32_sw(      void* SHZ_RESTRICT dst,
                                           const void* SHZ_RESTRICT src,
                                           size_t              bytes) SHZ_NOEXCEPT {
-    return memcpy(dst, src, bytes);
+          uint8_t* d = (      uint8_t*)dst;
+    const uint8_t* s = (const uint8_t*)src;
+          void*    r = NULL;
+
+    for(size_t b = 0; b < bytes / 32; ++b) {
+        r = memcpy(&d[b * 32], &s[b * 32], 32);
+
+        SHZ_MEMORY_BARRIER_HARD();
+        SHZ_PREFETCH(r);
+        SHZ_MEMORY_BARRIER_HARD();
+    }
+
+    return dst;
 }
 
 SHZ_FORCE_INLINE void* shz_sq_memcpy32_xmtrx_sw(      void* SHZ_RESTRICT dst,
                                                 const void* SHZ_RESTRICT src,
                                                 size_t                   bytes) SHZ_NOEXCEPT {
-    return memcpy(dst, src, bytes);
+          uint8_t* d = (      uint8_t*)dst;
+    const uint8_t* s = (const uint8_t*)src;
+          void*    r = NULL;
+
+    for(size_t b = 0; b < bytes / 32; ++b) {
+        r = memcpy(&d[b * 32], &s[b * 32], 32);
+
+        SHZ_MEMORY_BARRIER_HARD();
+        SHZ_PREFETCH(r);
+        SHZ_MEMORY_BARRIER_HARD();
+    }
+
+    return dst;
 }
 
 SHZ_FORCE_INLINE void* shz_memcpy64_sw(      void* SHZ_RESTRICT dst,
@@ -148,7 +172,13 @@ SHZ_FORCE_INLINE void shz_memswap32_1_xmtrx_sw(void* SHZ_RESTRICT p1,
 
 SHZ_FORCE_INLINE void* shz_sq_memcpy32_1_sw(      void* SHZ_RESTRICT dst,
                                             const void* SHZ_RESTRICT src) SHZ_NOEXCEPT {
-    return memcpy(dst, src, 32);
+    void* ret = memcpy(dst, src, 32);
+
+    SHZ_MEMORY_BARRIER_HARD();
+    SHZ_PREFETCH(ret);
+    SHZ_MEMORY_BARRIER_HARD();
+
+    return ret;
 }
 
 

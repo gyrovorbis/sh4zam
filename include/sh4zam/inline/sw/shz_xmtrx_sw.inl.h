@@ -321,8 +321,9 @@ SHZ_FORCE_INLINE void shz_xmtrx_load_3x3_sw(const shz_mat3x3_t* matrix) SHZ_NOEX
     xmtrx_state_->col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_3x3_sw(const float* matrix) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_3x3_sw(const shz_mat3x3_t* mat) SHZ_NOEXCEPT {
     shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
+    shz_alias_float_t* matrix = (shz_alias_float_t*)mat;
     xmtrx_state_->col[0] = shz_vec4_init(matrix[0], matrix[3], matrix[6], 0.0f);
     xmtrx_state_->col[1] = shz_vec4_init(matrix[1], matrix[4], matrix[7], 0.0f);
     xmtrx_state_->col[2] = shz_vec4_init(matrix[2], matrix[5], matrix[8], 0.0f);
@@ -685,7 +686,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_3x3_sw(const shz_mat3x3_t* matrix) SHZ_NOE
     m[0] = shz_vec4_init(c[0].x, c[0].y, c[0].z, 0.0f);
     m[1] = shz_vec4_init(c[1].x, c[1].y, c[1].z, 0.0f);
     m[2] = shz_vec4_init(c[2].x, c[2].y, c[2].z, 0.0f);
-    m[3] = shz_xmtrx_state_()->col[3];
+    m[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
     shz_xmtrx_mul4x4_cols_(m);
 }
 
@@ -695,7 +696,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_transpose_3x3_sw(const shz_mat3x3_t* matri
     m[0] = shz_vec4_init(c[0].x, c[1].x, c[2].x, 0.0f);
     m[1] = shz_vec4_init(c[0].y, c[1].y, c[2].y, 0.0f);
     m[2] = shz_vec4_init(c[0].z, c[1].z, c[2].z, 0.0f);
-    m[3] = shz_xmtrx_state_()->col[3];
+    m[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
     shz_xmtrx_mul4x4_cols_(m);
 }
 
@@ -772,7 +773,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_x_sw(float x) SHZ_NOEXCEPT {
     rot[0] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
     rot[1] = shz_vec4_init(0.0f, c,    s,    0.0f);
     rot[2] = shz_vec4_init(0.0f, -s,   c,    0.0f);
-    rot[3] = shz_xmtrx_state_()->col[3];
+    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
     shz_xmtrx_mul4x4_cols_(rot);
 }
 
@@ -783,7 +784,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_y_sw(float y) SHZ_NOEXCEPT {
     rot[0] = shz_vec4_init(c,    0.0f, -s,   0.0f);
     rot[1] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
     rot[2] = shz_vec4_init(s,    0.0f, c,    0.0f);
-    rot[3] = shz_xmtrx_state_()->col[3];
+    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
     shz_xmtrx_mul4x4_cols_(rot);
 }
 
@@ -794,7 +795,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_z_sw(float z) SHZ_NOEXCEPT {
     rot[0] = shz_vec4_init(c,    s,    0.0f, 0.0f);
     rot[1] = shz_vec4_init(-s,   c,    0.0f, 0.0f);
     rot[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
-    rot[3] = shz_xmtrx_state_()->col[3];
+    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
     shz_xmtrx_mul4x4_cols_(rot);
 }
 
@@ -818,7 +819,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_sw(float angle, float x, float y,
     rot[0] = shz_vec4_init(x * x * t + c,  xyt + zs,  xzt - ys,  0.0f);
     rot[1] = shz_vec4_init(xyt - zs,  y * y * t + c,  yzt + xs,  0.0f);
     rot[2] = shz_vec4_init(xzt + ys,  yzt - xs,  z * z * t + c,  0.0f);
-    rot[3] = shz_xmtrx_state_()->col[3];
+    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
     shz_xmtrx_mul4x4_cols_(rot);
 }
 
@@ -831,7 +832,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_quat_sw(shz_quat_t q) SHZ_NOEXCEP
     rot[0] = shz_vec4_init(1.0f - 2.0f * (yy + zz), 2.0f * (xy + wz), 2.0f * (xz - wy), 0.0f);
     rot[1] = shz_vec4_init(2.0f * (xy - wz), 1.0f - 2.0f * (xx + zz), 2.0f * (yz + wx), 0.0f);
     rot[2] = shz_vec4_init(2.0f * (xz + wy), 2.0f * (yz - wx), 1.0f - 2.0f * (xx + yy), 0.0f);
-    rot[3] = shz_xmtrx_state_()->col[3];
+    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
     shz_xmtrx_mul4x4_cols_(rot);
 }
 
@@ -840,7 +841,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_symmetric_skew_sw(float x, float y, float 
     m[0] = shz_vec4_init(0.0f, -z,    y,   0.0f);
     m[1] = shz_vec4_init(z,    0.0f, -x,   0.0f);
     m[2] = shz_vec4_init(-y,    x,   0.0f, 0.0f);
-    m[3] = shz_xmtrx_state_()->col[3];
+    m[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
     shz_xmtrx_mul4x4_cols_(m);
 }
 
@@ -1030,7 +1031,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_z_sw(float radians) SHZ_NOEXCEPT {
 
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_sw(float angle, float x, float y, float z) SHZ_NOEXCEPT {
     float len2 = x * x + y * y + z * z;
-    float inv_len = shz_invf_fsrra(len2);
+    float inv_len = shz_inv_sqrtf(len2);
     x *= inv_len;
     y *= inv_len;
     z *= inv_len;

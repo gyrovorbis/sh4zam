@@ -198,7 +198,7 @@ GBL_TEST_CASE(vec2Dot3)
     GBL_TEST_VERIFY(test({ -0.342344f,    890432084.0f },
                          { 0.0000001f,    34342.0324f },
                          { 12343455.0f,   -34234324.4444f },
-                         { 3243124.3434f, SHZ_F_PI }));
+                         { 3243124.3434f, shz::pi_f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Magnitude)
@@ -372,7 +372,7 @@ GBL_TEST_CASE(vec4Dot3)
     GBL_TEST_VERIFY(test({ -0.342344f,    890432084.0f, 343244.0f, -312432.04232f },
                          { 0.0000001f,    34342.0324f, -0.3243242f, 0.234324f },
                          { 12343455.0f,   -34234324.4444f, 0.034234f, -0.34324432f },
-                         { 3243124.3434f, SHZ_F_PI, 3143124.0342f, 1.0000043224324f }));
+                         { 3243124.3434f, shz::pi_f, 3143124.0342f, 1.0000043224324f }));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Rotate)
@@ -393,7 +393,7 @@ GBL_TEST_CASE(vec2Rotate)
                gblFloatEquals(shz_rotated.y, c_rotated.y, shz::fipr_max_error);
     };
 
-    GBL_TEST_VERIFY(test({1.0f, 2.0f }, SHZ_F_PI));
+    GBL_TEST_VERIFY(test({1.0f, 2.0f }, shz::pi_f));
 GBL_TEST_CASE_END
 
 static bool vec3RotateVerify_(const shz::vec3& vec, float radians, const shz::vec3& axis, const shz::vec3& rotated) {

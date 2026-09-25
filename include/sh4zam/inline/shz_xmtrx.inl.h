@@ -212,7 +212,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_load_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEP
 #endif
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_3x3(const float* matrix) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_load_transpose_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_load_transpose_3x3_sh4(matrix);
 #else
@@ -1029,22 +1029,6 @@ SHZ_FORCE_INLINE void shz_xmtrx_sub_4x4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     shz_xmtrx_sub_4x4_sh4(mat);
 #else
     shz_xmtrx_sub_4x4_sw(mat);
-#endif
-}
-
-SHZ_FORCE_INLINE void shz_xmtrx_add_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_SH4
-    shz_xmtrx_add_symmetric_skew_sh4(x, y, z);
-#else
-    shz_xmtrx_add_symmetric_skew_sw(x, y, z);
-#endif
-}
-
-SHZ_FORCE_INLINE void shz_xmtrx_add_diagonal(float x, float y, float z, float w) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_SH4
-    shz_xmtrx_add_diagonal_sh4(x, y, z, w);
-#else
-    shz_xmtrx_add_diagonal_sw(x, y, z, w);
 #endif
 }
 

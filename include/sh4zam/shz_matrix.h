@@ -12,10 +12,6 @@
     matrices are NOT within such registers, which are faster than
     having to go through XMTRX and clobbering the back-bank.
 
-    \todo
-        - shz_mat4x4_add_symmetric_skew()
-        - shz_mat4x4_add_diagonal()
-
     \author 2025, 2026 Falco Girgis
     \author 2025 Daniel Fairchild
 

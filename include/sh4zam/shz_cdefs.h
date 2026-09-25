@@ -24,24 +24,43 @@
 #endif
 
 /*! \name  Back-Ends
-    \brief Platform-specific SH4ZAM implementations.
+    \brief List of architectures which SH4ZAM can auto-detect.
     @{
 */
-#define SHZ_SH4   1     //!< Back-end for the Dreamcast's SH4.
-#define SHZ_PPC   2     //!< Back-end for the Gamecube/Wii's Gekko PPC.
-#define SHZ_MIPS  3     //!< Back-end for MIPS architectures
-#define SHZ_ARM   4     //!< Back-end for ARM architectures.
-#define SHZ_X86   5     //!< Back-end for x86/64 architectures.
-#define SHZ_WASM  8     //!< Back-end for WebAssembly.
-#define SHZ_SW    ~0    //!< Generic C-based software back-end.
+#define SHZ_SH4     1     //!< Back-end for the Dreamcast's SH4.
+#define SHZ_PPC     2     //!< Back-end for the Gamecube/Wii's Gekko PPC.
+#define SHZ_MIPS    3     //!< Back-end for MIPS architectures
+#define SHZ_ARM     4     //!< Back-end for ARM architectures.
+#define SHZ_X86_64  5     //!< Back-end for x86_64 architectures.
+#define SHZ_WASM    8     //!< Back-end for WebAssembly.
+#define SHZ_SW      ~0    //!< Generic C-based software back-end.
 //! @}
 
-// Attempt to detect default back-end for the given build environment.
-#ifndef SHZ_BACKEND
-#   if defined(__SH4_SINGLE__) || defined(__SH4_SINGLE_ONLY__)
-#       define SHZ_BACKEND SHZ_SH4  // Dreamcast builds use SH4 back-end.
+// Determine the actual architecture we're targeting.
+#ifndef SHZ_TARGET
+#   if defined(__SH__) || defined(__sh__)
+#       define SHZ_TARGET   SHZ_SH4
+#   elif defined(__powerpc__) || defined(__PPC__) || defined(_ARCH_PPC)
+#       define SHZ_TARGET    SHZ_PPC
+#   elif defined(_mips) || defined(__mips)
+#       define SHZ_TARGET    SHZ_MIPS
+#   elif defined(__arm__) || defined(__aarch64__) || defined(_M_ARM) || defined(_M_ARM64)
+#       define SHZ_TARGET    SHZ_ARM
+#   elif defined(__x86_64__) || defined(_M_X64)
+#       define SHZ_TARGET   SHZ_X86_64
+#   elif defined(__wasm__) || defined(__wasm32__) || defined(__wasm64__)
+#       define SHZ_TARGET   SHZ_WASM
 #   else
-#       define SHZ_BACKEND SHZ_SW   // Everything else uses SW C back-end.
+#       define SHZ_TAREGT   SHZ_SW
+#   endif
+#endif
+
+// Attempt to detect default back-end for the given build target.
+#ifndef SHZ_BACKEND
+#   if SHZ_TARGET == SHZ_SH4 && (defined(__SH4_SINGLE__) || defined(__SH4_SINGLE_ONLY__))
+#       define SHZ_BACKEND SHZ_SH4  // Dreamcast builds use SH4 back-end ONLY in single-precision FPU mode.
+#   else
+#       define SHZ_BACKEND SHZ_SW   // Everything else uses SW C back-end right now.
 #   endif
 #endif
 
@@ -57,10 +76,10 @@
 
 // Attempt to detect default TLS model for the given back-end.
 #ifndef SHZ_TLS_MODEL
-#   if SHZ_BACKEND == SHZ_SH4
-#       define SHZ_TLS_MODEL    SHZ_TLS_IMPLICIT    // SH4 back-end supports compiler-level TLS.
-#   elif SHZ_BACKEND == SHZ_SW
-#       define SHZ_TLS_MODEL    SHZ_TLS_PTHREAD     // SW back-end uses pthread-based TLS for compatibilty.
+#   if SHZ_TARGET == SHZ_SH4
+#       define SHZ_TLS_MODEL    SHZ_TLS_IMPLICIT  // SH4 toolchain supports compiler-level TLS.
+#   elif SHZ_TARGET == SHZ_SW
+#       define SHZ_TLS_MODEL    SHZ_TLS_PTHREAD   // SW target uses pthread-based TLS for compatibilty.
 #   endif
 #endif
 

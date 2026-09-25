@@ -759,6 +759,46 @@ struct xmtrx {
         shz_xmtrx_load_apply_store_3x4(dst, &mat1, &mat2);
     }
 
+    //! C++ wrapper around shz_xmtrx_load_2x2().
+    SHZ_FORCE_INLINE static void load(const shz_mat2x2_t& mat) noexcept {
+        shz_xmtrx_load_2x2(&mat);
+    }
+
+    //! C++ wrapper around shz_xmtrx_store_2x2().
+    SHZ_FORCE_INLINE static void store(shz_mat2x2_t* mat) noexcept {
+        shz_xmtrx_store_2x2(mat);
+    }
+
+    //! C++ wrapper around shz_xmtrx_load_3x3().
+    SHZ_FORCE_INLINE static void load(const shz_mat3x3_t& mat) noexcept {
+        shz_xmtrx_load_3x3(&mat);
+    }
+
+    //! C++ wrapper around shz_xmtrx_load_transpose_3x3().
+    SHZ_FORCE_INLINE static void load_transpose(const shz_mat3x3_t& mat) noexcept {
+        shz_xmtrx_load_transpose_3x3(&mat);
+    }
+
+    //! C++ wrapper around shz_xmtrx_store_3x3().
+    SHZ_FORCE_INLINE static void store(shz_mat3x3_t* mat) noexcept {
+        shz_xmtrx_store_3x3(mat);
+    }
+
+    //! C++ wrapper around shz_xmtrx_store_transpose_3x3().
+    SHZ_FORCE_INLINE static void store_transpose(shz_mat3x3_t* mat) noexcept {
+        shz_xmtrx_store_transpose_3x3(mat);
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_3x3().
+    SHZ_FORCE_INLINE static void apply(const shz_mat3x3_t& mat) noexcept {
+        shz_xmtrx_apply_3x3(&mat);
+    }
+
+    //! C++ wrapper around shz_xmtrx_apply_transpose_3x3().
+    SHZ_FORCE_INLINE static void apply_transpose(const shz_mat3x3_t& mat) noexcept {
+        shz_xmtrx_apply_transpose_3x3(&mat);
+    }
+
     //! C++ wrapper around shz_xmtrx_load_apply_store_3x3().
     SHZ_FORCE_INLINE static void load_apply_store(shz_mat3x3_t* dst, const shz_mat3x3_t& mat1, const shz_mat3x3_t& mat2) noexcept {
         shz_xmtrx_load_apply_store_3x3(dst, &mat1, &mat2);
@@ -859,26 +899,6 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_sub_4x4().
     SHZ_FORCE_INLINE static void sub(const shz_mat4x4_t& mat) noexcept {
         shz_xmtrx_sub_4x4(&mat);
-    }
-
-    //! C++ wrapper around shz_xmtrx_add_diagonal().
-    SHZ_FORCE_INLINE static void add_diagonal(float x, float y, float z, float w) noexcept {
-        shz_xmtrx_add_diagonal(x, y, z, w);
-    }
-
-    //! C++ wrapper around shz_xmtrx_add_diagonal().
-    SHZ_FORCE_INLINE static void add_diagonal(const vec4& v) noexcept {
-        add_diagonal(v.x, v.y, v.z, v.w);
-    }
-
-    //! C++ wrapper around shz_xmtrx_add_symmetric_skew().
-    SHZ_FORCE_INLINE static void add_symmetric_skew(float x, float y, float z) noexcept {
-        shz_xmtrx_add_symmetric_skew(x, y, z);
-    }
-    
-    //! C++ wrapper around shz_xmtrx_add_symmetric_skew().
-    SHZ_FORCE_INLINE static void add_symmetric_skew(const vec3& v) noexcept {
-        add_symmetric_skew(v.x, v.y, v.z);
     }
 
     //! C++ wrapper around shz_xmtrx_transpose().

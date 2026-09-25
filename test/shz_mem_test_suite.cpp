@@ -8,7 +8,7 @@
 
 #define GBL_SELF_TYPE   shz_mem_test_suite
 
-#define BUFFER_SIZE     (12 * 1024)
+#define BUFFER_SIZE     (4 * 1024)
 #define PADDING         1024
 
 GBL_TEST_FIXTURE_NONE
@@ -54,6 +54,19 @@ bool memcpy_verify(auto&& pFn) {
             return false;
 
     return true;
+}
+
+template<size_t Bytes, size_t SrcOff, size_t DstOff, size_t Pad>
+bool memcpy_offset_bench(const char* name) {
+    static MemcpyBuffer<Bytes + 32, 32, Pad> src;
+    static MemcpyBuffer<Bytes + 32, 32, Pad> dst;
+
+    return (benchmark_cmp<void*>)(
+        name,
+        [](void* d, const void* s, size_t n) { return shz::memcpy(d, s, n); },
+        "memcpy",
+        [](void* d, const void* s, size_t n) { return ::memcpy(d, s, n); },
+        dst.buffer.data() + DstOff, src.buffer.data() + SrcOff, Bytes);
 }
 
 GBL_TEST_CASE(memcpy1)
@@ -227,6 +240,59 @@ GBL_TEST_CASE(memcpy_alignment_sweep)
             }
 
     GBL_TEST_VERIFY(!failCount);
+
+    (memcpy_offset_bench<256, 0, 0, PADDING>)("shz::memcpy s+0 d+0");
+    (memcpy_offset_bench<256, 0, 4, PADDING>)("shz::memcpy s+0 d+4");
+    (memcpy_offset_bench<256, 4, 0, PADDING>)("shz::memcpy s+4 d+0");
+    (memcpy_offset_bench<256, 1, 0, PADDING>)("shz::memcpy s+1 d+0");
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(memcpy_alignment_sweep_full)
+    constexpr unsigned PAD_ = 64;
+
+    alignas(32) static uint8_t srcbuf[1024];
+    alignas(32) static uint8_t dstbuf[1024];
+    alignas(32) static uint8_t refbuf[1024];
+
+    static constexpr unsigned sizes[] = {
+        0,   1,   2,   3,   4,   5,   7,   8,   9,  15,  16,  17,
+       31,  32,  33,  39,  63,  64,  65,  95, 127, 128, 129, 159,
+      160, 255, 256, 257, 287, 288, 383, 384, 512
+    };
+
+    for(unsigned i = 0; i < sizeof(srcbuf); ++i)
+        srcbuf[i] = (uint8_t)(i * 31u + 17u);
+
+    unsigned failCount = 0;
+
+    for(unsigned soff = 0; soff < 32; ++soff)
+        for(unsigned doff = 0; doff < 32; ++doff)
+            for(unsigned n : sizes) {
+                memset(dstbuf, 0xAA, sizeof(dstbuf));
+                memset(refbuf, 0xAA, sizeof(refbuf));
+
+                shz::memcpy(dstbuf + PAD_ + doff, srcbuf + PAD_ + soff, n);
+                ::memcpy(refbuf + PAD_ + doff, srcbuf + PAD_ + soff, n);
+
+                if(::memcmp(dstbuf, refbuf, sizeof(dstbuf))) {
+                    ++failCount;
+                    if(failCount <= 8) {
+                        unsigned bad = 0;
+                        while(bad < sizeof(dstbuf) && dstbuf[bad] == refbuf[bad])
+                            ++bad;
+                        std::println("FAIL soff={} doff={} n={:3}: first bad byte {}, "
+                                     "got {:#x} want {:#x}",
+                                     soff, doff, n, bad, dstbuf[bad], refbuf[bad]);
+                    }
+                }
+            }
+
+    GBL_TEST_VERIFY(!failCount);
+
+    (memcpy_offset_bench<512,  0,  0, PADDING>)("shz::memcpy s+0  d+0 ");
+    (memcpy_offset_bench<512,  0, 24, PADDING>)("shz::memcpy s+0  d+24");
+    (memcpy_offset_bench<512,  8, 16, PADDING>)("shz::memcpy s+8  d+16");
+    (memcpy_offset_bench<512,  3, 17, PADDING>)("shz::memcpy s+3  d+17");
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(memcpy1,
@@ -246,4 +312,5 @@ GBL_TEST_REGISTER(memcpy1,
                   memcpy_primitive_16,
                   memcpy_primitive_32,
                   memcpy_primitive_64,
-                  memcpy_alignment_sweep)
+                  memcpy_alignment_sweep,
+                  memcpy_alignment_sweep_full)

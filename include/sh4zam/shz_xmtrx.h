@@ -188,7 +188,7 @@ SHZ_INLINE void shz_xmtrx_load_cols_3x4(const shz_vec3_t* c1,
 SHZ_INLINE void shz_xmtrx_load_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT;
 
 //! Loads the transpose of the given 3x3 matrix into XMTRX, initializing its remaining elements to identity.
-SHZ_INLINE void shz_xmtrx_load_transpose_3x3(const float* matrix) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_load_transpose_3x3(const shz_mat3x3_t* matrix) SHZ_NOEXCEPT;
 
 //! Loads the given 2x2 matrix into XMTRX, initializing its remaining elements to identity.
 SHZ_INLINE void shz_xmtrx_load_2x2(const shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
@@ -828,12 +828,6 @@ SHZ_INLINE void shz_xmtrx_sub_4x4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
     \brief Random operations and conversions on XMTRX.
     @{
 */
-
-//! Adds the values of a 3D symmetric skew matrix constructed from the given components to XMTRX.
-SHZ_INLINE void shz_xmtrx_add_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;
-
-//! Adds the values of a 4D diagonal matrix constructed from the given components to XMTRX.
-SHZ_INLINE void shz_xmtrx_add_diagonal(float x, float y, float z, float w) SHZ_NOEXCEPT;
 
 //! Transposes the elements within XMTRX, in-place.
 SHZ_INLINE void shz_xmtrx_transpose(void) SHZ_NOEXCEPT;

@@ -236,6 +236,11 @@ GBL_TEST_CASE(load_cols_4x4)
                           *reinterpret_cast<const shz_vec4_t *>(array.data() + 12));
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                   transpose(array)));
+    (benchmark)(nullptr, "shz::xmtrx::load_cols_4x4", [&] {
+        shz::xmtrx::load_cols(*reinterpret_cast<const shz_vec4_t *>(array.data()),
+                              *reinterpret_cast<const shz_vec4_t *>(array.data() + 4),
+                              *reinterpret_cast<const shz_vec4_t *>(array.data() + 8),
+                              *reinterpret_cast<const shz_vec4_t *>(array.data() + 12)); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_rows_4x4)
@@ -251,6 +256,11 @@ GBL_TEST_CASE(load_rows_4x4)
                           *reinterpret_cast<const shz_vec4_t *>(array.data() + 8),
                           *reinterpret_cast<const shz_vec4_t *>(array.data() + 12));
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, array));
+    (benchmark)(nullptr, "shz::xmtrx::load_rows_4x4", [&] {
+        shz::xmtrx::load_rows(*reinterpret_cast<const shz_vec4_t *>(array.data()),
+                              *reinterpret_cast<const shz_vec4_t *>(array.data() + 4),
+                              *reinterpret_cast<const shz_vec4_t *>(array.data() + 8),
+                              *reinterpret_cast<const shz_vec4_t *>(array.data() + 12)); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_transpose_unaligned_4x4)
@@ -359,6 +369,7 @@ GBL_TEST_CASE(init_zero)
                     0.0f, 0.0f, 0.0f, 0.0f,
                     0.0f, 0.0f, 0.0f, 0.0f,
                     0.0f, 0.0f, 0.0f, 0.0f}));
+    (benchmark)(nullptr, "shz::xmtrx::init_zero", [&] { shz::xmtrx::init_zero(); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_one)
@@ -369,6 +380,7 @@ GBL_TEST_CASE(init_one)
                     1.0f, 1.0f, 1.0f, 1.0f,
                     1.0f, 1.0f, 1.0f, 1.0f,
                     1.0f, 1.0f, 1.0f, 1.0f}));
+    (benchmark)(nullptr, "shz::xmtrx::init_one", [&] { shz::xmtrx::init_one(); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_fill)
@@ -379,6 +391,7 @@ GBL_TEST_CASE(init_fill)
                     3.0f, 3.0f, 3.0f, 3.0f,
                     3.0f, 3.0f, 3.0f, 3.0f,
                     3.0f, 3.0f, 3.0f, 3.0f}));
+    (benchmark)(nullptr, "shz::xmtrx::init_fill", [&] { shz::xmtrx::init_fill(3.0f); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_translation)
@@ -430,32 +443,35 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_rotation_x)
     randomize_xmtrx_();
-    shz::xmtrx::init_rotation_x(SHZ_F_PI);
+    shz::xmtrx::init_rotation_x(shz::pi_f);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                   { 1.0f, 0.0f, 0.0f, 0.0f,
-                    0.0f, cosf(SHZ_F_PI), -sinf(SHZ_F_PI), 0.0f,
-                    0.0f, sinf(SHZ_F_PI), cosf(SHZ_F_PI), 0.0f,
+                    0.0f, cosf(shz::pi_f), -sinf(shz::pi_f), 0.0f,
+                    0.0f, sinf(shz::pi_f), cosf(shz::pi_f), 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f}));
+    (benchmark)(nullptr, "shz::xmtrx::init_rotation_x", [&] { shz::xmtrx::init_rotation_x(shz::pi_f); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_rotation_y)
     randomize_xmtrx_();
-    shz::xmtrx::init_rotation_y(SHZ_F_PI);
+    shz::xmtrx::init_rotation_y(shz::pi_f);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                  { cosf(SHZ_F_PI), 0.0f, sinf(SHZ_F_PI), 0.0f,
+                  { cosf(shz::pi_f), 0.0f, sinf(shz::pi_f), 0.0f,
                     0.0f, 1.0f, 0.0f, 0.0f,
-                    -sinf(SHZ_F_PI), 0.0f, cosf(SHZ_F_PI), 0.0f,
+                    -sinf(shz::pi_f), 0.0f, cosf(shz::pi_f), 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f}));
+    (benchmark)(nullptr, "shz::xmtrx::init_rotation_y", [&] { shz::xmtrx::init_rotation_y(shz::pi_f); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_rotation_z)
     randomize_xmtrx_();
-    shz::xmtrx::init_rotation_z(SHZ_F_PI);
+    shz::xmtrx::init_rotation_z(shz::pi_f);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                  { cosf(SHZ_F_PI), sinf(SHZ_F_PI), 0.0f, 0.0f,
-                    sinf(SHZ_F_PI), cosf(SHZ_F_PI), 0.0f, 0.0f,
+                  { cosf(shz::pi_f), sinf(shz::pi_f), 0.0f, 0.0f,
+                    sinf(shz::pi_f), cosf(shz::pi_f), 0.0f, 0.0f,
                     0.0f, 0.0f, 1.0f, 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f }));
+    (benchmark)(nullptr, "shz::xmtrx::init_rotation_z", [&] { shz::xmtrx::init_rotation_z(shz::pi_f); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_rotation_xyz)
@@ -493,8 +509,8 @@ GBL_TEST_CASE(init_rotation_dir)
         shz::xmtrx::init_rotation_dir(shz::pi_f, shz::vec3(1.0f, 0.0f, 0.0f));
         GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                       { 1.0f, 0.0f, 0.0f, 0.0f,
-                        0.0f, cosf(SHZ_F_PI), -sinf(SHZ_F_PI), 0.0f,
-                        0.0f, sinf(SHZ_F_PI), cosf(SHZ_F_PI), 0.0f,
+                        0.0f, cosf(shz::pi_f), -sinf(shz::pi_f), 0.0f,
+                        0.0f, sinf(shz::pi_f), cosf(shz::pi_f), 0.0f,
                         0.0f, 0.0f, 0.0f, 1.0f}));
     }
 
@@ -612,6 +628,7 @@ GBL_TEST_CASE(init_screen)
                  -0.0f,  -240.0f, -0.0f, 240.0f,
                   0.0f,   0.0f,    1.0f, 0.0f,
                   0.0f,   0.0f,    0.0f, 1.0f }));
+    (benchmark)(nullptr, "shz::xmtrx::init_screen", [&] { shz::xmtrx::init_screen(640.0f, 480.0f); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_permutation_wxyz)
@@ -657,7 +674,7 @@ GBL_TEST_CASE(init_outer_product)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_4x4)
-    alignas(32) shz::mat4x4 in, xmtrx;
+    alignas(32) shz::mat4x4 in;
 
     in.init_translation(1.0f, 2.0f, 3.0f);
     shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
@@ -672,17 +689,20 @@ GBL_TEST_CASE(apply_4x4)
                                 }));
 
 #if SHZ_BACKEND == SHZ_SH4
+    {
+        alignas(32) shz::mat4x4 xmtrx;
 
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<void>)(
-            "shz::xmtrx::apply", [](shz::mat4x4& m) { shz::xmtrx::apply(m); },
-            "glm_mat4_mul",      [&](shz::mat4x4& m) { glm_mat4_mul(*reinterpret_cast<mat4*>(&xmtrx),
-                                                                    *reinterpret_cast<mat4*>(&m),
-                                                                    *reinterpret_cast<mat4*>(&xmtrx));
-                                                                },
-            in
-        )
-    );
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)(
+                "shz::xmtrx::apply", [](shz::mat4x4& m) { shz::xmtrx::apply(m); },
+                "glm_mat4_mul",      [&](shz::mat4x4& m) { glm_mat4_mul(*reinterpret_cast<mat4*>(&xmtrx),
+                                                                        *reinterpret_cast<mat4*>(&m),
+                                                                        *reinterpret_cast<mat4*>(&xmtrx));
+                                                                    },
+                in
+            )
+        );
+    }
 #endif
 GBL_TEST_CASE_END
 
@@ -731,7 +751,7 @@ GBL_TEST_CASE(apply_transpose_4x4)
     shz::xmtrx::load(xmat);
     shz::xmtrx::apply_transpose(in);
 
-    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, 
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                                 {
                                     67.0f, 123.0f, 153.0f, 98.0f,
                                     78.0f, 138.0f, 170.0f, 112.0f,
@@ -765,7 +785,7 @@ GBL_TEST_CASE(apply_transpose_unaligned_4x4)
     shz::xmtrx::load(xmat);
     shz::xmtrx::apply_transpose(in->data());
 
-    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, 
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                                 {
                                     67.0f, 123.0f, 153.0f, 98.0f,
                                     78.0f, 138.0f, 170.0f, 112.0f,
@@ -1388,37 +1408,37 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(apply_rotation_x)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_rotation_x(SHZ_F_PI);
+    shz::xmtrx::apply_rotation_x(shz::pi_f);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                  { 1.0f,       0.0f,        0.0f, 0.0f,
-                   0.0f, cosf(SHZ_F_PI), -sinf(SHZ_F_PI), 0.0f,
-                   0.0f, sinf(SHZ_F_PI),  cosf(SHZ_F_PI), 0.0f,
+                   0.0f, cosf(shz::pi_f), -sinf(shz::pi_f), 0.0f,
+                   0.0f, sinf(shz::pi_f),  cosf(shz::pi_f), 0.0f,
                    0.0f,       0.0f,        0.0f, 1.0f }));
-    benchmark(nullptr, shz::xmtrx::apply_rotation_x, SHZ_F_PI);
+    benchmark(nullptr, shz::xmtrx::apply_rotation_x, shz::pi_f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_rotation_y)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_rotation_y(SHZ_F_PI);
+    shz::xmtrx::apply_rotation_y(shz::pi_f);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                 { cosf(SHZ_F_PI), 0.0f,  sinf(SHZ_F_PI), 0.0f,
+                 { cosf(shz::pi_f), 0.0f,  sinf(shz::pi_f), 0.0f,
                          0.0f,     1.0f,   0.0f, 0.0f,
-                         0.0f,     0.0f,  cosf(SHZ_F_PI), 0.0f,
-                  -sinf(SHZ_F_PI), 0.0f,   0.0f, 1.0f }));
-    benchmark(nullptr, shz::xmtrx::apply_rotation_y, SHZ_F_PI);
+                         0.0f,     0.0f,  cosf(shz::pi_f), 0.0f,
+                  -sinf(shz::pi_f), 0.0f,   0.0f, 1.0f }));
+    benchmark(nullptr, shz::xmtrx::apply_rotation_y, shz::pi_f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_rotation_z)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_rotation_z(SHZ_F_PI);
+    shz::xmtrx::apply_rotation_z(shz::pi_f);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
-                 { cosf(SHZ_F_PI), -sinf(SHZ_F_PI), 0.0f, 0.0f,
-                   sinf(SHZ_F_PI),  cosf(SHZ_F_PI), 0.0f, 0.0f,
+                 { cosf(shz::pi_f), -sinf(shz::pi_f), 0.0f, 0.0f,
+                   sinf(shz::pi_f),  cosf(shz::pi_f), 0.0f, 0.0f,
                          0.0f,        0.0f, 1.0f, 0.0f,
                          0.0f,        0.0f, 0.0f, 1.0f }));
-    benchmark(nullptr, shz::xmtrx::apply_rotation_z, SHZ_F_PI);
+    benchmark(nullptr, shz::xmtrx::apply_rotation_z, shz::pi_f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_rotation_xyz)
@@ -1690,9 +1710,9 @@ GBL_TEST_CASE(translate)
                                 0.0f, 0.0f, 2.0f, 6.0f,
                                 0.0f, 0.0f, 0.0f, 1.0f }));
 
-    
+
     shz::xmtrx::store(&shzRes);
-    
+
     glm_mat4_identity(glmRes);
     glm_scale(glmRes, sc);
     glm_translate(glmRes, tl);
@@ -2070,7 +2090,7 @@ GBL_TEST_CASE(apply_screen)
     shz::xmtrx::init_identity();
     shz::xmtrx::apply_permutation_wxyz();
     shz::xmtrx::apply_screen(640.0f, 480.0f);
-    
+
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
             { 0.0f,   -0.0f,   0.0f, 1.0f,
               320.0f,  0.0f,   0.0f, 320.0f,
@@ -2084,6 +2104,7 @@ GBL_TEST_CASE(apply_screen)
     shz::xmtrx::store(&init_screen_mat);
 
     GBL_TEST_VERIFY(applied_screen_mat == init_screen_mat);
+    (benchmark)(nullptr, "shz::xmtrx::apply_screen", [&] { shz::xmtrx::apply_screen(640.0f, 480.0f); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(apply_lookat)
@@ -2516,6 +2537,181 @@ GBL_TEST_CASE(load_apply_store_3x4)
             GBL_TEST_VERIFY(shz_equalf(shzRes.elem2D[i][j], q2Res.elem2D[i][j]));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(load_store_2x2)
+    shz_mat2x2_t m2 = { .elem = { 1.0f, 2.0f, -3.0f, 4.0f } };
+    alignas(32) shz_mat4x4_t wide = { .elem = { 1.0f,  2.0f, 0.0f, 0.0f,
+                                               -3.0f,  4.0f, 0.0f, 0.0f,
+                                                0.0f,  0.0f, 1.0f, 0.0f,
+                                                0.0f,  0.0f, 0.0f, 1.0f } };
+    shz::mat4x4 got, ref;
+
+    randomize_xmtrx_();
+    shz::xmtrx::load(m2);
+    shz::xmtrx::store(&got);
+
+    randomize_xmtrx_();
+    shz::xmtrx::load(wide);
+    shz::xmtrx::store(&ref);
+
+    for(unsigned i = 0; i < 16; ++i)
+        GBL_TEST_VERIFY(got.elem[i] == ref.elem[i]);
+
+    shz_mat2x2_t out;
+    randomize_xmtrx_();
+    shz::xmtrx::load(wide);
+    shz::xmtrx::store(&out);
+    for(unsigned i = 0; i < 4; ++i)
+        GBL_TEST_VERIFY(out.elem[i] == m2.elem[i]);
+
+    (benchmark)(nullptr, "shz::xmtrx::load_2x2",  [&] { shz::xmtrx::load(m2); });
+    (benchmark)(nullptr, "shz::xmtrx::store_2x2", [&] { shz::xmtrx::store(&out); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_self)
+    alignas(32) shz_mat4x4_t in = { .elem = { 2.0f, 3.0f, 1.0f, 4.0f,
+                                              5.0f, 1.0f, 6.0f, 2.0f,
+                                              3.0f, 7.0f, 2.0f, 5.0f,
+                                              1.0f, 4.0f, 8.0f, 3.0f } };
+    shz::mat4x4 got, ref;
+
+    randomize_xmtrx_();
+    shz::xmtrx::load(in);
+    shz::xmtrx::apply_self();
+    shz::xmtrx::store(&got);
+
+    randomize_xmtrx_();
+    shz::xmtrx::load(in);
+    shz::xmtrx::apply(in);
+    shz::xmtrx::store(&ref);
+
+    for(unsigned i = 0; i < 16; ++i)
+        GBL_TEST_VERIFY(shz_equalf(got.elem[i], ref.elem[i]));
+
+    (benchmark)(nullptr, "shz::xmtrx::apply_self", [&] { shz::xmtrx::apply_self(); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_3x3)
+    shz_mat3x3_t m3 = { .elem = { 1.0f, 2.0f, 3.0f, 4.0f, -5.0f, 6.0f, 7.0f, 8.0f, -9.0f } };
+    alignas(32) shz_mat4x4_t wide = { .elem = { 1.0f, 2.0f,  3.0f, 0.0f,
+                                                4.0f, -5.0f, 6.0f, 0.0f,
+                                                7.0f, 8.0f, -9.0f, 0.0f,
+                                                0.0f, 0.0f,  0.0f, 1.0f } };
+    shz::mat4x4 got, ref;
+
+    randomize_xmtrx_();
+    shz::xmtrx::load(m3);
+    shz::xmtrx::store(&got);
+
+    randomize_xmtrx_();
+    shz::xmtrx::load(wide);
+    shz::xmtrx::store(&ref);
+
+    for(unsigned i = 0; i < 16; ++i)
+        GBL_TEST_VERIFY(got.elem[i] == ref.elem[i]);
+
+    (benchmark)(nullptr, "shz::xmtrx::load_3x3", [&] { shz::xmtrx::load(m3); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(load_transpose_3x3)
+    shz_mat3x3_t m3 = { .elem = { 1.0f, 2.0f, 3.0f, 4.0f, -5.0f, 6.0f, 7.0f, 8.0f, -9.0f } };
+    shz_mat3x3_t tr = { .elem = { 1.0f, 4.0f, 7.0f, 2.0f, -5.0f, 8.0f, 3.0f, 6.0f, -9.0f } };
+    shz::mat4x4 got, ref;
+
+    randomize_xmtrx_();
+    shz::xmtrx::load_transpose(m3);
+    shz::xmtrx::store(&got);
+
+    randomize_xmtrx_();
+    shz::xmtrx::load(tr);
+    shz::xmtrx::store(&ref);
+
+    for(unsigned i = 0; i < 16; ++i)
+        GBL_TEST_VERIFY(got.elem[i] == ref.elem[i]);
+
+    (benchmark)(nullptr, "shz::xmtrx::load_transpose_3x3", [&] { shz::xmtrx::load_transpose(m3); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(store_3x3)
+    alignas(32) shz_mat4x4_t wide = { .elem = { 1.0f, 2.0f,  3.0f, 0.0f,
+                                                4.0f, -5.0f, 6.0f, 0.0f,
+                                                7.0f, 8.0f, -9.0f, 0.0f,
+                                                0.0f, 0.0f,  0.0f, 1.0f } };
+    shz_mat3x3_t out;
+
+    randomize_xmtrx_();
+    shz::xmtrx::load(wide);
+    shz::xmtrx::store(&out);
+
+    const float expect[9] = { 1.0f, 2.0f, 3.0f, 4.0f, -5.0f, 6.0f, 7.0f, 8.0f, -9.0f };
+    for(unsigned i = 0; i < 9; ++i)
+        GBL_TEST_VERIFY(out.elem[i] == expect[i]);
+
+    (benchmark)(nullptr, "shz::xmtrx::store_3x3", [&] { shz::xmtrx::store(&out); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(store_transpose_3x3)
+    alignas(32) shz_mat4x4_t wide = { .elem = { 1.0f, 2.0f,  3.0f, 0.0f,
+                                                4.0f, -5.0f, 6.0f, 0.0f,
+                                                7.0f, 8.0f, -9.0f, 0.0f,
+                                                0.0f, 0.0f,  0.0f, 1.0f } };
+    shz_mat3x3_t out;
+
+    randomize_xmtrx_();
+    shz::xmtrx::load(wide);
+    shz::xmtrx::store_transpose(&out);
+
+    const float expect[9] = { 1.0f, 4.0f, 7.0f, 2.0f, -5.0f, 8.0f, 3.0f, 6.0f, -9.0f };
+    for(unsigned i = 0; i < 9; ++i)
+        GBL_TEST_VERIFY(out.elem[i] == expect[i]);
+
+    (benchmark)(nullptr, "shz::xmtrx::store_transpose_3x3", [&] { shz::xmtrx::store_transpose(&out); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_3x3)
+    shz_mat3x3_t m3 = { .elem = { 1.0f, 2.0f, 3.0f, 4.0f, -5.0f, 6.0f, 7.0f, 8.0f, -9.0f } };
+    alignas(32) shz_mat4x4_t wide = { .elem = { 1.0f, 2.0f,  3.0f, 0.0f,
+                                                4.0f, -5.0f, 6.0f, 0.0f,
+                                                7.0f, 8.0f, -9.0f, 0.0f,
+                                                0.0f, 0.0f,  0.0f, 1.0f } };
+    shz::mat4x4 got, ref;
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+    shz::xmtrx::apply(m3);
+    shz::xmtrx::store(&got);
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+    shz::xmtrx::apply(wide);
+    shz::xmtrx::store(&ref);
+
+    for(unsigned i = 0; i < 16; ++i)
+        GBL_TEST_VERIFY(shz_equalf(got.elem[i], ref.elem[i]));
+
+    (benchmark)(nullptr, "shz::xmtrx::apply_3x3", [&] { shz::xmtrx::apply(m3); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(apply_transpose_3x3)
+    shz_mat3x3_t m3 = { .elem = { 1.0f, 2.0f, 3.0f, 4.0f, -5.0f, 6.0f, 7.0f, 8.0f, -9.0f } };
+    shz_mat3x3_t tr = { .elem = { 1.0f, 4.0f, 7.0f, 2.0f, -5.0f, 8.0f, 3.0f, 6.0f, -9.0f } };
+    shz::mat4x4 got, ref;
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+    shz::xmtrx::apply_transpose(m3);
+    shz::xmtrx::store(&got);
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_scale(2.0f, 3.0f, 4.0f);
+    shz::xmtrx::apply(tr);
+    shz::xmtrx::store(&ref);
+
+    for(unsigned i = 0; i < 16; ++i)
+        GBL_TEST_VERIFY(shz_equalf(got.elem[i], ref.elem[i]));
+
+    (benchmark)(nullptr, "shz::xmtrx::apply_transpose_3x3", [&] { shz::xmtrx::apply_transpose(m3); });
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(load_apply_store_3x3)
    union shz_glm_mat3x3_t {
        shz_mat3x3_t shz;
@@ -2905,6 +3101,14 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_reverse_transpose_3x4,
                   load_apply_3x4,
                   load_apply_store_3x4,
+                  load_store_2x2,
+                  apply_self,
+                  load_3x3,
+                  load_transpose_3x3,
+                  store_3x3,
+                  store_transpose_3x3,
+                  apply_3x3,
+                  apply_transpose_3x3,
                   load_apply_store_3x3,
                   blend,
                   transform_vec4,

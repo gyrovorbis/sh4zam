@@ -9,6 +9,10 @@
  *  \copyright  MIT License
  */
 
+// Force this translation unit to use the SW back-end.
+#undef  SHZ_BACKEND
+#define SHZ_BACKEND     SHZ_SW
+
 #include "sh4zam/shz_complex.h"
 #include <assert.h>
 
