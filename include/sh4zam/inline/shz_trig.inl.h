@@ -33,7 +33,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16(uint16_t radians16) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) SHZ_NOEXCEPT {
-#ifdef SHZ_GNUC
+#if defined(SHZ_GNUC) && (SHZ_TARGET != SHZ_SPU)
     if(__builtin_constant_p(radians))
         return SHZ_INIT(shz_sincos_t, __builtin_sinf(radians), __builtin_cosf(radians));
 #endif
@@ -46,7 +46,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf(float radians) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg(float degrees) SHZ_NOEXCEPT {
-#ifdef SHZ_GNUC
+#if defined(SHZ_GNUC) && (SHZ_TARGET != SHZ_SPU)
     if(__builtin_constant_p(degrees))
         return SHZ_INIT(shz_sincos_t, __builtin_sinf(SHZ_DEG_TO_RAD(degrees)), __builtin_cosf(SHZ_DEG_TO_RAD(degrees)));
 #endif

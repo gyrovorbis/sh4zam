@@ -12,7 +12,14 @@ SHZ_FORCE_INLINE float shz_cimagf(shz_complex_t c) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_complex_t shz_cinitf(float real, float imag) SHZ_NOEXCEPT {
+    #if SHZ_TARGET == SHZ_SPU
+    shz_complex_t r;
+    r.real = real;
+    r.imag = imag;
+    return r;
+    #else 
     return SHZ_INIT(shz_complex_t, real, imag);
+    #endif
 }
 
 SHZ_FORCE_INLINE shz_complex_t shz_cpolarf(float r, float theta) SHZ_NOEXCEPT {
