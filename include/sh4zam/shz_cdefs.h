@@ -83,6 +83,8 @@
 #ifndef SHZ_TLS_MODEL
 #   if SHZ_TARGET == SHZ_SH4
 #       define SHZ_TLS_MODEL    SHZ_TLS_IMPLICIT  // SH4 toolchain supports compiler-level TLS.
+#   elif SHZ_TARGET == SHZ_SPU
+#       define SHZ_TLS_MODEL    SHZ_TLS_DISABLED  // SH4 toolchain supports compiler-level TLS.
 #   elif SHZ_TARGET == SHZ_SW
 #       define SHZ_TLS_MODEL    SHZ_TLS_PTHREAD   // SW target uses pthread-based TLS for compatibilty.
 #   endif
