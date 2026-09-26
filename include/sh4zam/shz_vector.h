@@ -323,6 +323,24 @@ SHZ_INLINE shz_vec3_t shz_vec3_smoothstepv_safe(shz_vec3_t vec, shz_vec3_t edge0
 //! For each component i: returns 0.0f at/below edge0[i], 1.0f at/above edge1[i], smoothly varying in-between. Accepts inverse edges.
 SHZ_INLINE shz_vec4_t shz_vec4_smoothstepv_safe(shz_vec4_t vec, shz_vec4_t edge0, shz_vec4_t edge1) SHZ_NOEXCEPT;
 
+//! Returns a 2D vector whose components are the inverse square root of the given vector's components.
+SHZ_INLINE shz_vec2_t shz_vec2_inv_sqrtf(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose components are the inverse square root of the given vector's components.
+SHZ_INLINE shz_vec3_t shz_vec3_inv_sqrtf(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose components are the inverse square root of the given vector's components.
+SHZ_INLINE shz_vec4_t shz_vec4_inv_sqrtf(shz_vec4_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector whose components are the square root of the given vector's components.
+SHZ_INLINE shz_vec2_t shz_vec2_sqrtf(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose components are the square root of the given vector's components.
+SHZ_INLINE shz_vec3_t shz_vec3_sqrtf(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose components are the square root of the given vector's components.
+SHZ_INLINE shz_vec4_t shz_vec4_sqrtf(shz_vec4_t vec) SHZ_NOEXCEPT;
+
 
 //! @}
 
@@ -1016,6 +1034,20 @@ SHZ_DECLS_END
                  shz_vec3_t: shz_vec3_maxv, \
                  shz_vec4_t: shz_vec4_maxv)(a, b)
 
+    //! C type-generic inv_sqrtf
+#   define shz_vec_inv_sqrtf(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_inv_sqrtf, \
+                 shz_vec3_t: shz_vec3_inv_sqrtf, \
+                 shz_vec4_t: shz_vec4_inv_sqrtf)(vec)
+
+    //! C type-generic sqrtf
+#   define shz_vec_sqrtf(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_sqrtf, \
+                 shz_vec3_t: shz_vec3_sqrtf, \
+                 shz_vec4_t: shz_vec4_sqrtf)(vec)
+
     //! C type-generic component-wise step
 #   define shz_vec_stepv(vec, edge) \
         _Generic((vec), \
@@ -1262,6 +1294,16 @@ SHZ_DECLS_END
     SHZ_INLINE shz_vec2_t shz_vec_maxv(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT { return shz_vec2_maxv(a, b); }
     SHZ_INLINE shz_vec3_t shz_vec_maxv(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT { return shz_vec3_maxv(a, b); }
     SHZ_INLINE shz_vec4_t shz_vec_maxv(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT { return shz_vec4_maxv(a, b); }
+
+    //! C++ type-generic vector inverse square root.
+    SHZ_INLINE shz_vec2_t shz_vec_inv_sqrtf(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_inv_sqrtf(vec); }
+    SHZ_INLINE shz_vec3_t shz_vec_inv_sqrtf(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_inv_sqrtf(vec); }
+    SHZ_INLINE shz_vec4_t shz_vec_inv_sqrtf(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_inv_sqrtf(vec); }
+
+    //! C++ type-generic vector square root.
+    SHZ_INLINE shz_vec2_t shz_vec_sqrtf(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_sqrtf(vec); }
+    SHZ_INLINE shz_vec3_t shz_vec_sqrtf(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_sqrtf(vec); }
+    SHZ_INLINE shz_vec4_t shz_vec_sqrtf(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_sqrtf(vec); }
 
     //! C++ type-generic step: 0 per component if vec[i] < edge, else 1.
     SHZ_INLINE shz_vec2_t shz_vec_step(shz_vec2_t vec, float       edge) SHZ_NOEXCEPT { return shz_vec2_step (vec, edge); }
