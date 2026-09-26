@@ -16,11 +16,25 @@ GBL_TEST_FINAL_NONE
 GBL_TEST_CASE(min)
     GBL_TEST_VERIFY((shz::fminf(-3.0f, 12.0f)) == -3.0f);
     GBL_TEST_VERIFY((shz::fminf(8, 8)) == 8);
+
+    // Like fminf(): a NaN operand is ignored.
+    {
+        volatile float nan = NAN;
+        GBL_TEST_VERIFY(shz::fminf(nan, 2.0f) == 2.0f);
+        GBL_TEST_VERIFY(shz::fminf(2.0f, nan) == 2.0f);
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(max)
     GBL_TEST_VERIFY(shz::fmaxf(-3.0f, 12.0f) == 12.0f);
     GBL_TEST_VERIFY(shz::fmaxf(8, 8) == 8);
+
+    // Like fmaxf(): a NaN operand is ignored.
+    {
+        volatile float nan = NAN;
+        GBL_TEST_VERIFY(shz::fmaxf(nan, 2.0f) == 2.0f);
+        GBL_TEST_VERIFY(shz::fmaxf(2.0f, nan) == 2.0f);
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(clamp)
@@ -345,8 +359,8 @@ GBL_TEST_CASE(smoothstepf)
         volatile float edge0 = 0.0f;
         volatile float edge1 = 17.0f;
         (benchmark_cmp<float>)(
-            "shz::smoothstepf", shz::smoothstepf,
-            "glm_smoothstep", [](float edge0, float edge1, float x) { return glm_smoothstep(edge0, edge1, x); },
+            "shz::smoothstepf", [](float x, float edge0, float edge1) { return shz::smoothstepf(x, edge0, edge1); },
+            "glm_smoothstep", [](float x, float edge0, float edge1) { return glm_smoothstep(edge0, edge1, x); },
             x, edge0, edge1);
     }
 GBL_TEST_CASE_END
@@ -398,8 +412,8 @@ GBL_TEST_CASE(smoothstepf_safe)
         volatile float edge0 = 0.0f;
         volatile float edge1 = 17.0f;
         (benchmark_cmp<float>)(
-            "shz::smoothstepf_safe", shz::smoothstepf_safe,
-            "glm_smoothstep", [](float edge0, float edge1, float x) { return glm_smoothstep(edge0, edge1, x); },
+            "shz::smoothstepf_safe", [](float x, float edge0, float edge1) { return shz::smoothstepf_safe(x, edge0, edge1); },
+            "glm_smoothstep", [](float x, float edge0, float edge1) { return glm_smoothstep(edge0, edge1, x); },
             x, edge0, edge1);
     }
 GBL_TEST_CASE_END

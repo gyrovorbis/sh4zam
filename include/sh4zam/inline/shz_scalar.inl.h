@@ -24,20 +24,15 @@
 #   include "sw/shz_scalar_sw.inl.h"
 #endif
 
+/* Not __builtin_fminf()/fmaxf(): without -ffinite-math-only, GCC emits calls
+   to newlib's versions, which classify both operands out of line (~110 cycles
+   on SH4). The "b != b" keeps their semantics: a NaN operand is ignored. */
 SHZ_FORCE_INLINE float shz_fminf(float a, float b) SHZ_NOEXCEPT {
-#ifdef SHZ_GNUC
-    return __builtin_fminf(a, b);
-#else
-    return fminf(a, b);
-#endif
+    return (a < b || b != b)? a : b;
 }
 
 SHZ_FORCE_INLINE float shz_fmaxf(float a, float b) SHZ_NOEXCEPT {
-#ifdef SHZ_GNUC
-    return __builtin_fmaxf(a, b);
-#else
-    return fmaxf(a, b);
-#endif
+    return (a > b || b != b)? a : b;
 }
 
 SHZ_FORCE_INLINE bool shz_equalf(float a, float b) SHZ_NOEXCEPT {
@@ -525,25 +520,30 @@ SHZ_FORCE_INLINE float shz_stepf(float x, float edge) SHZ_NOEXCEPT {
     return (x < edge) ? 0.0f : 1.0f;
 }
 
+/* !(x < edge1) rather than x >= edge1: the latter costs a second FCMP for NaN
+   ordering, and NaN is undefined here anyway. */
 SHZ_FORCE_INLINE float shz_smoothstepf(float x, float edge0, float edge1) SHZ_NOEXCEPT {
-    if(x >= edge1) return 1.0f;
-    else if(x <= edge0) return 0.0f;
+    if(SHZ_UNLIKELY(!(x < edge1)))
+        return 1.0f;
+    if(SHZ_UNLIKELY(!(x > edge0)))
+        return 0.0f;
 
-    float diff = edge1 - edge0;
-
-    float inv_diff = shz_inv_sqrtf_fsrra(diff);
-
-    float t = (x - edge0) * inv_diff;
-    t *= inv_diff;
+    float t = (x - edge0) / (edge1 - edge0);
     return t * t * shz_fmaf(t, -2.0f, 3.0f);
 }
 
+/* edge0 == edge1 needs no branch of its own: the divide yields +-inf, which
+   clamps to stepf()'s 0/1, or NaN when x == edge, which the !(t < 1) test
+   also sends to 1. FDIV beats the FSRRA-based shz_divf() here, since it is
+   exact, handles negative spans without a sign fix-up, and is no slower. */
 SHZ_FORCE_INLINE float shz_smoothstepf_safe(float x, float edge0, float edge1) SHZ_NOEXCEPT {
-    if(edge0 == edge1)
-        return shz_stepf(x, edge0);
+    float t = (x - edge0) / (edge1 - edge0);
 
-    float t = shz_divf((x - edge0), (edge1 - edge0));
-    t = shz_clampf(t, 0.0f, 1.0f);
+    if(SHZ_UNLIKELY(!(t < 1.0f)))
+        return 1.0f;
+    if(SHZ_UNLIKELY(!(t > 0.0f)))
+        return 0.0f;
+
     return t * t * shz_fmaf(t, -2.0f, 3.0f);
 }
 
