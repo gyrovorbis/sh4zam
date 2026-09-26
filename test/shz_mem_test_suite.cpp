@@ -245,6 +245,31 @@ GBL_TEST_CASE(memcpy_alignment_sweep)
     (memcpy_offset_bench<256, 0, 4, PADDING>)("shz::memcpy s+0 d+4");
     (memcpy_offset_bench<256, 4, 0, PADDING>)("shz::memcpy s+4 d+0");
     (memcpy_offset_bench<256, 1, 0, PADDING>)("shz::memcpy s+1 d+0");
+    (memcpy_offset_bench<256, 2, 0, PADDING>)("shz::memcpy s+2 d+0");
+GBL_TEST_CASE_END
+
+// Forward-overlapping moves (dst below src) go through shz::memcpy(), whose
+// misaligned-src paths read ahead of what they have written.
+GBL_TEST_CASE(memmove_overlap_forward)
+    alignas(32) static uint8_t buf[1024];
+    alignas(32) static uint8_t ref[1024];
+
+    unsigned failCount = 0;
+
+    for(unsigned soff = 1; soff < 40; ++soff)
+        for(unsigned doff = 0; doff < soff; ++doff)
+            for(unsigned n : { 31u, 32u, 33u, 64u, 95u, 257u, 700u }) {
+                for(unsigned i = 0; i < sizeof(buf); ++i)
+                    buf[i] = ref[i] = (uint8_t)(i * 13u + 5u);
+
+                shz::memmove(buf + 64 + doff, buf + 64 + soff, n);
+                ::memmove(ref + 64 + doff, ref + 64 + soff, n);
+
+                if(::memcmp(buf, ref, sizeof(buf)) && ++failCount <= 8)
+                    std::println("FAIL memmove soff={} doff={} n={}", soff, doff, n);
+            }
+
+    GBL_TEST_VERIFY(!failCount);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(memcpy_alignment_sweep_full)
@@ -313,4 +338,5 @@ GBL_TEST_REGISTER(memcpy1,
                   memcpy_primitive_32,
                   memcpy_primitive_64,
                   memcpy_alignment_sweep,
-                  memcpy_alignment_sweep_full)
+                  memcpy_alignment_sweep_full,
+                  memmove_overlap_forward)

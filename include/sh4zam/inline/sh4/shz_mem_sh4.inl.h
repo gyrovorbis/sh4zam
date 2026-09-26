@@ -452,6 +452,203 @@ SHZ_FORCE_INLINE void* shz_memcpy128_sh4(      void* SHZ_RESTRICT dst,
     return shz_memcpy128_sh4_(dst, src, bytes);
 }
 
+/* Copies blocks * 32 bytes (blocks >= 1) to a 4-byte aligned dst from a src
+   that is NOT 4-byte aligned, reading aligned words and stitching them back
+   together: XTRCT when src is off by 2, SHLD + OR when off by 1 or 3.
+   Software-pipelined through a ring of four registers, with the final block
+   peeled so that no word past the end of src is ever read. The odd-offset
+   schedule keeps every SHLD 0 or 3+ cycles after a load: one issued exactly
+   2 cycles after any load stalls for a cycle, even when independent of it.
+   18 cycles per 32 bytes when off by 2, 27 when off by 1 or 3. */
+SHZ_FORCE_INLINE void shz_memcpy_shift_sh4_(      void* SHZ_RESTRICT dst,
+                                            const void* SHZ_RESTRICT src,
+                                                 size_t              blocks) SHZ_NOEXCEPT {
+    uintptr_t k = (uintptr_t)src & 3;
+    const void* s = (const uint8_t*)src - k;
+    int n = (int)blocks - 1;
+    uint32_t a0, a1, a2, a3, t0, t1;
+
+    if(k == 2) {
+        asm(R"(
+            mov.l   @%[s]+, %[a3]
+            mov.l   @%[s]+, %[a0]
+            mov.l   @%[s]+, %[a1]
+            cmp/pl  %[n]
+            bf      2f
+        1:
+            xtrct   %[a0], %[a3]
+            mov.l   @%[s]+, %[a2]
+            xtrct   %[a1], %[a0]
+            mov.l   %[a3], @(0, %[d])
+            mov.l   @%[s]+, %[a3]
+            xtrct   %[a2], %[a1]
+            mov.l   %[a0], @(4, %[d])
+            mov.l   @%[s]+, %[a0]
+            xtrct   %[a3], %[a2]
+            mov.l   %[a1], @(8, %[d])
+            mov.l   @%[s]+, %[a1]
+            xtrct   %[a0], %[a3]
+            mov.l   %[a2], @(12, %[d])
+            mov.l   @%[s]+, %[a2]
+            xtrct   %[a1], %[a0]
+            mov.l   %[a3], @(16, %[d])
+            mov.l   @%[s]+, %[a3]
+            xtrct   %[a2], %[a1]
+            mov.l   %[a0], @(20, %[d])
+            mov.l   @%[s]+, %[a0]
+            xtrct   %[a3], %[a2]
+            mov.l   %[a1], @(24, %[d])
+            mov.l   @%[s]+, %[a1]
+            mov.l   %[a2], @(28, %[d])
+            dt      %[n]
+            bf.s    1b
+            add     #32, %[d]
+        2:
+            xtrct   %[a0], %[a3]
+            mov.l   @%[s]+, %[a2]
+            xtrct   %[a1], %[a0]
+            mov.l   %[a3], @(0, %[d])
+            mov.l   @%[s]+, %[a3]
+            xtrct   %[a2], %[a1]
+            mov.l   %[a0], @(4, %[d])
+            mov.l   @%[s]+, %[a0]
+            xtrct   %[a3], %[a2]
+            mov.l   %[a1], @(8, %[d])
+            mov.l   @%[s]+, %[a1]
+            xtrct   %[a0], %[a3]
+            mov.l   %[a2], @(12, %[d])
+            mov.l   @%[s]+, %[a2]
+            xtrct   %[a1], %[a0]
+            mov.l   %[a3], @(16, %[d])
+            mov.l   @%[s]+, %[a3]
+            xtrct   %[a2], %[a1]
+            mov.l   %[a0], @(20, %[d])
+            xtrct   %[a3], %[a2]
+            mov.l   %[a1], @(24, %[d])
+            mov.l   %[a2], @(28, %[d])
+        )"
+        : [d] "+&r" (dst), [s] "+&r" (s), [n] "+&r" (n),
+          [a0] "=&r" (a0), [a1] "=&r" (a1), [a2] "=&r" (a2), [a3] "=&r" (a3),
+          "=m" (*(uint8_t (*)[])dst)
+        : "m" (*(const uint8_t (*)[])src)
+        : "t");
+    } else {
+        int rsh = -(int)(k << 3);
+        int lsh = 32 + rsh;
+        asm(R"(
+            mov.l   @%[s]+, %[a3]
+            mov.l   @%[s]+, %[a0]
+            mov     %[a0], %[t0]
+            cmp/pl  %[n]
+            bf      2f
+        1:
+            shld    %[lsh], %[t0]
+            mov.l   @%[s]+, %[a1]
+            shld    %[rsh], %[a3]
+            or      %[t0], %[a3]
+            mov     %[a1], %[t1]
+            shld    %[lsh], %[t1]
+            mov.l   @%[s]+, %[a2]
+            shld    %[rsh], %[a0]
+            mov.l   %[a3], @(0, %[d])
+            or      %[t1], %[a0]
+            mov     %[a2], %[t0]
+            shld    %[lsh], %[t0]
+            mov.l   @%[s]+, %[a3]
+            shld    %[rsh], %[a1]
+            mov.l   %[a0], @(4, %[d])
+            or      %[t0], %[a1]
+            mov     %[a3], %[t1]
+            shld    %[lsh], %[t1]
+            mov.l   @%[s]+, %[a0]
+            shld    %[rsh], %[a2]
+            mov.l   %[a1], @(8, %[d])
+            or      %[t1], %[a2]
+            mov     %[a0], %[t0]
+            shld    %[lsh], %[t0]
+            mov.l   @%[s]+, %[a1]
+            shld    %[rsh], %[a3]
+            mov.l   %[a2], @(12, %[d])
+            or      %[t0], %[a3]
+            mov     %[a1], %[t1]
+            shld    %[lsh], %[t1]
+            mov.l   @%[s]+, %[a2]
+            shld    %[rsh], %[a0]
+            mov.l   %[a3], @(16, %[d])
+            or      %[t1], %[a0]
+            mov     %[a2], %[t0]
+            shld    %[lsh], %[t0]
+            mov.l   @%[s]+, %[a3]
+            shld    %[rsh], %[a1]
+            mov.l   %[a0], @(20, %[d])
+            or      %[t0], %[a1]
+            mov     %[a3], %[t1]
+            shld    %[lsh], %[t1]
+            mov.l   @%[s]+, %[a0]
+            shld    %[rsh], %[a2]
+            mov.l   %[a1], @(24, %[d])
+            or      %[t1], %[a2]
+            mov     %[a0], %[t0]
+            mov.l   %[a2], @(28, %[d])
+            dt      %[n]
+            bf.s    1b
+            add     #32, %[d]
+        2:
+            shld    %[lsh], %[t0]
+            mov.l   @%[s]+, %[a1]
+            shld    %[rsh], %[a3]
+            or      %[t0], %[a3]
+            mov     %[a1], %[t1]
+            shld    %[lsh], %[t1]
+            mov.l   @%[s]+, %[a2]
+            shld    %[rsh], %[a0]
+            mov.l   %[a3], @(0, %[d])
+            or      %[t1], %[a0]
+            mov     %[a2], %[t0]
+            shld    %[lsh], %[t0]
+            mov.l   @%[s]+, %[a3]
+            shld    %[rsh], %[a1]
+            mov.l   %[a0], @(4, %[d])
+            or      %[t0], %[a1]
+            mov     %[a3], %[t1]
+            shld    %[lsh], %[t1]
+            mov.l   @%[s]+, %[a0]
+            shld    %[rsh], %[a2]
+            mov.l   %[a1], @(8, %[d])
+            or      %[t1], %[a2]
+            mov     %[a0], %[t0]
+            shld    %[lsh], %[t0]
+            mov.l   @%[s]+, %[a1]
+            shld    %[rsh], %[a3]
+            mov.l   %[a2], @(12, %[d])
+            or      %[t0], %[a3]
+            mov     %[a1], %[t1]
+            shld    %[lsh], %[t1]
+            mov.l   @%[s]+, %[a2]
+            shld    %[rsh], %[a0]
+            mov.l   %[a3], @(16, %[d])
+            or      %[t1], %[a0]
+            mov     %[a2], %[t0]
+            shld    %[lsh], %[t0]
+            mov.l   @%[s]+, %[a3]
+            shld    %[rsh], %[a1]
+            mov.l   %[a0], @(20, %[d])
+            or      %[t0], %[a1]
+            mov     %[a3], %[t1]
+            shld    %[lsh], %[t1]
+            shld    %[rsh], %[a2]
+            mov.l   %[a1], @(24, %[d])
+            or      %[t1], %[a2]
+            mov.l   %[a2], @(28, %[d])
+        )"
+        : [d] "+&r" (dst), [s] "+&r" (s), [n] "+&r" (n),
+          [a0] "=&r" (a0), [a1] "=&r" (a1), [a2] "=&r" (a2), [a3] "=&r" (a3),
+          [t0] "=&r" (t0), [t1] "=&r" (t1), "=m" (*(uint8_t (*)[])dst)
+        : [lsh] "r" (lsh), [rsh] "r" (rsh), "m" (*(const uint8_t (*)[])src)
+        : "t");
+    }
+}
+
 SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
                                       const void* SHZ_RESTRICT src,
                                           size_t               bytes) SHZ_NOEXCEPT {
@@ -485,12 +682,14 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
                 copied = bytes & ~7;
                 shz_memcpy8_sh4(d, s, copied);
             }
-        } else if(bytes >= 4 && !(((uintptr_t)s) & 3)) {
-            copied = bytes & ~3;
-            shz_memcpy4_sh4(d, s, copied);
-        } else if(bytes >= 2 && !(((uintptr_t)s) & 1)) {
-            copied = bytes & ~1;
-            shz_memcpy2_sh4(d, s, copied);
+        } else if(!(((uintptr_t)s) & 3)) {
+            if(bytes >= 4) {
+                copied = bytes & ~3;
+                shz_memcpy4_sh4(d, s, copied);
+            }
+        } else if(bytes >= 32) {
+            copied = bytes & ~31;
+            shz_memcpy_shift_sh4_(d, s, copied >> 5);
         }
 
         bytes -= copied;
@@ -505,9 +704,11 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
     return dst;
 }
 
+/* shz_memcpy() is only safe for disjoint ranges: its 32-byte paths allocate
+   dst cache lines with MOVCA.L, wiping any overlapping src not yet read. */
 SHZ_FORCE_INLINE void* shz_memmove_sh4(void* dst, const void* src, size_t bytes) SHZ_NOEXCEPT {
-    if((uintptr_t)dst <= (uintptr_t)src)
-        return shz_memcpy(dst, src ,bytes);
+    if((uintptr_t)dst + bytes <= (uintptr_t)src || (uintptr_t)src + bytes <= (uintptr_t)dst)
+        return shz_memcpy(dst, src, bytes);
     else
         return memmove(dst, src, bytes);
 }
