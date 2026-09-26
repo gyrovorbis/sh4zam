@@ -913,11 +913,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_minv(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCE
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_minv(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT {
-    #if SHZ_BACKEND == SHZ_SPU
-    return shz_vec4_minv_spu(a, b);
-    #else
     return shz_vec3_vec4(shz_vec3_minv(a.xyz, b.xyz), shz_fminf(a.w, b.w));
-    #endif
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_maxv(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT {
@@ -929,11 +925,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_maxv(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCE
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_maxv(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT {
-    #if SHZ_BACKEND == SHZ_SPU
-    return shz_vec4_maxv_spu(a, b);
-    #else
     return shz_vec3_vec4(shz_vec3_maxv(a.xyz, b.xyz), shz_fmaxf(a.w, b.w));
-    #endif
 }
 
 SHZ_INLINE shz_vec2_t shz_vec2_inv_sqrtf(shz_vec2_t vec) SHZ_NOEXCEPT {

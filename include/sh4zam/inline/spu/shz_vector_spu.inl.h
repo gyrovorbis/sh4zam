@@ -46,18 +46,6 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_div_spu(shz_vec4_t vec1, shz_vec4_t vec2) S
     return r;
 }
 
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_minv_spu(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT {
-    shz_vec4_t r;
-    r.e = (spu_sel(a.e, b.e, spu_cmpgt(a.e, b.e))); // if(b > a) return a else return b
-    return r;
-}
-
-SHZ_FORCE_INLINE shz_vec4_t shz_vec4_maxv_spu(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT {
-    shz_vec4_t r;
-    r.e = (spu_sel(b.e, a.e, spu_cmpgt(a.e, b.e))); // if(b > a) return b else return a
-    return r;
-}
-
 SHZ_INLINE shz_vec4_t shz_vec4_inv_sqrtf_spu(shz_vec4_t vec) SHZ_NOEXCEPT {
     shz_vec4_t r;
     r.e = spu_rsqrte(vec.e);
