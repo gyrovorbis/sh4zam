@@ -23,6 +23,7 @@
 
 extern void* shz_memcpy128_sh4_  (void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
 extern void* shz_sq_memcpy32_sh4_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
+extern void* shz_memcpy_large_sh4_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
 
 SHZ_FORCE_INLINE void shz_dcache_alloc_line_sh4(void* src) SHZ_NOEXCEPT {
     shz_alias_uint32_t *src32 = (shz_alias_uint32_t *)src;
@@ -459,7 +460,9 @@ SHZ_FORCE_INLINE void* shz_memcpy128_sh4(      void* SHZ_RESTRICT dst,
    peeled so that no word past the end of src is ever read. The odd-offset
    schedule keeps every SHLD 0 or 3+ cycles after a load: one issued exactly
    2 cycles after any load stalls for a cycle, even when independent of it.
-   18 cycles per 32 bytes when off by 2, 27 when off by 1 or 3. */
+   18 cycles per 32 bytes when off by 2, 27 when off by 1 or 3. The loops are
+   32-byte aligned: the odd-offset one is 51 instructions, and an unlucky
+   placement costs an extra i-cache line per iteration (~4 cycles). */
 SHZ_FORCE_INLINE void shz_memcpy_shift_sh4_(      void* SHZ_RESTRICT dst,
                                             const void* SHZ_RESTRICT src,
                                                  size_t              blocks) SHZ_NOEXCEPT {
@@ -475,6 +478,7 @@ SHZ_FORCE_INLINE void shz_memcpy_shift_sh4_(      void* SHZ_RESTRICT dst,
             mov.l   @%[s]+, %[a1]
             cmp/pl  %[n]
             bf      2f
+            .balign 32
         1:
             xtrct   %[a0], %[a3]
             mov.l   @%[s]+, %[a2]
@@ -541,6 +545,7 @@ SHZ_FORCE_INLINE void shz_memcpy_shift_sh4_(      void* SHZ_RESTRICT dst,
             mov     %[a0], %[t0]
             cmp/pl  %[n]
             bf      2f
+            .balign 32
         1:
             shld    %[lsh], %[t0]
             mov.l   @%[s]+, %[a1]
@@ -649,59 +654,122 @@ SHZ_FORCE_INLINE void shz_memcpy_shift_sh4_(      void* SHZ_RESTRICT dst,
     }
 }
 
+/* Byte loop for tiny copies (any alignment); bytes may be 0. Kept compact,
+   since small copies are often made with cold code. */
+SHZ_FORCE_INLINE void shz_memcpy_tiny_sh4_(      void* SHZ_RESTRICT dst,
+                                           const void* SHZ_RESTRICT src,
+                                                size_t              bytes) SHZ_NOEXCEPT {
+    uint32_t a;
+
+    asm(R"(
+        tst     %[n], %[n]
+        bt      1f
+    0:
+        mov.b   @%[s]+, %[a]
+        dt      %[n]
+        mov.b   %[a], @%[d]
+        bf.s    0b
+        add     #1, %[d]
+    1:
+    )"
+    : [d] "+&r" (dst), [s] "+&r" (src), [n] "+&r" (bytes), [a] "=&r" (a),
+      "=m" (*(uint8_t (*)[])dst)
+    : "m" (*(const uint8_t (*)[])src)
+    : "t");
+}
+
+/* Copies bytes >= 4 between co-aligned buffers ((dst ^ src) & 3 == 0): up to a
+   byte + a halfword to reach word alignment, pairs of words, then a halfword
+   and/or byte tail. Uses few enough registers that callers need no stack frame. */
+SHZ_FORCE_INLINE void shz_memcpy_small_sh4_(      void* SHZ_RESTRICT dst,
+                                            const void* SHZ_RESTRICT src,
+                                                 size_t              bytes) SHZ_NOEXCEPT {
+    uint32_t a, b, w;
+    register uintptr_t r0 asm("r0");
+
+    asm(R"(
+        mov     %[d], r0
+        tst     #1, r0
+        bt      .La2%=
+        mov.b   @%[s]+, %[a]
+        add     #-1, %[n]
+        mov.b   %[a], @%[d]
+        add     #1, %[d]
+        mov     %[d], r0
+    .La2%=:
+        tst     #2, r0
+        bt      .Lw%=
+        mov.w   @%[s]+, %[a]
+        add     #-2, %[n]
+        mov.w   %[a], @%[d]
+        add     #2, %[d]
+    .Lw%=:
+        mov     %[n], %[w]
+        shlr2   %[w]
+        shlr    %[w]
+        bf      .Lwp%=
+        mov.l   @%[s]+, %[a]
+        mov.l   %[a], @%[d]
+        add     #4, %[d]
+    .Lwp%=:
+        tst     %[w], %[w]
+        bt      .Lwt%=
+    .Lwl%=:
+        mov.l   @%[s]+, %[a]
+        mov.l   @%[s]+, %[b]
+        dt      %[w]
+        mov.l   %[a], @%[d]
+        mov.l   %[b], @(4, %[d])
+        bf.s    .Lwl%=
+        add     #8, %[d]
+    .Lwt%=:
+        mov     %[n], r0
+        tst     #2, r0
+        bt      .Lw1%=
+        mov.w   @%[s]+, %[a]
+        mov.w   %[a], @%[d]
+        add     #2, %[d]
+    .Lw1%=:
+        tst     #1, r0
+        bt      .Lend%=
+        mov.b   @%[s]+, %[a]
+        mov.b   %[a], @%[d]
+    .Lend%=:
+    )"
+    : [d] "+&r" (dst), [s] "+&r" (src), [n] "+&r" (bytes),
+      [a] "=&r" (a), [b] "=&r" (b), [w] "=&r" (w), "=&z" (r0),
+      "=m" (*(uint8_t (*)[])dst)
+    : "m" (*(const uint8_t (*)[])src)
+    : "t");
+}
+
+/* Only the small cases are inline, and they use no callee-saved registers; the
+   block paths live out of line in shz_memcpy_large_sh4_(), whose stack frame
+   would otherwise be paid on every call, including 1-byte copies.
+   Copies below 8 bytes take a compact byte loop, whatever the alignment:
+   fewest i-cache lines touched when the code is cold. Co-aligned copies below
+   128 bytes take the inline word path. Small mutually
+   misaligned copies go to newlib's memcpy(), whose byte/halfword/XTRCT paths
+   are well tuned for that case (tested first, so the jump sits in the entry's
+   i-cache line). The large path wins for those beyond ~96 bytes when dst is
+   already 32-byte aligned, or ~224 bytes when it needs a prelude. */
 SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
                                       const void* SHZ_RESTRICT src,
                                           size_t               bytes) SHZ_NOEXCEPT {
-    const uint8_t *s = (const uint8_t *)src;
-          uint8_t *d = (      uint8_t *)dst;
-    size_t copied;
-
-    SHZ_PREFETCH(src);
-
-    if(bytes < 32) {
-        shz_memcpy1_sh4(d, s, bytes);
-    } else {
-        uintptr_t prelude = ((uintptr_t)d & 31);
-
-        if(prelude) {
-            copied = 32 - prelude;
-            shz_memcpy1_sh4_(d, s, copied);
-            bytes -= copied;
-            d     += copied;
-            s     += copied;
-        }
-
-        SHZ_PREFETCH(s);
-
-        copied = 0;
-        if(!(((uintptr_t)s) & 0x7)) {
-            if(SHZ_LIKELY(bytes >= 32)) {
-                copied = bytes & ~31;
-                shz_memcpy32_sh4(d, s, copied);
-            } else if(bytes >= 8) {
-                copied = bytes & ~7;
-                shz_memcpy8_sh4(d, s, copied);
-            }
-        } else if(!(((uintptr_t)s) & 3)) {
-            if(bytes >= 4) {
-                copied = bytes & ~3;
-                shz_memcpy4_sh4(d, s, copied);
-            }
-        } else if(bytes >= 32) {
-            copied = bytes & ~31;
-            shz_memcpy_shift_sh4_(d, s, copied >> 5);
-        }
-
-        bytes -= copied;
-        if(bytes) {
-            s += copied;
-            SHZ_PREFETCH(s);
-            d += copied;
-            shz_memcpy1_sh4_(d, s, bytes);
-        }
+    if(bytes < 8) {
+        shz_memcpy_tiny_sh4_(dst, src, bytes);
+        return dst;
     }
 
-    return dst;
+    if(((uintptr_t)dst ^ (uintptr_t)src) & 3) {
+        if(bytes < (((uintptr_t)dst & 31)? 224u : 96u))
+            return memcpy(dst, src, bytes);
+    } else if(bytes < 128) {
+        shz_memcpy_small_sh4_(dst, src, bytes);
+        return dst;
+    }
+
+    return shz_memcpy_large_sh4_(dst, src, bytes);
 }
 
 /* shz_memcpy() is only safe for disjoint ranges: its 32-byte paths allocate
