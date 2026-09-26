@@ -374,6 +374,23 @@ GBL_TEST_CASE(get_scale)
         GBL_TEST_VERIFY(scale == shz::vec3(0.0f, 0.0f, 0.0f));
     }
 
+    // Zero columns must come back as exactly 0, not merely "close".
+    {
+        mat.shz.init_identity();
+        mat.shz.set_scale(0.0f, 5.0f, 0.0f);
+
+        shz::vec3 scale = mat.shz.get_scale();
+
+        GBL_TEST_VERIFY(scale.x == 0.0f && scale.z == 0.0f);
+        GBL_TEST_VERIFY(shz_equalf(scale.y, 5.0f));
+
+        mat.shz.set_scale(-3.0f, 0.0f, 7.0f);
+        scale = mat.shz.get_scale();
+
+        GBL_TEST_VERIFY(scale.y == 0.0f);
+        GBL_TEST_VERIFY(shz_equalf(scale.x, 3.0f) && shz_equalf(scale.z, 7.0f));
+    }
+
     GBL_TEST_VERIFY(
         (benchmark_cmp<shz::vec3>)("shz::mat4x4::get_scale",
                                    [](const shz_glm_mat4& m) {

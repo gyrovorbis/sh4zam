@@ -447,57 +447,54 @@ SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3_transpose_sh4(const shz_mat3x3_t
     return out;
 }
 
+/* Same scheme as shz_xmtrx_get_scale_sh4(): branchless x * fsrra(x + 2^-119)
+   for X and Y (exact 0 for a zero column), FSQRT for Z in parallel. */
 SHZ_INLINE shz_vec3_t shz_mat4x4_get_scale_sh4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
-    register float fr1 asm("fr1");
-    register float fr5 asm("fr5");
-    register float fr9 asm("fr9");
-    uintptr_t zero;
+    register float fr3  asm("fr3");
+    register float fr6  asm("fr6");
+    register float fr10 asm("fr10");
+    uintptr_t zero, bias;
     uintptr_t pref = (uintptr_t)mat + 32;
 
     asm(R"(
-        pref      @%[m]
-        mov       #0, %[z]
-        fschg
-        lds       %[z], fpul
-        fmov.d    @%[m]+, dr8
         pref      @%[p]
-        fmov.d    @%[m]+, dr10
-        float     fpul, fr11
-        fmov.d    @%[m]+, dr4
-        fmov.d    @%[m]+, dr6
-        float     fpul, fr7
-        fipr      fv8, fv8
-        fmov.d    @%[m]+, dr0
-        float     fpul, fr10
-        fmov.d    @%[m]+, dr2
-        fldi0     fr3
-        fipr      fv4, fv4
-        fipr      fv0, fv0
-        fmov      dr10, dr8
-        fsrra     fr11
-        fmov      dr6, dr4
-        fsrra     fr7
-        fmov      dr2, dr0
-        fsrra     fr3
-        fcmp/eq   fr9, fr10
-        bt/s      1f
-        fcmp/eq   fr5, fr10
-        fmul      fr11, fr9
-    1:  bt/s      2f
-        fcmp/eq   fr1, fr10
-        fmul      fr7, fr5
-    2:  bt/s      3f
         fschg
-        fmul      fr3, fr1
-    3:
+        mov       #0, %[z]
+        fmov.d    @%[m]+, dr8
+        lds       %[z], fpul
+        fmov.d    @%[m]+, dr10
+        mov       #4, %[b]
+        fmov.d    @%[m]+, dr4
+        float     fpul, fr11
+        fmov.d    @%[m]+, dr6
+        shll16    %[b]
+        fmov.d    @%[m]+, dr0
+        float     fpul, fr7
+        fmov.d    @%[m]+, dr2
+        float     fpul, fr3
+        fipr      fv8, fv8
+        shll8     %[b]
+        fipr      fv4, fv4
+        lds       %[b], fpul
+        fipr      fv0, fv0
+        fsts      fpul, fr10
+        fsts      fpul, fr6
+        fadd      fr11, fr10
+        fadd      fr7, fr6
+        fsqrt     fr3
+        fsrra     fr10
+        fsrra     fr6
+        fmul      fr11, fr10
+        fmul      fr7, fr6
+        fschg
     )"
-    : "=f" (fr1), "=f" (fr5), "=f" (fr9),
-      [z] "=&r" (zero), [m] "+r" (mat)
+    : "=f" (fr3), "=f" (fr6), "=f" (fr10),
+      [z] "=&r" (zero), [b] "=&r" (bias), [m] "+&r" (mat)
     : "m" (*mat), [p] "r" (pref)
-    : "fpul", "fr0", "fr2", "fr3", "fr4",
-      "fr6", "fr7", "fr8", "fr10", "fr11");
+    : "fpul", "fr0", "fr1", "fr2", "fr4",
+      "fr5", "fr7", "fr8", "fr9", "fr11");
 
-    return shz_vec3_init(fr9, fr5, fr1);
+    return shz_vec3_init(fr10, fr6, fr3);
 }
 
 #endif

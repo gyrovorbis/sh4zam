@@ -2368,54 +2368,55 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation_sh4(void) SHZ_NOEXCEPT {
     return shz_vec3_init(fr4, fr5, fr6);
 }
 
+/* Branchless: X and Y are x * fsrra(x + 2^-119), so a zero column gives
+   exactly 0 without FCMP/BT (the tiny bias only matters for scales below
+   ~1e-14). Z goes through FSQRT, which runs in the divider alongside the
+   FSRRA chain -- a third FSRRA would stall FP issue for 3-4 more cycles.
+   The (z, w) pairs are copied first so all FLOATs clear before the FIPRs. */
 SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_scale_sh4(void) SHZ_NOEXCEPT {
-    register float fr1 asm("fr1");
-    register float fr5 asm("fr5");
-    register float fr9 asm("fr9");
-    uintptr_t zero;
+    register float fr3  asm("fr3");
+    register float fr6  asm("fr6");
+    register float fr10 asm("fr10");
+    uintptr_t zero, bias;
 
     asm volatile(R"(
         mov       #0, %[z]
         fschg
         lds       %[z], fpul
-        fmov      xd0, dr8
+        mov       #4, %[b]
         fmov      xd2, dr10
-        float     fpul, fr11
-        fmov      xd4, dr4
+        shll16    %[b]
         fmov      xd6, dr6
+        float     fpul, fr11
+        fmov      xd10, dr2
         float     fpul, fr7
+        fmov      xd0, dr8
+        float     fpul, fr3
+        fmov      xd4, dr4
+        shll8     %[b]
         fmov      xd8, dr0
         fipr      fv8, fv8
-        float     fpul, fr10
-        fmov      xd10, dr2
-        fldi0     fr3
+        lds       %[b], fpul
         fipr      fv4, fv4
+        fsts      fpul, fr10
         fipr      fv0, fv0
-        fmov      dr10, dr8
-        fsrra     fr11
-        fmov      dr6, dr4
-        fsrra     fr7
-        fmov      dr2, dr0
-        fsrra     fr3
-        fcmp/eq   fr9, fr10
-        bt/s      1f
-        fcmp/eq   fr5, fr10
-        fmul      fr11, fr9
-    1:  bt/s      2f
-        fcmp/eq   fr1, fr10
-        fmul      fr7, fr5
-    2:  bt/s      3f
+        fsts      fpul, fr6
+        fadd      fr11, fr10
+        fadd      fr7, fr6
+        fsqrt     fr3
+        fsrra     fr10
+        fsrra     fr6
+        fmul      fr11, fr10
+        fmul      fr7, fr6
         fschg
-        fmul      fr3, fr1
-    3:
     )"
-    : "=f" (fr1), "=f" (fr5), "=f" (fr9),
-      [z] "=r" (zero)
+    : "=f" (fr3), "=f" (fr6), "=f" (fr10),
+      [z] "=&r" (zero), [b] "=&r" (bias)
     :
-    : "fpul", "fr0", "fr2", "fr3", "fr4",
-      "fr6", "fr7", "fr8", "fr10", "fr11");
+    : "fpul", "fr0", "fr1", "fr2", "fr4",
+      "fr5", "fr7", "fr8", "fr9", "fr11");
 
-    return shz_vec3_init(fr9, fr5, fr1);
+    return shz_vec3_init(fr10, fr6, fr3);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_translation_sh4(float x, float y, float z) SHZ_NOEXCEPT {
