@@ -240,8 +240,8 @@ _shz_sq_memcpy32_sh4_:
 ! r5 : src   ((dst ^ src) & 3 != 0: mutually misaligned)
 ! r6 : bytes (>= 8)
 !
-! Odd distances below 64 bytes tail-call newlib's memcpy(), whose setup is
-! cheaper than the SHLD path's at that size; 1KB and up tail-call
+! Odd distances below 64 bytes take a lighter split-store path (the SHLD
+! path's setup costs too much at that size); 1KB and up tail-call
 ! shz_memcpy_large_sh4_().
 !
 ! Aligns dst to 4 with up to 3 bytes, then builds each output word from two
@@ -260,7 +260,7 @@ _shz_memcpy_mis_sh4_:
     bt      0f                  ! 2 apart: XTRCT path wins from 8 bytes
     mov     #64, r1
     cmp/hs  r1, r6
-    bf      .Lnewlib            ! odd distance, < 64 bytes: newlib's setup is cheaper
+    bf      .Lodd               ! odd distance, < 64 bytes: split-store path
 0:
     mov.w   .Lbig, r1
     cmp/hs  r1, r6
@@ -465,10 +465,72 @@ _shz_memcpy_mis_sh4_:
     rts
     mov.l   @r15+, r0
 
-.Lnewlib:
-    mov.l   .Lnewlib_fn, r1
-    jmp     @r1
-    nop
+! ---- odd distance, 8..63 bytes: align src to 4, then write each source word
+!      to the (odd) dst as byte + halfword + byte, like newlib, from a base of
+!      dst - 1 so all displacements are non-negative. Two words per iteration
+!      with the next load issued early; scratch registers only.
+.Lodd:
+    mov.l   r4, @-r15           ! save dst for the return value
+    mov     r5, r0
+    tst     #1, r0
+    bt      1f
+    mov.b   @r5+, r1
+    add     #-1, r6
+    mov.b   r1, @r4
+    add     #1, r4
+    mov     r5, r0
+1:
+    tst     #2, r0
+    bt      2f
+    mov.b   @r5+, r1
+    mov.b   @r5+, r2
+    add     #-2, r6
+    mov.b   r1, @r4
+    add     #1, r4
+    mov.b   r2, @r4
+    add     #1, r4
+2:
+    mov     r6, r3
+    shlr2   r3                  ! words (>= 1)
+    mov     #3, r7
+    and     r6, r7              ! r7 = tail bytes
+    add     #-1, r4             ! base = dst - 1
+    shlr    r3                  ! r3 = pairs, T = odd word out
+    bf      3f
+    mov.l   @r5+, r0
+    mov.b   r0, @(1, r4)
+    shlr8   r0
+    mov.w   r0, @(2, r4)
+    shlr16  r0
+    mov.b   r0, @(4, r4)
+    add     #4, r4
+3:
+    tst     r3, r3
+    bt      5f
+    mov.l   @r5+, r1
+4:
+    mov     r1, r0
+    mov.l   @r5+, r2
+    mov.b   r0, @(1, r4)
+    shlr8   r0
+    mov.w   r0, @(2, r4)
+    shlr16  r0
+    mov.b   r0, @(4, r4)
+    mov     r2, r0
+    dt      r3
+    bt      6f
+    mov.l   @r5+, r1
+6:
+    mov.b   r0, @(5, r4)
+    shlr8   r0
+    mov.w   r0, @(6, r4)
+    shlr16  r0
+    mov.b   r0, @(8, r4)
+    bf.s    4b
+    add     #8, r4
+5:
+    bra     .Ltail
+    add     #1, r4              ! back from base to dst
 
 .Llarge:
     mov.l   .Llarge_fn, r1
@@ -476,8 +538,6 @@ _shz_memcpy_mis_sh4_:
     nop
 
     .align 2
-.Lnewlib_fn:
-    .long   _memcpy
 .Llarge_fn:
     .long   _shz_memcpy_large_sh4_
 .Lbig:
