@@ -956,7 +956,7 @@ SHZ_INLINE shz_vec4_t shz_vec4_sqrtf(shz_vec4_t vec) SHZ_NOEXCEPT {
     #if SHZ_BACKEND == SHZ_SPU
     return shz_vec4_mul(vec, shz_vec4_inv_sqrtf(vec));
     #else
-    shz_vec3_vec4(shz_vec3_sqrtf(vec.xyz), shz_sqrtf(vec.w));
+    return shz_vec3_vec4(shz_vec3_sqrtf(vec.xyz), shz_sqrtf(vec.w));
     #endif
 }
 
