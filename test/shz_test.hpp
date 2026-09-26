@@ -5,6 +5,9 @@
 #include <concepts>
 #include <print>
 #include <chrono>
+#include <cstddef>
+#include <new>
+#include <tuple>
 #include <sh4zam/shz_sh4zam.hpp>
 #include <cglm/cglm.h>
 
@@ -286,36 +289,74 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
                    Args&&... args) noexcept
 {
     benchmark_stats shzUncache{}, shzCache{}, refUncache{}, refCache{};
+    bool            first = true;
 
-    auto measure = [&]<bool CacheFlush>(auto res, benchmark_stats& shzBest, benchmark_stats& refBest) {
-        for(unsigned round = 0; round < BENCHMARK_CMP_ROUNDS; ++round) {
-            benchmark_stats shzCur, refCur;
+    auto measure = [&]<bool CacheFlush>(auto res, auto& fargs, benchmark_stats& shzBest, benchmark_stats& refBest) {
+        std::apply([&](auto&... a) {
+            for(unsigned round = 0; round < BENCHMARK_CMP_ROUNDS; ++round) {
+                benchmark_stats shzCur, refCur;
 
-            if(round & 1) {
-                refCur = benchmark_measure<CacheFlush>(res, refFn, args...);
-                shzCur = benchmark_measure<CacheFlush>(res, shzFn, args...);
-            } else {
-                shzCur = benchmark_measure<CacheFlush>(res, shzFn, args...);
-                refCur = benchmark_measure<CacheFlush>(res, refFn, args...);
+                if(round & 1) {
+                    refCur = benchmark_measure<CacheFlush>(res, refFn, a...);
+                    shzCur = benchmark_measure<CacheFlush>(res, shzFn, a...);
+                } else {
+                    shzCur = benchmark_measure<CacheFlush>(res, shzFn, a...);
+                    refCur = benchmark_measure<CacheFlush>(res, refFn, a...);
+                }
+
+                if((first && !round) || shzCur.cycles < shzBest.cycles) shzBest = shzCur;
+                if((first && !round) || refCur.cycles < refBest.cycles) refBest = refCur;
             }
-
-            if(!round || shzCur.cycles < shzBest.cycles) shzBest = shzCur;
-            if(!round || refCur.cycles < refBest.cycles) refBest = refCur;
-        }
+        }, fargs);
     };
 
-    auto run = [&](auto res) {
+    auto run = [&](auto res, auto& fargs) {
 #if SHZ_TARGET == SHZ_SH4
-        measure.template operator()<true>(res, shzUncache, refUncache);
+        measure.template operator()<true>(res, fargs, shzUncache, refUncache);
 #endif
-        measure.template operator()<false>(res, shzCache, refCache);
+        measure.template operator()<false>(res, fargs, shzCache, refCache);
+        first = false;
     };
 
-    if constexpr(std::same_as<R, void> || std::same_as<R, std::nullptr_t>) {
-        run(nullptr);
+    /* The operand cache is direct-mapped, so the arguments and result slot
+       can land on the same cache index as something the timed code touches
+       (e.g. a benchmark_measure() literal pool) and thrash every iteration:
+       a pure code-layout artifact that flips with unrelated edits. So both
+       functions are measured with the arguments and result copied to two
+       placements whose cache index ranges are disjoint, keeping the best of
+       each: a single colliding line can only ever hit one of them. */
+    constexpr bool copyable = (std::is_copy_constructible_v<std::remove_reference_t<Args>> && ...);
+    constexpr bool voidRes  = std::same_as<R, void> || std::same_as<R, std::nullptr_t>;
+
+    if constexpr(copyable) {
+        using ArgTuple = std::tuple<std::remove_reference_t<Args>...>;
+        struct Payload {
+            ArgTuple                                        args;
+            std::conditional_t<voidRes, char, volatile R>   result;
+        };
+
+        constexpr size_t stride = ((sizeof(Payload) + 31) & ~size_t(31)) + 32;
+        alignas(32) std::byte storage[stride + sizeof(Payload)];
+
+        for(size_t place = 0; place < 2; ++place) {
+            Payload* p = new (storage + place * stride) Payload { ArgTuple(args...), {} };
+
+            if constexpr(voidRes)
+                run(nullptr, p->args);
+            else
+                run(&p->result, p->args);
+
+            p->~Payload();
+        }
     } else {
-        volatile R result;
-        run(&result);
+        auto fargs = std::forward_as_tuple(args...);
+
+        if constexpr(voidRes) {
+            run(nullptr, fargs);
+        } else {
+            volatile R result;
+            run(&result, fargs);
+        }
     }
 
 #if SHZ_TARGET == SHZ_SH4
