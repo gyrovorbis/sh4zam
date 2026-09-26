@@ -88,7 +88,7 @@ if(PLATFORM_DREAMCAST)
          include/sh4zam/inline/sh4/shz_xmtrx_sh4.inl.h)
 endif()
 
-if(SHZ_BACKEND == "SPU")
+if(SHZ_BACKEND EQUAL "SPU")
     list(APPEND SHZ_INCLUDES
          include/sh4zam/inline/sh4/shz_vector_spu.inl.h)
 endif()
@@ -149,7 +149,7 @@ endif()
 
 if(PLATFORM_DREAMCAST OR MSVC)
     set(SHZ_TLS_MODEL_DEFAULT "IMPLICIT")
-elseif(SHZ_BACKEND == "SPU")
+elseif(SHZ_BACKEND EQUAL "SPU")
     set(SHZ_TLS_MODEL_DEFAULT "DISABLED")
 else()
     set(SHZ_TLS_MODEL_DEFAULT "PTHREAD")
