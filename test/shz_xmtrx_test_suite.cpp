@@ -300,8 +300,8 @@ GBL_TEST_CASE(store_aligned32_4x4)
     randomize_xmtrx_();
 
     alignas(32) shz_mat4x4_t shzMat;
-    alignas(32) char buffer[sizeof(shz::mat4x4) + 8];
-    auto* cMat = reinterpret_cast<shz::mat4x4*>(buffer + 8);
+    alignas(32) char buffer[sizeof(shz::mat4x4) + alignof(shz::mat4x4)];
+    auto* cMat = reinterpret_cast<shz::mat4x4*>(buffer + alignof(shz::mat4x4)); 
 
 
     (benchmark)(nullptr, "shz::xmtrx::store_4x4 [unaligned32]",
