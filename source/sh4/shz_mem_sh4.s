@@ -15,6 +15,8 @@
 .globl _shz_memcpy128_sh4_
     .section .text._shz_memcpy32_sh4_, "ax", %progbits
 .globl _shz_sq_memcpy32_sh4_
+    .section .text._shz_memcpy_mis_sh4_, "ax", %progbits
+.globl _shz_memcpy_mis_sh4_
 
 !
 ! void* shz_memset8_sh4_(void *dst, uint64_t value, size_t bytes)
@@ -230,3 +232,253 @@ _shz_sq_memcpy32_sh4_:
 1:
     rts
     fschg
+
+!
+! void* shz_memcpy_mis_sh4_(void* dst, const void* src, size_t bytes)
+!
+! r4 : dst
+! r5 : src   ((dst ^ src) & 3 != 0: mutually misaligned)
+! r6 : bytes (>= 8)
+!
+! Odd distances below 64 bytes tail-call newlib's memcpy(), whose setup is
+! cheaper than the SHLD path's at that size; 1KB and up tail-call
+! shz_memcpy_large_sh4_().
+!
+! Aligns dst to 4 with up to 3 bytes, then builds each output word from two
+! aligned source words: XTRCT when src ends up 2 bytes off, SHLD + OR when 1
+! or 3 off. Leftover words go one at a time, then 16-byte blocks that are
+! software-pipelined through a ring of four registers; the last block is
+! peeled so no word past the end of src is read. Every SHLD issues 0 or 3+
+! cycles after a load: one exactly 2 cycles after any load stalls a cycle.
+!
+    .section .text._shz_memcpy_mis_sh4_, "ax", %progbits
+    .align 5
+_shz_memcpy_mis_sh4_:
+    mov     r4, r0
+    xor     r5, r0
+    tst     #1, r0
+    bt      0f                  ! 2 apart: XTRCT path wins from 8 bytes
+    mov     #64, r1
+    cmp/hs  r1, r6
+    bf      .Lnewlib            ! odd distance, < 64 bytes: newlib's setup is cheaper
+0:
+    mov.w   .Lbig, r1
+    cmp/hs  r1, r6
+    bt      .Llarge             ! >= 1KB: the large path's 32-byte blocks win
+    mov.l   r4, @-r15           ! save dst for the return value
+    mov     r4, r0
+    tst     #1, r0
+    bt      1f
+    mov.b   @r5+, r1
+    add     #-1, r6
+    mov.b   r1, @r4
+    add     #1, r4
+    mov     r4, r0
+1:
+    tst     #2, r0
+    bt      2f
+    mov.b   @r5+, r1
+    mov.b   @r5+, r2
+    add     #-2, r6
+    mov.b   r1, @r4
+    add     #1, r4
+    mov.b   r2, @r4
+    add     #1, r4
+2:
+    mov     r6, r7
+    shlr2   r6                  ! r6 = words (>= 1)
+    mov     #3, r0
+    and     r0, r7              ! r7 = tail bytes
+    mov     r5, r0
+    and     #3, r0              ! r0 = src misalignment k (1..3)
+    sub     r0, r5              ! r5 = aligned src
+    cmp/eq  #2, r0
+    bf.s    .Lshld
+    mov.l   @r5+, r1            ! r1 = previous word
+
+! ---- src 2 bytes off: XTRCT
+    mov     r6, r0
+    and     #3, r0
+    tst     r0, r0
+    bt      .Lxblk
+.Lxone:
+    mov.l   @r5+, r2
+    dt      r0
+    xtrct   r2, r1
+    mov.l   r1, @r4
+    mov     r2, r1
+    bf.s    .Lxone
+    add     #4, r4
+.Lxblk:
+    shlr2   r6
+    tst     r6, r6
+    bt      .Lxtail
+    add     #-1, r6
+            mov.l   @r5+, r2
+            mov.l   @r5+, r3
+            cmp/pl  r6
+            bf      98f
+            .align 5
+        99:
+            xtrct   r2, r1
+            mov.l   @r5+, r0
+            xtrct   r3, r2
+            mov.l   r1, @(0, r4)
+            mov.l   @r5+, r1
+            xtrct   r0, r3
+            mov.l   r2, @(4, r4)
+            mov.l   @r5+, r2
+            xtrct   r1, r0
+            mov.l   r3, @(8, r4)
+            mov.l   @r5+, r3
+            mov.l   r0, @(12, r4)
+            dt      r6
+            bf.s    99b
+            add     #16, r4
+        98:
+            xtrct   r2, r1
+            mov.l   @r5+, r0
+            xtrct   r3, r2
+            mov.l   r1, @(0, r4)
+            mov.l   @r5+, r1
+            xtrct   r0, r3
+            mov.l   r2, @(4, r4)
+            xtrct   r1, r0
+            mov.l   r3, @(8, r4)
+            mov.l   r0, @(12, r4)
+            add     #16, r4
+.Lxtail:
+    bra     .Ltail
+    add     #-2, r5             ! first uncopied src byte: r5 - 4 + 2
+
+! ---- src 1 or 3 bytes off: SHLD
+.Lshld:
+    mov.l   r8, @-r15
+    mov.l   r9, @-r15
+    mov.l   r10, @-r15
+    mov.l   r11, @-r15
+    shll2   r0
+    shll    r0
+    neg     r0, r8              ! r8 = -8k  (right shift)
+    mov     #32, r9
+    add     r8, r9              ! r9 = 32 - 8k (left shift)
+    mov     r6, r0
+    and     #3, r0
+    tst     r0, r0
+    bt      .Lsblk
+.Lsone:
+    mov.l   @r5+, r2
+    shld    r8, r1
+    mov     r2, r3
+    shld    r9, r3
+    or      r3, r1
+    dt      r0
+    mov.l   r1, @r4
+    mov     r2, r1
+    bf.s    .Lsone
+    add     #4, r4
+.Lsblk:
+    shlr2   r6
+    tst     r6, r6
+    bt      .Lstail
+    add     #-1, r6
+            mov.l   @r5+, r2
+            mov     r2, r3
+            cmp/pl  r6
+            bf      98f
+            .align 5
+        99:
+            shld    r9, r3
+            mov.l   @r5+, r10
+            shld    r8, r1
+            or      r3, r1
+            mov     r10, r11
+            shld    r9, r11
+            mov.l   @r5+, r0
+            shld    r8, r2
+            mov.l   r1, @(0, r4)
+            or      r11, r2
+            mov     r0, r3
+            shld    r9, r3
+            mov.l   @r5+, r1
+            shld    r8, r10
+            mov.l   r2, @(4, r4)
+            or      r3, r10
+            mov     r1, r11
+            shld    r9, r11
+            mov.l   @r5+, r2
+            shld    r8, r0
+            mov.l   r10, @(8, r4)
+            or      r11, r0
+            mov     r2, r3
+            mov.l   r0, @(12, r4)
+            dt      r6
+            bf.s    99b
+            add     #16, r4
+        98:
+            shld    r9, r3
+            mov.l   @r5+, r10
+            shld    r8, r1
+            or      r3, r1
+            mov     r10, r11
+            shld    r9, r11
+            mov.l   @r5+, r0
+            shld    r8, r2
+            mov.l   r1, @(0, r4)
+            or      r11, r2
+            mov     r0, r3
+            shld    r9, r3
+            mov.l   @r5+, r1
+            shld    r8, r10
+            mov.l   r2, @(4, r4)
+            or      r3, r10
+            mov     r1, r11
+            shld    r9, r11
+            shld    r8, r0
+            mov.l   r10, @(8, r4)
+            or      r11, r0
+            mov.l   r0, @(12, r4)
+            add     #16, r4
+.Lstail:
+    mov     r8, r0
+    neg     r0, r0
+    shlr2   r0
+    shlr    r0                  ! k
+    add     #-4, r5
+    add     r0, r5              ! first uncopied src byte
+    mov.l   @r15+, r11
+    mov.l   @r15+, r10
+    mov.l   @r15+, r9
+    mov.l   @r15+, r8
+
+! ---- tail bytes
+.Ltail:
+    tst     r7, r7
+    bt      .Ldone
+.Lt:
+    mov.b   @r5+, r1
+    dt      r7
+    mov.b   r1, @r4
+    bf.s    .Lt
+    add     #1, r4
+.Ldone:
+    rts
+    mov.l   @r15+, r0
+
+.Lnewlib:
+    mov.l   .Lnewlib_fn, r1
+    jmp     @r1
+    nop
+
+.Llarge:
+    mov.l   .Llarge_fn, r1
+    jmp     @r1
+    nop
+
+    .align 2
+.Lnewlib_fn:
+    .long   _memcpy
+.Llarge_fn:
+    .long   _shz_memcpy_large_sh4_
+.Lbig:
+    .word   1024

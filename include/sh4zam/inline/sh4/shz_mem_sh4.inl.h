@@ -24,6 +24,7 @@
 extern void* shz_memcpy128_sh4_  (void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
 extern void* shz_sq_memcpy32_sh4_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
 extern void* shz_memcpy_large_sh4_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
+extern void* shz_memcpy_mis_sh4_  (void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
 
 SHZ_FORCE_INLINE void shz_dcache_alloc_line_sh4(void* src) SHZ_NOEXCEPT {
     shz_alias_uint32_t *src32 = (shz_alias_uint32_t *)src;
@@ -746,13 +747,11 @@ SHZ_FORCE_INLINE void shz_memcpy_small_sh4_(      void* SHZ_RESTRICT dst,
 /* Only the small cases are inline, and they use no callee-saved registers; the
    block paths live out of line in shz_memcpy_large_sh4_(), whose stack frame
    would otherwise be paid on every call, including 1-byte copies.
-   Copies below 8 bytes take a compact byte loop, whatever the alignment:
-   fewest i-cache lines touched when the code is cold. Co-aligned copies below
-   128 bytes take the inline word path. Small mutually
-   misaligned copies go to newlib's memcpy(), whose byte/halfword/XTRCT paths
-   are well tuned for that case (tested first, so the jump sits in the entry's
-   i-cache line). The large path wins for those beyond ~96 bytes when dst is
-   already 32-byte aligned, or ~224 bytes when it needs a prelude. */
+   Copies below 8 bytes take a compact byte loop: fewest i-cache lines touched
+   when the code is cold. Co-aligned copies below 128 bytes take the inline
+   word path. All mutually misaligned copies go straight to
+   shz_memcpy_mis_sh4_(), which makes its own size decisions: every extra test
+   here cost ~19 cycles of taken branches and literal loads on that path. */
 SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
                                       const void* SHZ_RESTRICT src,
                                           size_t               bytes) SHZ_NOEXCEPT {
@@ -761,10 +760,10 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
         return dst;
     }
 
-    if(((uintptr_t)dst ^ (uintptr_t)src) & 3) {
-        if(bytes < (((uintptr_t)dst & 31)? 224u : 96u))
-            return memcpy(dst, src, bytes);
-    } else if(bytes < 128) {
+    if(((uintptr_t)dst ^ (uintptr_t)src) & 3)
+        return shz_memcpy_mis_sh4_(dst, src, bytes);
+
+    if(bytes < 128) {
         shz_memcpy_small_sh4_(dst, src, bytes);
         return dst;
     }
