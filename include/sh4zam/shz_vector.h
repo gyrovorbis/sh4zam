@@ -81,7 +81,7 @@ typedef shz_vec3_t shz_vec3;
  */
 typedef struct shz_vec4 {
     union {
-        float e[4];                 //!< <X, Y, Z, W> coordinates as an array.
+        float e SHZ_SIMD(16);                 //!< <X, Y, Z, W> coordinates as an array.
         struct {
             union {
                 struct {
