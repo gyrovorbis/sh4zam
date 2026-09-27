@@ -84,6 +84,15 @@ namespace {
     }
 }
 
+/* Routes a value through volatile storage so that it is opaque to the
+   optimizer: defeats __builtin_constant_p() and constant folding, forcing
+   a call to exercise its real runtime path rather than GCC's folder. */
+template<typename T>
+SHZ_FORCE_INLINE T volatile_cast(T value) noexcept {
+    volatile T volatile_ = value;
+    return volatile_;
+}
+
 struct benchmark_stats {
     uint64_t cycles;
     uint64_t last;

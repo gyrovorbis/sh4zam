@@ -47,6 +47,55 @@ GBL_TEST_CASE(sincos_from_radians)
 GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
+GBL_TEST_CASE(sincos_from_u16)
+    auto test = [&](uint16_t angle) GBL_FP_PRECISE {
+        const auto   sincos = shz::sincos::from_radians(angle);
+        const auto   pair   = shz::sincosu16(angle);
+        const double rad    = (double)angle * ((double)shz::tau_f / (UINT16_MAX + 1));
+
+        GBL_CTX_BEGIN(pCtx);
+        GBL_TEST_ERROR(sincos.sinf(), sin(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+        GBL_TEST_ERROR(sincos.cosf(), cos(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+        GBL_TEST_ERROR(pair.sin,      sin(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+        GBL_TEST_ERROR(pair.cos,      cos(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+        GBL_CTX_END();
+    };
+
+    auto quadrant = [&](uint16_t angle, int sinSign, int cosSign) {
+        const auto p = shz::sincos::from_radians(angle);
+
+        GBL_CTX_BEGIN(pCtx);
+        GBL_TEST_VERIFY(sinSign > 0? (p.sinf() > 0.0f) : (p.sinf() < 0.0f));
+        GBL_TEST_VERIFY(cosSign > 0? (p.cosf() > 0.0f) : (p.cosf() < 0.0f));
+        GBL_CTX_END();
+    };
+
+    auto sweep = [&]() {
+        GBL_CTX_BEGIN(pCtx);
+        for(unsigned a = 0; a <= UINT16_MAX; a += 64)
+            GBL_TEST_CALL(test((uint16_t)a));
+        GBL_CTX_END();
+    };
+
+    GBL_TEST_CALL(test(0));
+    GBL_TEST_CALL(test(1));
+    GBL_TEST_CALL(test(8192));
+    GBL_TEST_CALL(test(16384));
+    GBL_TEST_CALL(test(32768));
+    GBL_TEST_CALL(test(49152));
+    GBL_TEST_CALL(test(65535));
+
+    GBL_TEST_CALL(sweep());
+
+    GBL_TEST_CALL(quadrant( 8192,  1,  1));
+    GBL_TEST_CALL(quadrant(24576,  1, -1));
+    GBL_TEST_CALL(quadrant(40960, -1, -1));
+    GBL_TEST_CALL(quadrant(57344, -1,  1));
+
+    GBL_TEST_VERIFY(shz_equalf(shz::sincos::from_radians((uint16_t)0).cosf(), 1.0f));
+    GBL_TEST_VERIFY(shz_equalf(shz::sincos::from_radians((uint16_t)0).sinf(), 0.0f));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(sincos_from_degrees)
     auto test = [&](volatile float radians) GBL_FP_PRECISE {
         volatile float degrees = shz::rad_to_deg(radians);
@@ -330,6 +379,7 @@ GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(sincos_from_radians,
                   sincos_from_degrees,
+                  sincos_from_u16,
                   sinf,
                   cosf,
                   atanf,

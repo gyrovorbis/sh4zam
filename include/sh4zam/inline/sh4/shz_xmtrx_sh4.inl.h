@@ -1027,7 +1027,7 @@ SHZ_INLINE void shz_xmtrx_store_aligned4_4x4_sh4(float matrix[16]) SHZ_NOEXCEPT 
 SHZ_INLINE void shz_xmtrx_store_transpose_4x4_sh4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
-        add     #64-8, %[mtx]
+        add     #64-4, %[mtx]
         fmov.s  fr15, @%[mtx]
         add     #-32, %[mtx]
         pref    @%[mtx]
@@ -1448,6 +1448,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation_z_sh4(float z) SHZ_NOEXCEPT {
     asm volatile(R"(
         ftrc    %[z], fpul
         frchg
+        fldi1   fr15
         mov     #0, %[f]
         fldi1   fr10
         fsca    fpul, dr4

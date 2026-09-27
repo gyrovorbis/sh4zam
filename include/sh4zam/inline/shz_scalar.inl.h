@@ -169,7 +169,15 @@ SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT {
     if(__builtin_constant_p(num) && __builtin_constant_p(denom))
         return __builtin_fmodf(num, denom);
 #endif
-    return num - shz_truncf(shz_divf_fsrra(num, denom)) * shz_fabsf(denom);
+    const float abs_denom = shz_fabsf(denom);
+    float       result    = num - shz_truncf(shz_divf_fsrra(num, denom)) * abs_denom;
+
+    if(result >= abs_denom)
+        result -= abs_denom;
+    else if(result <= -abs_denom)
+        result += abs_denom;
+
+    return result;
 }
 
 SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEXCEPT {

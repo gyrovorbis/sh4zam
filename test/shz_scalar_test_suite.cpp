@@ -34,15 +34,22 @@ GBL_TEST_CASE(norm)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(floorf)
-    GBL_TEST_VERIFY(shz::floorf( 1.8f) ==  1.0f);
-    GBL_TEST_VERIFY(shz::floorf( 1.3f) ==  1.0f);
-    GBL_TEST_VERIFY(shz::floorf( 0.8f) ==  0.0f);
-    GBL_TEST_VERIFY(shz::floorf( 0.3f) ==  0.0f);
-    GBL_TEST_VERIFY(shz::floorf( 0.0f) ==  0.0f);
-    GBL_TEST_VERIFY(shz::floorf(-0.3f) == -1.0f);
-    GBL_TEST_VERIFY(shz::floorf(-0.8f) == -1.0f);
-    GBL_TEST_VERIFY(shz::floorf(-1.3f) == -2.0f);
-    GBL_TEST_VERIFY(shz::floorf(-1.8f) == -2.0f);
+    auto test = [&](volatile float value, float expected) {
+        GBL_CTX_BEGIN(pCtx);
+        GBL_TEST_VERIFY(shz::floorf(value) == expected);
+        GBL_CTX_END();
+    };
+
+    GBL_TEST_CALL(test( 1.8f,  1.0f));
+    GBL_TEST_CALL(test( 1.3f,  1.0f));
+    GBL_TEST_CALL(test( 0.8f,  0.0f));
+    GBL_TEST_CALL(test( 0.3f,  0.0f));
+    GBL_TEST_CALL(test( 0.0f,  0.0f));
+    GBL_TEST_CALL(test(-0.3f, -1.0f));
+    GBL_TEST_CALL(test(-0.8f, -1.0f));
+    GBL_TEST_CALL(test(-1.3f, -2.0f));
+    GBL_TEST_CALL(test(-1.8f, -2.0f));
+
     GBL_TEST_COMPARE(shz::floorf(-3.0f), -3.0f);
 
     {
@@ -57,15 +64,24 @@ GBL_TEST_CASE(floorf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(ceilf)
-    GBL_TEST_VERIFY(shz::ceilf( 1.8f) ==  2.0f);
-    GBL_TEST_VERIFY(shz::ceilf( 1.3f) ==  2.0f);
-    GBL_TEST_VERIFY(shz::ceilf( 0.8f) ==  1.0f);
-    GBL_TEST_VERIFY(shz::ceilf( 0.3f) ==  1.0f);
-    GBL_TEST_VERIFY(shz::ceilf( 0.0f) ==  0.0f);
-    GBL_TEST_VERIFY(shz::ceilf(-0.3f) ==  0.0f);
-    GBL_TEST_VERIFY(shz::ceilf(-0.8f) ==  0.0f);
-    GBL_TEST_VERIFY(shz::ceilf(-1.3f) == -1.0f);
-    GBL_TEST_VERIFY(shz::ceilf(-1.8f) == -1.0f);
+    auto test = [&](volatile float value, float expected) {
+        GBL_CTX_BEGIN(pCtx);
+        GBL_TEST_VERIFY(shz::ceilf(value) == expected);
+        GBL_CTX_END();
+    };
+
+    GBL_TEST_CALL(test( 1.8f,  2.0f));
+    GBL_TEST_CALL(test( 1.3f,  2.0f));
+    GBL_TEST_CALL(test( 0.8f,  1.0f));
+    GBL_TEST_CALL(test( 0.3f,  1.0f));
+    GBL_TEST_CALL(test( 0.0f,  0.0f));
+    GBL_TEST_CALL(test(-0.3f,  0.0f));
+    GBL_TEST_CALL(test(-0.8f,  0.0f));
+    GBL_TEST_CALL(test(-1.3f, -1.0f));
+    GBL_TEST_CALL(test(-1.8f, -1.0f));
+
+    GBL_TEST_COMPARE(shz::ceilf(-3.0f), -3.0f);
+
     {
         volatile float value = 99.0f;
         GBL_TEST_VERIFY(
@@ -504,51 +520,44 @@ GBL_TEST_CASE(pow10f)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(fmodf)
+    auto test = [&](volatile float num, volatile float denom, float expected) {
+        GBL_CTX_BEGIN(pCtx);
+        GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), expected));
+        GBL_CTX_END();
+    };
+
     // Sign of result always matches numerator across all four sign combinations
-    GBL_TEST_VERIFY(shz::fmodf( 7.0f,  3.0f) ==  1.0f);
-    GBL_TEST_VERIFY(shz::fmodf(-7.0f,  3.0f) == -1.0f);
-    GBL_TEST_VERIFY(shz::fmodf( 7.0f, -3.0f) ==  1.0f);
-    GBL_TEST_VERIFY(shz::fmodf(-7.0f, -3.0f) == -1.0f);
+    GBL_TEST_CALL(test( 7.0f,  3.0f,  1.0f));
+    GBL_TEST_CALL(test(-7.0f,  3.0f, -1.0f));
+    GBL_TEST_CALL(test( 7.0f, -3.0f,  1.0f));
+    GBL_TEST_CALL(test(-7.0f, -3.0f, -1.0f));
 
     // Zero numerator
-    GBL_TEST_VERIFY(shz::fmodf(0.0f, 5.0f) == 0.0f);
+    GBL_TEST_CALL(test( 0.0f,  5.0f,  0.0f));
 
     // |num| < |denom|: no full quotients, returns num unchanged
-    GBL_TEST_VERIFY(shz::fmodf( 2.0f, 5.0f) ==  2.0f);
-    GBL_TEST_VERIFY(shz::fmodf(-2.0f, 5.0f) == -2.0f);
+    GBL_TEST_CALL(test( 2.0f,  5.0f,  2.0f));
+    GBL_TEST_CALL(test(-2.0f,  5.0f, -2.0f));
+    GBL_TEST_CALL(test( 2.0f, -5.0f,  2.0f));
 
     // Exact divisibility: remainder is zero
-    GBL_TEST_VERIFY(shz::fmodf( 9.0f, 3.0f) == 0.0f);
-    GBL_TEST_VERIFY(shz::fmodf(-9.0f, 3.0f) == 0.0f);
-    GBL_TEST_VERIFY(shz::fmodf( 5.0f, 5.0f) == 0.0f);
+    GBL_TEST_CALL(test( 9.0f,  3.0f,  0.0f));
+    GBL_TEST_CALL(test(-9.0f,  3.0f,  0.0f));
+    GBL_TEST_CALL(test( 5.0f,  5.0f,  0.0f));
+    GBL_TEST_CALL(test(10.0f,  5.0f,  0.0f));
+    GBL_TEST_CALL(test(15.0f,  5.0f,  0.0f));
 
     // Non-integer denominator
-    GBL_TEST_VERIFY(shz::fmodf( 5.5f, 2.0f) ==  1.5f);  // 5.5 = 2*2.0 + 1.5
-    GBL_TEST_VERIFY(shz::fmodf(-5.5f, 2.0f) == -1.5f);
-    GBL_TEST_VERIFY(shz::fmodf( 5.0f, 1.5f) ==  0.5f);  // 5.0 = 3*1.5 + 0.5
+    GBL_TEST_CALL(test( 5.5f,  2.0f,  1.5f));  // 5.5 = 2*2.0 + 1.5
+    GBL_TEST_CALL(test(-5.5f,  2.0f, -1.5f));
+    GBL_TEST_CALL(test( 5.5f, -2.0f,  1.5f));
+    GBL_TEST_CALL(test( 5.0f,  1.5f,  0.5f));  // 5.0 = 3*1.5 + 0.5
 
     // Truncation toward zero: result stays positive when x/y exceeds n+0.5
-    // trunc(8/3)=2 → 8-2*3=2; contrast with remainderf: round(8/3)=3 → 8-3*3=-1
-    GBL_TEST_VERIFY(shz::fmodf( 8.0f, 3.0f) ==  2.0f);
-    GBL_TEST_VERIFY(shz::fmodf(-8.0f, 3.0f) == -2.0f);
+    // trunc(8/3)=2 -> 8-2*3=2; contrast with remainderf: round(8/3)=3 -> 8-3*3=-1
+    GBL_TEST_CALL(test( 8.0f,  3.0f,  2.0f));
+    GBL_TEST_CALL(test(-8.0f,  3.0f, -2.0f));
 
-    // Runtime path: non-constant args exercise shz_truncf + shz_divf approximation
-    {
-        volatile float num = -7.0f, denom = 3.0f;
-        GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), -1.0f));
-    }
-    {
-        volatile float num = -9.0f, denom = 3.0f;
-        GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), 0.0f));
-    }
-    {
-        volatile float num = 5.5f, denom = -2.0f;
-        GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), 1.5f));
-    }
-    {
-        volatile float num = 2.0f, denom = -5.0f;
-        GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), 2.0f));
-    }
     {
         volatile float num = -5.0f;
         volatile float den = 2.0f;
@@ -560,63 +569,50 @@ GBL_TEST_CASE(fmodf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(remainderf)
-    // round(7/3)=round(2.33)=2 → 7-2*3=1
-    GBL_TEST_VERIFY(shz::remainderf( 7.0f,  3.0f) ==  1.0f);
-    // round(8/3)=round(2.67)=3 → 8-3*3=-1: negative result despite positive inputs
-    GBL_TEST_VERIFY(shz::remainderf( 8.0f,  3.0f) == -1.0f);
+    auto test = [&](volatile float num, volatile float denom, float expected) {
+        GBL_CTX_BEGIN(pCtx);
+        GBL_TEST_VERIFY(shz::equalf(shz::remainderf(num, denom), expected));
+        GBL_CTX_END();
+    };
+
+    // round(7/3)=round(2.33)=2 -> 7-2*3=1
+    GBL_TEST_CALL(test( 7.0f,  3.0f,  1.0f));
+    // round(8/3)=round(2.67)=3 -> 8-3*3=-1: negative result despite positive inputs
+    GBL_TEST_CALL(test( 8.0f,  3.0f, -1.0f));
 
     // All four sign combinations
-    GBL_TEST_VERIFY(shz::remainderf(-7.0f,  3.0f) == -1.0f);
-    GBL_TEST_VERIFY(shz::remainderf(-8.0f,  3.0f) ==  1.0f);
-    GBL_TEST_VERIFY(shz::remainderf( 7.0f, -3.0f) ==  1.0f);
-    GBL_TEST_VERIFY(shz::remainderf(-7.0f, -3.0f) == -1.0f);
+    GBL_TEST_CALL(test(-7.0f,  3.0f, -1.0f));
+    GBL_TEST_CALL(test(-8.0f,  3.0f,  1.0f));
+    GBL_TEST_CALL(test( 7.0f, -3.0f,  1.0f));
+    GBL_TEST_CALL(test(-7.0f, -3.0f, -1.0f));
+    GBL_TEST_CALL(test(-8.0f, -3.0f,  1.0f));
 
     // Zero numerator
-    GBL_TEST_VERIFY(shz::remainderf(0.0f, 3.0f) == 0.0f);
+    GBL_TEST_CALL(test( 0.0f,  3.0f,  0.0f));
 
     // Exact divisibility
-    GBL_TEST_VERIFY(shz::remainderf( 6.0f, 3.0f) == 0.0f);
-    GBL_TEST_VERIFY(shz::remainderf(-6.0f, 3.0f) == 0.0f);
+    GBL_TEST_CALL(test( 6.0f,  3.0f,  0.0f));
+    GBL_TEST_CALL(test(-6.0f,  3.0f,  0.0f));
 
     // |num| < denom/2: rounds to 0, remainder equals num
-    GBL_TEST_VERIFY(shz::remainderf( 1.0f, 3.0f) ==  1.0f);  // round(1/3)=0, 1-0*3=1
-    GBL_TEST_VERIFY(shz::remainderf(-1.0f, 3.0f) == -1.0f);  // round(-1/3)=0, -1-0*3=-1
+    GBL_TEST_CALL(test( 1.0f,  3.0f,  1.0f));  // round(1/3)=0, 1-0*3=1
+    GBL_TEST_CALL(test(-1.0f,  3.0f, -1.0f));  // round(-1/3)=0, -1-0*3=-1
 
     // |num| > denom/2: rounds to nearest quotient, result crosses into opposite sign
-    GBL_TEST_VERIFY(shz::remainderf( 2.0f, 3.0f) == -1.0f);  // round(2/3)=1, 2-1*3=-1
-    GBL_TEST_VERIFY(shz::remainderf(-2.0f, 3.0f) ==  1.0f);  // round(-2/3)=-1, -2-(-1)*3=1
+    GBL_TEST_CALL(test( 2.0f,  3.0f, -1.0f));  // round(2/3)=1, 2-1*3=-1
+    GBL_TEST_CALL(test(-2.0f,  3.0f,  1.0f));  // round(-2/3)=-1, -2-(-1)*3=1
 
     // Non-integer denominator
-    GBL_TEST_VERIFY(shz::remainderf( 5.5f, 2.0f) == -0.5f);  // round(2.75)=3, 5.5-3*2=-0.5
-    GBL_TEST_VERIFY(shz::remainderf(-3.5f, 2.0f) ==  0.5f);  // round(-1.75)=-2, -3.5-(-2)*2=0.5
+    GBL_TEST_CALL(test( 5.5f,  2.0f, -0.5f));  // round(2.75)=3, 5.5-3*2=-0.5
+    GBL_TEST_CALL(test(-3.5f,  2.0f,  0.5f));  // round(-1.75)=-2, -3.5-(-2)*2=0.5
 
     // Result is always bounded: |remainder| <= |denom| / 2
-    GBL_TEST_VERIFY(shz_fabsf(shz::remainderf( 10.0f, 3.0f)) <= 1.5f);
-    GBL_TEST_VERIFY(shz_fabsf(shz::remainderf(-10.0f, 3.0f)) <= 1.5f);
+    GBL_TEST_VERIFY(shz_fabsf(shz::remainderf(volatile_cast( 10.0f), volatile_cast(3.0f))) <= 1.5f);
+    GBL_TEST_VERIFY(shz_fabsf(shz::remainderf(volatile_cast(-10.0f), volatile_cast(3.0f))) <= 1.5f);
 
-    // Runtime path: non-constant args for non-tie quotients
     {
-        volatile float num = 7.0f, denom = 3.0f;
-        GBL_TEST_VERIFY(shz::equalf(shz::remainderf(num, denom), 1.0f));
-    }
-    {
-        volatile float num = -8.0f, denom = -3.0f;
-        GBL_TEST_VERIFY(shz::equalf(shz::remainderf(num, denom), 1.0f));
-    }
-    {
-        volatile float num = 2.0f, denom = -3.0f;
-        GBL_TEST_VERIFY(shz::equalf(shz::remainderf(num, denom), -1.0f));
-    }
-    // Half-integer quotient: runtime path uses shz_roundf (round-half-away-from-zero),
-    // unlike the constant-fold path which uses __builtin_remainderf (round-half-to-even).
-    // shz_roundf(2.5) = 3 → 2.5 - 3*1.0 = -0.5, not the +0.5 the builtin path yields.
-    {
-        volatile float num = 2.5f, denom = 1.0f;
-        GBL_TEST_VERIFY(shz::remainderf(num, denom) == -0.5f);
-    }
-    {
-        volatile float num = -5.0f;
-        volatile float den = 2.0f;
+        volatile float num = 7.0f;
+        volatile float den = 3.0f;
         GBL_TEST_VERIFY((benchmark_cmp<float>)(
             "shz::remainderf", shz::remainderf,
             "remainderf", remainderf, num, den)

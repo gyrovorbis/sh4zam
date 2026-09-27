@@ -40,7 +40,7 @@ static bool compare_glm(const shz::mat4x4& shzmat, const mat4& glmmat) {
 }
 
 static void randomize_xmtrx_() {
-    for(unsigned reg = SHZ_XMTRX_XF0; reg < SHZ_XMTRX_XF15; ++reg)
+    for(unsigned reg = SHZ_XMTRX_XF0; reg <= SHZ_XMTRX_XF15; ++reg)
        shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandf());
 }
 
@@ -319,16 +319,14 @@ GBL_TEST_CASE(store_transpose_4x4)
     shz::mat4x4 mat;
     shz::xmtrx::store_transpose(&mat);
     std::array<float, 16> array = std::to_array(mat.elem);
-    GBL_TEST_SKIP("No fucking clue why this shits the bed.");
-    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, array));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(store_transpose_unaligned_4x4)
     randomize_xmtrx_();
     std::array<float, 16> array;
     shz::xmtrx::store_transpose(&array);
-    GBL_TEST_SKIP("No fucking clue why this shits the bed.");
-    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, array));
 GBL_TEST_CASE_END
 
 

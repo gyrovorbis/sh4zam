@@ -25,19 +25,10 @@ extern void* shz_memcpy128_sh4_  (void* SHZ_RESTRICT dst, const void* SHZ_RESTRI
 extern void* shz_sq_memcpy32_sh4_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
 
 SHZ_FORCE_INLINE void shz_dcache_alloc_line_sh4(void* src) SHZ_NOEXCEPT {
-    shz_alias_uint32_t *src32 = (shz_alias_uint32_t *)src;
-
     asm volatile(
-       "movca.l r0, @%8"
-     : "=m" (src32[0]),
-       "=m" (src32[1]),
-       "=m" (src32[2]),
-       "=m" (src32[3]),
-       "=m" (src32[4]),
-       "=m" (src32[5]),
-       "=m" (src32[6]),
-       "=m" (src32[7])
-     : "r" (src32));
+       "movca.l r0, @%1"
+     : "=m" (*(uint8_t (*)[32])src)
+     : "r" (src));
 }
 
 SHZ_FORCE_INLINE void shz_memcpy32_store_sh4_(uint64_t* SHZ_RESTRICT* dst) SHZ_NOEXCEPT {
@@ -48,7 +39,7 @@ SHZ_FORCE_INLINE void shz_memcpy32_store_sh4_(uint64_t* SHZ_RESTRICT* dst) SHZ_N
         fmov.d    dr6,  @-%[dst]
         fmov.d    dr4,  @-%[dst]
     )"
-    : "=m" ((*dst)[0]), "=m" ((*dst)[1]), "=m" ((*dst)[2]), "=m" ((*dst)[3])
+    : "=m" (*(uint8_t (*)[32])*dst)
     : [dst] "r" (*dst));
 }
 
@@ -60,7 +51,7 @@ SHZ_FORCE_INLINE void shz_memcpy32_load_sh4_(const uint64_t* SHZ_RESTRICT* src) 
         fmov.d    @%[src]+, dr10
     )"
     : [src] "+r" (*src), "+m" (*src)
-    : "m" ((*src)[0]), "m" ((*src)[1]), "m" ((*src)[2]), "m" ((*src)[3])
+    : "m" (*(const uint8_t (*)[32])*src)
     : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
@@ -76,8 +67,7 @@ SHZ_FORCE_INLINE void shz_memcpy64_load_sh4_(const uint64_t* SHZ_RESTRICT* src) 
         fmov.d    @%[src]+, dr14
     )"
     : [src] "+&r" (*src), "+m" (*src)
-    : "m" ((*src)[0]), "m" ((*src)[1]), "m" ((*src)[2]), "m" ((*src)[3]),
-      "m" ((*src)[4]), "m" ((*src)[5]), "m" ((*src)[6]), "m" ((*src)[7])
+    : "m" (*(const uint8_t (*)[64])*src)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
@@ -103,8 +93,7 @@ SHZ_FORCE_INLINE void shz_memcpy64_store_sh4_(uint64_t* SHZ_RESTRICT* dst) SHZ_N
         fmov.d    dr0,  @-%[dst]
     )"
     : [dst] "+r" (*dst),
-      "=m" ((*dst)[0]), "=m" ((*dst)[1]), "=m" ((*dst)[2]), "=m" ((*dst)[3]),
-      "=m" ((*dst)[4]), "=m" ((*dst)[5]), "=m" ((*dst)[6]), "=m" ((*dst)[7]));
+      "=m" (*(uint8_t (*)[64])*dst));
 }
 
 SHZ_FORCE_INLINE void shz_memcpy64_store_no_movca_sh4_(uint64_t* SHZ_RESTRICT dst) SHZ_NOEXCEPT {
@@ -120,8 +109,7 @@ SHZ_FORCE_INLINE void shz_memcpy64_store_no_movca_sh4_(uint64_t* SHZ_RESTRICT ds
         fmov.d    dr2,  @-%[dst]
         fmov.d    dr0,  @-%[dst]
     )"
-    : "=m" ((dst)[0]), "=m" ((dst)[1]), "=m" ((dst)[2]), "=m" ((dst)[3]),
-      "=m" ((dst)[4]), "=m" ((dst)[5]), "=m" ((dst)[6]), "=m" ((dst)[7])
+    : "=m" (*(uint8_t (*)[64])dst)
     : [dst] "r" (dst));
 }
 
@@ -214,8 +202,8 @@ SHZ_INLINE void* shz_memcpy2_sh4(void*       SHZ_RESTRICT dst,
                 mov.w   %[scr], @(%[offset], %[in])
         )"
         : [scr] "=&r" (scratch), [in] "+&r" (s),
-          [cnt] "+&r" (bytes), "=m" (*((uint16_t (*)[])d))
-        : [offset] "z" (diff), "m" (*((const uint16_t (*)[])s))
+          [cnt] "+&r" (bytes), "=m" (*((uint8_t (*)[])d))
+        : [offset] "z" (diff), "m" (*((const uint8_t (*)[])s))
         : "t");
     }
 
@@ -273,8 +261,8 @@ SHZ_INLINE void* shz_memcpy4_sh4(void*       SHZ_RESTRICT dst,
                 mov.l   %[scr], @(%[offset], %[in])
         )"
         : [scr] "=&r" (scratch), [in] "+&r" (s),
-          [cnt] "+&r" (bytes), "=m" (*((uint32_t (*)[])d))
-        : [offset] "z" (diff), "m" (*((const uint32_t (*)[])s))
+          [cnt] "+&r" (bytes), "=m" (*((uint8_t (*)[])d))
+        : [offset] "z" (diff), "m" (*((const uint8_t (*)[])s))
         : "t");
     }
 
@@ -316,8 +304,8 @@ SHZ_INLINE void* shz_memcpy8_sh4(      void* SHZ_RESTRICT dst,
                 bf.s     0b
                 fmov.d   dr4, @(%[offset], %[in])
         )"
-        : [in] "+&r" (s), [cnt] "+&r" (bytes), "=m" (*((uint64_t (*)[])d))
-        : [offset] "z" (diff), "m" (*((const uint64_t (*)[])s))
+        : [in] "+&r" (s), [cnt] "+&r" (bytes), "=m" (*((uint8_t (*)[])d))
+        : [offset] "z" (diff), "m" (*((const uint8_t (*)[])s))
         : "t", "fr4", "fr5");
     }
 
@@ -403,8 +391,8 @@ SHZ_INLINE void* shz_sq_memcpy32_xmtrx_sh4(      void* SHZ_RESTRICT dst,
             bf.s   1b
             add    #32, %[dst]
         )"
-        : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" ((char (*)[])dst)
-        : "m" (*(const char (*)[])src)
+        : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" (*(uint8_t (*)[])dst)
+        : "m" (*(const uint8_t (*)[])src)
         : "t");
 
         SHZ_FSCHG();
@@ -506,8 +494,8 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
 }
 
 SHZ_FORCE_INLINE void* shz_memmove_sh4(void* dst, const void* src, size_t bytes) SHZ_NOEXCEPT {
-    if((uintptr_t)dst <= (uintptr_t)src)
-        return shz_memcpy(dst, src ,bytes);
+    if((uintptr_t)dst + bytes <= (uintptr_t)src || (uintptr_t)src + bytes <= (uintptr_t)dst)
+        return shz_memcpy(dst, src, bytes);
     else
         return memmove(dst, src, bytes);
 }
@@ -771,10 +759,8 @@ SHZ_INLINE void* shz_sq_memcpy32_1_sh4(      void* SHZ_RESTRICT dst,
         pref   @%[dst]          ! Fire off store queue
     )"
     : [src] "+r" (s), [dst] "+r" (d),
-      "=m" (d[0]), "=m" (d[1]), "=m" (d[2]), "=m" (d[3]),
-      "=m" (d[4]), "=m" (d[5]), "=m" (d[6]), "=m" (d[7])
-    : "m" (s[0]), "m" (s[1]), "m" (s[2]), "m" (s[3]),
-      "m" (s[4]), "m" (s[5]), "m" (s[6]), "m" (s[7])
+      "=m" (*(uint8_t (*)[32])d)
+    : "m" (*(const uint8_t (*)[32])s)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7");
 
     SHZ_FSCHG();
@@ -804,10 +790,8 @@ SHZ_INLINE void* shz_sq_memcpy32_1_xmtrx_sh4(      void* SHZ_RESTRICT dst,
         pref   @%[dst]          ! Fire off store queue
     )"
     : [src] "+r" (s), [dst] "+r" (d),
-      "=m" (d[0]), "=m" (d[1]), "=m" (d[2]), "=m" (d[3]),
-      "=m" (d[4]), "=m" (d[5]), "=m" (d[6]), "=m" (d[7])
-    : "m" (s[0]), "m" (s[1]), "m" (s[2]), "m" (s[3]),
-      "m" (s[4]), "m" (s[5]), "m" (s[6]), "m" (s[7]));
+      "=m" (*(uint8_t (*)[32])d)
+    : "m" (*(const uint8_t (*)[32])s));
 
     SHZ_FSCHG();
 

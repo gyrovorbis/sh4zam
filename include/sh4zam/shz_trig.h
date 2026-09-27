@@ -24,7 +24,7 @@
 */
 
 //! Single-precision floating-point PI approximation (do not use M_PI!)
-#define SHZ_F_PI                3.1415926f
+#define SHZ_F_PI                3.14159265359f
 //! Single-precision FP PI approximation times 2.
 #define SHZ_F_TAU               (SHZ_F_PI * 2.0f)
 //! Single-precision FP PI approximation divided by 2.
