@@ -23,10 +23,12 @@ include(GNUInstallDirs)
 
 if(PLATFORM_DREAMCAST)
     set(SHZ_BACKEND_DEFAULT "SH4")
+elseif(SPU)
+    set(SHZ_BACKEND_DEFAULT "SPU")
 else()
     set(SHZ_BACKEND_DEFAULT "SW")
 endif()
-set(SHZ_BACKEND_OPTIONS "SH4" "SW")
+set(SHZ_BACKEND_OPTIONS "SH4" "SPU" "SW")
 set(SHZ_BACKEND ${SHZ_BACKEND_DEFAULT} CACHE STRING "Select SH4ZAM back-end implementation.")
 
 set_property(CACHE SHZ_BACKEND PROPERTY STRINGS ${SHZ_BACKEND_OPTIONS})
@@ -88,6 +90,11 @@ if(PLATFORM_DREAMCAST)
          include/sh4zam/inline/sh4/shz_xmtrx_sh4.inl.h)
 endif()
 
+if(SHZ_BACKEND STREQUAL "SPU")
+    list(APPEND SHZ_INCLUDES
+         include/sh4zam/inline/sh4/shz_vector_spu.inl.h)
+endif()
+
 list(APPEND SHZ_INCLUDES
      include/sh4zam/inline/sw/shz_mem_sw.inl.h
      include/sh4zam/inline/sw/shz_quat_sw.inl.h
@@ -144,6 +151,8 @@ endif()
 
 if(PLATFORM_DREAMCAST OR MSVC)
     set(SHZ_TLS_MODEL_DEFAULT "IMPLICIT")
+elseif(SHZ_BACKEND STREQUAL "SPU")
+    set(SHZ_TLS_MODEL_DEFAULT "DISABLED")
 else()
     set(SHZ_TLS_MODEL_DEFAULT "PTHREAD")
 endif()
