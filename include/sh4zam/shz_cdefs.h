@@ -243,7 +243,11 @@
     //! Dummy define provided for C++ compatibility
 #   define SHZ_NOEXCEPT
     //! Temporary struct initialization statement to use within C.
+#if defined(SHZ_MSVC)
 #   define SHZ_INIT(type, ...)         ((type){ __VA_ARGS__ })
+#else
+#   define SHZ_INIT(type, ...)         ({ type r = { __VA_ARGS__ }; r; })
+#endif
     //! Conversion macro for zero-overhead conversions, taking the given \p value to a value of the given \p type.
 #   define SHZ_CONVERT(type, value) \
         (((struct { \
@@ -263,7 +267,11 @@
     //! Tells the compiler that the function does not throw exceptions
 #   define SHZ_NOEXCEPT                 noexcept
     //! Temporary struct initialization statement to use within C++.
+#if defined(SHZ_MSVC)
 #   define SHZ_INIT(type, ...)         (type{ __VA_ARGS__ })
+#else
+#   define SHZ_INIT(type, ...)         ({ type r = { __VA_ARGS__ }; r; })
+#endif
     //! Conversion macro for zero-overhead conversions that handles pointers/references \p from and \p type.
 #   define SHZ_CONVERT(type, from) \
         [&]<typename To, typename V>(V&& value) -> To { \
