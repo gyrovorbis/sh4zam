@@ -65,7 +65,7 @@ SHZ_DECLS_BEGIN
 typedef SHZ_ALIGNAS(8) struct shz_mat4x4 {
     union {                     //!< Inner convenience union.
         float      elem[16];        //!< Access the matrix as a 1D array of 16 single-precision floats.
-        float      elem2D[4][4];    //!< Access the matrix as a 2D array of 4x4 single-precision floats.
+        float      elem2D[4] SHZ_SIMD(16);    //!< Access the matrix as a 2D array of 4x4 single-precision floats.
         shz_vec4_t col[4];          //!< Access the matrix as an array of 4 1x4 column vectors.
         struct {                //!< Named column vectors.
             shz_vec4_t left;        //!< Access the first column of the matrix as a 1x4 vector.
