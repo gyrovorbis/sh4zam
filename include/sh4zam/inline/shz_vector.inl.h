@@ -47,11 +47,11 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_fill(float v) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_fill(float v) SHZ_NOEXCEPT {
-    #if SHZ_BACKEND == SHZ_SPU
+#if SHZ_BACKEND == SHZ_SPU
     return shz_vec4_fill_spu(v);
-    #else
+#else
     return shz_vec3_vec4(shz_vec3_fill(v), v);
-    #endif
+#endif
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_swizzle(shz_vec2_t vec, unsigned x_idx, unsigned y_idx) SHZ_NOEXCEPT {
@@ -87,11 +87,11 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_add(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_N
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_add(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT {
-    #if SHZ_BACKEND == SHZ_SPU
+#if SHZ_BACKEND == SHZ_SPU
     return shz_vec4_add_spu(vec1, vec2);
-    #else
+#else
     return shz_vec3_vec4(shz_vec3_add(vec1.xyz, vec2.xyz), vec1.w + vec2.w);
-    #endif
+#endif
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_sub(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
@@ -103,11 +103,11 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_sub(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_N
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_sub(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT {
-    #if SHZ_BACKEND == SHZ_SPU
+#if SHZ_BACKEND == SHZ_SPU
     return shz_vec4_sub_spu(vec1, vec2);
-    #else
+#else
     return shz_vec3_vec4(shz_vec3_sub(vec1.xyz, vec2.xyz), vec1.w - vec2.w);
-    #endif
+#endif
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_mul(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
@@ -119,11 +119,11 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_mul(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_N
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_mul(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT {
-    #if SHZ_BACKEND == SHZ_SPU
+#if SHZ_BACKEND == SHZ_SPU
     return shz_vec4_mul_spu(vec1, vec2);
-    #else
+#else
     return shz_vec3_vec4(shz_vec3_mul(vec1.xyz, vec2.xyz), vec1.w * vec2.w);
-    #endif
+#endif
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_div(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT {
@@ -135,11 +135,11 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_div(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_N
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_div(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT {
-    #if SHZ_BACKEND == SHZ_SPU
+#if SHZ_BACKEND == SHZ_SPU
     return shz_vec4_div_spu(vec1, vec2);
-    #else
+#else
     return shz_vec3_vec4(shz_vec3_div(vec1.xyz, vec2.xyz), shz_divf(vec1.w, vec2.w));
-    #endif
+#endif
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_scale(shz_vec2_t vec, float factor) SHZ_NOEXCEPT {
@@ -152,11 +152,11 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_scale(shz_vec3_t vec, float factor) SHZ_NOE
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_scale(shz_vec4_t vec, float factor) SHZ_NOEXCEPT {
     // SPUs don't like non quadwords
-    #if SHZ_BACKEND == SHZ_SPU
+#if SHZ_BACKEND == SHZ_SPU
     return shz_vec4_mul(vec, shz_vec4_fill(factor));
-    #else
+#else
     return shz_vec3_vec4(shz_vec3_scale(vec.xyz, factor), vec.w * factor);
-    #endif
+#endif
 }
 
 SHZ_FORCE_INLINE float shz_vec2_magnitude_sqr(shz_vec2_t vec) SHZ_NOEXCEPT {
@@ -249,11 +249,11 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_neg(shz_vec3_t vec) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_neg(shz_vec4_t vec) SHZ_NOEXCEPT {
-    #if SHZ_BACKEND == SHZ_SPU
+#if SHZ_BACKEND == SHZ_SPU
     return shz_vec4_mul(vec, shz_vec4_fill(-1.0f));
-    #else
+#else
     return shz_vec3_vec4(shz_vec3_neg(vec.xyz), -vec.w);
-    #endif
+#endif
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_inv(shz_vec2_t vec) SHZ_NOEXCEPT {
@@ -265,11 +265,11 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_inv(shz_vec3_t vec) SHZ_NOEXCEPT {
 }   
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_inv(shz_vec4_t vec) SHZ_NOEXCEPT {
-    #if SHZ_BACKEND == SHZ_SPU
+#if SHZ_BACKEND == SHZ_SPU
     return shz_vec4_div(shz_vec4_fill(1.0f), vec);
-    #else
+#else
     return shz_vec3_vec4(shz_vec3_inv(vec.xyz), shz_invf(vec.w));
-    #endif
+#endif
 }
 
 SHZ_FORCE_INLINE float shz_vec2_max(shz_vec2_t vec) SHZ_NOEXCEPT {
@@ -899,11 +899,11 @@ SHZ_INLINE shz_vec3_t shz_vec3_inv_sqrtf(shz_vec3_t vec) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE shz_vec4_t shz_vec4_inv_sqrtf(shz_vec4_t vec) SHZ_NOEXCEPT {
-    #if SHZ_BACKEND == SHZ_SPU
+#if SHZ_BACKEND == SHZ_SPU
     return shz_vec4_inv_sqrtf_spu(vec);
-    #else
+#else
     return shz_vec3_vec4(shz_vec3_inv_sqrtf(vec.xyz), shz_inv_sqrtf(vec.w));
-    #endif
+#endif
 }
 
 SHZ_INLINE shz_vec2_t shz_vec2_sqrtf(shz_vec2_t vec) SHZ_NOEXCEPT {
@@ -915,11 +915,11 @@ SHZ_INLINE shz_vec3_t shz_vec3_sqrtf(shz_vec3_t vec) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE shz_vec4_t shz_vec4_sqrtf(shz_vec4_t vec) SHZ_NOEXCEPT {
-    #if SHZ_BACKEND == SHZ_SPU
+#if SHZ_BACKEND == SHZ_SPU
     return shz_vec4_mul(vec, shz_vec4_inv_sqrtf(vec));
-    #else
+#else
     return shz_vec3_vec4(shz_vec3_sqrtf(vec.xyz), shz_sqrtf(vec.w));
-    #endif
+#endif
 }
 
  //! \endcond
