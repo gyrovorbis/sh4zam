@@ -948,9 +948,11 @@ GBL_TEST_CASE(vec4InvSqrtf)
    //GBL_TEST_VERIFY(test(0.01f));
    //GBL_TEST_VERIFY(test(-0.001f));
    //GBL_TEST_VERIFY(test(-0.55f));
+#if !defined(__FAST_MATH__) && (!defined(__FINITE_MATH_ONLY__) || (__FINITE_MATH_ONLY__ == 0))
    GBL_TEST_VERIFY(test(-1.0f));
    GBL_TEST_VERIFY(test(-1.001f));
    GBL_TEST_VERIFY(test((volatile float)-33333.33f));
+#endif
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(vec2Construct,
