@@ -32,7 +32,7 @@
 #define SHZ_MIPS    3     //!< Back-end for MIPS architectures
 #define SHZ_ARM     4     //!< Back-end for ARM architectures.
 #define SHZ_X86_64  5     //!< Back-end for x86_64 architectures.
-#define SHZ_SPU     6     //!< Back-end for x86_64 architectures.
+#define SHZ_SPU     6     //!< Back-end for the Cell B/E SPU architecture.
 #define SHZ_WASM    8     //!< Back-end for WebAssembly.
 #define SHZ_SW      ~0    //!< Generic C-based software back-end.
 //! @}
@@ -84,7 +84,7 @@
 #   if SHZ_TARGET == SHZ_SH4
 #       define SHZ_TLS_MODEL    SHZ_TLS_IMPLICIT  // SH4 toolchain supports compiler-level TLS.
 #   elif SHZ_TARGET == SHZ_SPU
-#       define SHZ_TLS_MODEL    SHZ_TLS_DISABLED  // SH4 toolchain supports compiler-level TLS.
+#       define SHZ_TLS_MODEL    SHZ_TLS_DISABLED  // SPU toolchain doesn't support TLS (as far as I'm aware).
 #   elif SHZ_TARGET == SHZ_SW
 #       define SHZ_TLS_MODEL    SHZ_TLS_PTHREAD   // SW target uses pthread-based TLS for compatibilty.
 #   endif
