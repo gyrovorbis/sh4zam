@@ -928,6 +928,33 @@ GBL_TEST_CASE(vec4Smoothstep)
     GBL_TEST_VERIFY(shz::vec4::smoothstep_safe(0.5f, 0.0f, 1.0f) == shz::vec4(0.5f, 0.5f, 0.5f, 0.5f));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(vec4InvSqrtf)
+   auto test = [&](auto value) {
+        shz::vec4 shzv = shz::vec4(value).inv_sqrtf();
+        float ceev = 1.0f / sqrtf(fabsf(value));
+#if 0
+        std::println("{} vs {}", shzv, ceev);
+#endif
+        if(isnan(shzv.x) && isnan(ceev)) return true;
+        return shz::equalf(shzv.x, ceev) 
+                && shz::equalf(shzv.y, ceev)
+                && shz::equalf(shzv.z, ceev)
+                && shz::equalf(shzv.w, ceev);
+   };
+   GBL_TEST_VERIFY(test(333333.33f));
+   GBL_TEST_VERIFY(test(1.001f));
+   GBL_TEST_VERIFY(test((volatile float)1.0f));
+   //GBL_TEST_VERIFY(test(0.55f));
+   //GBL_TEST_VERIFY(test(0.01f));
+   //GBL_TEST_VERIFY(test(-0.001f));
+   //GBL_TEST_VERIFY(test(-0.55f));
+#if !defined(__FAST_MATH__) && (!defined(__FINITE_MATH_ONLY__) || (__FINITE_MATH_ONLY__ == 0))
+   GBL_TEST_VERIFY(test(-1.0f));
+   GBL_TEST_VERIFY(test(-1.001f));
+   GBL_TEST_VERIFY(test((volatile float)-33333.33f));
+#endif
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(vec2Construct,
                   vec2Set,
                   vec2Lerp,
@@ -966,4 +993,5 @@ GBL_TEST_REGISTER(vec2Construct,
                   vec4Step,
                   vec2Smoothstep,
                   vec3Smoothstep,
-                  vec4Smoothstep)
+                  vec4Smoothstep,
+                  vec4InvSqrtf)
