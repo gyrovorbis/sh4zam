@@ -153,7 +153,7 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
                    benefit: the end state is identical either way. */
 #   if KOS_VERSION_BELOW(2, 3, 0)
                 icache_flush_range((uintptr_t)&_executable_start,
-                                   ARCH_CACHE_L1_ICACHE_SIZE);
+                                   8 * 1024);
 #   else
                 icache_inval_range((uintptr_t)&_executable_start,
                                    ARCH_CACHE_L1_ICACHE_SIZE);

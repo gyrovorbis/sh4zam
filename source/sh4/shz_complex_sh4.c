@@ -146,14 +146,15 @@ static void shz_fft_4pt(shz_complex_t* s, size_t size, size_t stage, float facto
 
 // Apply all twiddle factors for the given stage with an unrolled 8-PT butterfly DIF.
 static void shz_fft_8pt(shz_complex_t* s, size_t size, size_t stage, float factor) {
-    const size_t inc1   = (stage << 1);
-    const size_t inc2   = (inc1  << 1);
+    const size_t inc1 = (stage << 1);
+    const size_t inc2 = (inc1  << 1);
 
     float angle = 0.0f;
 
     for(size_t twiddle = 0; twiddle < stage; ++twiddle) {
         shz_xmtrx_update_fft_butterfly(angle);
 
+#pragma GCC unroll 1
         for(size_t i = twiddle; i < size; i += (inc2 << 1)) {
             asm volatile(R"(
                 fmov.d  @%[x], dr0
@@ -334,9 +335,9 @@ void shz_fft_dc(shz_complex_t* s, size_t size) {
         */
         if(!(pairs & 7))
             shz_fft_16pt(s, size, twiddle, twiddle_scale);  // 16-PT DIF butterfly.
-        else  if (!(pairs & 3))
+        else if(!(pairs & 3))
             shz_fft_8pt(s, size, twiddle, twiddle_scale);   //  8-PT DIF butterfly.
-        else  if (!(pairs & 1))
+        else if(!(pairs & 1))
             shz_fft_4pt(s, size, twiddle, twiddle_scale);   //  4-PT DIF butterfly.
         else
             shz_fft_2pt(s, size, twiddle, twiddle_scale);   //  2-PT DIF butterfly.
