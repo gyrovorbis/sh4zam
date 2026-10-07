@@ -1640,16 +1640,16 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(load_apply_store_4x4)
    shz_glm_mat4 shzRes, glmRes;
    shz_glm_mat4 mat1 = { .shz = shz::mat4x4({
-        .left    = shz::vec4({ -13.0f,  2.0f,  3.0f, -0.0001f }),
-        .up      = shz::vec4({  4.0f,  -5.0f,  6.0f, 12.3232f }),
-        .forward = shz::vec4({  7.0f,   8.0f,  9.0f, 882.023f }),
-        .pos     = shz::vec4({ 11.0f, -12.0f, 13.0f, -0.0435f })
+        .left    = shz::vec4( -13.0f,  2.0f,  3.0f, -0.0001f ),
+        .up      = shz::vec4(  4.0f,  -5.0f,  6.0f, 12.3232f ),
+        .forward = shz::vec4(  7.0f,   8.0f,  9.0f, 882.023f ),
+        .pos     = shz::vec4( 11.0f, -12.0f, 13.0f, -0.0435f )
    })};
    shz_glm_mat4 mat2 = { .shz = shz_mat4x4({
-        .left    = shz::vec4({ 11.0f,    2.5f, -3.333f, -4.0343f }),
-        .up      = shz::vec4({ -46.0f,  -5.0f,  0.777f, 9999.34f,}),
-        .forward = shz::vec4({ -75.0f, 0.008f, -99.44f, 0.23233f }),
-        .pos     = shz::vec4({ 11.0f,   12.0f, 13.888f, -345.88f })
+        .left    = shz::vec4( 11.0f,    2.5f, -3.333f, -4.0343f ),
+        .up      = shz::vec4( -46.0f,  -5.0f,  0.777f, 9999.34f ),
+        .forward = shz::vec4( -75.0f, 0.008f, -99.44f, 0.23233f ),
+        .pos     = shz::vec4( 11.0f,   12.0f, 13.888f, -345.88f )
    })};
 
     GBL_TEST_VERIFY((benchmark_cmp<void>)(
