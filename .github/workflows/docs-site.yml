@@ -1,0 +1,86 @@
+name: Docs site
+
+# Builds doc/site from the headers and deploys it to GitHub Pages.
+# Pull requests only build and check; pushes to master also deploy.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'doc/**'
+      - 'include/**'
+      - '.github/workflows/docs-site.yml'
+  pull_request:
+    paths:
+      - 'doc/**'
+      - 'include/**'
+      - '.github/workflows/docs-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-site-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOXYGEN_VERSION: 1.18.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: doc/site
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Full history so the sitemap gets real last-modified dates.
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: doc/site/package-lock.json
+      - name: Cache Doxygen
+        id: doxygen-cache
+        uses: actions/cache@v4
+        with:
+          path: /opt/doxygen
+          key: doxygen-${{ env.DOXYGEN_VERSION }}
+      - name: Install Doxygen
+        if: steps.doxygen-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p /opt/doxygen
+          curl -fsSL "https://github.com/doxygen/doxygen/releases/download/Release_${DOXYGEN_VERSION//./_}/doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz" \
+            | tar xz -C /opt/doxygen --strip-components=1
+      - run: echo "/opt/doxygen/bin" >> "$GITHUB_PATH"
+      - id: pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+      - run: npm ci
+      - run: npm run build
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+      - run: npm run check
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: doc/site/dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
