@@ -329,7 +329,7 @@ struct xmtrx {
         init_rotation(angle, axis.x, axis.y, axis.z);
     }
 
-    //! C++ wrapper around shz_xmtrx_init_rotation_axis_angle().
+    //! C++ wrapper around shz_xmtrx_init_rotation_dir().
     SHZ_FORCE_INLINE static void init_rotation_dir(float angle, const vec3& dir) noexcept {
         shz_xmtrx_init_rotation_dir(angle, dir.x, dir.y, dir.z);
     }
@@ -349,7 +349,7 @@ struct xmtrx {
         shz_xmtrx_init_upper_triangular(col1, col2, col3, col4);
     }
 
-    //! C++ wrapper around shz_xmtrx_init_lower_diagonal().
+    //! C++ wrapper around shz_xmtrx_init_lower_triangular().
     SHZ_FORCE_INLINE static void init_lower_triangular(const vec4& col1, const vec3& col2, const vec2& col3, float col4) noexcept {
         shz_xmtrx_init_lower_triangular(col1, col2, col3, col4);
     }

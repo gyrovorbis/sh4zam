@@ -115,20 +115,20 @@ idiomatic C++ API with support for multiple targets, such as GLM or the Simulant
         };
     }
 
-    using namespace Math;
-
     // Implementation of 4D vector addition operator.
-    Vec4 Vec4::operator+(Vec4 lhs, Vec4 rhs) {
-    #ifdef GAINZ
-        /* 1) Convert incoming arguments to SH4ZAM types using shz::vec4::from().
-           2) Call SH4ZAM's equivalent addition operator with the converted arguments.
-           3) Convert SH4ZAM's return value back with shz::vec4::to<>(). */
-        return (shz::vec4::from(lhs) + shz::vec4::from(rhs)).to<Vec4>();
-    #else
-        // The original, unaccelerated path is here for platforms without SH4ZAM.
-        return Vec4({ lhs.value[0] + rhs.value[0], lhs.value[1] + rhs.value[1],
-                      lhs.value[2] + rhs.value[2], lhs.value[3] + rhs.value[3] });
-    #endif
+    namespace Math {
+        Vec4 operator+(Vec4 lhs, Vec4 rhs) {
+        #ifdef GAINZ
+            /* 1) Convert incoming arguments to SH4ZAM types using shz::vec4::from().
+               2) Call SH4ZAM's equivalent addition operator with the converted arguments.
+               3) Convert SH4ZAM's return value back with shz::vec4::to<>(). */
+            return (shz::vec4::from(lhs) + shz::vec4::from(rhs)).to<Vec4>();
+        #else
+            // The original, unaccelerated path is here for platforms without SH4ZAM.
+            return Vec4({ lhs.value[0] + rhs.value[0], lhs.value[1] + rhs.value[1],
+                          lhs.value[2] + rhs.value[2], lhs.value[3] + rhs.value[3] });
+        #endif
+        }
     }
 ```
 
