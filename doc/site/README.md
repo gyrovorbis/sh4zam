@@ -13,6 +13,15 @@ The Doxygen HTML (`make docs`, `doc/Doxyfile`) is untouched and still works.
 
 The site documents whatever commit it is built from; the footer says which.
 
+## Quick look
+
+To just see the site, install Node.js 20+ and Doxygen (see Setup below) and run the script for your OS. It checks both, runs `npm ci` the first time (and again when `package-lock.json` changes), then opens a live preview at <http://localhost:4321/>.
+
+- **Windows:** double-click `doc\site\run.cmd`, or run `.\run.cmd` from `doc\site`. Use the `.\`: nvm for Windows ships its own `run.cmd` on the `PATH`, and PowerShell will pick that one otherwise.
+- **macOS / Linux:** `./doc/site/run.sh`
+
+Add `--build` (`.\run.cmd --build`, `./run.sh --build`) for a full production build served from `dist/`, which includes `llms.txt` and the Markdown versions of each page. It takes about two minutes.
+
 ## Setup
 
 1. **Node.js 20+** (CI-tested on 24): <https://nodejs.org/>
@@ -34,6 +43,7 @@ Run from `doc/site/`.
 | `npm run build` | Regenerates the API pages, then builds into `dist/` (about 2 minutes; most of it is OG images) and writes `llms.txt`, `robots.txt` and the legacy Doxygen redirect pages. |
 | `npm run check` | Verifies the built site: every page has a Markdown twin, `llms.txt` links resolve, `index.json` matches its schema and the headers, head tags, robots/sitemap, banned phrases, internal links, and every `shz_`/`SHZ_`/`shz::` name in handwritten pages exists. |
 | `npm run gen` | Only regenerates the API pages. |
+| `node scripts/run.mjs` | What `run.cmd` and `run.sh` call: checks Node and Doxygen, installs packages when needed, then `npm run dev` (or a build plus a static server with `--build`). |
 | `npm run shots` | Screenshots of key pages at desktop and mobile size into `build/shots/`. |
 | `node scripts/qa.mjs` | Accessibility (axe) and Lighthouse audits into `build/qa/`. |
 | `node scripts/check-ai.mjs --external` | Also checks external links (warnings only). |
@@ -130,4 +140,5 @@ scripts/gen-api.mjs    the API generator; scripts/data/modules.mjs is its hand-w
 scripts/Doxyfile.xml   XML-only Doxygen config layered on doc/Doxyfile
 scripts/gen-llms.mjs   post-build: llms.txt, robots.txt, Doxygen redirect stubs
 scripts/check-ai.mjs   post-build checks (npm run check)
+scripts/run.mjs        one-step local preview behind run.cmd / run.sh
 ```

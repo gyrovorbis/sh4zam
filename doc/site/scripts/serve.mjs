@@ -32,7 +32,10 @@ export function serve(root = 'dist', port = 0, base = '/') {
 		res.writeHead(200, { 'content-type': type, 'cache-control': 'max-age=600' });
 		fs.createReadStream(file).pipe(res);
 	});
-	return new Promise((resolve) => server.listen(port, '127.0.0.1', () => resolve(server)));
+	return new Promise((resolve, reject) => {
+		server.once('error', reject);
+		server.listen(port, '127.0.0.1', () => resolve(server));
+	});
 }
 
 if (process.argv[1] && process.argv[1].endsWith('serve.mjs')) {
