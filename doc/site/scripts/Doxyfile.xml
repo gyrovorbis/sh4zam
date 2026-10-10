@@ -1,0 +1,40 @@
+# XML-only Doxygen config for the docs generator. Run from doc/site:
+#   doxygen scripts/Doxyfile.xml
+# Inherits upstream's doc/Doxyfile (MACRO_EXPANSION, PREDEFINED, EXCLUDE_SYMBOLS, ...)
+# and overrides only what the generator needs.
+@INCLUDE               = ../Doxyfile
+
+INPUT                  = ../../include/sh4zam \
+                         ..
+FILE_PATTERNS          = *.h \
+                         *.hpp \
+                         *.dox
+RECURSIVE              = NO
+EXCLUDE_PATTERNS       = */*.inl.*
+USE_MDFILE_AS_MAINPAGE =
+PROJECT_LOGO           =
+PROJECT_ICON           =
+IMAGE_PATH             =
+EXTRACT_ALL            = YES
+INLINE_SOURCES         = NO
+SOURCE_BROWSER         = NO
+VERBATIM_HEADERS       = NO
+
+OUTPUT_DIRECTORY       = build
+GENERATE_HTML          = NO
+GENERATE_LATEX         = NO
+GENERATE_XML           = YES
+XML_OUTPUT             = xml
+XML_PROGRAMLISTING     = NO
+HAVE_DOT               = NO
+
+QUIET                  = YES
+WARNINGS               = NO
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = NO
+WARN_IF_INCOMPLETE_DOC = NO
+
+# The mat2x2/3x3/3x4/4x3 types and helpers sit in a `\cond UNDOCUMENTED` block upstream.
+ENABLED_SECTIONS       = UNDOCUMENTED
+# libclang is not available in every doxygen build; keep output identical across platforms.
+CLANG_ASSISTED_PARSING = NO

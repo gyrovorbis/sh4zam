@@ -54,7 +54,7 @@
 #   elif defined(__wasm__) || defined(__wasm32__) || defined(__wasm64__)
 #       define SHZ_TARGET   SHZ_WASM
 #   else
-#       define SHZ_TAREGT   SHZ_SW
+#       define SHZ_TARGET   SHZ_SW
 #   endif
 #endif
 

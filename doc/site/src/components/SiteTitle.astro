@@ -1,0 +1,60 @@
+---
+import logo from '../assets/logo_small.png';
+import upstream from '../data/upstream.json';
+
+const { siteTitleHref } = Astro.locals.starlightRoute;
+---
+
+<a href={siteTitleHref} class="site-title" aria-label={`SH4ZAM! ${upstream.version}, home`}>
+	<img src={logo.src} width="43" height="32" alt="" />
+	<span class="name" translate="no">SH4ZAM!</span>
+	<span class="version">{upstream.version}</span>
+	<span class="tagline">Fast math library for the Sega Dreamcast's SH4 CPU</span>
+</a>
+
+<style>
+	.site-title {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		min-width: 0;
+		text-decoration: none;
+		white-space: nowrap;
+		color: var(--shz-text-strong);
+	}
+	img {
+		height: 2rem;
+		width: auto;
+		image-rendering: pixelated;
+		flex-shrink: 0;
+	}
+	.name {
+		font-size: 1.25rem;
+		font-weight: 700;
+		letter-spacing: 0.01em;
+	}
+	.version {
+		font-family: var(--__sl-font-mono);
+		font-size: 0.75rem;
+		color: var(--shz-accent);
+		border: 1px solid var(--shz-border-4);
+		border-radius: 3px;
+		padding: 0 0.3rem;
+		line-height: 1.4;
+	}
+	.tagline {
+		display: none;
+		font-size: 0.85rem;
+		color: var(--shz-text-muted);
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	@media (min-width: 80rem) {
+		.tagline {
+			display: inline;
+		}
+	}
+	.site-title:hover .name {
+		color: var(--shz-accent);
+	}
+</style>

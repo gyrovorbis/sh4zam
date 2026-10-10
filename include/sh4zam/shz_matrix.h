@@ -658,7 +658,7 @@ SHZ_INLINE void shz_mat4x4_mult_transpose_unaligned(shz_mat4x4_t* mat, const shz
 
     \note
     For batch transforming multiple 2D vectors against the same 4x4 matrix,
-    preload the matrix into XMTRX, then use shz_xmtrx_trans_vec2().
+    preload the matrix into XMTRX, then use shz_xmtrx_transform_vec2().
 
     \sa shz_mat4x4_transform_vec2(), shz_xmtrx_transform_vec3()
 */
@@ -672,7 +672,7 @@ SHZ_INLINE shz_vec2_t shz_mat4x4_transform_vec2(const shz_mat4x4_t* m, shz_vec2_
 
     \note
     For batch transforming multiple 3D vectors against the same 4x4 matrix,
-    preload the matrix into XMTRX, then use shz_xmtrx_trans_vec3().
+    preload the matrix into XMTRX, then use shz_xmtrx_transform_vec3().
 
     \sa shz_mat4x4_transform_vec4(), shz_xmtrx_transform_vec3()
 */
@@ -686,7 +686,7 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_transform_vec3(const shz_mat4x4_t* m, shz_vec3_
 
     \note
     For batch transforming multiple 4D vectors against the same 4x4 matrix,
-    preload the matrix into XMTRX, then use shz_xmtrx_trans_vec4().
+    preload the matrix into XMTRX, then use shz_xmtrx_transform_vec4().
 
     \sa shz_mat4x4_transform_vec3(), shz_xmtrx_transform_vec4()
 */

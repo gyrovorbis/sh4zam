@@ -34,7 +34,7 @@
     `XMTRX` is the name given to identify the 16 FP registers contained
     within the back-bank of the SH4's FPU. These 16 registers combine
     to represent the SH4's 4x4 "active matrix," which can be subsequently
-    transformed against using the `FTRV` instruction (shz_xmtrx_trans_vec4()).
+    transformed against using the `FTRV` instruction (shz_xmtrx_transform_vec4()).
 
     For maximum FP performance on the SH4, strategic usage of `XMTRX` to batch
     transform operations together without having reload FP registers, is key.
@@ -687,7 +687,7 @@ SHZ_INLINE void shz_xmtrx_load_apply_unaligned_4x4(const float matrix1[16],
     However, it has been optimized and pipelined for performing the loads, multiplies, and
     stores in parallel.
 
-    \sa shz_xmtrx_load_apply(), shz_xmtrx_load_apply_store_unaligned_4x4()
+    \sa shz_xmtrx_load_apply_4x4(), shz_xmtrx_load_apply_store_unaligned_4x4()
 */
 SHZ_INLINE void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out,
                                                const shz_mat4x4_t* matrix1,
