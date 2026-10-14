@@ -251,6 +251,16 @@ struct vecN: C {
         return shz_vec_maxv(*static_cast<const CppType*>(this), other);
     }
 
+    //! Returns a new vector whose components are the inverse square root of the given vector.
+    SHZ_FORCE_INLINE CppType inv_sqrtf() const noexcept {
+        return shz_vec_inv_sqrtf(*static_cast<const CppType*>(this));
+    }
+
+    //! Returns a new vector whose components are the square root of the given vector.
+    SHZ_FORCE_INLINE CppType sqrtf() const noexcept {
+        return shz_vec_sqrtf(*static_cast<const CppType*>(this));
+    }
+
     //! Returns the dot product of the given vector and another.
     SHZ_FORCE_INLINE float dot(const CppType& other) const noexcept {
         return shz_vec_dot(*static_cast<const CppType*>(this), other);

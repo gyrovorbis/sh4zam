@@ -30,7 +30,7 @@
 #include <stdalign.h>
 
 /* Internal state: 4 column vectors = 16 floats, matching shz_mat4x4_t layout */
-typedef struct shz_xmtrx_ {
+typedef SHZ_ALIGNAS(8) struct shz_xmtrx_ {
     union {
         float      elem[16];
         shz_vec4_t col[4];

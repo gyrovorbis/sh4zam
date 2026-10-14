@@ -32,6 +32,7 @@
 #define SHZ_MIPS    3     //!< Back-end for MIPS architectures
 #define SHZ_ARM     4     //!< Back-end for ARM architectures.
 #define SHZ_X86_64  5     //!< Back-end for x86_64 architectures.
+#define SHZ_SPU     6     //!< Back-end for the Cell B/E SPU architecture.
 #define SHZ_WASM    8     //!< Back-end for WebAssembly.
 #define SHZ_SW      ~0    //!< Generic C-based software back-end.
 //! @}
@@ -48,6 +49,8 @@
 #       define SHZ_TARGET    SHZ_ARM
 #   elif defined(__x86_64__) || defined(_M_X64)
 #       define SHZ_TARGET   SHZ_X86_64
+#   elif defined(__SPU__)
+#       define SHZ_TARGET   SHZ_SPU
 #   elif defined(__wasm__) || defined(__wasm32__) || defined(__wasm64__)
 #       define SHZ_TARGET   SHZ_WASM
 #   else
@@ -59,6 +62,8 @@
 #ifndef SHZ_BACKEND
 #   if SHZ_TARGET == SHZ_SH4 && (defined(__SH4_SINGLE__) || defined(__SH4_SINGLE_ONLY__))
 #       define SHZ_BACKEND SHZ_SH4  // Dreamcast builds use SH4 back-end ONLY in single-precision FPU mode.
+#   elif SHZ_TARGET == SHZ_SPU
+#       define SHZ_BACKEND SHZ_SPU
 #   else
 #       define SHZ_BACKEND SHZ_SW   // Everything else uses SW C back-end right now.
 #   endif
@@ -78,6 +83,8 @@
 #ifndef SHZ_TLS_MODEL
 #   if SHZ_TARGET == SHZ_SH4
 #       define SHZ_TLS_MODEL    SHZ_TLS_IMPLICIT  // SH4 toolchain supports compiler-level TLS.
+#   elif SHZ_TARGET == SHZ_SPU
+#       define SHZ_TLS_MODEL    SHZ_TLS_DISABLED  // SPU toolchain doesn't support TLS (as far as I'm aware).
 #   elif SHZ_TARGET == SHZ_SW
 #       define SHZ_TLS_MODEL    SHZ_TLS_PTHREAD   // SW target uses pthread-based TLS for compatibilty.
 #   endif
@@ -181,7 +188,7 @@
     //! Forces a function or type to be aligned by \p N bytes.
 #   define SHZ_ALIGNAS(N)              __declspec(align(N))
     //! Unsupported by MSVC.
-#   define SHZ_SIMD(N)
+#   define SHZ_SIMD(N)                 [N/4]
     //! Unsupported by MSVC.
 #   define SHZ_HOT
     //! Unsupported by MSVC.
@@ -236,7 +243,11 @@
     //! Dummy define provided for C++ compatibility
 #   define SHZ_NOEXCEPT
     //! Temporary struct initialization statement to use within C.
+#if defined(SHZ_MSVC)
 #   define SHZ_INIT(type, ...)         ((type){ __VA_ARGS__ })
+#else
+#   define SHZ_INIT(type, ...)         ({ type r = { __VA_ARGS__ }; r; })
+#endif
     //! Conversion macro for zero-overhead conversions, taking the given \p value to a value of the given \p type.
 #   define SHZ_CONVERT(type, value) \
         (((struct { \
@@ -256,7 +267,11 @@
     //! Tells the compiler that the function does not throw exceptions
 #   define SHZ_NOEXCEPT                 noexcept
     //! Temporary struct initialization statement to use within C++.
+#if defined(SHZ_MSVC)
 #   define SHZ_INIT(type, ...)         (type{ __VA_ARGS__ })
+#else
+#   define SHZ_INIT(type, ...)         ({ type r = { __VA_ARGS__ }; r; })
+#endif
     //! Conversion macro for zero-overhead conversions that handles pointers/references \p from and \p type.
 #   define SHZ_CONVERT(type, from) \
         [&]<typename To, typename V>(V&& value) -> To { \
