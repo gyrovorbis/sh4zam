@@ -1,5 +1,5 @@
-#ifndef SHZ_TEST_HPP
-#define SHZ_TEST_HPP
+#ifndef SHZ_TEST_SCENARIO_HPP
+#define SHZ_TEST_SCENARIO_HPP
 
 #include <type_traits>
 #include <concepts>

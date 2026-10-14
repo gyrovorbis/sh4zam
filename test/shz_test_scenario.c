@@ -1,6 +1,6 @@
-#include "shz_test.h"
+#include "shz_test_scenario.h"
 
-static GBL_RESULT shz_test_constructed_(GblObject* pSelf) {
+static GBL_RESULT shz_test_scenario_constructed_(GblObject* pSelf) {
     GBL_CTX_BEGIN(NULL);
 
     GBL_VCALL_DEFAULT(GblObject, pFnConstructed, pSelf);
@@ -33,22 +33,22 @@ static GBL_RESULT shz_test_constructed_(GblObject* pSelf) {
     GBL_CTX_END();
 }
 
-static GBL_RESULT shz_test_class_init_(GblClass* pClass, const void* pData) {
+static GBL_RESULT shz_test_scenario_class_init_(GblClass* pClass, const void* pData) {
     GBL_UNUSED(pData);
-    GBL_OBJECT_CLASS(pClass)->pFnConstructed = shz_test_constructed_;
+    GBL_OBJECT_CLASS(pClass)->pFnConstructed = shz_test_scenario_constructed_;
     return GBL_RESULT_SUCCESS;
 }
 
-GBL_EXPORT GblType shz_test_type(void) {
+GBL_EXPORT GblType shz_test_scenario_type(void) {
     static GblType type = GBL_INVALID_TYPE;
     static const GblTypeInfo info = {
-        .pFnClassInit = shz_test_class_init_,
-        .classSize    = sizeof(shz_testClass),
-        .instanceSize = sizeof(shz_test)
+        .pFnClassInit = shz_test_scenario_class_init_,
+        .classSize    = sizeof(shz_test_scenarioClass),
+        .instanceSize = sizeof(shz_test_scenario)
     };
 
     if(type == GBL_INVALID_TYPE) {
-        type = GblType_register(GblQuark_internStatic("shz_test"),
+        type = GblType_register(GblQuark_internStatic("shz_test_scenario"),
                                GBL_TEST_SCENARIO_TYPE,
                                &info,
                                GBL_TYPE_FLAG_TYPEINFO_STATIC);

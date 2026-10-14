@@ -1,5 +1,5 @@
-#include "shz_test.h"
-#include "shz_test.hpp"
+#include "shz_test_scenario.h"
+#include "shz_test_scenario.hpp"
 #include "sh4zam/shz_mem.hpp"
 
 #if SHZ_BACKEND == SHZ_SH4

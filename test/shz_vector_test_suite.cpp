@@ -1,5 +1,5 @@
-#include "shz_test.h"
-#include "shz_test.hpp"
+#include "shz_test_scenario.h"
+#include "shz_test_scenario.hpp"
 #include "sh4zam/shz_vector.hpp"
 
 #include <cglm/call.h>
