@@ -18,6 +18,7 @@ add_subdirectory(libgimbal)
 set(CGLM_SHARED OFF)
 set(CGLM_STATIC ON)
 add_subdirectory(cglm)
+
 if(PLATFORM_DREAMCAST)
     target_compile_options(cglm PRIVATE -fno-fast-math)
 endif()
@@ -42,6 +43,10 @@ set(LIBS libGimbal sh4zam cglm)
 
 if(PLATFORM_DREAMCAST)
     list(APPEND LIBS fastmem)
+endif()
+
+if(MINGW)
+    list(APPEND LIBS stdc++exp)
 endif()
 
 target_link_libraries(Sh4zamTests PRIVATE ${LIBS})
