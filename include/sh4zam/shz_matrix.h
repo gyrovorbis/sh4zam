@@ -881,7 +881,11 @@ SHZ_INLINE void shz_mat4x4_blend(shz_mat4x4_t* dst, const shz_mat4x4_t* joint_ma
 //! @}
 
 //! \cond UNDOCUMENTED
-//        Until API is complete.
+/*! Structure representing a 2x2 column-major matrix.
+
+    \warning
+    This structure MUST be aligned on 8-byte boundaries!
+*/
 typedef SHZ_ALIGNAS(8) struct shz_mat2x2 {
     union {
         float       elem[4];
@@ -890,6 +894,7 @@ typedef SHZ_ALIGNAS(8) struct shz_mat2x2 {
     };
 } shz_mat2x2_t;
 
+//! Structure representing a 3x3 column-major matrix.
 typedef struct shz_mat3x3 {
     union {
         float      elem[9];
@@ -903,6 +908,7 @@ typedef struct shz_mat3x3 {
     };
 } shz_mat3x3_t;
 
+//! Structure representing a 3x4 column-major matrix.
 typedef struct shz_mat3x4 {
     union {
         float      elem[12];
@@ -917,6 +923,7 @@ typedef struct shz_mat3x4 {
     };
 } shz_mat3x4_t;
 
+//! Structure representing a 4x3 column-major matrix.
 typedef struct shz_mat4x3 {
     union {
         float      elem[12];
@@ -930,47 +937,45 @@ typedef struct shz_mat4x3 {
     };
 } shz_mat4x3_t;
 
-/*!
-    Stores the transpose of 3x3 matrix \p mat within \p out.
-
-    mtrx: Pointer to the 3x3 matrix to transpose.
-    out: Pointer to the resulting transposed matrix.
+/*! Stores the transpose of 3x3 matrix \p mat within \p out.
 
     \warning This routine clobbers XMTRX.
 
+    \param  mat     Pointer to the 3x3 matrix to transpose.
+    \param  out     Pointer to the resulting transposed matrix.
  */
 SHZ_INLINE void shz_mat3x3_transpose(const shz_mat3x3_t* mat, shz_mat3x3_t* out) SHZ_NOEXCEPT;
 
-/*!
-    Computes the inverse of a 3x3 matrix, saves cycles by not scaling by the
-    determinant, which makes sense when used for normals and lighting that are
-    usually normalized later.
+/*! Computes the inverse of an orthonormal 3x3 matrix.
 
-    mtrx: Pointer to the 3x3 matrix to invert.
-    out: Pointer to the resulting inverted matrix.
-
-    \note
-    Only valid if the matrix is known to be orthonormal.
+    \note The routine saves cycles by not scaling by the determinant, which is typically useful for
+    normals and lighting, where the matrix has no scale factor.
 
     \warning This routine clobbers XMTRX.
+
+    \param  mat     Pointer to the 3x3 matrix to invert.
+    \param  out     Pointer to the resulting inverted matrix.
  */
-SHZ_INLINE void shz_mat3x3_inverse_unscaled(const shz_mat3x3_t* mtrx, shz_mat3x3_t* out) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat3x3_inverse_unscaled(const shz_mat3x3_t* mat, shz_mat3x3_t* out) SHZ_NOEXCEPT;
 
-/*!
-    Computes the inverse of a 3x3 matrix.
+/*! Computes the inverse of a 3x3 matrix.
 
-    mtrx: Pointer to the 3x3 matrix to invert.
-    out: Pointer to the resulting inverted matrix.
-
-    \note
-    Only valid for non-singular matrices.
+    \note Only valid for non-singular matrices.
 
     \warning This routine clobbers XMTRX.
- */
-SHZ_INLINE void shz_mat3x3_inverse(const shz_mat3x3_t* mtrx, shz_mat3x3_t* out) SHZ_NOEXCEPT;
 
+    \param  mat     Pointer to the 3x3 matrix to invert.
+    \param  out     Pointer to the resulting inverted matrix.
+ */
+SHZ_INLINE void shz_mat3x3_inverse(const shz_mat3x3_t* mat, shz_mat3x3_t* out) SHZ_NOEXCEPT;
+
+//! Uniformly scales each element within a 3x3 matrix by the given value.
 SHZ_INLINE void shz_mat3x3_scale(shz_mat3x3_t* dst, const shz_mat3x3_t* src, float value) SHZ_NOEXCEPT;
+
+//! Transforms an input vector by a 3x3 matrix, returning the resulting vector.
 SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT;
+
+//! Transforms an input vector by the transpose of a 3x3 matrix, returning the resulting vector.
 SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3_transpose(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT;
 
 //! \endcond

@@ -37,7 +37,10 @@
 #define SHZ_SW      ~0    //!< Generic C-based software back-end.
 //! @}
 
-// Determine the actual architecture we're targeting.
+/*! \def    SHZ_TARGET
+    \brief  Target architecture
+    Determines the actual architecture we're building for.
+*/
 #ifndef SHZ_TARGET
 #   if defined(__SH__) || defined(__sh__)
 #       define SHZ_TARGET   SHZ_SH4
@@ -58,7 +61,10 @@
 #   endif
 #endif
 
-// Attempt to detect default back-end for the given build target.
+/*! \def    SHZ_BACKEND
+    \brief  SH4ZAM back-end
+    Selects which SH4ZAM implementation to use for a given target.
+*/
 #ifndef SHZ_BACKEND
 #   if SHZ_TARGET == SHZ_SH4 && (defined(__SH4_SINGLE__) || defined(__SH4_SINGLE_ONLY__))
 #       define SHZ_BACKEND SHZ_SH4  // Dreamcast builds use SH4 back-end ONLY in single-precision FPU mode.
@@ -79,7 +85,10 @@
 #define SHZ_TLS_CTHREAD     3   //!< Use C11 thread TSS keys for TLS.
 //! @}
 
-// Attempt to detect default TLS model for the given back-end.
+/*! \def    SHZ_TLS_MODEL
+    \brief  thread_local storage.
+    Selects the model used to declare access thread-local variables.
+*/
 #ifndef SHZ_TLS_MODEL
 #   if SHZ_TARGET == SHZ_SH4
 #       define SHZ_TLS_MODEL    SHZ_TLS_IMPLICIT  // SH4 toolchain supports compiler-level TLS.
