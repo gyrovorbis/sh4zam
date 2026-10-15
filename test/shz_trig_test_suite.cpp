@@ -1,4 +1,4 @@
-#include "shz_test.h"
+#include "shz_test_scenario.h"
 #include "shz_test.hpp"
 #include <sh4zam/shz_trig.hpp>
 #include <gimbal/algorithms/gimbal_random.h>

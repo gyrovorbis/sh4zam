@@ -1,15 +1,17 @@
-#include <sh4zam/shz_sh4zam.h>
-#include "shz_test.h"
+#include "shz_test_scenario.h"
 
-#include <assert.h>
+static GBL_RESULT shz_test_scenario_constructed_(GblObject* pSelf) {
+    GBL_CTX_BEGIN(NULL);
 
-int main(int argc, const char* argv[]) {
-    GblTestScenario *scenario = GblTestScenario_create("SH4ZAM");
+    GBL_VCALL_DEFAULT(GblObject, pFnConstructed, pSelf);
+
+    GblObject_setName(pSelf, "SH4ZAM");
+
+    GblTestScenario* scenario = GBL_TEST_SCENARIO(pSelf);
 
     GblContext_setLogFilter(GBL_CONTEXT(scenario), GBL_LOG_LEVEL_INFO    |
                                                    GBL_LOG_LEVEL_WARNING |
                                                    GBL_LOG_LEVEL_ERROR);
-    assert(SHZ_VERSION == shz_version_linked());
 
     GblTestScenario_enqueueSuite(scenario,
                                  GblTestSuite_create(SHZ_SCALAR_TEST_SUITE_TYPE));
@@ -28,5 +30,28 @@ int main(int argc, const char* argv[]) {
     GblTestScenario_enqueueSuite(scenario,
                                  GblTestSuite_create(SHZ_COMPLEX_TEST_SUITE_TYPE));
 
-    return GblTestScenario_exec(scenario, argc, argv);
+    GBL_CTX_END();
+}
+
+static GBL_RESULT shz_test_scenario_class_init_(GblClass* pClass, const void* pData) {
+    GBL_UNUSED(pData);
+    GBL_OBJECT_CLASS(pClass)->pFnConstructed = shz_test_scenario_constructed_;
+    return GBL_RESULT_SUCCESS;
+}
+
+GBL_EXPORT GblType shz_test_scenario_type(void) {
+    static GblType type = GBL_INVALID_TYPE;
+    static const GblTypeInfo info = {
+        .pFnClassInit = shz_test_scenario_class_init_,
+        .classSize    = sizeof(shz_test_scenarioClass),
+        .instanceSize = sizeof(shz_test_scenario)
+    };
+
+    if(type == GBL_INVALID_TYPE) {
+        type = GblType_register(GblQuark_internStatic("shz_test_scenario"),
+                               GBL_TEST_SCENARIO_TYPE,
+                               &info,
+                               GBL_TYPE_FLAG_TYPEINFO_STATIC);
+    }
+    return type;
 }
