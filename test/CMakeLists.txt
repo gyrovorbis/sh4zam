@@ -26,7 +26,7 @@ add_executable(Sh4zamTests
     shz_test_main.c
     shz_test_scenario.c
     shz_test_scenario.h
-    shz_test_scenario.hpp
+    shz_test.hpp
     shz_complex_test_suite.cpp
     shz_scalar_test_suite.cpp
     shz_trig_test_suite.cpp

@@ -1,5 +1,5 @@
 #include "shz_test_scenario.h"
-#include "shz_test_scenario.hpp"
+#include "shz_test.hpp"
 #include "sh4zam/shz_complex.hpp"
 #include <complex>
 #include <cmath>
