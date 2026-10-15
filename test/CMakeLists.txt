@@ -24,7 +24,7 @@ if(PLATFORM_DREAMCAST)
 endif()
 
 add_executable(Sh4zamTests
-    shz_test_main.c
+    shz_test.c
     shz_test_scenario.c
     shz_test_scenario.h
     shz_test.hpp

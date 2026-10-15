@@ -53,5 +53,6 @@ GBL_EXPORT GblType shz_test_scenario_type(void) {
                                &info,
                                GBL_TYPE_FLAG_TYPEINFO_STATIC);
     }
+
     return type;
 }
