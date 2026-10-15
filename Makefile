@@ -81,6 +81,10 @@ docs:
 	cd doc && doxygen
 	open doc/html/index.html
 
+# Regenerates the GitHub pages website and opens in the browser.
+site:
+	./doc/site/run.sh --build
+
 # Updates the git repository to the latest.
 update:
 	git checkout master

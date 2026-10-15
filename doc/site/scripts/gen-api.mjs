@@ -2,7 +2,7 @@
 // API reference generator.
 //
 //   node scripts/gen-api.mjs           regenerate everything
-//   node scripts/gen-api.mjs --check   fail if committed output differs
+//   node scripts/gen-api.mjs --check   fail if the output on disk differs
 //   node scripts/gen-api.mjs --no-doxygen   reuse build/xml from a previous run
 //
 // Input:  Doxygen XML (scripts/Doxyfile.xml -> build/xml) plus the raw headers in
@@ -465,8 +465,9 @@ function collect(n, tag, out = []) {
 
 const moduleByFile = new Map(MODULES.map((m) => [m.file, m]));
 // shz_sh4zam.h only includes the others.
-for (const f of fs.readdirSync(INC).filter((f) => f.endsWith('.h') && f !== 'shz_sh4zam.h' && !moduleByFile.has(f)).sort())
-	console.warn(`gen-api: ${f} has no entry in MODULES (scripts/data/modules.mjs); its symbols are skipped`);
+const unmapped = fs.readdirSync(INC).filter((f) => f.endsWith('.h') && f !== 'shz_sh4zam.h' && !moduleByFile.has(f)).sort();
+for (const f of unmapped) console.error(`gen-api: ${f} has no entry in MODULES (scripts/data/modules.mjs)`);
+if (unmapped.length) process.exit(1);
 const symbols = [];
 const seen = new Set();
 const sectionOrder = new Map(); // module -> [section names in header order]
@@ -839,8 +840,8 @@ function cppMember(md) {
 		const short = full.replace(/^shz::/, '');
 		const meta = CPP_CLASSES[short];
 		if (!meta) {
-			console.warn(`gen-api: C++ class ${full} has no entry in CPP_CLASSES; skipped`);
-			continue;
+			console.error(`gen-api: C++ class ${full} has no entry in CPP_CLASSES (scripts/data/modules.mjs)`);
+			process.exit(1);
 		}
 		renderCtx = full;
 		const loc = child(cd, 'location');
@@ -1514,7 +1515,7 @@ if (CHECK) {
 		console.error(`gen-api --check: generated output is out of date (${changed.length} changed, ${stale.length} stale).`);
 		for (const [f] of changed.slice(0, 20)) console.error(`  changed: ${f}`);
 		for (const f of stale.slice(0, 20)) console.error(`  stale:   ${f}`);
-		console.error('Run `npm run gen` and commit the result.');
+		console.error('Run `npm run gen` to regenerate.');
 		process.exit(1);
 	}
 	console.log(`gen-api --check: up to date (${JSON.stringify(counts)})`);

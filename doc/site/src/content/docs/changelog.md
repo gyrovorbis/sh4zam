@@ -1,11 +1,9 @@
 ---
 title: Changelog
-description: SH4ZAM release notes - v0.9.1, v0.9.0 and earlier - and the upstream revision this documentation was generated from
+description: SH4ZAM release notes - v0.9.1, v0.9.0 and earlier
 ---
 
 Release notes summarized from the upstream tags and release commits. The full history is on [GitHub](https://github.com/gyrovorbis/sh4zam/commits/master); tagged releases are listed under [tags](https://github.com/gyrovorbis/sh4zam/tags).
-
-This site documents upstream commit [`7747e5d`](https://github.com/gyrovorbis/sh4zam/commit/7747e5d281a75dd4ffce10df2758748feb421c66) (2026-10-07), which is v0.9.1 plus 23 commits.
 
 ## Since v0.9.1 (unreleased)
 

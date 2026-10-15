@@ -58,7 +58,7 @@ The generator prints a summary such as `800 symbols ... undocumented: 10, unreso
 All of these live in `scripts/data/modules.mjs`, which is plain data:
 
 - **A new header/module** (say `shz_noise.h`): add an entry to `MODULES` (id, title, file names, a one-line `brief`, a few `intro` sentences, which `suffixes` apply), and add `'noise'` to the `modules` list in `astro.config.mjs` so it shows in the sidebar.
-- **A new C++ class** (the generator prints `C++ class shz::foo has no entry in CPP_CLASSES; skipped`): add it to `CPP_CLASSES` with the C type it wraps.
+- **A new C++ class** (the generator fails with `C++ class shz::foo has no entry in CPP_CLASSES`): add it to `CPP_CLASSES` with the C type it wraps.
 - **A new suffix**: add it to `SUFFIXES` and to the `suffixes` list of the modules that use it.
 
 ## Editing the handwritten pages
@@ -95,8 +95,8 @@ Any push to `master` that touches `doc/` or `include/` rebuilds and redeploys th
 
 Two things need a line in `scripts/data/modules.mjs` (see "When the generator needs a small edit" above):
 
-- A **new header**: the generator warns `shz_foo.h has no entry in MODULES` and `npm run check` fails, so the workflow goes red and nothing deploys until it's added.
-- A **new C++ class**: the generator warns `has no entry in CPP_CLASSES` and leaves it out.
+- A **new header**: the generator fails with `shz_foo.h has no entry in MODULES`, so the workflow goes red and nothing deploys until it's added.
+- A **new C++ class**: the generator fails with `has no entry in CPP_CLASSES`, with the same result.
 
 Handwritten guides only change when someone edits them.
 
