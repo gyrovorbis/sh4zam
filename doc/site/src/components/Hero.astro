@@ -1,0 +1,140 @@
+---
+import { Image } from 'astro:assets';
+// Same id Starlight uses for the page title (`@astrojs/starlight/constants` isn't exported).
+const PAGE_TITLE_ID = '_top';
+import upstream from '../data/upstream.json';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const { data } = Astro.locals.starlightRoute.entry;
+const { title = data.title, tagline, image, actions = [] } = data.hero || {};
+const logo = image && 'file' in image ? image.file : undefined;
+const href = (link: string) => (link.startsWith('/') ? base + link : link);
+---
+
+<div class="hero">
+	{logo && <Image src={logo} alt={image.alt || ''} width={256} height={187} loading="eager" class="logo" />}
+	<div class="copy">
+		<h1 id={PAGE_TITLE_ID} data-page-title>
+			{title} <span class="version">{upstream.version}</span>
+		</h1>
+		{tagline && <p class="tagline" set:html={tagline} />}
+		<p class="strap">Optimized · Ergonomic · Multiplatform</p>
+		{
+			actions.length > 0 && (
+				<p class="actions">
+					{actions.map(({ link, text, variant }) => (
+						<a href={href(link)} class:list={['action', variant === 'minimal' ? 'secondary' : 'primary']}>
+							{text}
+						</a>
+					))}
+				</p>
+			)
+		}
+	</div>
+</div>
+
+<style>
+	.hero {
+		position: relative;
+		display: grid;
+		gap: 1.5rem;
+		align-items: center;
+		justify-items: center;
+		padding: 2rem 1rem 1.5rem;
+		margin-bottom: 1rem;
+		border-bottom: 1px solid var(--shz-border-3);
+		background: var(--shz-bg-2);
+		text-align: center;
+		overflow: hidden;
+	}
+	/* 1px scanlines at 4% */
+	.hero::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 3px);
+	}
+	.logo {
+		width: min(60vw, 256px);
+		height: auto;
+		image-rendering: pixelated;
+	}
+	.copy {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+		align-items: center;
+	}
+	h1 {
+		font-size: clamp(2.25rem, 1.5rem + 3vw, 3.5rem);
+		line-height: 1.1;
+		font-weight: 700;
+		color: var(--shz-text-strong);
+		margin: 0;
+	}
+	.version {
+		font-family: var(--__sl-font-mono);
+		font-size: 0.9rem;
+		font-weight: 400;
+		color: var(--shz-accent);
+		border: 1px solid var(--shz-border-4);
+		border-radius: 3px;
+		padding: 0.05rem 0.4rem;
+		vertical-align: middle;
+	}
+	.tagline {
+		margin: 0;
+		font-size: 1.15rem;
+		color: var(--shz-text);
+	}
+	.strap {
+		margin: 0;
+		font-family: var(--__sl-font-mono);
+		font-size: 0.85rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--shz-logo-green);
+	}
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		justify-content: center;
+		margin: 0.5rem 0 0;
+	}
+	.action {
+		display: inline-block;
+		padding: 0.45rem 1rem;
+		border-radius: 3px;
+		border: 1px solid var(--shz-border-4);
+		text-decoration: none;
+		font-weight: 500;
+	}
+	.action.primary {
+		background: var(--shz-bg-4);
+		color: var(--shz-text-strong);
+	}
+	.action.secondary {
+		color: var(--shz-accent);
+	}
+	.action:hover {
+		border-color: var(--shz-accent);
+		color: var(--shz-text-strong);
+	}
+	@media (min-width: 50rem) {
+		.hero {
+			grid-template-columns: auto 1fr;
+			justify-items: start;
+			text-align: start;
+			padding: 3rem 2rem 2.5rem;
+			gap: 2.5rem;
+		}
+		.copy {
+			align-items: flex-start;
+		}
+		.actions {
+			justify-content: flex-start;
+		}
+	}
+</style>

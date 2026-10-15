@@ -1,0 +1,330 @@
+/* SH4ZAM theme: the original sh4zam.com Doxygen dark palette (hue 150), mapped onto
+   Starlight's tokens. Dark only. Token values were lifted
+   from the Doxygen site's doxygen.css. */
+
+:root,
+:root[data-theme='dark'],
+:root[data-theme='light'] {
+	color-scheme: dark;
+
+	--shz-bg: #000000;
+	--shz-bg-1: #030806;
+	--shz-bg-2: #040b08;
+	--shz-bg-3: #091610;
+	--shz-bg-4: #10251b;
+	--shz-border-1: #0c1b14;
+	--shz-border-2: #183728;
+	--shz-border-3: #1d4230;
+	--shz-border-4: #285d43;
+	--shz-text: #c9d1d9;
+	--shz-text-strong: #d3ece0;
+	--shz-text-muted: #a7d8c0;
+	--shz-accent: #7ac5a0;
+	--shz-accent-2: #91ceb0;
+	--shz-accent-3: #8acbab;
+	--shz-code-border: #30363d;
+	--shz-lineno: #6e7681;
+	--shz-logo-green: #39c96b;
+
+	--sl-font: 'Roboto', sans-serif;
+	--sl-font-mono: 'JetBrains Mono', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+
+	--sl-color-white: var(--shz-text-strong);
+	--sl-color-gray-1: #e2efe8;
+	--sl-color-gray-2: var(--shz-text);
+	--sl-color-gray-3: #8fa89b;
+	--sl-color-gray-4: #4d6b5c;
+	--sl-color-gray-5: var(--shz-border-3);
+	--sl-color-gray-6: var(--shz-bg-3);
+	--sl-color-gray-7: var(--shz-bg-2);
+	--sl-color-black: var(--shz-bg);
+
+	--sl-color-accent-low: var(--shz-bg-4);
+	--sl-color-accent: var(--shz-accent);
+	--sl-color-accent-high: var(--shz-accent-2);
+
+	/* No blue or purple anywhere: asides and badges reuse the green family. */
+	--sl-color-blue-low: var(--shz-bg-4);
+	--sl-color-blue: var(--shz-accent);
+	--sl-color-blue-high: var(--shz-text-muted);
+	--sl-color-purple-low: var(--shz-bg-4);
+	--sl-color-purple: var(--shz-accent-3);
+	--sl-color-purple-high: var(--shz-text-muted);
+	--sl-color-green-low: var(--shz-bg-4);
+	--sl-color-green: var(--shz-logo-green);
+	--sl-color-green-high: var(--shz-text-muted);
+
+	--sl-color-text: var(--shz-text);
+	--sl-color-text-accent: var(--shz-accent);
+	--sl-color-text-invert: var(--shz-bg);
+	--sl-color-bg: var(--shz-bg);
+	--sl-color-bg-nav: var(--shz-bg-1);
+	--sl-color-bg-sidebar: var(--shz-bg-3);
+	--sl-color-bg-inline-code: var(--shz-bg-4);
+	--sl-color-bg-accent: var(--shz-accent);
+	--sl-color-hairline-light: var(--shz-border-3);
+	--sl-color-hairline: var(--shz-border-2);
+	--sl-color-hairline-shade: var(--shz-bg);
+	--sl-color-backdrop-overlay: rgba(0, 0, 0, 0.8);
+
+	--sl-shadow-sm: none;
+	--sl-shadow-md: none;
+	--sl-shadow-lg: none;
+
+	--sl-nav-height: 3.5rem;
+	--sl-content-width: 50rem;
+	--sl-text-h1: 2rem;
+	--sl-text-h2: 1.5rem;
+	--sl-text-h3: 1.2rem;
+	--sl-text-h4: 1.05rem;
+	--sl-line-height: 1.65;
+}
+
+body {
+	background: var(--shz-bg);
+	color: var(--shz-text);
+	font-family: var(--__sl-font);
+}
+
+::selection {
+	background: var(--shz-border-4);
+	color: var(--shz-text-strong);
+}
+
+/* Scrollbars like the original site. */
+* {
+	scrollbar-color: var(--shz-border-3) var(--shz-bg-1);
+}
+
+/* Focus ring in the accent color. */
+:focus-visible {
+	outline: 2px solid var(--shz-accent);
+	outline-offset: 2px;
+}
+
+/* Header strip */
+.page > .header {
+	background: var(--shz-bg-1);
+	border-bottom: 1px solid var(--shz-border-4);
+}
+
+/* Sidebar */
+.sidebar-pane {
+	background: var(--shz-bg-3);
+	border-inline-end: 1px solid var(--shz-border-2);
+}
+nav.sidebar a {
+	color: var(--shz-text);
+}
+nav.sidebar a:hover {
+	color: var(--shz-text-strong);
+}
+nav.sidebar a[aria-current='page'],
+nav.sidebar a[aria-current='page']:hover {
+	background: var(--shz-bg-4);
+	color: var(--shz-text-strong);
+	font-weight: 500;
+	border-inline-start: 2px solid var(--shz-accent);
+}
+nav.sidebar .group-label .large {
+	color: var(--shz-text-muted);
+}
+
+/* Content */
+.sl-markdown-content a,
+.sl-markdown-content a:visited {
+	color: var(--shz-accent);
+	text-decoration-color: var(--shz-border-4);
+	text-underline-offset: 0.18em;
+}
+.sl-markdown-content a:visited {
+	color: var(--shz-accent-2);
+}
+.sl-markdown-content a:hover {
+	color: var(--shz-text-strong);
+	text-decoration-color: var(--shz-accent);
+}
+
+/* h2 like Doxygen's h2.groupheader */
+.sl-markdown-content h2 {
+	color: var(--shz-accent);
+	font-weight: 400;
+	border-bottom: 1px solid var(--shz-border-3);
+	padding-bottom: 0.25rem;
+	margin-top: 2rem;
+}
+.sl-markdown-content h3 {
+	color: var(--shz-text-strong);
+	font-weight: 500;
+}
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.sl-markdown-content h4 {
+	font-family: var(--__sl-font);
+}
+
+.sl-markdown-content :not(pre) > code {
+	background: var(--shz-bg-4);
+	color: var(--shz-text-strong);
+	border: 1px solid var(--shz-border-2);
+	border-radius: 3px;
+	padding: 0.05em 0.3em;
+	font-size: 0.875em;
+	overflow-wrap: anywhere;
+}
+.sl-markdown-content a > code {
+	color: var(--shz-accent);
+}
+
+.sl-markdown-content table {
+	display: block;
+	overflow-x: auto;
+	border-collapse: collapse;
+	font-size: var(--sl-text-sm);
+}
+.sl-markdown-content th {
+	background: var(--shz-bg-3);
+	color: var(--shz-text-strong);
+	text-align: start;
+	border-bottom: 1px solid var(--shz-border-3);
+}
+.sl-markdown-content th,
+.sl-markdown-content td {
+	padding: 0.4rem 0.75rem;
+	border-bottom: 1px solid var(--shz-border-1);
+}
+.sl-markdown-content tr:hover td {
+	background: var(--shz-bg-2);
+}
+
+/* Code blocks (Expressive Code frames) */
+.expressive-code .frame {
+	box-shadow: none !important;
+}
+.expressive-code pre {
+	border-color: var(--shz-code-border) !important;
+}
+
+/* Signature block: Doxygen .memproto */
+.shz-proto {
+	margin-top: 1rem;
+}
+.shz-proto .expressive-code pre {
+	background: var(--shz-bg-4) !important;
+	border: 1px solid var(--shz-border-2) !important;
+	border-bottom: none !important;
+	border-radius: 4px 4px 0 0 !important;
+}
+.shz-proto .expressive-code pre code {
+	font-weight: 700;
+}
+.shz-proto .expressive-code .copy {
+	display: none;
+}
+
+/* Description block: Doxygen .memdoc, directly under the signature. */
+.shz-doc {
+	margin-top: 0 !important;
+	padding: 0.25rem 1rem 1rem;
+	border: 1px solid var(--shz-border-2);
+	border-top: none;
+	border-radius: 0 0 4px 4px;
+	background: var(--shz-bg);
+}
+.shz-doc > :first-child {
+	margin-top: 0.75rem;
+}
+.shz-doc h2 {
+	font-size: 1.1rem;
+	margin-top: 1.25rem;
+}
+
+/* Asides: no blue, no purple */
+.starlight-aside {
+	border-inline-start-color: var(--shz-accent);
+	background: var(--shz-bg-3);
+}
+
+/* Landing page pieces */
+.shz-cols {
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 72rem) {
+	.shz-cols {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+}
+.shz-cols > div > :first-child {
+	margin-top: 0;
+}
+.shz-install p {
+	margin-bottom: 0.25rem;
+}
+dl.shz-apis {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 0.15rem 1.5rem;
+}
+dl.shz-apis dt {
+	font-weight: 700;
+	margin-top: 0.6rem;
+}
+dl.shz-apis dd {
+	margin: 0;
+	color: var(--shz-text);
+}
+@media (min-width: 50rem) {
+	dl.shz-apis {
+		grid-template-columns: 10rem minmax(0, 1fr);
+	}
+	dl.shz-apis dt,
+	dl.shz-apis dd {
+		margin: 0;
+		padding: 0.45rem 0;
+		border-bottom: 1px solid var(--shz-border-1);
+	}
+}
+
+/* Pagination: flat boxes in the theme colors */
+.pagination-links a {
+	background: var(--shz-bg-2);
+	border: 1px solid var(--shz-border-2);
+	box-shadow: none;
+	color: var(--shz-text);
+}
+.pagination-links a:hover {
+	border-color: var(--shz-accent);
+}
+.pagination-links .link-title {
+	color: var(--shz-accent);
+}
+
+/* Pixel art stays pixel art. */
+img[src*='logo'] {
+	image-rendering: pixelated;
+}
+
+/* Search modal */
+site-search dialog {
+	background: var(--shz-bg-1);
+	border: 1px solid var(--shz-border-3);
+}
+site-search button[data-open-modal] {
+	background: var(--shz-bg-2);
+	border-color: var(--shz-border-3);
+	color: var(--shz-text);
+}
+site-search button[data-open-modal]:hover {
+	border-color: var(--shz-accent);
+	color: var(--shz-text-strong);
+}
+.sl-markdown-content .shz-cols > div {
+	margin-top: 0 !important;
+}
+.sl-markdown-content td code {
+	overflow-wrap: normal;
+	white-space: nowrap;
+}

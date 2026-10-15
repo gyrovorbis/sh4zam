@@ -89,7 +89,7 @@ namespace shz {
     constexpr auto fabsf             = shz_fabsf;
     //! C++ alias for shz_copysignf().
     constexpr auto copysignf         = shz_copysignf;
-    //! C++ alias for shz_fmacf().
+    //! C++ alias for shz_fmaf().
     constexpr auto fmaf              = shz_fmaf;
     //! C++ alias for shz_fdimf().
     constexpr auto fdimf             = shz_fdimf;

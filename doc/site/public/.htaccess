@@ -1,0 +1,5 @@
+# For Apache hosts (e.g. the existing sh4zam.com FTP deploy). Ignored by GitHub Pages.
+AddType text/markdown .md
+AddCharset utf-8 .md .txt .json
+AddType application/json .json
+ErrorDocument 404 /404.html

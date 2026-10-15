@@ -135,7 +135,7 @@ W        |7
 Unfortunately, T&L typically necessitates dividing each component by the W, which means its result is
 needed first, despite it coming last.
 
-You can use ::shz_xmtrx_load_4x4_wxyz() to load a 4x4 matrix with the W column coming first, allowing you to
+You can use ::shz_xmtrx_load_wxyz_4x4() to load a 4x4 matrix with the W column coming first, allowing you to
 use its result first, on cycle 4, rather than having to wait until cycle 7.
 
 */

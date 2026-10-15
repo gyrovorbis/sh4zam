@@ -82,7 +82,7 @@ int main(int argc, const char* argv[]) {
 
     shz::xmtrx::init_diagonal(vec2.x, vec2.y, vec2.z, vec2.w);
     shz::xmtrx::apply_rotation_x(vec1.dot(vec2));
-    shz::xmtrx::apply_translation(vec1.x, vec2.y, vec2.z);
+    shz::xmtrx::apply_translation(vec1.x, vec1.y, vec1.z);
     shz::xmtrx::store(&mat);
 
     shz::vec4 vec3 = shz::xmtrx::transform(vec2);

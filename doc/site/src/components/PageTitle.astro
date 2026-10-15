@@ -1,0 +1,72 @@
+---
+// Same id Starlight uses for the page title (`@astrojs/starlight/constants` isn't exported).
+const PAGE_TITLE_ID = '_top';
+import { markdownTwinPath } from '../lib/paths';
+
+const { entry } = Astro.locals.starlightRoute;
+const mdHref = markdownTwinPath(Astro.url.pathname, import.meta.env.BASE_URL);
+---
+
+<div class="title-row">
+	<h1 id={PAGE_TITLE_ID}>{entry.data.title}</h1>
+	<div class="md-actions print:hidden" data-pagefind-ignore>
+		<a href={mdHref} type="text/markdown" rel="alternate">Markdown</a>
+		<button type="button" class="copy-md" data-md={mdHref} hidden>Copy page as Markdown</button>
+	</div>
+</div>
+
+<script>
+	for (const btn of document.querySelectorAll<HTMLButtonElement>('button.copy-md')) {
+		btn.hidden = false;
+		btn.addEventListener('click', async () => {
+			const label = btn.textContent;
+			try {
+				const res = await fetch(btn.dataset.md!);
+				await navigator.clipboard.writeText(await res.text());
+				btn.textContent = 'Copied';
+			} catch {
+				btn.textContent = 'Copy failed';
+			}
+			setTimeout(() => (btn.textContent = label), 1500);
+		});
+	}
+</script>
+
+<style>
+	.title-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.25rem 1rem;
+		margin-top: 1rem;
+	}
+	h1 {
+		font-size: var(--sl-text-h1);
+		line-height: var(--sl-line-height-headings);
+		font-weight: 700;
+		color: var(--shz-text-strong);
+		overflow-wrap: anywhere;
+	}
+	.md-actions {
+		display: flex;
+		gap: 0.75rem;
+		font-size: var(--sl-text-xs);
+	}
+	.md-actions a,
+	.md-actions button {
+		font: inherit;
+		color: var(--shz-accent);
+		background: var(--shz-bg-2);
+		border: 1px solid var(--shz-border-3);
+		border-radius: 3px;
+		padding: 0.15rem 0.5rem;
+		text-decoration: none;
+		cursor: pointer;
+	}
+	.md-actions a:hover,
+	.md-actions button:hover {
+		border-color: var(--shz-accent);
+		color: var(--shz-text-strong);
+	}
+</style>

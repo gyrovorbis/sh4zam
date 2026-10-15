@@ -1,0 +1,163 @@
+---
+title: SH4ZAM!
+description: Fast math library for the Sega Dreamcast's SH4 CPU. Hand-optimized C and C++ linear algebra, trig, scalar, complex and memory routines
+template: splash
+editUrl: false
+lastUpdated: false
+hero:
+  title: SH4ZAM!
+  tagline: Fast math library for the Sega Dreamcast's SH4 CPU.
+  image:
+    file: ../../assets/logo.png
+    alt: SH4ZAM logo, a pixel-art Dreamcast flexing green arms over the word GAINZ
+  actions:
+    - text: Get started
+      link: /guides/getting-started/
+    - text: API reference
+      link: /api/
+      variant: minimal
+---
+
+`SH4ZAM` is a hand-optimized, general-purpose math and linear algebra library for harnessing the floating-point power of the SH4 processor in the Sega Dreamcast. It originally began as a collection of inline assembly routines developed specifically to accelerate the math in the Grand Theft Auto 3 and Vice City DC ports. These routines, along with many others from various contributors, have been separated and combined into a single standalone library, which can be leveraged to bring gainz to the Dreamcast and SuperH communities at large.
+
+## Install
+
+<div class="shz-install">
+
+**KallistiOS:** already part of [kos-ports](https://github.com/KallistiOS/kos-ports). Or by hand:
+
+```sh
+cd kos-ports/sh4zam && make install
+```
+
+**CMake (any platform):**
+
+```sh
+mkdir build && cd build && cmake .. && make && make install
+```
+
+</div>
+
+Then `#include <sh4zam/shz_sh4zam.h>` (C) or `<sh4zam/shz_sh4zam.hpp>` (C++) and link with `-lsh4zam`. Full steps in [Getting Started](/guides/getting-started/).
+
+## Usage
+
+<div class="shz-cols">
+<div>
+
+**C23**
+
+```c
+#include <sh4zam/shz_sh4zam.h>
+
+int main(int argc, const char *argv[]) {
+    shz_vec4_t vec1 = shz_vec4_init(2.0f, 3.0f, 4.0f, 1.0f);
+    shz_vec4_t vec2 = shz_vec4_normalize(shz_vec4_scale(vec1, shz_sinf(SHZ_F_PI)));
+    shz_mat4x4_t mat = {};
+
+    shz_xmtrx_init_diagonal(vec2.x, vec2.y, vec2.z, vec2.w);
+    shz_xmtrx_apply_rotation_x(shz_vec4_dot(vec1, vec2));
+    shz_xmtrx_apply_translation(vec1.x, vec1.y, vec1.z);
+    shz_xmtrx_store_4x4(&mat);
+
+    shz_vec4_t vec3 = shz_xmtrx_transform_vec4(vec2);
+
+    return 0;
+}
+```
+
+</div>
+<div>
+
+**C++23**
+
+```cpp
+#include <sh4zam/shz_sh4zam.hpp>
+
+int main(int argc, const char* argv[]) {
+    shz::vec4 vec1(2.0f, 3.0f, 4.0f, 1.0f);
+    shz::vec4 vec2 = shz::vec4(vec1 * shz::sinf(shz::pi_f)).direction();
+    shz::mat4x4 mat {};
+
+    shz::xmtrx::init_diagonal(vec2.x, vec2.y, vec2.z, vec2.w);
+    shz::xmtrx::apply_rotation_x(vec1.dot(vec2));
+    shz::xmtrx::apply_translation(vec1.x, vec1.y, vec1.z);
+    shz::xmtrx::store(&mat);
+
+    shz::vec4 vec3 = shz::xmtrx::transform(vec2);
+
+    return 0;
+}
+```
+
+</div>
+</div>
+
+C++ can still use the C API by design, and every C++ type is also compatible with its corresponding C type and C API, so you can mix and match. Where applicable, the C API also includes type-generic routines: `shz_vec_dot()` forwards to the proper routine based on the type of vectors passed to it.
+
+## Features
+
+- Dual, interoperable C17 and C++20 APIs
+- Extra API features supported for C23 and C++23
+- Ergonomic, overhead-free composition from either C or C++
+- Clean header files, separating interface from implementation
+- Constexpr evaluation handled for both C and C++
+- Zero-cost conversion operators for interop with other APIs
+- Meticulously optimized for latest SH-GCC version 16.x
+- Rigorously unit tested and validated on physical hardware
+- Heavily documented header files
+- Software back-end for using SH4ZAM in cross-platform codebases
+
+## APIs
+
+<dl class="shz-apis">
+<dt><a href="/api/scalar/">Scalar</a></dt>
+<dd>Scalar math operations, including faster <code>&lt;math.h&gt;</code> replacements.</dd>
+<dt><a href="/api/trig/">Trigonometry</a></dt>
+<dd>Trig, inverse trig and hyperbolic functions, with <code>FSCA</code> sine/cosine pairs.</dd>
+<dt><a href="/api/vector/">Vector</a></dt>
+<dd>2D, 3D and 4D vector types and operations.</dd>
+<dt><a href="/api/matrix/">Matrix</a></dt>
+<dd>2x2, 3x3, 3x4, 4x3 and 4x4 matrix types, in memory.</dd>
+<dt><a href="/api/quat/">Quaternion</a></dt>
+<dd>Quaternion math operations, including slerp and squad.</dd>
+<dt><a href="/api/xmtrx/">XMTRX</a></dt>
+<dd>API for manipulating the 4x4 back-bank of FP registers, the SH4's active matrix.</dd>
+<dt><a href="/api/complex/">Complex</a></dt>
+<dd>Complex and imaginary math API, including an accelerated FFT.</dd>
+<dt><a href="/api/memory/">Memory</a></dt>
+<dd>Memory routines: <code>memcpy()</code> and <code>memmove()</code> replacements, store queues, cache control.</dd>
+</dl>
+
+Every public symbol has its own page. The [cheatsheet](/cheatsheet/) has the whole API on one page.
+
+## Conventions
+
+The following conventions are used throughout the API by default, unless otherwise specified:
+
+| Convention | Description |
+| --- | --- |
+| Coordinates | Right-handed for world/view space, left-handed for screen/clip space, as with GL. |
+| Matrices | Stored in column-major order, as with GL. |
+| Quaternions | Stored in `<W, X, Y, Z>` order. |
+
+More in [Conventions](/concepts/conventions/) and [Naming and Suffixes](/concepts/naming-and-suffixes/).
+
+## Showcase
+
+The following projects have been successfully accelerated with SH4ZAM and make great references:
+
+| Project | Description |
+| --- | --- |
+| [Mario Kart 64 DC](https://github.com/jnmartin84/mk64-dc) | jnmartin's Mario Kart 64 DC port with SH4ZAM acceleration. |
+| [Super Mario 64 DC](https://github.com/jnmartin84/sm64-dc) | Super Mario 64 DC port with SH4ZAM acceleration. |
+| [Sonic Mania DC](https://github.com/michael-fadely/Sonic-Mania-Decompilation) | Sonic Mania DC port with SH4ZAM acceleration. |
+| [Quake 2 DC](https://github.com/Bruceleeto/Quake2) | Port of Quake 2 to the DC, with SH4ZAM accelerated matrix math. |
+| [Simulant Engine](https://gitlab.com/simulant/simulant) | General-purpose cross-platform engine backed by SH4ZAM math. |
+| [Diddy Kong Racing DC](https://github.com/Bruceleeto/Diddy-Kong-Racing) | Rare's renowned N64 kart racer, ported to the DC. SH4ZAMed to all hell for gainz. |
+
+All twenty projects are on the [Showcase](/showcase/) page.
+
+## Community
+
+The `#sh4zam` channel within the [Simulant Discord Server](https://discord.gg/G2Ay9kxec2) for Dreamcast development is the best place to ask questions, get help, give feedback, or discuss anything relating to SH4ZAM. Also, feel free to [open tickets](https://github.com/gyrovorbis/sh4zam/issues) for any issues or feature requests.

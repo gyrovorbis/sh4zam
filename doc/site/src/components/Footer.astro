@@ -1,0 +1,72 @@
+---
+import EditLink from 'virtual:starlight/components/EditLink';
+import LastUpdated from 'virtual:starlight/components/LastUpdated';
+import Pagination from 'virtual:starlight/components/Pagination';
+import upstream from '../data/upstream.json';
+import { docsSourceUrl } from '../lib/repo.mjs';
+
+const siteSource = docsSourceUrl();
+
+const short = upstream.commit.slice(0, 7);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const isSplash = Astro.locals.starlightRoute.entry.data.template === 'splash';
+---
+
+<footer class="sl-flex">
+	{
+		!isSplash && (
+			<div class="meta sl-flex">
+				<EditLink />
+				<LastUpdated />
+			</div>
+		)
+	}
+	{!isSplash && <Pagination />}
+	<div class="site-footer">
+		<p>
+			SH4ZAM is MIT licensed, © Falco Girgis and SH4ZAM contributors.
+			Source on <a href={upstream.repo}>GitHub</a>; questions in <code>#sh4zam</code> on the
+			<a href="https://discord.gg/G2Ay9kxec2">Simulant Discord</a>.
+		</p>
+		<p>
+			Generated from SH4ZAM v{upstream.version} @ <a href={`${upstream.repo}/commit/${upstream.commit}`}><code>{short}</code></a>
+			({upstream.date}). <a href={`${base}/llms.txt`}>llms.txt</a> · <a href={`${base}/api/index.json`}>index.json</a> ·
+			<a href={`${base}/for-agents/`}>For agents</a>{siteSource && <> · <a href={siteSource}>Site source</a></>}
+		</p>
+	</div>
+</footer>
+
+<style>
+	footer {
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+	.meta {
+		gap: 0.75rem 3rem;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		margin-top: 3rem;
+		font-size: var(--sl-text-sm);
+		color: var(--sl-color-gray-3);
+	}
+	.meta > :global(p:only-child) {
+		margin-inline-start: auto;
+	}
+	.site-footer {
+		margin-top: 1.5rem;
+		padding-top: 1rem;
+		border-top: 1px solid var(--shz-border-2);
+		font-size: var(--sl-text-xs);
+		color: var(--sl-color-gray-3);
+	}
+	.site-footer p {
+		margin: 0.25rem 0;
+	}
+	.site-footer a {
+		color: var(--shz-accent);
+	}
+	.site-footer code {
+		font-size: 0.95em;
+		color: var(--shz-text-muted);
+	}
+</style>

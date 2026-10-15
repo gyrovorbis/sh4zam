@@ -1,0 +1,82 @@
+---
+// Starlight's head entries plus: the page title pattern, the
+// Markdown twin as rel=alternate, a per-page Open Graph card, and JSON-LD.
+import upstream from '../data/upstream.json';
+import { markdownTwinPath } from '../lib/paths';
+
+const { head, entry, lastUpdated } = Astro.locals.starlightRoute;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const site = Astro.site ? Astro.site.origin : '';
+const siteBase = `${site}${base}`;
+
+const MODULE_TITLES: Record<string, string> = {
+	scalar: 'Scalar', trig: 'Trigonometry', vector: 'Vector', quat: 'Quaternion', matrix: 'Matrix',
+	xmtrx: 'XMTRX', complex: 'Complex', memory: 'Memory', cdefs: 'Compiler Definitions', version: 'Version', cpp: 'C++',
+};
+const isHome = entry.id === 'index' || entry.id === '';
+const parts = entry.id.split('/');
+const title = isHome
+	? "SH4ZAM! – Fast math library for the Sega Dreamcast's SH4 CPU"
+	: parts[0] === 'api' && parts.length === 3
+		? `${entry.data.title} – ${MODULE_TITLES[parts[1]] ?? parts[1]} – SH4ZAM`
+		: `${entry.data.title} – SH4ZAM`;
+const pagePath = isHome ? '/' : `/${entry.id}/`;
+const canonical = `${siteBase}${pagePath}`;
+const ogImage = `${siteBase}/og/${isHome ? 'index' : entry.id}.png`;
+const mdHref = `${site}${markdownTwinPath(Astro.url.pathname, import.meta.env.BASE_URL)}`;
+
+const software = {
+	'@type': 'SoftwareSourceCode',
+	'@id': `${siteBase}/#software`,
+	name: 'SH4ZAM',
+	alternateName: 'SH4ZAM!',
+	description: "Fast math library for the Sega Dreamcast's SH4 CPU.",
+	codeRepository: upstream.repo,
+	programmingLanguage: ['C', 'C++'],
+	runtimePlatform: 'Sega Dreamcast (SH4)',
+	license: 'https://opensource.org/licenses/MIT',
+	author: { '@type': 'Person', name: 'Falco Girgis', url: 'https://github.com/gyrovorbis' },
+	version: upstream.version,
+	url: `${siteBase}/`,
+};
+const graph: Record<string, unknown>[] = [];
+if (isHome) graph.push(software);
+else {
+	graph.push({
+		'@type': 'TechArticle',
+		headline: entry.data.title,
+		description: entry.data.description,
+		url: canonical,
+		inLanguage: 'en',
+		...(lastUpdated ? { dateModified: lastUpdated.toISOString() } : {}),
+		about: { '@id': `${siteBase}/#software`, '@type': 'SoftwareSourceCode', name: 'SH4ZAM', codeRepository: upstream.repo },
+		isPartOf: { '@type': 'WebSite', name: 'SH4ZAM', url: `${siteBase}/` },
+	});
+	if (parts[0] === 'api') {
+		const crumbs = [{ name: 'SH4ZAM', url: `${siteBase}/` }, { name: 'API', url: `${siteBase}/api/` }];
+		if (parts.length >= 2) crumbs.push({ name: MODULE_TITLES[parts[1]] ?? parts[1], url: `${siteBase}/api/${parts[1]}/` });
+		if (parts.length >= 3) crumbs.push({ name: entry.data.title, url: canonical });
+		graph.push({
+			'@type': 'BreadcrumbList',
+			itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: c.url })),
+		});
+	}
+}
+const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\u003c');
+---
+
+{
+	head.map(({ tag: Tag, attrs, content }) =>
+		Tag === 'title' ? <title>{title}</title> : <Tag {...attrs} set:html={content} />,
+	)
+}
+{entry.id !== "404" && <link rel="alternate" type="text/markdown" href={mdHref} title="Markdown" />}
+<link rel="alternate" type="text/plain" href={`${siteBase}/llms.txt`} title="llms.txt" />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:image" content={ogImage} />
+<link rel="icon" href={`${base}/favicon.ico`} sizes="32x32" />
+<link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} />
+<meta name="theme-color" content="#000000" />
+<script type="application/ld+json" set:html={jsonLd} />
