@@ -191,3 +191,5 @@ Special thanks to the following individuals who have either directly or indirect
 - IANN (@meisei4)
 - Niels "Mouse's Mistake" Van Son
 - TechProGabe
+- LobotomyDC
+- Haikuno
