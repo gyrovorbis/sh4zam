@@ -198,12 +198,17 @@ SHZ_INLINE float shz_atan2f(float y, float x) SHZ_NOEXCEPT {
     return shz_copysignf(angle, y);
 }
 
-SHZ_INLINE float shz_asinf(float x) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE float shz_asinf(float x) SHZ_NOEXCEPT {
 #ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
         return __builtin_asinf(x);
 #endif
-    return shz_atanf(x * shz_inv_sqrtf_fsrra(1.0f - (x * x)));
+
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_asinf_sh4(x);
+#else
+    return shz_asinf_sw(x);
+#endif
 }
 
 SHZ_INLINE float shz_acosf(float x) SHZ_NOEXCEPT {

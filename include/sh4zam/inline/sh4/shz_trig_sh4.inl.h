@@ -90,6 +90,11 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg_sh4(float degrees) SHZ_NOEXCEPT {
 
     return SHZ_INIT(shz_sincos_t, rsin, rcos);
 }
+
+SHZ_FORCE_INLINE float shz_asinf_sh4(float x) SHZ_NOEXCEPT {
+    return shz_atanf(x * shz_inv_sqrtf_fsrra(1.0f - (x * x)));
+}
+
 //! \endcond
 
 #endif

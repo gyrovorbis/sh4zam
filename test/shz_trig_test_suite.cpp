@@ -13,12 +13,6 @@ GBL_TEST_FINAL_NONE
 
 #define SHZ_FSCA_ERROR_APPROX 0.0052
 
-namespace {
-    SHZ_NO_INLINE bool isinff(auto&&... values){
-        return (std::isinf(values) && ...);
-    }
-}
-
 GBL_TEST_CASE(sincos_from_radians)
     auto test = [&](volatile float radians) GBL_FP_PRECISE {
         auto sincos = shz::sincos::from_radians(radians);
@@ -156,6 +150,16 @@ GBL_TEST_CASE(asinf)
     GBL_TEST_ERROR(shz_asinf(0.0f), asinf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_asinf(11.0f), asinf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_asinf(-2.0f), asinf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+
+    GBL_TEST_CALL([&] GBL_NO_INLINE {
+        GBL_CTX_BEGIN(pCtx);
+        for(float v : unit_domain) {
+            const float actual = shz::asinf(volatile_cast(v));
+            GBL_TEST_VERIFY(within_error(actual, std::asin(static_cast<double>(v)), SHZ_FSCA_ERROR_APPROX));
+        }
+        GBL_CTX_END();
+    }());
+
     GBL_TEST_VERIFY(benchmark_cmp(float, shz::asinf, asinf, gblRandUniform(-shz::pi_f, shz::pi_f)));
 GBL_TEST_CASE_END
 
@@ -164,6 +168,16 @@ GBL_TEST_CASE(acosf)
     GBL_TEST_ERROR(shz_acosf(0.0f), acosf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_acosf(11.0f), acosf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_acosf(-2.0f), acosf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+
+    GBL_TEST_CALL([&] GBL_NO_INLINE {
+        GBL_CTX_BEGIN(pCtx);
+        for(float v : unit_domain) {
+            const float actual = shz::acosf(volatile_cast(v));
+            GBL_TEST_VERIFY(within_error(actual, std::acos(static_cast<double>(v)), SHZ_FSCA_ERROR_APPROX));
+        }
+        GBL_CTX_END();
+    }());
+
     GBL_TEST_VERIFY(benchmark_cmp(float, shz::acosf, acosf, gblRandUniform(-shz::pi_f, shz::pi_f)));
 GBL_TEST_CASE_END
 
