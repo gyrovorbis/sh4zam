@@ -1056,11 +1056,23 @@ SHZ_FORCE_INLINE void shz_xmtrx_abs(void) SHZ_NOEXCEPT {
 #endif
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_blend(const shz_mat4x4_t* joint_matrix, float weight) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_blend(const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT {
+    shz_xmtrx_blend_4x4(matrix, weight);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_blend_4x4(const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
-    shz_xmtrx_blend_sh4(joint_matrix, weight);
+    shz_xmtrx_blend_4x4_sh4(matrix, weight);
 #else
-    shz_xmtrx_blend_sw(joint_matrix, weight);
+    shz_xmtrx_blend_4x4_sw(matrix, weight);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_blend_3x4(const shz_mat3x4_t* matrix, float weight) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_blend_3x4_sh4(matrix, weight);
+#else
+    shz_xmtrx_blend_3x4_sw(matrix, weight);
 #endif
 }
 

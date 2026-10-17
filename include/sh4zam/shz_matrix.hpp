@@ -646,8 +646,8 @@ namespace shz {
 
             \sa shz_mat4x4_init_zero()
         */
-        SHZ_FORCE_INLINE void blend(const shz_mat4x4_t& joint_matrix, float weight) noexcept {
-            shz_mat4x4_blend(this, &joint_matrix, weight);
+        SHZ_FORCE_INLINE void blend(const shz_mat4x4_t& matrix, float weight) noexcept {
+            shz_mat4x4_blend(this, &matrix, weight);
         }
 
         //! @}

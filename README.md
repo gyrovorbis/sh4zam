@@ -148,6 +148,8 @@ Project                                                   | Description
 [Monkey Ball DC](https://www.youtube.com/watch?v=277AUBanFAQ) | Reimplementation of Monkey Ball using GameCube assets from Super MB.
 [Elias Daler Work](https://www.youtube.com/watch?v=8S58Di7aMEk) | Renowned PS1 homebrew dev uses SH4ZAM for his beautiful DC experiments.
 [Diddy Kong Racing DC](https://github.com/Bruceleeto/Diddy-Kong-Racing) | Rare's renowned N64 kart racer, ported to the DC. SH4ZAMed to all hell for gainz.
+[World of Warcraft DC](https://github.com/cypressru/WoWDC) | WoW DC port by CYPRESS, with SH4ZAM-based math gainz.
+[Resident Evil 4 DC](https://github.com/lamb2k/re4dc) | lamb2k's RE4 port to DC, features a build flag SH4ZAM-ing TnL.
 
 # Conventions
 The following conventions are used throughout the API by default, unless otherwise specified:
@@ -188,3 +190,4 @@ Special thanks to the following individuals who have either directly or indirect
 - Donald Haase
 - IANN (@meisei4)
 - Niels "Mouse's Mistake" Van Son
+- TechProGabe

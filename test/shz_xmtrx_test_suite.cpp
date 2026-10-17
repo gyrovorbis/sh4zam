@@ -2750,7 +2750,7 @@ GBL_TEST_CASE(load_apply_store_3x3)
             GBL_TEST_VERIFY(shz_equalf(shzRes.shz.elem2D[i][j], glmRes.shz.elem2D[i][j]));
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(blend)
+GBL_TEST_CASE(blend_4x4)
     // Blend a single joint matrix onto a known starting matrix.
     // Expectation: XMTRX[i] = XMTRX_old[i] + joint[i] * weight, for all 16
     // elements--a straight per-element weighted accumulate, matching the
@@ -2827,6 +2827,117 @@ GBL_TEST_CASE(blend)
                 "naive per-element accum", [&](const shz_mat4x4_t& j, float w) {
                     for(int i = 0; i < 16; ++i)
                         accum[i] += j.elem[i] * w;
+                },
+                joint, 0.5f
+            )
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(blend_3x4)
+    {
+        randomize_xmtrx_();
+
+        alignas(32) shz_mat4x4_t start;
+        for(int i = 0; i < 16; ++i)
+            start.elem[i] = 100.0f + static_cast<float>(i);
+
+        alignas(32) shz_mat3x4_t joint = {
+            .left    = {  1.0f,  -2.0f,   3.0f },
+            .up      = { -4.0f,   5.0f,  -6.0f },
+            .forward = {  7.0f,  -8.0f,   9.0f },
+            .pos     = { 10.0f, -11.0f,  12.0f }
+        };
+
+        shz::xmtrx::load(start);
+        shz::xmtrx::blend(joint, 0.5f);
+
+        shz::mat4x4 result;
+        shz::xmtrx::store(&result);
+
+        for(int c = 0; c < 4; ++c)
+            for(int r = 0; r < 4; ++r) {
+                float expected = start.elem2D[c][r];
+                if(r < 3)
+                    expected += joint.elem2D[c][r] * 0.5f;
+                GBL_TEST_VERIFY(result.elem2D[c][r] == expected);
+            }
+    }
+
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_zero();
+
+        alignas(32) shz_mat3x4_t joint1 = {
+            .left    = {  1.0f,   0.0f,   0.0f },
+            .up      = {  0.0f,   1.0f,   0.0f },
+            .forward = {  0.0f,   0.0f,   1.0f },
+            .pos     = { 10.0f,  20.0f,  30.0f }
+        };
+        alignas(32) shz_mat3x4_t joint2 = {
+            .left    = {  2.0f,   0.0f,   0.0f },
+            .up      = {  0.0f,   2.0f,   0.0f },
+            .forward = {  0.0f,   0.0f,   2.0f },
+            .pos     = { -5.0f,  -6.0f,  -7.0f }
+        };
+
+        shz::xmtrx::blend(joint1, 0.25f);
+        shz::xmtrx::blend(joint2, 0.75f);
+
+        shz::mat4x4 result;
+        shz::xmtrx::store(&result);
+
+        for(int c = 0; c < 4; ++c) {
+            for(int r = 0; r < 3; ++r) {
+                float expected = joint1.elem2D[c][r] * 0.25f + joint2.elem2D[c][r] * 0.75f;
+                GBL_TEST_VERIFY(shz_equalf(result.elem2D[c][r], expected));
+            }
+            GBL_TEST_VERIFY(result.elem2D[c][3] == 0.0f);
+        }
+    }
+
+    {
+        randomize_xmtrx_();
+        shz::xmtrx::init_identity();
+
+        alignas(32) shz_mat3x4_t joint = {
+            .left    = {  1.0f,   2.0f,   3.0f },
+            .up      = {  4.0f,   5.0f,   6.0f },
+            .forward = {  7.0f,   8.0f,   9.0f },
+            .pos     = { 10.0f,  11.0f,  12.0f }
+        };
+
+        shz::xmtrx::blend(joint, 0.0f);
+
+        shz::mat4x4 result;
+        shz::xmtrx::store(&result);
+
+        for(int c = 0; c < 4; ++c)
+            for(int r = 0; r < 4; ++r)
+                GBL_TEST_VERIFY(result.elem2D[c][r] == (c == r ? 1.0f : 0.0f));
+    }
+
+    {
+        alignas(32) shz_mat3x4_t joint = {
+            .left    = {  1.0f,   2.0f,   3.0f },
+            .up      = {  4.0f,   5.0f,   6.0f },
+            .forward = {  7.0f,   8.0f,   9.0f },
+            .pos     = { 10.0f,  11.0f,  12.0f }
+        };
+
+        alignas(32) std::array<float, 16> accum{};
+
+        shz::xmtrx::init_zero();
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)(
+                "shz::xmtrx::blend_3x4", [](const shz_mat3x4_t& j, float w) {
+                    shz::xmtrx::blend(j, w);
+                },
+                "naive per-element accum", [&](const shz_mat3x4_t& j, float w) {
+                    for(int c = 0; c < 4; ++c)
+                        for(int r = 0; r < 3; ++r)
+                            accum[c * 4 + r] += j.elem2D[c][r] * w;
                 },
                 joint, 0.5f
             )
@@ -3108,7 +3219,8 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_3x3,
                   apply_transpose_3x3,
                   load_apply_store_3x3,
-                  blend,
+                  blend_4x4,
+                  blend_3x4,
                   transform_vec4,
                   transform_vec3,
                   transform_vec2,

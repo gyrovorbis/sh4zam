@@ -3734,7 +3734,7 @@ SHZ_INLINE void shz_xmtrx_abs_sh4(void) SHZ_NOEXCEPT {
     )");
 }
 
-SHZ_INLINE void shz_xmtrx_blend_sh4(const shz_mat4x4_t* joint_matrix, float weight) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_blend_4x4_sh4(const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT {
     register float fr0 asm("fr0") = weight;
 
     asm volatile(R"(
@@ -3777,11 +3777,63 @@ SHZ_INLINE void shz_xmtrx_blend_sh4(const shz_mat4x4_t* joint_matrix, float weig
         fschg
         frchg
     )"
-    : [j] "+r" (joint_matrix)
-    : "f" (fr0), "m" (*joint_matrix)
+    : [j] "+r" (matrix)
+    : "f" (fr0), "m" (*matrix)
     : "fr2", "fr3", "fr4", "fr5", "fr6",
       "fr7", "fr8", "fr9", "fr10", "fr11");
 }
+
+SHZ_INLINE void shz_xmtrx_blend_3x4_sh4(const shz_mat3x4_t* matrix, float weight) SHZ_NOEXCEPT {
+    register float fr0 asm("fr0") = weight;
+
+    asm volatile(R"(
+        fschg
+        fmov    xd0, dr2
+        fmov    xd2, dr4
+        fmov    xd4, dr6
+        fmov    dr0, xd0
+        fschg
+        fmov.s  @%[j]+, fr8
+        add     #28, %[j]
+        pref    @%[j]
+        add     #-28, %[j]
+        fmac    fr0, fr8, fr2
+        fmov.s  @%[j]+, fr9
+        fmov.s  @%[j]+, fr10
+        fmac    fr0, fr9, fr3
+        fmov.s  @%[j]+, fr11
+        fmac    fr0, fr10, fr4
+        fmov.s  @%[j]+, fr8
+        fmac    fr0, fr11, fr6
+        fmac    fr0, fr8, fr7
+        frchg
+        fmov.s  @%[j]+, fr2
+        fmov.s  @%[j]+, fr3
+        fmac    fr0, fr2, fr6
+        fmov.s  @%[j]+, fr4
+        fmac    fr0, fr3, fr8
+        fmov.s  @%[j]+, fr5
+        fmac    fr0, fr4, fr9
+        fmov.s  @%[j]+, fr2
+        fmac    fr0, fr5, fr10
+        fmov.s  @%[j]+, fr3
+        fmac    fr0, fr2, fr12
+        fmov.s  @%[j]+, fr4
+        fmac    fr0, fr3, fr13
+        fmac    fr0, fr4, fr14
+        fschg
+        fmov    xd6, dr4
+        fmov    xd4, dr2
+        frchg
+        fmov    dr2, xd0
+        fschg
+    )"
+    : [j] "+r" (matrix)
+    : "f" (fr0), "m" (*matrix)
+    : "fr2", "fr3", "fr4", "fr5", "fr6",
+      "fr7", "fr8", "fr9", "fr10", "fr11");
+}
+
 
 SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_sh4(shz_vec4_t vec) SHZ_NOEXCEPT {
     register float rx asm("fr8")  = vec.x;

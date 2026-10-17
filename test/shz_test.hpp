@@ -104,8 +104,14 @@ struct benchmark_stats {
     bool     converged;
 };
 
-template<bool CacheFlush, typename... Args>
-SHZ_NO_INLINE SHZ_FUNC_ALIGNAS(32) SHZ_NO_UNROLL_LOOPS
+#if defined(__GNUC__) && !defined(__clang__)
+#   define BENCHMARK_NO_ICF __attribute__((no_icf))
+#else
+#   define BENCHMARK_NO_ICF
+#endif
+
+template<bool CacheFlush, unsigned Copy = 0, typename... Args>
+SHZ_NO_INLINE BENCHMARK_NO_ICF SHZ_FUNC_ALIGNAS(32) SHZ_NO_UNROLL_LOOPS
 benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noexcept {
     uint64_t tmu_sum    = 0;
     uint64_t flush_sum  = 0;
@@ -300,12 +306,17 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
         for(unsigned round = 0; round < BENCHMARK_CMP_ROUNDS; ++round) {
             benchmark_stats shzCur, refCur;
 
+            auto measure_copy = [&](auto&& fn) {
+                return (round & 2)? benchmark_measure<CacheFlush, 1>(res, fn, args...)
+                                  : benchmark_measure<CacheFlush, 0>(res, fn, args...);
+            };
+
             if(round & 1) {
-                refCur = benchmark_measure<CacheFlush>(res, refFn, args...);
-                shzCur = benchmark_measure<CacheFlush>(res, shzFn, args...);
+                refCur = measure_copy(refFn);
+                shzCur = measure_copy(shzFn);
             } else {
-                shzCur = benchmark_measure<CacheFlush>(res, shzFn, args...);
-                refCur = benchmark_measure<CacheFlush>(res, refFn, args...);
+                shzCur = measure_copy(shzFn);
+                refCur = measure_copy(refFn);
             }
 
             if(!round || shzCur.cycles < shzBest.cycles) shzBest = shzCur;

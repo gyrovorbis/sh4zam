@@ -853,6 +853,17 @@ float shz_xmtrx_determinant(void) SHZ_NOEXCEPT;
 */
 void shz_xmtrx_invert(void) SHZ_NOEXCEPT;
 
+/*! Deprecated way to add and accumulate a scaled 4x4 matrix onto XMTRX.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_blend_4x4(), as support is being
+    added to blend matrices of different dimensions onto XMTRX.
+
+    \sa shz_xmtrx_blend_4x4()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_blend_4x4().")
+SHZ_INLINE void shz_xmtrx_blend(const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT;
+
 /*! Adds and accumulates a scaled 4x4 matrix onto XMTRX.
 
     Each component of \p joint_matrix will be multiplied by \p weight, with the result
@@ -862,9 +873,28 @@ void shz_xmtrx_invert(void) SHZ_NOEXCEPT;
     zeroed-out XMTRX. This allows for in-place construction of a skin matrix, which can
     then be directly used to transform the vertices of a mesh against for animation.
 
-    \sa shz_xmtrx_init_zero()
+    \param  matrix      4x4 matrix to multiply and accumulate onto XMTRX.
+    \param  weight      Factor each element in \p matrix gets scaled by.
+
+    \sa shz_xmtrx_init_zero(), shz_xmtrx_blend_3x4()
 */
-SHZ_INLINE void shz_xmtrx_blend(const shz_mat4x4_t* joint_matrix, float weight) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_blend_4x4(const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT;
+
+/*! Adds and accumulates a scaled 3x4 matrix onto XMTRX.
+
+    Each component of \p joint_matrix will be multiplied by \p weight, with the result
+    being added to the existing value of that component of XMTRX.
+
+    This is useful for accumulating weighted joint matrices onto an initially
+    zeroed-out XMTRX. This allows for in-place construction of a skin matrix, which can
+    then be directly used to transform the vertices of a mesh against for animation.
+
+    \param  matrix      3x4 matrix to multiply and accumulate onto XMTRX.
+    \param  weight      Factor each element in \p matrix gets scaled by.
+
+    \sa shz_xmtrx_init_zero(), shz_xmtrx_blend_4x4()
+*/
+SHZ_INLINE void shz_xmtrx_blend_3x4(const shz_mat3x4_t* matrix, float weight) SHZ_NOEXCEPT;
 
 //! @}
 

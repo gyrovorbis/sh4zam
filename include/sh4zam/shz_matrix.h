@@ -876,7 +876,7 @@ SHZ_INLINE void shz_mat4x4_swap(shz_mat4x4_t* matA, shz_mat4x4_t* matB) SHZ_NOEX
 
     \sa shz_mat4x4_init_zero()
 */
-SHZ_INLINE void shz_mat4x4_blend(shz_mat4x4_t* dst, const shz_mat4x4_t* joint_matrix, float weights) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_blend(shz_mat4x4_t* dst, const shz_mat4x4_t* matrix, float weights) SHZ_NOEXCEPT;
 
 //! @}
 

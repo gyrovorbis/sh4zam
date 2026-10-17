@@ -1180,7 +1180,8 @@ SHZ_FORCE_INLINE void shz_xmtrx_abs_sw(void) SHZ_NOEXCEPT {
         xmtrx_state_->elem[i] = shz_fabsf(xmtrx_state_->elem[i]);
 }
 
-void shz_xmtrx_blend_sw(const shz_mat4x4_t* joint_matrix, float weight) SHZ_NOEXCEPT;
+void shz_xmtrx_blend_4x4_sw(const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT;
+void shz_xmtrx_blend_3x4_sw(const shz_mat3x4_t* matrix, float weight) SHZ_NOEXCEPT;
 
 /* ========== Transformations ========== */
 

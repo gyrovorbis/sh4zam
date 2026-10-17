@@ -191,10 +191,10 @@ SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_get_scale(const shz_mat4x4_t* mat) SHZ_NO
 #endif
 }
 
-SHZ_FORCE_INLINE void shz_mat4x4_set_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
-    mat->elem2D[0][0] = x;    mat->elem2D[0][1] = 0.0f; mat->elem2D[0][2] = 0.0f;
-    mat->elem2D[1][0] = 0.0f; mat->elem2D[1][1] = y;    mat->elem2D[1][2] = 0.0f;
-    mat->elem2D[2][0] = 0.0f; mat->elem2D[2][1] = 0.0f; mat->elem2D[2][2] = z;
+SHZ_INLINE void shz_mat4x4_set_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
+    mat->col[0].xyz = shz_vec3_init(x, 0.0f, 0.0f);
+    mat->col[1].xyz = shz_vec3_init(0.0f, y, 0.0f);
+    mat->col[2].xyz = shz_vec3_init(0.0f, 0.0f, z);
 }
 
 SHZ_INLINE void shz_mat4x4_set_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT {
@@ -703,9 +703,9 @@ SHZ_INLINE void shz_mat4x4_copy_unaligned(shz_mat4x4_t* dst, const float src[16]
     shz_xmtrx_store_4x4(dst);
 }
 
-SHZ_FORCE_INLINE void shz_mat4x4_blend(shz_mat4x4_t* dst, const shz_mat4x4_t* joint_matrix, float weight) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_mat4x4_blend(shz_mat4x4_t* dst, const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(dst);
-    shz_xmtrx_blend(joint_matrix, weight);
+    shz_xmtrx_blend_4x4(matrix, weight);
     shz_xmtrx_store_4x4(dst);
 }
 
