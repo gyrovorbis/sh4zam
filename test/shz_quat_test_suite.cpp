@@ -556,7 +556,7 @@ GBL_TEST_CASE(nlerp)
             for(float t : ts) {
                 const auto r = shz::quat::nlerp(a, b, t);
                 GBL_TEST_VERIFY(r == shz::quat::nlerp(a, -b, t));
-                GBL_TEST_ERROR(r.magnitude(), 1.0f, 1e-4f, GBL_TEST_ERROR_ABSOLUTE);
+                GBL_TEST_VERIFY(shz::fabsf(r.magnitude() - 1.0f) <= 1e-4f);
             }
 
             // The end points are a and b, as rotations.
