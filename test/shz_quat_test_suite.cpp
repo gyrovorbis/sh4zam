@@ -57,6 +57,47 @@ namespace {
 
         return result;
     }
+
+    // q and -q represent the same rotation.
+    bool same_rotation(const shz::quat& q, const shz::quat& p) {
+        return q == p || q == -p;
+    }
+
+    float max_element_error(const shz_mat4x4_t& a, const shz_mat4x4_t& b) {
+        float err = 0.0f;
+
+        for(unsigned i = 0; i < 16; ++i)
+            err = shz_fmaxf(err, shz_fabsf(a.elem[i] - b.elem[i]));
+
+        return err;
+    }
+
+    // Converts a 16-bit binary angle (65536 per turn) to radians, in [-PI, PI).
+    float u16_to_radians(uint16_t angle) {
+        return (float)(int16_t)angle * (2.0f * shz::pi_f / 65536.0f);
+    }
+
+    /* Each Euler order, with the matching matrix initializer and the axes of the
+       three angles in argument order, which is also the order of the product of
+       axis quaternions that the rotation equals. */
+    struct euler_order {
+        const char* name;
+        void      (*mat_init)(shz_mat4x4_t*, float, float, float);
+        shz::quat (*from_rotation)(float, float, float);
+        shz::quat (*from_rotation_u16)(uint16_t, uint16_t, uint16_t);
+        shz::vec3   axes[3];
+    };
+
+    const euler_order euler_orders[] = {
+        { "xyz", shz_mat4x4_init_rotation_xyz, shz::quat::from_rotation_xyz, shz::quat::from_rotation_xyz_u16,
+          { { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } } },
+        { "zyx", shz_mat4x4_init_rotation_zyx, shz::quat::from_rotation_zyx, shz::quat::from_rotation_zyx_u16,
+          { { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } } },
+        { "zxy", shz_mat4x4_init_rotation_zxy, shz::quat::from_rotation_zxy, shz::quat::from_rotation_zxy_u16,
+          { { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } } },
+        { "yxz", shz_mat4x4_init_rotation_yxz, shz::quat::from_rotation_yxz, shz::quat::from_rotation_yxz_u16,
+          { { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } } },
+    };
 }
 
 GBL_TEST_CASE(identity)
@@ -134,6 +175,109 @@ GBL_TEST_CASE(from_angles_xyz)
     // produced quaternions must be unit quaternions
     GBL_TEST_VERIFY(shz_equalf(shz::quat::from_angles_xyz(0.5f,        1.0f,        1.5f       ).magnitude(), 1.0f));
     GBL_TEST_VERIFY(shz_equalf(shz::quat::from_angles_xyz(shz::pi_f_4, shz::pi_f_2, shz::pi_f  ).magnitude(), 1.0f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(from_rotation)
+    // Angles in argument order: zero, quarter and half turns, and arbitrary ones, some beyond a half turn.
+    const float angles[][3] = {
+        {  0.0f,          0.0f,          0.0f         },
+        {  shz::pi_f_2,   0.0f,          0.0f         },
+        {  0.0f,          shz::pi_f_2,   0.0f         },
+        {  0.0f,          0.0f,          shz::pi_f_2  },
+        { -shz::pi_f_2,   shz::pi_f_2,  -shz::pi_f_2  },
+        {  shz::pi_f,     0.0f,          0.0f         },
+        {  0.0f,          shz::pi_f,     0.0f         },
+        {  0.0f,          0.0f,          shz::pi_f    },
+        {  shz::pi_f,     shz::pi_f_2,  -shz::pi_f_2  },
+        {  0.3f,         -1.2f,          2.5f         },
+        { -2.9f,          0.7f,         -0.4f         },
+        {  5.0f,         -4.0f,          3.5f         },
+    };
+
+    for(const auto& order : euler_orders) {
+        // All-zero angles yield identity.
+        GBL_TEST_VERIFY(order.from_rotation(0.0f, 0.0f, 0.0f) == shz::quat::identity());
+
+        for(const auto& a : angles) {
+            const shz::quat q = order.from_rotation(a[0], a[1], a[2]);
+
+            // Must be the same rotation as the matrix initializer of the same order.
+            shz::mat4x4 expected, actual;
+            order.mat_init(&expected, a[0], a[1], a[2]);
+            actual.init_rotation(q);
+            GBL_TEST_VERIFY(actual == expected);
+            // Tighter than ==, with headroom for FSCA quantizing angles to 1/65536 of a turn on SH4.
+            GBL_TEST_ERROR(max_element_error(actual, expected), 0.0f, 2e-3f, GBL_TEST_ERROR_ABSOLUTE);
+
+            // Must equal the product of the axis quaternions, in the order of the name.
+            const shz::quat product = shz::quat::from_axis_angle(order.axes[0], a[0]) *
+                                      shz::quat::from_axis_angle(order.axes[1], a[1]) *
+                                      shz::quat::from_axis_angle(order.axes[2], a[2]);
+            GBL_TEST_VERIFY(q == product);
+
+            // Must be a unit quaternion.
+            GBL_TEST_ERROR(q.magnitude(), 1.0f, 1e-4f, GBL_TEST_ERROR_ABSOLUTE);
+        }
+    }
+
+    // Single-axis rotations must agree with from_axis_angle() for every order.
+    for(const auto& order : euler_orders) {
+        for(unsigned i = 0; i < 3; ++i) {
+            float a[3] = { 0.0f, 0.0f, 0.0f };
+            a[i] = shz::pi_f / 3.0f;
+            GBL_TEST_VERIFY(order.from_rotation(a[0], a[1], a[2]) ==
+                            shz::quat::from_axis_angle(order.axes[i], shz::pi_f / 3.0f));
+        }
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(from_rotation_u16)
+    // 16-bit binary angles, 0x4000 per quarter turn, in argument order.
+    const uint16_t angles[][3] = {
+        { 0x0000, 0x0000, 0x0000 },
+        { 0x4000, 0x0000, 0x0000 },
+        { 0x0000, 0x4000, 0x0000 },
+        { 0x0000, 0x0000, 0x4000 },
+        { 0xc000, 0x4000, 0xc000 },
+        { 0x8000, 0x0000, 0x0000 },
+        { 0x0000, 0x8000, 0x0000 },
+        { 0x0000, 0x0000, 0x8000 },
+        { 0x8000, 0x4000, 0xc000 },
+        { 0x04d2, 0xfedc, 0x7fff },
+        { 0x0001, 0xffff, 0x8001 },
+        { 0x2aaa, 0x9c40, 0x5555 },
+    };
+
+    for(const auto& order : euler_orders) {
+        // All-zero angles yield identity.
+        GBL_TEST_VERIFY(order.from_rotation_u16(0, 0, 0) == shz::quat::identity());
+
+        for(const auto& a : angles) {
+            const float x = u16_to_radians(a[0]);
+            const float y = u16_to_radians(a[1]);
+            const float z = u16_to_radians(a[2]);
+
+            const shz::quat q = order.from_rotation_u16(a[0], a[1], a[2]);
+
+            // Must be the same rotation as the radian version, up to the sign of the quaternion.
+            GBL_TEST_VERIFY(same_rotation(q, order.from_rotation(x, y, z)));
+
+            // Must be the same rotation as the matrix initializer of the same order.
+            shz::mat4x4 expected, actual;
+            order.mat_init(&expected, x, y, z);
+            actual.init_rotation(q);
+            GBL_TEST_VERIFY(actual == expected);
+            // Tighter than ==, with headroom for FSCA quantizing angles to 1/65536 of a turn on SH4.
+            GBL_TEST_ERROR(max_element_error(actual, expected), 0.0f, 2e-3f, GBL_TEST_ERROR_ABSOLUTE);
+
+            // Must be a unit quaternion.
+            GBL_TEST_ERROR(q.magnitude(), 1.0f, 1e-4f, GBL_TEST_ERROR_ABSOLUTE);
+        }
+    }
+
+    // Signed angles are accepted as they are: -0x4000 is a quarter turn the other way.
+    GBL_TEST_VERIFY(shz::quat::from_rotation_yxz_u16(0, static_cast<uint16_t>(int16_t{-0x4000}), 0) ==
+                    shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, -shz::pi_f_2));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(transform_vec3)
@@ -395,8 +539,53 @@ GBL_TEST_CASE(slerp)
     }
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(nlerp)
+    const auto id   = shz::quat::identity();
+    const auto r90x = shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, shz::pi_f_2);
+    const auto r90y = shz::quat::from_axis_angle({0.0f, 1.0f, 0.0f}, shz::pi_f_2);
+    const auto arb1 = shz::quat::from_rotation_yxz(0.4f, -0.8f, 1.2f);
+    const auto arb2 = shz::quat::from_rotation_zyx(-2.0f, 0.5f, 2.5f);
+    const float ts[] = { 0.0f, 0.25f, 0.5f, 0.75f, 1.0f };
+
+    { // Sign invariance: b and -b are the same orientation, so they must give the same result.
+        const std::pair<shz::quat, shz::quat> pairs[] = {
+            { id, r90x }, { r90x, r90y }, { arb1, arb2 }, { arb2, id }
+        };
+
+        for(const auto& [a, b] : pairs) {
+            for(float t : ts) {
+                const auto r = shz::quat::nlerp(a, b, t);
+                GBL_TEST_VERIFY(r == shz::quat::nlerp(a, -b, t));
+                GBL_TEST_VERIFY(shz::fabsf(r.magnitude() - 1.0f) <= 1e-4f);
+            }
+
+            // The end points are a and b, as rotations.
+            GBL_TEST_VERIFY(shz::quat::nlerp(a, -b, 0.0f) == a);
+            GBL_TEST_VERIFY(same_rotation(shz::quat::nlerp(a, -b, 1.0f), b));
+        }
+    }{ // Negative dot: takes the short arc.
+        /* identity -> 270 degrees around X has a negative dot product. The short arc is
+           -90 degrees, so the midpoint is -45 degrees, not the +135 degrees of the long
+           arc. At t = 0.5 this is exact, since nlerp and slerp agree there.
+        */
+        const auto r270 = shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, 3.0f * shz::pi_f_2);
+        const shz::vec3 v = {0.0f, 1.0f, 0.0f};
+
+        GBL_TEST_VERIFY(id.dot(r270) < 0.0f);
+
+        const auto mid = shz::quat::nlerp(id, r270, 0.5f);
+
+        GBL_TEST_VERIFY(same_rotation(mid, shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, -shz::pi_f_4)));
+        GBL_TEST_VERIFY(!same_rotation(mid, shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, 3.0f * shz::pi_f_4)));
+        GBL_TEST_VERIFY(mid.transform(v) == shz::quat::slerp(id, r270, 0.5f).transform(v));
+    }
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(identity,
                   from_axis_angle,
                   from_angles_xyz,
+                  from_rotation,
+                  from_rotation_u16,
                   transform_vec3,
-                  slerp)
+                  slerp,
+                  nlerp)
