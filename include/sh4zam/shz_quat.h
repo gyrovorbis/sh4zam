@@ -72,6 +72,43 @@ SHZ_INLINE bool shz_quat_equal(shz_quat_t a, shz_quat_t b) SHZ_NOEXCEPT;
 */
 SHZ_INLINE shz_quat_t shz_quat_from_angles_xyz(float xangle, float yangle, float zangle) SHZ_NOEXCEPT;
 
+/*! Returns the quaternion of the rotation shz_xmtrx_init_rotation_xyz() builds, from angles in radians.
+
+    The result equals the product of the axis quaternions in the order of the name, Qx * Qy * Qz,
+    so it describes the same orientation as the matrix of the same name.
+
+    \sa shz_quat_from_rotation_xyz_u16(), shz_xmtrx_init_rotation_xyz(), shz_xmtrx_init_rotation_quat()
+*/
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT;
+
+//! Returns the quaternion of the rotation shz_xmtrx_init_rotation_zyx() builds, Qz * Qy * Qx, from angles in radians.
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
+
+//! Returns the quaternion of the rotation shz_xmtrx_init_rotation_zxy() builds, Qz * Qx * Qy, from angles in radians.
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_zxy(float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT;
+
+//! Returns the quaternion of the rotation shz_xmtrx_init_rotation_yxz() builds, Qy * Qx * Qz, from angles in radians.
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_quat_from_rotation_xyz(), with 16-bit binary angles (65536 per turn, the FSCA unit).
+
+    For games whose orientations are stored as 16-bit angles, such as N64 titles. Signed 16-bit
+    angles can be passed as they are. The half angles go to FSCA directly, without a conversion to
+    radians, so an odd angle is off by half a unit (1/131072 of a turn) in its half angle.
+
+    \sa shz_sincosu16()
+*/
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_xyz_u16(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT;
+
+//! Equivalent to shz_quat_from_rotation_zyx(), with 16-bit binary angles.
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_zyx_u16(uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) SHZ_NOEXCEPT;
+
+//! Equivalent to shz_quat_from_rotation_zxy(), with 16-bit binary angles.
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_zxy_u16(uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) SHZ_NOEXCEPT;
+
+//! Equivalent to shz_quat_from_rotation_yxz(), with 16-bit binary angles.
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_yxz_u16(uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) SHZ_NOEXCEPT;
+
 //! Initializes and returns a quaternion representing a rotation of \p angle radians about the given \p axis.
 SHZ_INLINE shz_quat_t shz_quat_from_axis_angle(shz_vec3_t axis, float angle) SHZ_NOEXCEPT;
 

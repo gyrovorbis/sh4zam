@@ -70,6 +70,46 @@ namespace shz {
             return shz_quat_from_angles_xyz(x, y, z);
         }
 
+        //! C++ convenience wrapper for shz_quat_from_rotation_xyz().
+        SHZ_FORCE_INLINE static quat from_rotation_xyz(float x, float y, float z) noexcept {
+            return shz_quat_from_rotation_xyz(x, y, z);
+        }
+
+        //! C++ convenience wrapper for shz_quat_from_rotation_zyx().
+        SHZ_FORCE_INLINE static quat from_rotation_zyx(float z, float y, float x) noexcept {
+            return shz_quat_from_rotation_zyx(z, y, x);
+        }
+
+        //! C++ convenience wrapper for shz_quat_from_rotation_zxy().
+        SHZ_FORCE_INLINE static quat from_rotation_zxy(float z, float x, float y) noexcept {
+            return shz_quat_from_rotation_zxy(z, x, y);
+        }
+
+        //! C++ convenience wrapper for shz_quat_from_rotation_yxz().
+        SHZ_FORCE_INLINE static quat from_rotation_yxz(float y, float x, float z) noexcept {
+            return shz_quat_from_rotation_yxz(y, x, z);
+        }
+
+        //! C++ convenience wrapper for shz_quat_from_rotation_xyz_u16().
+        SHZ_FORCE_INLINE static quat from_rotation_xyz_u16(uint16_t x, uint16_t y, uint16_t z) noexcept {
+            return shz_quat_from_rotation_xyz_u16(x, y, z);
+        }
+
+        //! C++ convenience wrapper for shz_quat_from_rotation_zyx_u16().
+        SHZ_FORCE_INLINE static quat from_rotation_zyx_u16(uint16_t z, uint16_t y, uint16_t x) noexcept {
+            return shz_quat_from_rotation_zyx_u16(z, y, x);
+        }
+
+        //! C++ convenience wrapper for shz_quat_from_rotation_zxy_u16().
+        SHZ_FORCE_INLINE static quat from_rotation_zxy_u16(uint16_t z, uint16_t x, uint16_t y) noexcept {
+            return shz_quat_from_rotation_zxy_u16(z, x, y);
+        }
+
+        //! C++ convenience wrapper for shz_quat_from_rotation_yxz_u16().
+        SHZ_FORCE_INLINE static quat from_rotation_yxz_u16(uint16_t y, uint16_t x, uint16_t z) noexcept {
+            return shz_quat_from_rotation_yxz_u16(y, x, z);
+        }
+
         //! Initializes a quaternion which is a rotation in \p angle radians about the given \p axis.
         SHZ_FORCE_INLINE static quat from_axis_angle(const vec3& axis, float angle) noexcept {
             return shz_quat_from_axis_angle(axis, angle);

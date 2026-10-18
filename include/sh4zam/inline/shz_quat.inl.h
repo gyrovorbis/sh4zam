@@ -46,6 +46,67 @@ SHZ_INLINE shz_quat_t shz_quat_from_angles_xyz(float xangle, float yangle, float
     );
 }
 
+/* qA(a) * qB(b) * qC(c) for axis quaternions of the half angles comes out, for every Tait-Bryan
+   order, as the same eight triple products, with only the sign of the second term of each
+   component depending on the order. */
+SHZ_FORCE_INLINE shz_quat_t shz_quat_from_rotation_(shz_sincos_t x, shz_sincos_t y, shz_sincos_t z,
+                                                    float sw, float sx, float sy, float sz) SHZ_NOEXCEPT {
+    const float cc = y.cos * z.cos;
+    const float ss = y.sin * z.sin;
+    const float cs = y.cos * z.sin;
+    const float sc = y.sin * z.cos;
+
+    return shz_quat_init(shz_fmaf(sw * x.sin, ss, x.cos * cc),
+                         shz_fmaf(sx * x.cos, ss, x.sin * cc),
+                         shz_fmaf(sy * x.sin, cs, x.cos * sc),
+                         shz_fmaf(sz * x.sin, sc, x.cos * cs));
+}
+
+// Half of a 16-bit binary angle, as a signed angle in [-PI/2, PI/2), so that cos >= 0.
+SHZ_FORCE_INLINE shz_sincos_t shz_quat_half_sincosu16_(uint16_t angle) SHZ_NOEXCEPT {
+    return shz_sincosu16((uint16_t)((int16_t)angle >> 1));
+}
+
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT {
+    return shz_quat_from_rotation_(shz_sincosf(xAngle * 0.5f), shz_sincosf(yAngle * 0.5f),
+                                   shz_sincosf(zAngle * 0.5f), -1.0f, 1.0f, -1.0f, 1.0f);
+}
+
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT {
+    return shz_quat_from_rotation_(shz_sincosf(xAngle * 0.5f), shz_sincosf(yAngle * 0.5f),
+                                   shz_sincosf(zAngle * 0.5f), 1.0f, -1.0f, 1.0f, -1.0f);
+}
+
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_zxy(float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT {
+    return shz_quat_from_rotation_(shz_sincosf(xAngle * 0.5f), shz_sincosf(yAngle * 0.5f),
+                                   shz_sincosf(zAngle * 0.5f), -1.0f, -1.0f, 1.0f, 1.0f);
+}
+
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT {
+    return shz_quat_from_rotation_(shz_sincosf(xAngle * 0.5f), shz_sincosf(yAngle * 0.5f),
+                                   shz_sincosf(zAngle * 0.5f), 1.0f, 1.0f, -1.0f, -1.0f);
+}
+
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_xyz_u16(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+    return shz_quat_from_rotation_(shz_quat_half_sincosu16_(xAngle), shz_quat_half_sincosu16_(yAngle),
+                                   shz_quat_half_sincosu16_(zAngle), -1.0f, 1.0f, -1.0f, 1.0f);
+}
+
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_zyx_u16(uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) SHZ_NOEXCEPT {
+    return shz_quat_from_rotation_(shz_quat_half_sincosu16_(xAngle), shz_quat_half_sincosu16_(yAngle),
+                                   shz_quat_half_sincosu16_(zAngle), 1.0f, -1.0f, 1.0f, -1.0f);
+}
+
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_zxy_u16(uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) SHZ_NOEXCEPT {
+    return shz_quat_from_rotation_(shz_quat_half_sincosu16_(xAngle), shz_quat_half_sincosu16_(yAngle),
+                                   shz_quat_half_sincosu16_(zAngle), -1.0f, -1.0f, 1.0f, 1.0f);
+}
+
+SHZ_INLINE shz_quat_t shz_quat_from_rotation_yxz_u16(uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+    return shz_quat_from_rotation_(shz_quat_half_sincosu16_(xAngle), shz_quat_half_sincosu16_(yAngle),
+                                   shz_quat_half_sincosu16_(zAngle), 1.0f, 1.0f, -1.0f, -1.0f);
+}
+
 SHZ_INLINE shz_quat_t shz_quat_from_axis_angle(shz_vec3_t axis, float angle) SHZ_NOEXCEPT {
     shz_sincos_t half_alpha = shz_sincosf(angle * 0.5f);
 
