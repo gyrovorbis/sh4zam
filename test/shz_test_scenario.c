@@ -13,6 +13,9 @@ static GBL_RESULT shz_test_scenario_constructed_(GblObject* pSelf) {
                                                    GBL_LOG_LEVEL_WARNING |
                                                    GBL_LOG_LEVEL_ERROR);
 
+    GblTestScenario_registerResultGroup(scenario, SHZ_BENCHMARK_RESULT_GROUP,
+                                                  SHZ_BENCHMARK_RESULT_TYPE);
+
     GblTestScenario_enqueueSuite(scenario,
                                  GblTestSuite_create(SHZ_SCALAR_TEST_SUITE_TYPE));
     GblTestScenario_enqueueSuite(scenario,

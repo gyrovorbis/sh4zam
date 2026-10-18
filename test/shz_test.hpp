@@ -1,6 +1,8 @@
 #ifndef SHZ_TEST_HPP
 #define SHZ_TEST_HPP
 
+#include "shz_test_scenario.h"
+
 #include <type_traits>
 #include <concepts>
 #include <print>
@@ -426,14 +428,7 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
     constexpr float    BENCHMARK_CLEAR_PCT_UNCACHED     = 0.20f;
     constexpr uint64_t BENCHMARK_TOLERANCE_ABS_UNCACHED = 24;
 
-    [[maybe_unused]] enum {
-        EQUAL,
-        GAINZ,
-        APPROX,
-        SKETCH,
-        LOSSEZ
-    } gainz;
-    const char* gainz_str;
+    shz_benchmark_result gainz;
 
     enum axis { WORSE, NOISE, BETTER };
     auto classify = [](float g, uint64_t shzCyc, uint64_t refCyc, float pctTol, float clearPct, uint64_t absTol) {
@@ -452,30 +447,31 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
                                 BENCHMARK_TOLERANCE_ABS_UNCACHED);
 
     if(shz_equalf(cacheGainz, 1.0f) && shz_equalf(uncacheGainz, 1.0f)) {
-        gainz = EQUAL;
-        gainz_str = "EQUAL";
+        gainz = SHZ_BENCHMARK_EQUAL;
     } else if((cacheAxis == BETTER && uncacheAxis != WORSE) || (cacheAxis != WORSE && uncacheAxis == BETTER)) {
-        gainz = GAINZ;
-        gainz_str = "GAINZ";
+        gainz = SHZ_BENCHMARK_GAINZ;
     } else if(cacheAxis == NOISE && uncacheAxis == NOISE) {
-        gainz = APPROX;
-        gainz_str = "APPROX";
+        gainz = SHZ_BENCHMARK_APPROX;
     } else if((cacheAxis == BETTER && uncacheAxis == WORSE) || (cacheAxis == WORSE && uncacheAxis == BETTER)) {
-        gainz = SKETCH;
-        gainz_str = "SKETCH";
+        gainz = SHZ_BENCHMARK_SKETCH;
     } else {
-        gainz = LOSSEZ;
-        gainz_str = "LOSSEZ";
+        gainz = SHZ_BENCHMARK_LOSSEZ;
     }
 
+    const GBL_RESULT result = GblTestScenario_reportResult(GBL_TEST_SCENARIO(GBL_CTX_CONTEXT()),
+                                                           SHZ_BENCHMARK_RESULT_GROUP,
+                                                           SHZ_BENCHMARK_RESULT_TYPE,
+                                                           gainz,
 #   if SHZ_TARGET == SHZ_SH4
-    std::println("* [   {:6}  ]:\t{:.4f}x / {:.4f}x [UNCACHED / CACHED]", gainz_str, uncacheGainz, cacheGainz);
+                                                           "%.4fx / %.4fx [UNCACHED / CACHED]",
+                                                           uncacheGainz, cacheGainz);
 #   else
-    std::println("* [   {:6}  ]:\t{:.4f}x [WALL CLOCK]", gainz_str, cacheGainz);
+                                                           "%.4fx [WALL CLOCK]", cacheGainz);
 #   endif
+    if(!GBL_RESULT_SUCCESS(result)) return false;
 
 #   if SHZ_BACKEND == SHZ_SH4
-    return gainz != LOSSEZ;
+    return gainz != SHZ_BENCHMARK_LOSSEZ;
 #   else
     return true;
 #   endif
