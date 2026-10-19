@@ -152,6 +152,8 @@ GBL_TEST_CASE(from_axis_angle)
     }
 GBL_TEST_CASE_END
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 GBL_TEST_CASE(from_angles_xyz)
     // all-zero angles yield identity
     GBL_TEST_VERIFY(shz::quat::from_angles_xyz(0.0f, 0.0f, 0.0f) == shz::quat::identity());
@@ -175,7 +177,10 @@ GBL_TEST_CASE(from_angles_xyz)
     // produced quaternions must be unit quaternions
     GBL_TEST_VERIFY(shz_equalf(shz::quat::from_angles_xyz(0.5f,        1.0f,        1.5f       ).magnitude(), 1.0f));
     GBL_TEST_VERIFY(shz_equalf(shz::quat::from_angles_xyz(shz::pi_f_4, shz::pi_f_2, shz::pi_f  ).magnitude(), 1.0f));
+
+    GBL_TEST_VERIFY(shz::quat::from_angles_xyz(0.4f, -0.8f, 1.2f) == shz::quat::from_rotation_xyz(0.4f, -0.8f, 1.2f));
 GBL_TEST_CASE_END
+#pragma GCC diagnostic pop
 
 GBL_TEST_CASE(from_rotation)
     // Angles in argument order: zero, quarter and half turns, and arbitrary ones, some beyond a half turn.
@@ -280,6 +285,70 @@ GBL_TEST_CASE(from_rotation_u16)
                     shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, -shz::pi_f_2));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(to_angles_xyz)
+    auto near = [](float a, float b) {
+        return shz::fabsf(a - b) <= 3e-2f;
+    };
+
+    GBL_TEST_VERIFY(shz::quat::identity().to_angles_xyz() == shz::vec3(0.0f, 0.0f, 0.0f));
+
+    { // Single-axis rotations recover their angle, with its sign, on their own axis only.
+        const shz::vec3 axes[] = { {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} };
+        const float     angles[] = { shz::pi_f / 3.0f, -shz::pi_f / 3.0f, 0.6f, -1.2f };
+
+        for(unsigned i = 0; i < 3; ++i) {
+            for(float angle : angles) {
+                const auto q = shz::quat::from_axis_angle(axes[i], angle);
+                const auto r = q.to_angles_xyz();
+
+                for(unsigned j = 0; j < 3; ++j)
+                    GBL_TEST_VERIFY(near(r[j], (i == j)? angle : 0.0f));
+
+                GBL_TEST_VERIFY(near(q.angle_x(), (i == 0)? angle : 0.0f));
+                GBL_TEST_VERIFY(near(q.angle_y(), (i == 1)? angle : 0.0f));
+                GBL_TEST_VERIFY(near(q.angle_z(), (i == 2)? angle : 0.0f));
+            }
+        }
+    }{ // Inverse of from_rotation_xyz() away from gimbal lock: X and Z in (-PI, PI), Y in (-PI/2, PI/2).
+        const float xzs[] = { -3.0f, -1.7f, -0.4f, 0.0f, 0.9f, 2.2f, 3.0f };
+        const float ys[]  = { -1.4f, -0.8f, -0.2f, 0.0f, 0.5f, 1.1f, 1.4f };
+
+        for(float x : xzs) {
+            for(float y : ys) {
+                for(float z : xzs) {
+                    const auto q = shz::quat::from_rotation_xyz(x, y, z);
+                    const auto r = q.to_angles_xyz();
+
+                    GBL_TEST_VERIFY(near(r.x, x));
+                    GBL_TEST_VERIFY(near(r.y, y));
+                    GBL_TEST_VERIFY(near(r.z, z));
+
+                    GBL_TEST_VERIFY(near(q.angle_x(), r.x));
+                    GBL_TEST_VERIFY(near(q.angle_y(), r.y));
+                    GBL_TEST_VERIFY(near(q.angle_z(), r.z));
+
+                    GBL_TEST_VERIFY(same_rotation(shz::quat::from_rotation_xyz(r.x, r.y, r.z), q));
+                }
+            }
+        }
+    }{ // Gimbal lock: the angles aren't unique, but they must still describe the same rotation.
+        const float locks[] = { shz::pi_f_2, -shz::pi_f_2 };
+        const float xzs[]   = { -2.0f, -0.5f, 0.0f, 0.7f, 2.5f };
+
+        for(float y : locks) {
+            for(float x : xzs) {
+                for(float z : xzs) {
+                    const auto q = shz::quat::from_rotation_xyz(x, y, z);
+                    const auto r = q.to_angles_xyz();
+
+                    GBL_TEST_VERIFY(near(r.y, y));
+                    GBL_TEST_VERIFY(same_rotation(shz::quat::from_rotation_xyz(r.x, r.y, r.z), q));
+                }
+            }
+        }
+    }
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(transform_vec3)
     auto check = [](shz::quat q, shz::vec3 v, shz::vec3 expected) {
         return (q * v) == expected;
@@ -340,8 +409,8 @@ GBL_TEST_CASE(transform_vec3)
     // cross-validate arbitrary rotations against reference implementation
     GBL_TEST_VERIFY(cross_check(shz::quat::from_axis_angle(shz::vec3{1.0f, 1.0f, 0.0f}.direction(), shz::pi_f / 3.0f), {1.0f, 2.0f, 3.0f}));
     GBL_TEST_VERIFY(cross_check(shz::quat::from_axis_angle(shz::vec3{1.0f, 1.0f, 1.0f}.direction(), shz::pi_f / 4.0f), {-1.0f, 0.5f, 2.0f}));
-    GBL_TEST_VERIFY(cross_check(shz::quat::from_angles_xyz(0.5f, 1.0f, 1.5f), {3.0f, -1.0f, 0.0f}));
-    GBL_TEST_VERIFY(cross_check(shz::quat::from_angles_xyz(0.3f, 0.7f, 0.2f), {0.0f, 1.0f, -1.0f}));
+    GBL_TEST_VERIFY(cross_check(shz::quat::from_rotation_xyz(0.5f, 1.0f, 1.5f), {3.0f, -1.0f, 0.0f}));
+    GBL_TEST_VERIFY(cross_check(shz::quat::from_rotation_xyz(0.3f, 0.7f, 0.2f), {0.0f, 1.0f, -1.0f}));
     {
         GBL_TEST_VERIFY(
             (benchmark_cmp<shz::vec3>)("shz::quat::transform(shz::vec3)",
@@ -350,7 +419,7 @@ GBL_TEST_CASE(transform_vec3)
                                        },
                                        "Vector3RotateByQuaternion",
                                        raylibVector3RotateByQuaternion,
-                                       shz::quat::from_angles_xyz(0.0f, 1.0f, 2.0f),
+                                       shz::quat::from_rotation_xyz(0.0f, 1.0f, 2.0f),
                                        shz::vec3{ gblRandf(), gblRandf(), gblRandf() })
         );
     }
@@ -362,7 +431,7 @@ GBL_TEST_CASE(slerp)
         const auto r90x = shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, shz::pi_f_2);
         const auto r90y = shz::quat::from_axis_angle({0.0f, 1.0f, 0.0f}, shz::pi_f_2);
         const auto r45z = shz::quat::from_axis_angle({0.0f, 0.0f, 1.0f}, shz::pi_f_4);
-        const auto arb  = shz::quat::from_angles_xyz(0.4f, 0.8f, 1.2f);
+        const auto arb  = shz::quat::from_rotation_xyz(0.4f, 0.8f, 1.2f);
 
         // All these pairs have dot >= 0 so q1 == q and t=0 yields the start quaternion.
         GBL_TEST_VERIFY(shz::quat::slerp(id,   r90x, 0.0f) == id);
@@ -374,7 +443,7 @@ GBL_TEST_CASE(slerp)
         const auto r90x = shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, shz::pi_f_2);
         const auto r90y = shz::quat::from_axis_angle({0.0f, 1.0f, 0.0f}, shz::pi_f_2);
         const auto r45z = shz::quat::from_axis_angle({0.0f, 0.0f, 1.0f}, shz::pi_f_4);
-        const auto arb  = shz::quat::from_angles_xyz(0.4f, 0.8f, 1.2f);
+        const auto arb  = shz::quat::from_rotation_xyz(0.4f, 0.8f, 1.2f);
 
         // t=1 always yields the end quaternion regardless of dot sign.
         GBL_TEST_VERIFY(shz::quat::slerp(id,   r90x, 1.0f) == r90x);
@@ -384,7 +453,7 @@ GBL_TEST_CASE(slerp)
     }{ // Identical.
         const auto id   = shz::quat::identity();
         const auto r90x = shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, shz::pi_f_2);
-        const auto arb  = shz::quat::from_angles_xyz(0.4f, 0.8f, 1.2f);
+        const auto arb  = shz::quat::from_rotation_xyz(0.4f, 0.8f, 1.2f);
 
         GBL_TEST_VERIFY(shz::quat::slerp(id,   id,   0.0f) == id);
         GBL_TEST_VERIFY(shz::quat::slerp(id,   id,   0.5f) == id);
@@ -441,7 +510,7 @@ GBL_TEST_CASE(slerp)
             // The result of slerp on two unit quaternions must itself be a unit quaternion.
             const auto r90x = shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, shz::pi_f_2);
             const auto r90y = shz::quat::from_axis_angle({0.0f, 1.0f, 0.0f}, shz::pi_f_2);
-            const auto arb  = shz::quat::from_angles_xyz(0.5f, 1.0f, 1.5f);
+            const auto arb  = shz::quat::from_rotation_xyz(0.5f, 1.0f, 1.5f);
 
             GBL_TEST_VERIFY(shz_equalf(shz::quat::slerp(id,   r90x, 0.0f).magnitude(), 1.0f));
             GBL_TEST_VERIFY(shz_equalf(shz::quat::slerp(id,   r90x, 0.5f).magnitude(), 1.0f));
@@ -532,7 +601,7 @@ GBL_TEST_CASE(slerp)
                     "raylibQuaternionSlerp",
                     raylibQuaternionSlerp,
                     shz::quat::from_axis_angle(shz::vec3{1.0f, 1.0f, 1.0f}.direction(), shz::pi_f / 3.0f),
-                    shz::quat::from_angles_xyz(0.5f, 1.0f, 1.5f),
+                    shz::quat::from_rotation_xyz(0.5f, 1.0f, 1.5f),
                     0.35f)
             );
         }
@@ -586,6 +655,7 @@ GBL_TEST_REGISTER(identity,
                   from_angles_xyz,
                   from_rotation,
                   from_rotation_u16,
+                  to_angles_xyz,
                   transform_vec3,
                   slerp,
                   nlerp)

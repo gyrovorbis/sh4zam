@@ -5,6 +5,15 @@
 #include <cmath>
 #include <print>
 
+namespace {
+    SHZ_NO_INLINE bool within_error(float actual, double precise, double epsilon) {
+        if((std::bit_cast<uint32_t>(actual) & 0x7f800000u) == 0x7f800000u)
+            return false;
+
+        return std::fabs(static_cast<double>(actual) - precise) <= epsilon;
+    }
+}
+
 #define GBL_SELF_TYPE   shz_trig_test_suite
 
 GBL_TEST_FIXTURE_NONE

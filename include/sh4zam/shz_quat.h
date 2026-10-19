@@ -69,7 +69,13 @@ SHZ_INLINE bool shz_quat_equal(shz_quat_t a, shz_quat_t b) SHZ_NOEXCEPT;
     \note
     These angles are Tait-Bryan angles representing an intrinsic rotation.
 
+    \deprecated
+    Redundant with shz_quat_from_rotation_xyz(). This routine simply calls
+    directly into it and should not be used.
+
+    \sa shz_quat_from_rotation_xyz()
 */
+SHZ_DEPRECATED("Redundant. Use shz_quat_from_rotation_xyz().")
 SHZ_INLINE shz_quat_t shz_quat_from_angles_xyz(float xangle, float yangle, float zangle) SHZ_NOEXCEPT;
 
 /*! Returns the quaternion of the rotation shz_xmtrx_init_rotation_xyz() builds, from angles in radians.

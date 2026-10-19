@@ -93,13 +93,6 @@ namespace {
         return (std::isinf(values) && ...);
     }
 
-    SHZ_NO_INLINE bool within_error(float actual, double precise, double epsilon) {
-        if((std::bit_cast<uint32_t>(actual) & 0x7f800000u) == 0x7f800000u)
-            return false;
-
-        return std::fabs(static_cast<double>(actual) - precise) <= epsilon;
-    }
-
     constexpr std::array<float, 13> unit_domain = {
         -1.0f, -0.99999994f, -0.9f, -0.75f, -0.5f, -0.25f, 0.0f,
          0.25f, 0.5f, 0.75f, 0.9f, 0.99999994f, 1.0f

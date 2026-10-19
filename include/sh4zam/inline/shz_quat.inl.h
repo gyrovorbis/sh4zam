@@ -33,17 +33,7 @@ SHZ_FORCE_INLINE bool shz_quat_equal(shz_quat_t a, shz_quat_t b) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE shz_quat_t shz_quat_from_angles_xyz(float xangle, float yangle, float zangle) SHZ_NOEXCEPT {
-    shz_sincos_t scx = shz_sincosf(xangle * 0.5f);
-    shz_sincos_t scy = shz_sincosf(yangle * 0.5f);
-    shz_sincos_t scz = shz_sincosf(zangle * 0.5f);
-
-    // \todo Some shz_vec2_dot4() kind of pattern?
-    return shz_quat_init(
-        ((scy.cos * scx.cos) * scz.cos) + ((scy.sin * scx.sin) * scz.sin),
-        ((scx.sin * scy.cos) * scz.cos) + ((scy.sin * scx.cos) * scz.sin),
-        ((scy.sin * scx.cos) * scz.cos) - ((scx.sin * scy.cos) * scz.sin),
-        ((scy.cos * scx.cos) * scz.sin) - ((scy.sin * scx.sin) * scz.cos)
-    );
+    return shz_quat_from_rotation_xyz(xangle, yangle, zangle);
 }
 
 /* qA(a) * qB(b) * qC(c) for axis quaternions of the half angles comes out, for every Tait-Bryan
@@ -140,26 +130,31 @@ SHZ_INLINE void shz_quat_to_axis_angle(shz_quat_t q, shz_vec3_t* vec, float* ang
 }
 
 SHZ_INLINE float shz_quat_angle_x(shz_quat_t q) SHZ_NOEXCEPT {
-    return shz_atan2f(-2.0f * ((q.y * q.z) + (q.w * q.x)),
+    return shz_atan2f(2.0f * ((q.w * q.x) - (q.y * q.z)),
                      shz_dot8f(q.w, -q.x, -q.y, q.z, q.w, q.x, q.y, q.z));
 }
 
 SHZ_INLINE float shz_quat_angle_y(shz_quat_t q) SHZ_NOEXCEPT {
-    return shz_asinf(shz_clampf(2.0f * ((q.x * q.z) - (q.w * q.y)), -1.0f, 1.0f));
+    return shz_asinf(shz_clampf(2.0f * ((q.x * q.z) + (q.w * q.y)), -1.0f, 1.0f));
 }
 
 SHZ_INLINE float shz_quat_angle_z(shz_quat_t q) SHZ_NOEXCEPT {
-    return shz_atan2f(2.0f * ((q.x * q.y) + (q.w * q.z)),
+    return shz_atan2f(2.0f * ((q.w * q.z) - (q.x * q.y)),
                       shz_dot8f(q.w, q.x, -q.y, -q.z, q.w, q.x, q.y, q.z));
 }
 
 SHZ_INLINE shz_vec3_t shz_quat_to_angles_xyz(shz_quat_t q) SHZ_NOEXCEPT {
-    shz_vec2_t xz = shz_quat_dot2(q, shz_quat_init(q.w, -q.x, -q.y, q.z),
-                                     shz_quat_init(q.w, q.x, -q.y, -q.z));
+    shz_vec2_t   xy = shz_quat_dot2(q, shz_quat_init(q.w, -q.x, -q.y, q.z),
+                                       shz_quat_init(q.w, -q.x, q.y, -q.z));
+    float        x  = shz_atan2f(2.0f * ((q.w * q.x) - (q.y * q.z)), xy.x);
+    shz_sincos_t sc = shz_sincosf(x);
 
-    return shz_vec3_init(shz_atan2f(-2.0f * ((q.y * q.z) + (q.w * q.x)), xz.x),
+    return shz_vec3_init(x,
                          shz_quat_angle_y(q),
-                         shz_atan2f(2.0f * ((q.x * q.y) + (q.w * q.z)), xz.y));
+                         shz_atan2f(shz_fmaf(sc.cos, 2.0f * ((q.x * q.y) + (q.w * q.z)),
+                                             sc.sin * 2.0f * ((q.x * q.z) - (q.w * q.y))),
+                                    shz_fmaf(sc.cos, xy.y,
+                                             sc.sin * 2.0f * ((q.y * q.z) + (q.w * q.x)))));
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_add(shz_quat_t q, shz_quat_t p) SHZ_NOEXCEPT {

@@ -66,8 +66,9 @@ namespace shz {
         }
         
         //! C++ convenience wrapper for shz_quat_from_angles_xyz().
+        SHZ_DEPRECATED("Redundant. Use from_rotation_xyz().")
         SHZ_FORCE_INLINE static quat from_angles_xyz(float x, float y, float z) noexcept {
-            return shz_quat_from_angles_xyz(x, y, z);
+            return shz_quat_from_rotation_xyz(x, y, z);
         }
 
         //! C++ convenience wrapper for shz_quat_from_rotation_xyz().
