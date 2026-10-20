@@ -77,7 +77,7 @@ Upstream keeps the attribute macros out of its own Doxygen reference; the [Compi
 
 ## Versioning
 
-`shz_version.h` defines `SHZ_VERSION_MAJOR`, `SHZ_VERSION_MINOR`, `SHZ_VERSION_PATCH` and the packed `SHZ_VERSION`. Upstream keeps the version in sync across `shz_version.h`, `CMakeLists.txt` and `doc/Doxyfile` with `util/shz_versioning.py`.
+`shz_version.h` defines `SHZ_VERSION_MAJOR`, `SHZ_VERSION_MINOR`, `SHZ_VERSION_PATCH` and the packed `SHZ_VERSION`. Upstream keeps the version in sync across `shz_version.h`, `CMakeLists.txt` and `doc/Doxyfile` with libGimbal's `test/libgimbal/util/gimbal_version.py`, configured by `version.cfg` at the repo root.
 
 ## Related
 
