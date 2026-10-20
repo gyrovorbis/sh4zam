@@ -63,3 +63,66 @@ void shz_xmtrx_blend_3x4_sw(const shz_mat3x4_t* matrix, float weight) {
         for(int r = 0; r < 3; ++r)
             xmtrx_state_->elem[c * 4 + r] += matrix->elem2D[c][r] * weight;
 }
+
+/* Reference implementation of the skinned batch projection: the same operations, in the same order, as the SH4
+   loop in source/sh4/shz_xmtrx_skin_sh4.s (FTRV of (x, y, z, 1), 1 / sqrt(w * w), the outcode compares on the
+   projected x / y and on the transformed z, u / v = UV * scale + offset). */
+static unsigned int shz_xmtrx_project_skinned_sw_(const shz_project_skinned_t* b, int unsigned_uv) {
+    const uint8_t* rec  = (const uint8_t*)b->records;
+    float*         out  = (float*)b->vertices;
+    unsigned int   cur  = ~0u;
+    unsigned int   i;
+
+    for(i = 0; i < b->count; ++i, rec += b->record_stride, out += 8) {
+        const int16_t* r  = (const int16_t*)rec;
+        const int16_t* p  = b->positions + (int)r[0] * 4;
+        unsigned int   mi = (unsigned int)(int)p[3];
+
+        if(mi >= b->matrix_count) mi = 0;
+        if(mi != cur) {
+            if(!b->matrix_ready[mi]) break;
+            shz_xmtrx_load_4x4(&b->matrices[mi]);
+            cur = mi;
+        }
+
+        const uint8_t* t = (const uint8_t*)b->uvs + (int)r[2] * 4;
+        float tu, tv;
+        if(unsigned_uv) {
+            tu = (float)((const uint16_t*)t)[0];
+            tv = (float)((const uint16_t*)t)[1];
+        } else {
+            tu = (float)((const int16_t*)t)[0];
+            tv = (float)((const int16_t*)t)[1];
+        }
+
+        const shz_vec4_t v   = shz_xmtrx_transform_vec4(shz_vec4_init((float)p[0], (float)p[1], (float)p[2], 1.0f));
+        const float      inv = shz_inv_sqrtf(v.w * v.w);
+        const float      x   = v.x * inv;
+        const float      y   = v.y * inv;
+        unsigned int     oc  = 0;
+
+        if(b->near_z > v.z) oc |= SHZ_PROJECT_OUTCODE_NEAR;
+        if(v.z > b->far_z)  oc |= SHZ_PROJECT_OUTCODE_FAR;
+        if(0.0f > x)        oc |= SHZ_PROJECT_OUTCODE_LEFT;
+        if(x > b->width)    oc |= SHZ_PROJECT_OUTCODE_RIGHT;
+        if(0.0f > y)        oc |= SHZ_PROJECT_OUTCODE_TOP;
+        if(y > b->height)   oc |= SHZ_PROJECT_OUTCODE_BOTTOM;
+
+        out[1] = x;
+        out[2] = y;
+        out[3] = inv;
+        out[4] = tu * b->u_scale + b->u_offset;
+        out[5] = tv * b->v_scale + b->v_offset;
+        b->outcodes[i] = (uint8_t)oc;
+    }
+
+    return b->count - i;
+}
+
+unsigned int shz_xmtrx_project_skinned_s16_sw(const shz_project_skinned_t* batch) {
+    return shz_xmtrx_project_skinned_sw_(batch, 0);
+}
+
+unsigned int shz_xmtrx_project_skinned_u16_sw(const shz_project_skinned_t* batch) {
+    return shz_xmtrx_project_skinned_sw_(batch, 1);
+}

@@ -3116,6 +3116,170 @@ GBL_TEST_CASE(transform_point2)
 
 GBL_TEST_CASE_END
 
+namespace {
+    constexpr unsigned PROJECT_VERTS    = 96;
+    constexpr unsigned PROJECT_MATRICES = 4;
+
+    // One batch of test data for shz_xmtrx_project_skinned_*(): 4 palette runs of 24 vertices each.
+    struct project_fixture {
+        alignas(32) float         vertices[PROJECT_VERTS + 2][8];
+        alignas(32) float         reference[PROJECT_VERTS + 2][8];
+        alignas(8)  shz_mat4x4_t  matrices[PROJECT_MATRICES];
+        alignas(4)  uint16_t      records[PROJECT_VERTS + 2][4];  // position index, -, UV index, -
+        alignas(8)  int16_t       positions[PROJECT_VERTS][4];
+        alignas(4)  uint16_t      uvs[PROJECT_VERTS][2];
+        uint8_t                   outcodes[PROJECT_VERTS];
+        uint8_t                   ref_outcodes[PROJECT_VERTS];
+        uint8_t                   ready[PROJECT_MATRICES];
+        shz_project_skinned_t     batch;
+
+        project_fixture() {
+            for(unsigned m = 0; m < PROJECT_MATRICES; ++m) {
+                // A screen-space projection of a dequantized (1/256), rotated, pushed-back model.
+                shz_xmtrx_init_identity();
+                shz_xmtrx_apply_screen(640.0f, 480.0f);
+                shz_xmtrx_apply_perspective(1.04719755f, 640.0f / 480.0f, 1.0f);
+                shz_xmtrx_apply_translation(0.0f, 0.0f, -(20.0f + 5.0f * m));
+                shz_xmtrx_apply_rotation_y(0.3f * m);
+                shz_xmtrx_apply_scale(1.0f / 256.0f, 1.0f / 256.0f, 1.0f / 256.0f);
+                shz_xmtrx_store_4x4(&matrices[m]);
+                ready[m] = 1;
+            }
+            for(unsigned v = 0; v < PROJECT_VERTS; ++v) {
+                positions[v][0] = static_cast<int16_t>(gblRandEquilikely(-4000, 4000));
+                positions[v][1] = static_cast<int16_t>(gblRandEquilikely(-4000, 4000));
+                positions[v][2] = static_cast<int16_t>(gblRandEquilikely(-4000, 4000));
+                positions[v][3] = static_cast<int16_t>(v / (PROJECT_VERTS / PROJECT_MATRICES));
+                uvs[v][0]       = static_cast<uint16_t>(gblRandEquilikely(0, 65535));
+                uvs[v][1]       = static_cast<uint16_t>(gblRandEquilikely(0, 65535));
+            }
+            for(unsigned r = 0; r < PROJECT_VERTS + 2; ++r) {
+                // The UV indices are shuffled so the records really are indexed; the 2 trailing records are only
+                // read ahead, never processed.
+                records[r][0] = static_cast<uint16_t>(r < PROJECT_VERTS ? r : 0);
+                records[r][1] = 0;
+                records[r][2] = static_cast<uint16_t>(r < PROJECT_VERTS ? (r * 37) % PROJECT_VERTS : 0);
+                records[r][3] = 0;
+            }
+            batch = {
+                .records = records, .count = PROJECT_VERTS, .positions = &positions[0][0], .uvs = uvs,
+                .vertices = vertices, .outcodes = outcodes, .record_stride = sizeof(records[0]),
+                .matrices = matrices, .matrix_ready = ready, .matrix_count = PROJECT_MATRICES,
+                .width = 640.0f, .height = 480.0f, .near_z = 0.0001f, .far_z = 1.0f,
+                .u_scale = 1.0f / 4096.0f, .u_offset = 0.5f, .v_scale = -1.0f / 4096.0f, .v_offset = 1.0f
+            };
+        }
+
+        // Scalar reference, written out longhand from the documented operations.
+        void project_reference(bool unsignedUv) {
+            for(unsigned r = 0; r < batch.count; ++r) {
+                const int16_t* p = positions[records[r][0]];
+                const float*   m = reinterpret_cast<const float*>(&matrices[p[3]]);
+                float o[4];
+                for(unsigned c = 0; c < 4; ++c)
+                    o[c] = m[c] * p[0] + m[4 + c] * p[1] + m[8 + c] * p[2] + m[12 + c];
+                const float inv = 1.0f / sqrtf(o[3] * o[3]);
+                const float x = o[0] * inv, y = o[1] * inv;
+                const uint16_t* t = uvs[records[r][2]];
+                const float tu = unsignedUv? static_cast<float>(t[0]) : static_cast<float>(static_cast<int16_t>(t[0]));
+                const float tv = unsignedUv? static_cast<float>(t[1]) : static_cast<float>(static_cast<int16_t>(t[1]));
+                reference[r][1] = x;
+                reference[r][2] = y;
+                reference[r][3] = inv;
+                reference[r][4] = tu * batch.u_scale + batch.u_offset;
+                reference[r][5] = tv * batch.v_scale + batch.v_offset;
+                ref_outcodes[r] = (batch.near_z > o[2]? SHZ_PROJECT_OUTCODE_NEAR   : 0) |
+                                  (o[2] > batch.far_z?  SHZ_PROJECT_OUTCODE_FAR    : 0) |
+                                  (0.0f > x?            SHZ_PROJECT_OUTCODE_LEFT   : 0) |
+                                  (x > batch.width?     SHZ_PROJECT_OUTCODE_RIGHT  : 0) |
+                                  (0.0f > y?            SHZ_PROJECT_OUTCODE_TOP    : 0) |
+                                  (y > batch.height?    SHZ_PROJECT_OUTCODE_BOTTOM : 0);
+            }
+        }
+
+        // Every written word within FTRV / FSRRA error; outcodes equal unless the value sits on a clip boundary.
+        bool verify(unsigned count) const {
+            for(unsigned r = 0; r < count; ++r) {
+                for(unsigned w = 1; w <= 5; ++w) {
+                    const float got = vertices[r][w], ref = reference[r][w];
+                    if(fabsf(got - ref) > 1e-4f * fmaxf(1.0f, fabsf(ref)))
+                        return false;
+                }
+                if(outcodes[r] != ref_outcodes[r]) {
+                    const float x = reference[r][1], y = reference[r][2];
+                    const bool edge = fabsf(x) < 0.01f || fabsf(x - batch.width) < 0.01f ||
+                                      fabsf(y) < 0.01f || fabsf(y - batch.height) < 0.01f;
+                    if(!edge) return false;
+                }
+            }
+            return true;
+        }
+    };
+}
+
+GBL_TEST_CASE(project_skinned_u16)
+    auto f = std::make_unique<project_fixture>();
+    f->project_reference(true);
+    randomize_xmtrx_();
+    GBL_TEST_COMPARE(shz_xmtrx_project_skinned_u16(&f->batch), 0u);
+    GBL_TEST_VERIFY(f->verify(PROJECT_VERTS));
+    // Words 0, 6 and 7 (flags, argb, oargb) are left alone.
+    f->vertices[5][0] = 123.0f; f->vertices[5][6] = 456.0f; f->vertices[5][7] = 789.0f;
+    shz_xmtrx_project_skinned_u16(&f->batch);
+    GBL_TEST_VERIFY(f->vertices[5][0] == 123.0f && f->vertices[5][6] == 456.0f && f->vertices[5][7] == 789.0f);
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(project_skinned_s16)
+    auto f = std::make_unique<project_fixture>();
+    f->project_reference(false);
+    GBL_TEST_COMPARE(shz_xmtrx_project_skinned_s16(&f->batch), 0u);
+    GBL_TEST_VERIFY(f->verify(PROJECT_VERTS));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(project_skinned_not_ready)
+    // A matrix that is not ready stops the batch before its first vertex; the rest is returned for a later call.
+    auto f = std::make_unique<project_fixture>();
+    f->project_reference(true);
+    f->ready[2] = 0;
+    const unsigned stop = 2 * (PROJECT_VERTS / PROJECT_MATRICES);
+    shz_project_skinned_t rest;
+    GBL_TEST_COMPARE(shz_xmtrx_project_skinned_u16(&f->batch), PROJECT_VERTS - stop);
+    GBL_TEST_VERIFY(f->verify(stop));
+    f->ready[2] = 1;
+    rest = f->batch;
+    rest.records  = f->records[stop];
+    rest.count    = PROJECT_VERTS - stop;
+    rest.vertices = f->vertices[stop];
+    rest.outcodes = f->outcodes + stop;
+    GBL_TEST_COMPARE(shz_xmtrx_project_skinned_u16(&rest), 0u);
+    GBL_TEST_VERIFY(f->verify(PROJECT_VERTS));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(project_skinned_benchmark)
+    // The same batch as a loop over the per-vertex XMTRX API (load per palette run, FTRV, FSRRA, compares).
+    auto f = std::make_unique<project_fixture>();
+    auto per_vertex = [&] {
+        const shz_project_skinned_t& b = f->batch;
+        unsigned cur = ~0u;
+        for(unsigned r = 0; r < b.count; ++r) {
+            const int16_t* p = f->positions[f->records[r][0]];
+            if(static_cast<unsigned>(p[3]) != cur) { cur = p[3]; shz_xmtrx_load_4x4(&f->matrices[cur]); }
+            const uint16_t* t = f->uvs[f->records[r][2]];
+            const shz_vec4_t v = shz_xmtrx_transform_vec4(shz_vec4_init(p[0], p[1], p[2], 1.0f));
+            const float inv = shz_inv_sqrtf(v.w * v.w), x = v.x * inv, y = v.y * inv;
+            f->vertices[r][1] = x; f->vertices[r][2] = y; f->vertices[r][3] = inv;
+            f->vertices[r][4] = t[0] * b.u_scale + b.u_offset;
+            f->vertices[r][5] = t[1] * b.v_scale + b.v_offset;
+            f->outcodes[r] = (b.near_z > v.z? SHZ_PROJECT_OUTCODE_NEAR : 0) | (v.z > b.far_z? SHZ_PROJECT_OUTCODE_FAR : 0) |
+                             (0.0f > x? SHZ_PROJECT_OUTCODE_LEFT : 0) | (x > b.width? SHZ_PROJECT_OUTCODE_RIGHT : 0) |
+                             (0.0f > y? SHZ_PROJECT_OUTCODE_TOP : 0) | (y > b.height? SHZ_PROJECT_OUTCODE_BOTTOM : 0);
+        }
+    };
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz_xmtrx_project_skinned_u16()", [&] { shz_xmtrx_project_skinned_u16(&f->batch); },
+        "per-vertex XMTRX loop",           per_vertex));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(read_write_registers,
                   read_write_rows,
                   read_write_cols,
@@ -3225,4 +3389,8 @@ GBL_TEST_REGISTER(read_write_registers,
                   transform_vec3,
                   transform_vec2,
                   transform_point3,
-                  transform_point2)
+                  transform_point2,
+                  project_skinned_u16,
+                  project_skinned_s16,
+                  project_skinned_not_ready,
+                  project_skinned_benchmark)

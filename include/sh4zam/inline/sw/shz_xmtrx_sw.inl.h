@@ -54,6 +54,8 @@ shz_xmtrx__t* shz_xmtrx_state_(void);
 void shz_xmtrx_load_apply_store_4x4_sw(shz_mat4x4_t* out, const shz_mat4x4_t* mat1, const shz_mat4x4_t* mat2);
 void shz_xmtrx_load_apply_store_3x4_sw(shz_mat3x4_t* out, const shz_mat3x4_t* mat1, const shz_mat3x4_t* mat2);
 void shz_xmtrx_load_apply_store_3x3_sw(shz_mat3x3_t* out, const shz_mat3x3_t* mat1, const shz_mat3x3_t* mat2);
+unsigned int shz_xmtrx_project_skinned_s16_sw(const shz_project_skinned_t* batch);
+unsigned int shz_xmtrx_project_skinned_u16_sw(const shz_project_skinned_t* batch);
 
 /* ========== Internal Helpers ========== */
 

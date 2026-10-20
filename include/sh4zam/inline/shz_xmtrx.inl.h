@@ -1126,3 +1126,19 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_perspective(float fov, float aspect, float 
     shz_xmtrx_init_identity();
     shz_xmtrx_apply_perspective(fov, aspect, znear);
 }
+
+SHZ_INLINE unsigned int shz_xmtrx_project_skinned_s16(const shz_project_skinned_t* batch) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_xmtrx_project_skinned_s16_sh4(batch);
+#else
+    return shz_xmtrx_project_skinned_s16_sw(batch);
+#endif
+}
+
+SHZ_INLINE unsigned int shz_xmtrx_project_skinned_u16(const shz_project_skinned_t* batch) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_xmtrx_project_skinned_u16_sh4(batch);
+#else
+    return shz_xmtrx_project_skinned_u16_sw(batch);
+#endif
+}
