@@ -43,6 +43,7 @@ if(PLATFORM_DREAMCAST)
     list(APPEND SHZ_SOURCES
          source/sh4/shz_complex_sh4.c
          source/sh4/shz_xmtrx_sh4.s
+         source/sh4/shz_xmtrx_skin_sh4.s
          source/sh4/shz_mem_sh4.s)
 endif()
 

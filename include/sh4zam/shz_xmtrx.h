@@ -781,6 +781,92 @@ SHZ_INLINE shz_vec3_t shz_xmtrx_transform_point3(shz_vec3_t pt) SHZ_NOEXCEPT;
 
 //! @}
 
+/*! \name  Skinned Batch Projection
+    \brief Transforming, projecting and clip-testing whole batches of skinned vertices.
+    @{
+*/
+
+//! Clip outcode bits written by shz_xmtrx_project_skinned_s16() and shz_xmtrx_project_skinned_u16().
+typedef enum shz_project_outcode {
+    SHZ_PROJECT_OUTCODE_BOTTOM = 0x01, //!< y > shz_project_skinned_t::height.
+    SHZ_PROJECT_OUTCODE_TOP    = 0x02, //!< y < 0.
+    SHZ_PROJECT_OUTCODE_RIGHT  = 0x04, //!< x > shz_project_skinned_t::width.
+    SHZ_PROJECT_OUTCODE_LEFT   = 0x08, //!< x < 0.
+    SHZ_PROJECT_OUTCODE_FAR    = 0x10, //!< z > shz_project_skinned_t::far_z.
+    SHZ_PROJECT_OUTCODE_NEAR   = 0x20  //!< z < shz_project_skinned_t::near_z.
+} shz_project_outcode_t;
+
+/*! Parameters of a skinned batch projection.
+
+    The batch walks \p count vertex records. Each record holds a 16-bit index into \p positions at byte 0 and a 16-bit
+    index into \p uvs at byte 4 (indices below 32768). A position is four `int16_t`: x, y, z and the index of its
+    palette matrix. Each vertex is transformed by its palette matrix (FTRV, w = 1), then:
+
+        inv   = 1 / sqrt(w * w)              (FSRRA: 1 / |w|)
+        out.x = x * inv
+        out.y = y * inv
+        out.z = inv
+        out.u = U * u_scale + u_offset
+        out.v = V * v_scale + v_offset
+
+    and one outcode byte (::shz_project_outcode_t) is stored per record. \p vertices is an array of 32-byte vertices
+    laid out like KallistiOS's `pvr_vertex_t` (flags, x, y, z, u, v, argb, oargb): only words 1-5 are written, so
+    flags and colors set up beforehand are kept.
+
+    Dequantization (scale and bias of the 16-bit positions) belongs in the palette matrices.
+
+    \warning The field offsets are part of the SH4 implementation's ABI: do not reorder them.
+*/
+typedef struct shz_project_skinned {
+    const void*         records;       //!< Vertex records (see above), \p record_stride bytes apart.
+    unsigned int        count;         //!< Number of records to process.
+    const int16_t*      positions;     //!< x, y, z, palette index (8 bytes each).
+    const void*         uvs;           //!< U, V pairs (4 bytes each): `int16_t` for the s16 variant, `uint16_t` for u16.
+    void*               vertices;      //!< Output: 32-byte vertices, one per record (32-byte aligned for best speed).
+    uint8_t*            outcodes;      //!< Output: one ::shz_project_outcode_t mask per record.
+    unsigned int        record_stride; //!< Byte stride between records.
+    const shz_mat4x4_t* matrices;      //!< Palette of 4x4 matrices (64 bytes each, 8-byte aligned).
+    const uint8_t*      matrix_ready;  //!< One byte per palette matrix: 0 stops the batch before its first use.
+    unsigned int        matrix_count;  //!< Palette size: indices at or above it use matrix 0.
+    float               width;         //!< Right edge of the screen, for ::SHZ_PROJECT_OUTCODE_RIGHT.
+    float               height;        //!< Bottom edge of the screen, for ::SHZ_PROJECT_OUTCODE_BOTTOM.
+    float               near_z;        //!< Near limit of the transformed z, for ::SHZ_PROJECT_OUTCODE_NEAR.
+    float               far_z;         //!< Far limit of the transformed z, for ::SHZ_PROJECT_OUTCODE_FAR.
+    float               u_scale;       //!< Scale applied to U.
+    float               u_offset;      //!< Offset added to the scaled U.
+    float               v_scale;       //!< Scale applied to V.
+    float               v_offset;      //!< Offset added to the scaled V.
+} shz_project_skinned_t;
+
+/*! Transforms, projects and clip-tests a batch of skinned vertices with signed 16-bit UVs.
+
+    Matrices are switched inside the loop whenever a vertex's palette index differs from the previous one, so batches
+    whose vertices are sorted by matrix pay one 64-byte matrix load per run.
+
+    \note
+    Records are read ahead of use: up to two records past the last one, and the position and UV entries they
+    index, are read and discarded. Keep that memory readable.
+
+    \warning
+    XMTRX is clobbered: on return it holds the last palette matrix used.
+
+    \returns The number of records NOT processed: 0, unless a matrix whose \p matrix_ready byte is 0 was reached
+    (the batch then stops before that record, so callers can build matrices lazily and resume).
+
+    \sa shz_xmtrx_project_skinned_u16()
+*/
+SHZ_INLINE unsigned int shz_xmtrx_project_skinned_s16(const shz_project_skinned_t* batch) SHZ_NOEXCEPT;
+
+/*! Transforms, projects and clip-tests a batch of skinned vertices with unsigned 16-bit UVs.
+
+    Identical to shz_xmtrx_project_skinned_s16(), except that the UV pairs are read as `uint16_t`.
+
+    \sa shz_xmtrx_project_skinned_s16()
+*/
+SHZ_INLINE unsigned int shz_xmtrx_project_skinned_u16(const shz_project_skinned_t* batch) SHZ_NOEXCEPT;
+
+//! @}
+
 /*! \name  Setters
     \brief Sets the values of related XMTRX components.
     @{
