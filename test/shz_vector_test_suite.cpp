@@ -3,8 +3,13 @@
 #include "sh4zam/shz_vector.hpp"
 
 #include <cglm/call.h>
+#include <cglm/vec2.h>
+#include <cglm/vec3.h>
+#include <cglm/vec4.h>
 
 #include <print>
+#include <string>
+#include <tuple>
 
 #define GBL_SELF_TYPE shz_vector_test_suite
 
@@ -436,21 +441,26 @@ GBL_TEST_CASE(vec3RotateX)
         GBL_TEST_VERIFY(vec3RotateVerify_(vec, radians, shz::vec3(1.0f, 0.0f, 0.0f), vec.rotate_x(radians)));
     }
 
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<shz::vec3>)("shz::vec3::rotate_x",
-                                   [](const shz::vec3& v, float r) {
-                                       return v.rotate_x(r);
-                                   },
-                                   "glm_vec3_rotate",
-                                   [](const shz::vec3& v, float r) {
-                                       shz_glm_vec3 u;
-                                       vec3         axis = { 1.0f, 0.0f, 0.0f };
-                                       u.shz = v;
-                                       glm_vec3_rotate(u.glm, r, axis);
-                                       return u.shz;
-                                   },
-                                   vec3RotateRand_(), gblRandUniform(-shz::tau_f, shz::tau_f))
-    );
+    {
+        volatile float out[3];
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec3::rotate_x",
+                                  [&](const shz::vec3& v, float r) {
+                                      const shz::vec3 o = v.rotate_x(r);
+                                      out[0] = o.x; out[1] = o.y; out[2] = o.z;
+                                  },
+                                  "glm_vec3_rotate",
+                                  [&](const shz::vec3& v, float r) {
+                                      shz_glm_vec3 u;
+                                      vec3         axis = { 1.0f, 0.0f, 0.0f };
+                                      u.shz = v;
+                                      glm_vec3_rotate(u.glm, r, axis);
+                                      out[0] = u.glm[0]; out[1] = u.glm[1]; out[2] = u.glm[2];
+                                  },
+                                  vec3RotateRand_(), gblRandUniform(-shz::tau_f, shz::tau_f))
+        );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3RotateY)
@@ -475,21 +485,26 @@ GBL_TEST_CASE(vec3RotateY)
         GBL_TEST_VERIFY(vec3RotateVerify_(vec, radians, shz::vec3(0.0f, 1.0f, 0.0f), vec.rotate_y(radians)));
     }
 
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<shz::vec3>)("shz::vec3::rotate_y",
-                                   [](const shz::vec3& v, float r) {
-                                       return v.rotate_y(r);
-                                   },
-                                   "glm_vec3_rotate",
-                                   [](const shz::vec3& v, float r) {
-                                       shz_glm_vec3 u;
-                                       vec3         axis = { 0.0f, 1.0f, 0.0f };
-                                       u.shz = v;
-                                       glm_vec3_rotate(u.glm, r, axis);
-                                       return u.shz;
-                                   },
-                                   vec3RotateRand_(), gblRandUniform(-shz::tau_f, shz::tau_f))
-    );
+    {
+        volatile float out[3];
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec3::rotate_y",
+                                  [&](const shz::vec3& v, float r) {
+                                      const shz::vec3 o = v.rotate_y(r);
+                                      out[0] = o.x; out[1] = o.y; out[2] = o.z;
+                                  },
+                                  "glm_vec3_rotate",
+                                  [&](const shz::vec3& v, float r) {
+                                      shz_glm_vec3 u;
+                                      vec3         axis = { 0.0f, 1.0f, 0.0f };
+                                      u.shz = v;
+                                      glm_vec3_rotate(u.glm, r, axis);
+                                      out[0] = u.glm[0]; out[1] = u.glm[1]; out[2] = u.glm[2];
+                                  },
+                                  vec3RotateRand_(), gblRandUniform(-shz::tau_f, shz::tau_f))
+        );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3RotateZ)
@@ -523,21 +538,26 @@ GBL_TEST_CASE(vec3RotateZ)
         GBL_TEST_VERIFY(vec3RotateVerify_(vec, radians, shz::vec3(0.0f, 0.0f, 1.0f), vec.rotate_z(radians)));
     }
 
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<shz::vec3>)("shz::vec3::rotate_z",
-                                   [](const shz::vec3& v, float r) {
-                                       return v.rotate_z(r);
-                                   },
-                                   "glm_vec3_rotate",
-                                   [](const shz::vec3& v, float r) {
-                                       shz_glm_vec3 u;
-                                       vec3         axis = { 0.0f, 0.0f, 1.0f };
-                                       u.shz = v;
-                                       glm_vec3_rotate(u.glm, r, axis);
-                                       return u.shz;
-                                   },
-                                   vec3RotateRand_(), gblRandUniform(-shz::tau_f, shz::tau_f))
-    );
+    {
+        volatile float out[3];
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec3::rotate_z",
+                                  [&](const shz::vec3& v, float r) {
+                                      const shz::vec3 o = v.rotate_z(r);
+                                      out[0] = o.x; out[1] = o.y; out[2] = o.z;
+                                  },
+                                  "glm_vec3_rotate",
+                                  [&](const shz::vec3& v, float r) {
+                                      shz_glm_vec3 u;
+                                      vec3         axis = { 0.0f, 0.0f, 1.0f };
+                                      u.shz = v;
+                                      glm_vec3_rotate(u.glm, r, axis);
+                                      out[0] = u.glm[0]; out[1] = u.glm[1]; out[2] = u.glm[2];
+                                  },
+                                  vec3RotateRand_(), gblRandUniform(-shz::tau_f, shz::tau_f))
+        );
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3Orthonormalize)
@@ -955,6 +975,181 @@ GBL_TEST_CASE(vec4InvSqrtf)
 #endif
 GBL_TEST_CASE_END
 
+template<typename V>
+static constexpr std::size_t vec_dim_ = sizeof(V) / sizeof(float);
+
+static bool vec_close_(float a, float b) {
+    return std::fabs(a - b) <= 1e-4f * std::fmax(1.0f, std::fabs(b));
+}
+
+template<typename V>
+static bool vec_close_(const V& a, const V& b) {
+    for(std::size_t i = 0; i < vec_dim_<V>; ++i)
+        if(!vec_close_(a[i], b[i]))
+            return false;
+    return true;
+}
+
+template<typename V>
+static bool vec_magnitude_safety_(const V& v) {
+    const V     zero(0.0f);
+    const float ref = std::sqrt(v.magnitude_sqr());
+
+    return zero.magnitude()     == 0.0f      &&
+           zero.magnitude_inv() == 0.0f      &&
+           vec_close_(v.magnitude(),           ref)        &&
+           vec_close_(v.magnitude_fsrra(),     ref)        &&
+           vec_close_(v.magnitude_inv(),       1.0f / ref) &&
+           vec_close_(v.magnitude_inv_fsrra(), 1.0f / ref);
+}
+
+template<typename V>
+static bool vec_normalize_or_(const V& v, const V& alt, const V& safe_alt) {
+    const V zero(0.0f);
+    V       ref;
+
+    for(std::size_t i = 0; i < vec_dim_<V>; ++i)
+        ref[i] = v[i] / std::sqrt(v.magnitude_sqr());
+
+    V inPlaceOr   = zero;
+    V inPlaceSafe = zero;
+    inPlaceOr.normalize_or(alt);
+    inPlaceSafe.normalize_safe();
+
+    V nonZeroOr   = v;
+    V nonZeroSafe = v;
+    nonZeroOr.normalize_or(alt);
+    nonZeroSafe.normalize_safe();
+
+    return zero.normalized_or(alt) == alt      &&
+           zero.direction_or(alt)  == alt      &&
+           zero.normalized_safe()  == safe_alt &&
+           zero.direction_safe()   == safe_alt &&
+           inPlaceOr               == alt      &&
+           inPlaceSafe             == safe_alt &&
+           vec_close_(v.normalized(),         ref) &&
+           vec_close_(v.normalized_or(alt),   ref) &&
+           vec_close_(v.direction_or(alt),    ref) &&
+           vec_close_(v.normalized_safe(),    ref) &&
+           vec_close_(nonZeroOr,              ref) &&
+           vec_close_(nonZeroSafe,            ref);
+}
+
+template<typename V>
+static void vec_magnitude_bench_(const V& v, auto glmNorm, auto glmNormalizeTo) {
+    const std::string dim  = std::to_string(vec_dim_<V>);
+    auto              name = [&](std::string_view prefix, std::string_view fn) {
+        return std::string(prefix) + dim + std::string(fn);
+    };
+
+    (benchmark_cmp<float>)(name("shz::vec", "::magnitude").c_str(),
+                           [](const V& v) { return v.magnitude(); },
+                           name("glm_vec", "_norm").c_str(),
+                           [&](const V& v) { return glmNorm(const_cast<float*>(&v[0])); },
+                           v);
+    (benchmark_cmp<float>)(name("shz::vec", "::magnitude_fsrra").c_str(),
+                           [](const V& v) { return v.magnitude_fsrra(); },
+                           name("glm_vec", "_norm").c_str(),
+                           [&](const V& v) { return glmNorm(const_cast<float*>(&v[0])); },
+                           v);
+    (benchmark_cmp<float>)(name("shz::vec", "::magnitude_inv").c_str(),
+                           [](const V& v) { return v.magnitude_inv(); },
+                           name("1.0f / glm_vec", "_norm").c_str(),
+                           [&](const V& v) { return 1.0f / glmNorm(const_cast<float*>(&v[0])); },
+                           v);
+    (benchmark_cmp<float>)(name("shz::vec", "::magnitude_inv_fsrra").c_str(),
+                           [](const V& v) { return v.magnitude_inv_fsrra(); },
+                           name("1.0f / glm_vec", "_norm").c_str(),
+                           [&](const V& v) { return 1.0f / glmNorm(const_cast<float*>(&v[0])); },
+                           v);
+    (benchmark_cmp<V>)(name("shz::vec", "::normalized").c_str(),
+                       [](const V& v) { return v.normalized(); },
+                       name("glm_vec", "_normalize_to").c_str(),
+                       [&](const V& v) { V out; glmNormalizeTo(const_cast<float*>(&v[0]), &out[0]); return out; },
+                       v);
+    (benchmark_cmp<V>)(name("shz::vec", "::normalized_or").c_str(),
+                       [](const V& v) { return v.normalized_or(V(0.0f)); },
+                       name("glm_vec", "_normalize_to").c_str(),
+                       [&](const V& v) { V out; glmNormalizeTo(const_cast<float*>(&v[0]), &out[0]); return out; },
+                       v);
+    (benchmark_cmp<V>)(name("shz::vec", "::normalized_safe").c_str(),
+                       [](const V& v) { return v.normalized_safe(); },
+                       name("glm_vec", "_normalize_to").c_str(),
+                       [&](const V& v) { V out; glmNormalizeTo(const_cast<float*>(&v[0]), &out[0]); return out; },
+                       v);
+}
+
+GBL_TEST_CASE(vecMagnitudeSafety)
+    GBL_TEST_VERIFY(vec_magnitude_safety_(shz::vec2(3.0f, -4.0f)));
+    GBL_TEST_VERIFY(vec_magnitude_safety_(shz::vec2(0.001f, 0.0f)));
+    GBL_TEST_VERIFY(vec_magnitude_safety_(shz::vec3(2.0f, -3.0f, 6.0f)));
+    GBL_TEST_VERIFY(vec_magnitude_safety_(shz::vec3(0.0f, 0.0f, 1234.5f)));
+    GBL_TEST_VERIFY(vec_magnitude_safety_(shz::vec4(1.0f, -2.0f, 3.0f, -4.0f)));
+    GBL_TEST_VERIFY(vec_magnitude_safety_(shz::vec4(0.0f, 0.5f, 0.0f, 0.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vecNormalizeOr)
+    GBL_TEST_VERIFY(vec_normalize_or_(shz::vec2(3.0f, -4.0f),
+                                      shz::vec2(-1.0f, 0.0f),
+                                      shz::vec2(0.0f)));
+    GBL_TEST_VERIFY(vec_normalize_or_(shz::vec3(2.0f, -3.0f, 6.0f),
+                                      shz::vec3(1.0f, 0.0f, 0.0f),
+                                      shz::vec3(0.0f)));
+    GBL_TEST_VERIFY(vec_normalize_or_(shz::vec4(1.0f, -2.0f, 3.0f, -4.0f),
+                                      shz::vec4(0.0f, 1.0f, 0.0f, 0.0f),
+                                      shz::vec4(0.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vecMagnitudeBenchmark)
+    vec_magnitude_bench_(shz::vec2(gblRandf(), gblRandf()),
+                         [](float* v) { return glm_vec2_norm(v); },
+                         [](float* v, float* d) { glm_vec2_normalize_to(v, d); });
+    vec_magnitude_bench_(shz::vec3(gblRandf(), gblRandf(), gblRandf()),
+                         [](float* v) { return glm_vec3_norm(v); },
+                         [](float* v, float* d) { glm_vec3_normalize_to(v, d); });
+    vec_magnitude_bench_(shz::vec4(gblRandf(), gblRandf(), gblRandf(), gblRandf()),
+                         [](float* v) { return glm_vec4_norm(v); },
+                         [](float* v, float* d) { glm_vec4_normalize_to(v, d); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Triple)
+    const shz::vec3 x(1.0f, 0.0f, 0.0f), y(0.0f, 1.0f, 0.0f), z(0.0f, 0.0f, 1.0f);
+
+    GBL_TEST_VERIFY(x.triple(y, z) ==  1.0f);
+    GBL_TEST_VERIFY(x.triple(z, y) == -1.0f);
+    GBL_TEST_VERIFY(x.triple(x, y) ==  0.0f);
+
+    for(const auto& [a, b, c] : { std::tuple{ shz::vec3(2.0f, 3.0f, 5.0f),   shz::vec3(7.0f, 11.0f, 13.0f), shz::vec3(17.0f, 19.0f, 23.0f) },
+                                  std::tuple{ shz::vec3(-1.5f, 4.0f, 0.25f), shz::vec3(3.0f, -2.0f, 8.0f),  shz::vec3(0.5f, 6.0f, -7.0f)   },
+                                  std::tuple{ shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                                              shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                                              shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)) } }) {
+        shz_glm_vec3 ga, gb, gc, cross;
+        ga.shz = a; gb.shz = b; gc.shz = c;
+        glm_vec3_cross(gb.glm, gc.glm, cross.glm);
+        const float ref = glm_vec3_dot(ga.glm, cross.glm);
+        const float tol = 1e-4f * std::fmax(1.0f, std::sqrt(a.magnitude_sqr() * b.magnitude_sqr() * c.magnitude_sqr()));
+
+        GBL_TEST_VERIFY(std::fabs(a.triple(b, c) - ref)  <= tol);
+        GBL_TEST_VERIFY(std::fabs(b.triple(c, a) - ref)  <= tol);
+        GBL_TEST_VERIFY(std::fabs(a.triple(c, b) + ref)  <= tol);
+    }
+
+    (benchmark_cmp<float>)("shz::vec3::triple",
+                           [](const shz::vec3& a, const shz::vec3& b, const shz::vec3& c) {
+                               return a.triple(b, c);
+                           },
+                           "glm_vec3_cross + glm_vec3_dot",
+                           [](const shz::vec3& a, const shz::vec3& b, const shz::vec3& c) {
+                               vec3 cross;
+                               glm_vec3_cross(const_cast<float*>(&b[0]), const_cast<float*>(&c[0]), cross);
+                               return glm_vec3_dot(const_cast<float*>(&a[0]), cross);
+                           },
+                           shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                           shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                           shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(vec2Construct,
                   vec2Set,
                   vec2Lerp,
@@ -972,6 +1167,9 @@ GBL_TEST_REGISTER(vec2Construct,
                   vec2MagnitudeSqr,
                   vec2MagnitudeInv,
                   vec2Direction,
+                  vecMagnitudeSafety,
+                  vecNormalizeOr,
+                  vecMagnitudeBenchmark,
                   vec3Dot,
                   vec3Dot2,
                   vec3Dot3,
@@ -983,6 +1181,7 @@ GBL_TEST_REGISTER(vec2Construct,
                   vec3RotateY,
                   vec3RotateZ,
                   vec3Orthonormalize,
+                  vec3Triple,
                   vec3Barycenter,
                   vec2Move,
                   vec3Move,

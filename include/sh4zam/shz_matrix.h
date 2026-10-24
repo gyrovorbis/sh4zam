@@ -332,7 +332,21 @@ SHZ_INLINE float shz_mat4x4_trace(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 //! Extracts the top-left 3x3 of the given 4D matrix.
 SHZ_INLINE void shz_mat4x4_3x3(const shz_mat4x4_t* mat4, shz_mat3x3_t* mat3) SHZ_NOEXCEPT;
 
-//! Extracts and inverts the top-level, unscaled 3x3 of the given 4x4 matrix.
+/*! Extracts the top-left 3x3 of the given 4x4 matrix and computes its adjugate.
+
+    \sa shz_mat3x3_adjugate(), shz_mat4x4_3x3_inverse()
+*/
+SHZ_INLINE void shz_mat4x4_3x3_adjugate(const shz_mat4x4_t* mat4, shz_mat3x3_t* adjmat3) SHZ_NOEXCEPT;
+
+/*! Extracts the top-left 3x3 of the given 4x4 matrix and computes its adjugate.
+
+    \deprecated
+    Misnamed. This routine computes the adjugate, not an inverse, and simply calls directly into
+    shz_mat4x4_3x3_adjugate().
+
+    \sa shz_mat4x4_3x3_adjugate()
+*/
+SHZ_DEPRECATED("Misnamed. Use shz_mat4x4_3x3_adjugate().")
 SHZ_INLINE void shz_mat4x4_3x3_inverse_unscaled(const shz_mat4x4_t* mat4, shz_mat3x3_t* invmat3) SHZ_NOEXCEPT;
 
 //! Extracts and inverts the top-level 3x3 (which may be scaled) of the given 4x4 matrix.
@@ -415,62 +429,84 @@ SHZ_INLINE void shz_mat4x4_apply_translation(shz_mat4x4_t* mat, float x, float y
 */
 SHZ_INLINE void shz_mat4x4_apply_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
 
-/*! Multiplies and accumulates a rotation matrix by \p xAngle radians about the X-axis onto the given matrix.
+/*! Deprecated way to multiply \p mat by a rotation about the X axis.
 
-    \warning This routine clobbers XMTRX.
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_x(), which it now forwards to.
+
+    \sa shz_mat4x4_rotate_x()
 */
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_x().")
 SHZ_INLINE void shz_mat4x4_apply_rotation_x(shz_mat4x4_t* mat, float xAngle) SHZ_NOEXCEPT;
 
-/*! Multiplies and accumulates a rotation matrix by \p yAngle radians about the Y-axis onto the given matrix.
+/*! Deprecated way to multiply \p mat by a rotation about the Y axis.
 
-    \warning This routine clobbers XMTRX.
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_y(), which it now forwards to.
+
+    \sa shz_mat4x4_rotate_y()
 */
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_y().")
 SHZ_INLINE void shz_mat4x4_apply_rotation_y(shz_mat4x4_t* mat, float yAngle) SHZ_NOEXCEPT;
 
-/*! Multiplies and accumulates a rotation matrix by \p zAngle radians about the Z-axis onto the given matrix.
+/*! Deprecated way to multiply \p mat by a rotation about the Z axis.
 
-    \warning This routine clobbers XMTRX.
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_z(), which it now forwards to.
+
+    \sa shz_mat4x4_rotate_z()
 */
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_z().")
 SHZ_INLINE void shz_mat4x4_apply_rotation_z(shz_mat4x4_t* mat, float zAngle) SHZ_NOEXCEPT;
 
-/*! Rotates the given transform matrix about the X axis, then the Y axis, then the Z axis by the given angles in radians.
+/*! Deprecated way to multiply \p mat by X-Y-Z rotation matrices.
 
-    Multiplies and accumulates the given matrix with the 3D rotation matrix formed from the intrinsic rotation created by the given Tait-Bryan X-Y-Z angles.
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_xyz(), which it now forwards to.
 
-    \warning This routine clobbers XMTRX.
+    \sa shz_mat4x4_rotate_xyz()
 */
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_xyz().")
 SHZ_INLINE void shz_mat4x4_apply_rotation_xyz(shz_mat4x4_t* mat, float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT;
 
-/*! Rotates the given transform matrix about the Z axis, then the Y axis, then the X axis by the given angles in radians.
+/*! Deprecated way to multiply \p mat by Z-Y-X rotation matrices.
 
-    Multiplies and accumulates the given matrix with the 3D rotation matrix formed from the intrinsic rotation created by the given Tait-Bryan Z-Y-X angles.
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_zyx(), which it now forwards to.
 
-    \warning This routine clobbers XMTRX.
+    \sa shz_mat4x4_rotate_zyx()
 */
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_zyx().")
 SHZ_INLINE void shz_mat4x4_apply_rotation_zyx(shz_mat4x4_t* mat, float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
 
-/*! Rotates the given transform matrix about the Z axis, then the X axis, then the Y axis by the given angles in radians.
+/*! Deprecated way to multiply \p mat by Z-X-Y rotation matrices.
 
-    Multiplies and accumulates the given matrix with the 3D rotation matrix formed from the intrinsic rotation created by the given Tait-Bryan Z-Y-X angles.
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_zxy(), which it now forwards to.
 
-    \warning This routine clobbers XMTRX.
+    \sa shz_mat4x4_rotate_zxy()
 */
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_zxy().")
 SHZ_INLINE void shz_mat4x4_apply_rotation_zxy(shz_mat4x4_t* mat, float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT;
 
-/*! Rotates the given transform matrix about the Y axis, then the X axis, then the Z axis by the given angles in radians.
+/*! Deprecated way to multiply \p mat by Y-X-Z rotation matrices.
 
-    Multiplies and accumulates the given matrix with the 3D rotation matrix formed from the intrinsic rotation created by the given Tait-Bryan Y-X-Z angles.
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_yxz(), which it now forwards to.
 
-    \warning This routine clobbers XMTRX.
+    \sa shz_mat4x4_rotate_yxz()
 */
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_yxz().")
 SHZ_INLINE void shz_mat4x4_apply_rotation_yxz(shz_mat4x4_t* mat, float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
 
-/*! Rotates the given transform matrix about the arbitrary axis given by a 3D direction vector and angle of rotation in radians.
+/*! Deprecated way to multiply \p mat by a rotation about an arbitrary axis.
 
-    Multiplies and accumulates the given matrix with the 3D rotation matrix formed from the intrinsic rotation created by the given Tait-Bryan Z-Y-X angles.
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate(), which it now forwards to.
 
-    \warning This routine clobbers XMTRX.
+    \sa shz_mat4x4_rotate()
 */
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate().")
 SHZ_INLINE void shz_mat4x4_apply_rotation(shz_mat4x4_t* mat, float angle, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the given matrix with a rotation matrix whose orientation is given by a quaternion.
@@ -596,12 +632,48 @@ SHZ_INLINE void shz_mat4x4_rotate_zxy(shz_mat4x4_t* mat, float zRadians, float x
 */
 SHZ_INLINE void shz_mat4x4_rotate_yxz(shz_mat4x4_t* mat, float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT;
 
-/*! Multiplies and accumulates \p mat by the 3D rotation matrix formed by the given axis and angle.
+/*! Multiplies \p mat by a 3D rotation matrix about an arbitrary axis.
 
-    \note Equivalent to glRotatef().
+    Constructs a 4x4 rotation matrix of \p radians about the axis with the given
+    components, RIGHT multiplying it into \p mat. This rotates within the local
+    frame of \p mat, about its own origin, leaving its translation column unmodified.
+
+    The axis does not need to be normalized.
+
+    \note
+    This is the equivalent of glRotatef().
+
     \warning This routine clobbers XMTRX.
+
+    \param mat         The matrix to rotate in-place.
+    \param radians     Angle of rotation, in radians.
+    \param xAxis       X component of the axis of rotation.
+    \param yAxis       Y component of the axis of rotation.
+    \param zAxis       Z component of the axis of rotation.
+
+    \sa shz_xmtrx_rotate(), shz_mat4x4_rotate_dir()
 */
 SHZ_INLINE void shz_mat4x4_rotate(shz_mat4x4_t* mat, float radians, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
+
+/*! Multiplies \p mat by a 3D rotation matrix about a prenormalized axis.
+
+    This is a faster version of shz_mat4x4_rotate() which skips normalizing the
+    axis of rotation. Constructs a 4x4 rotation matrix of \p radians about the
+    given axis, RIGHT multiplying it into \p mat, leaving its translation column
+    unmodified.
+
+    \warning The vector components representing the axis of rotation must be prenormalized!
+    \warning This routine clobbers XMTRX.
+
+    \param mat         The matrix to rotate in-place.
+    \param radians     Angle of rotation, in radians.
+    \param x           X component of the unit axis of rotation.
+    \param y           Y component of the unit axis of rotation.
+    \param z           Z component of the unit axis of rotation.
+
+    \sa shz_mat4x4_rotate(), shz_mat4x4_init_rotation_dir(), shz_xmtrx_rotate_dir()
+*/
+SHZ_INLINE void shz_mat4x4_rotate_dir(shz_mat4x4_t* mat, float radians, float x, float y, float z) SHZ_NOEXCEPT;
 
 //!@}
 
@@ -843,8 +915,27 @@ void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ
 
     \note
     shz_mat4x4_inverse() will dynamically check whether to use this optimization.
+
+    \sa shz_mat4x4_inverse_rigid()
 */
 void shz_mat4x4_inverse_block_triangular(const shz_mat4x4_t* mtx, shz_mat4x4_t* out) SHZ_NOEXCEPT;
+
+/*! Computes the inverse of a rigid 4x4 transform matrix.
+
+    \p mtx must be a rigid affine transform [R t; 0 1], where R is orthonormal. The result,
+    [transpose(R), -transpose(R) * t; 0 1], is computed by transposing R rather than by a general
+    inversion, making this far cheaper than shz_mat4x4_inverse().
+
+    \warning Scale, shear, and projective matrices are not inverted correctly. Use
+    shz_mat4x4_inverse() for those.
+
+    \warning This routine clobbers XMTRX.
+
+    \note shz_mat4x4_inverse() does not dynamically check whether to use this optimization.
+
+    \sa shz_xmtrx_invert_rigid(), shz_mat4x4_inverse_block_triangular()
+*/
+SHZ_INLINE void shz_mat4x4_inverse_rigid(const shz_mat4x4_t* mtx, shz_mat4x4_t* out) SHZ_NOEXCEPT;
 
 //! Returns true if the two matrices are equal, based on either absolute or relative tolerance.
 SHZ_INLINE bool shz_mat4x4_equal(const shz_mat4x4_t* SHZ_RESTRICT mat1, const shz_mat4x4_t* mat2) SHZ_NOEXCEPT;
@@ -949,16 +1040,34 @@ typedef struct shz_mat4x3 {
  */
 SHZ_INLINE void shz_mat3x3_transpose(const shz_mat3x3_t* mat, shz_mat3x3_t* out) SHZ_NOEXCEPT;
 
-/*! Computes the inverse of an orthonormal 3x3 matrix.
+/*! Computes the adjugate of a 3x3 matrix.
 
-    \note The routine saves cycles by not scaling by the determinant, which is typically useful for
-    normals and lighting, where the matrix has no scale factor.
+    The adjugate is the inverse scaled by the determinant: adj(M) = det(M) * M^-1. It is defined
+    for every matrix, including singular ones, and saves cycles over shz_mat3x3_inverse() by not
+    computing or dividing by the determinant.
+
+    \note The transpose of the adjugate shares the direction of the inverse-transpose normal
+    matrix, so it can be used to transform normals that are renormalized afterwards, even under
+    non-uniform scale. A negative determinant flips them.
 
     \warning This routine clobbers XMTRX.
 
-    \param  mat     Pointer to the 3x3 matrix to invert.
-    \param  out     Pointer to the resulting inverted matrix.
+    \param  mat     Pointer to the 3x3 matrix whose adjugate is computed.
+    \param  out     Pointer to the resulting adjugate matrix.
+
+    \sa shz_mat3x3_inverse()
  */
+SHZ_INLINE void shz_mat3x3_adjugate(const shz_mat3x3_t* mat, shz_mat3x3_t* out) SHZ_NOEXCEPT;
+
+/*! Computes the adjugate of a 3x3 matrix.
+
+    \deprecated
+    Misnamed. This routine computes the adjugate, not an inverse, and simply calls directly into
+    shz_mat3x3_adjugate().
+
+    \sa shz_mat3x3_adjugate()
+ */
+SHZ_DEPRECATED("Misnamed. Use shz_mat3x3_adjugate().")
 SHZ_INLINE void shz_mat3x3_inverse_unscaled(const shz_mat3x3_t* mat, shz_mat3x3_t* out) SHZ_NOEXCEPT;
 
 /*! Computes the inverse of a 3x3 matrix.

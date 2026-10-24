@@ -61,4 +61,21 @@ SHZ_FORCE_INLINE float shz_cbrt_magic_sw(float x) SHZ_NOEXCEPT {
 
 //! \endcond
 
+SHZ_FORCE_INLINE float shz_powif_sw(float x, int n) SHZ_NOEXCEPT {
+    unsigned int e = (n < 0)? -(unsigned int)n : (unsigned int)n;
+    float result = 1.0f;
+
+    if(n < 0)
+        x = 1.0f / x;
+
+    while(e) {
+        if(e & 1)
+            result *= x;
+        e >>= 1;
+        x *= x;
+    }
+
+    return result;
+}
+
 #endif

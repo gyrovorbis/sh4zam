@@ -86,12 +86,56 @@ GBL_TEST_CASE(inverse)
     mat.shz.init_identity();
     mat.shz.apply_scale(2.0f, 3.0f, 4.0f);
     mat.shz.apply_translation(10.0f, 20.0f, 30.0f);
-    mat.shz.apply_rotation_x(shz::pi_f);
+    mat.shz.rotate_x(shz::pi_f);
     mat.shz.inverse(&inverted);
     inverted.inverse(&invertedInverted);
 
     GBL_TEST_VERIFY(mat.shz == invertedInverted);
     GBL_TEST_VERIFY(test(mat));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(inverse_rigid)
+    struct rigid { float rx, ry, rz, tx, ty, tz, mirror; };
+    constexpr rigid cases[] = {
+        {  0.0f,  0.0f,  0.0f,   0.0f,  0.0f,  0.0f,  1.0f },
+        {  0.4f, -0.8f,  1.2f,   3.0f, -2.0f,  5.0f,  1.0f },
+        { -2.1f,  1.3f,  0.7f, -10.0f,  0.5f, -7.5f,  1.0f },
+        {  0.9f,  0.2f, -1.6f,   4.0f,  6.0f, -1.0f, -1.0f }
+    };
+
+    shz_glm_mat4 mat, glmInverted;
+    shz::mat4x4  shzInverted, invertedInverted;
+
+    for(const auto& c : cases) {
+        mat.shz.init_rotation_xyz(c.rx, c.ry, c.rz);
+        mat.shz.apply_scale(c.mirror, 1.0f, 1.0f);
+        mat.shz.apply_translation(c.tx, c.ty, c.tz);
+
+        mat.shz.inverse_rigid(&shzInverted);
+        glm_mat4_copy(mat.glm, glmInverted.glm);
+        glm_inv_tr(glmInverted.glm);
+
+        GBL_TEST_VERIFY(shzInverted == glmInverted.shz);
+        GBL_TEST_VERIFY(shzInverted.elem[3]  == 0.0f && shzInverted.elem[7]  == 0.0f &&
+                        shzInverted.elem[11] == 0.0f && shzInverted.elem[15] == 1.0f);
+
+        shzInverted.inverse_rigid(&invertedInverted);
+        GBL_TEST_VERIFY(mat.shz == invertedInverted);
+    }
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)("shz::mat4x4::inverse_rigid",
+                              [](const shz::mat4x4& src, shz::mat4x4* dst) {
+                                  src.inverse_rigid(dst);
+                              },
+                              "glm_inv_tr",
+                              [](const shz::mat4x4& src, shz::mat4x4* dst) {
+                                  glm_mat4_copy(*reinterpret_cast<mat4*>(const_cast<shz::mat4x4*>(&src)),
+                                                *reinterpret_cast<mat4*>(dst));
+                                  glm_inv_tr(*reinterpret_cast<mat4*>(dst));
+                              },
+                              mat.shz, &shzInverted)
+    );
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(transform_vec3)
@@ -285,7 +329,7 @@ GBL_TEST_CASE(set_scale)
     // translation column is left completely untouched.
     {
         mat.shz.init_identity();
-        mat.shz.apply_rotation_x(shz::deg_to_rad(42.0f));
+        mat.shz.rotate_x(shz::deg_to_rad(42.0f));
         mat.shz.apply_translation(1.0f, 2.0f, 3.0f);
 
         shz::vec3 priorTranslation = mat.shz.get_translation();
@@ -344,8 +388,8 @@ GBL_TEST_CASE(get_scale)
     // regardless of rotation, since rotating a column doesn't change its length.
     {
         mat.shz.init_identity();
-        mat.shz.apply_rotation_x(shz::deg_to_rad(30.0f));
-        mat.shz.apply_rotation_y(shz::deg_to_rad(60.0f));
+        mat.shz.rotate_x(shz::deg_to_rad(30.0f));
+        mat.shz.rotate_y(shz::deg_to_rad(60.0f));
         mat.shz.apply_scale(3.0f, 4.0f, 5.0f);
 
         vec3 glmScale;
@@ -547,9 +591,218 @@ GBL_TEST_CASE(to_quat)
     );
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(rotate)
+    {
+        shz::mat4x4 m;
+        m.elem[0]  = 1.0f; m.elem[1]  = 0.0f; m.elem[2]  = 0.0f; m.elem[3]  = 0.0f;
+        m.elem[4]  = 0.0f; m.elem[5]  = 1.0f; m.elem[6]  = 0.0f; m.elem[7]  = 0.0f;
+        m.elem[8]  = 0.0f; m.elem[9]  = 0.0f; m.elem[10] = 1.0f; m.elem[11] = 0.0f;
+        m.elem[12] = 7.0f; m.elem[13] = 8.0f; m.elem[14] = 9.0f; m.elem[15] = 1.0f;
+
+        m.rotate(0.0f, 1.0f, 0.0f, 0.0f);
+
+        GBL_TEST_VERIFY(m.elem[12] == 7.0f && m.elem[13] == 8.0f &&
+                        m.elem[14] == 9.0f && m.elem[15] == 1.0f);
+        for(int c = 0; c < 3; ++c)
+            for(int r = 0; r < 4; ++r)
+                GBL_TEST_VERIFY(shz::fabsf(m.elem2D[c][r] - (c == r ? 1.0f : 0.0f)) <= 1e-4f);
+    }
+
+    {
+        const float start[16] = { 2.0f,  0.5f, -1.0f, 0.0f,
+                                  0.25f, 3.0f,  0.75f, 0.0f,
+                                 -1.5f,  1.0f,  1.25f, 0.0f,
+                                  7.0f,  8.0f,  9.0f,  1.0f };
+
+        for(const auto& [angle, axis] : { std::pair{ 1.1f,        shz::vec3(0.3f, -0.5f, 0.8f) },
+                                          std::pair{ -2.5f,       shz::vec3(0.0f,  0.0f, 3.0f) },
+                                          std::pair{ shz::pi_f_2, shz::vec3(1.0f,  1.0f, 1.0f) } }) {
+            shz_glm_mat4 m, ref;
+            shz_glm_vec3 glmAxis;
+            memcpy(m.glm,   start, sizeof(start));
+            memcpy(ref.glm, start, sizeof(start));
+            glmAxis.shz = axis;
+            glm_rotate(ref.glm, angle, glmAxis.glm);
+
+            m.shz.rotate(angle, axis);
+
+            for(int i = 0; i < 16; ++i)
+                GBL_TEST_VERIFY(shz::fabsf(m.shz.elem[i] - ref.glm[i / 4][i % 4]) <= 1e-3f * shz::fmaxf(1.0f, shz::fabsf(ref.glm[i / 4][i % 4])));
+        }
+
+        {
+            shz_glm_mat4 shzMat, glmMat;
+            memcpy(shzMat.glm, start, sizeof(start));
+            memcpy(glmMat.glm, start, sizeof(start));
+
+            GBL_TEST_VERIFY(
+                (benchmark_cmp<void>)(
+                    "shz::mat4x4::rotate", [&](float angle, float x, float y, float z) {
+                        shzMat.shz.rotate(angle, x, y, z);
+                    },
+                    "glm_rotate", [&](float angle, float x, float y, float z) {
+                        vec3 axis = { x, y, z };
+                        glm_rotate(glmMat.glm, angle, axis);
+                    },
+                    1.1f, 0.3f, -0.5f, 0.8f
+                )
+            );
+        }
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_dir)
+    {
+        shz::mat4x4 m;
+        m.elem[0]  = 1.0f; m.elem[1]  = 0.0f; m.elem[2]  = 0.0f; m.elem[3]  = 0.0f;
+        m.elem[4]  = 0.0f; m.elem[5]  = 1.0f; m.elem[6]  = 0.0f; m.elem[7]  = 0.0f;
+        m.elem[8]  = 0.0f; m.elem[9]  = 0.0f; m.elem[10] = 1.0f; m.elem[11] = 0.0f;
+        m.elem[12] = 7.0f; m.elem[13] = 8.0f; m.elem[14] = 9.0f; m.elem[15] = 1.0f;
+
+        m.rotate_dir(0.0f, 1.0f, 0.0f, 0.0f);
+
+        GBL_TEST_VERIFY(m.elem[12] == 7.0f && m.elem[13] == 8.0f &&
+                        m.elem[14] == 9.0f && m.elem[15] == 1.0f);
+        for(int c = 0; c < 3; ++c)
+            for(int r = 0; r < 4; ++r)
+                GBL_TEST_VERIFY(shz::fabsf(m.elem2D[c][r] - (c == r ? 1.0f : 0.0f)) <= 1e-4f);
+    }
+
+    {
+        const float start[16] = { 2.0f,  0.5f, -1.0f, 0.0f,
+                                  0.25f, 3.0f,  0.75f, 0.0f,
+                                 -1.5f,  1.0f,  1.25f, 0.0f,
+                                  7.0f,  8.0f,  9.0f,  1.0f };
+
+        for(const auto& [angle, axis] : { std::pair{ 1.1f,        shz::vec3(0.3f, -0.5f, 0.8f).direction() },
+                                          std::pair{ -2.5f,       shz::vec3(0.0f,  0.0f, 1.0f)             },
+                                          std::pair{ shz::pi_f_2, shz::vec3(1.0f,  1.0f, 1.0f).direction() } }) {
+            shz_glm_mat4 m, ref;
+            shz_glm_vec3 glmAxis;
+            memcpy(m.glm,   start, sizeof(start));
+            memcpy(ref.glm, start, sizeof(start));
+            glmAxis.shz = axis;
+            glm_rotate(ref.glm, angle, glmAxis.glm);
+
+            m.shz.rotate_dir(angle, axis);
+
+            for(int i = 0; i < 16; ++i)
+                GBL_TEST_VERIFY(shz::fabsf(m.shz.elem[i] - ref.glm[i / 4][i % 4]) <= 1e-3f * shz::fmaxf(1.0f, shz::fabsf(ref.glm[i / 4][i % 4])));
+        }
+
+        {
+            shz_glm_mat4 shzMat, glmMat;
+            memcpy(shzMat.glm, start, sizeof(start));
+            memcpy(glmMat.glm, start, sizeof(start));
+
+            const shz::vec3 dir = shz::vec3(0.3f, -0.5f, 0.8f).direction();
+
+            GBL_TEST_VERIFY(
+                (benchmark_cmp<void>)(
+                    "shz::mat4x4::rotate_dir", [&](float angle, float x, float y, float z) {
+                        shzMat.shz.rotate_dir(angle, x, y, z);
+                    },
+                    "glm_rotate", [&](float angle, float x, float y, float z) {
+                        vec3 axis = { x, y, z };
+                        glm_rotate(glmMat.glm, angle, axis);
+                    },
+                    1.1f, dir.x, dir.y, dir.z
+                )
+            );
+        }
+    }
+GBL_TEST_CASE_END
+
+static void glm_rotate_ordered_(mat4 m, const char* order, float a0, float a1, float a2) {
+    const float angles[3] = { a0, a1, a2 };
+    for(int i = 0; i < 3; ++i) {
+        switch(order[i]) {
+        case 'x': glm_rotate_x(m, angles[i], m); break;
+        case 'y': glm_rotate_y(m, angles[i], m); break;
+        case 'z': glm_rotate_z(m, angles[i], m); break;
+        }
+    }
+}
+
+template<typename F>
+static bool check_mat4x4_rotation_(const char* order, F&& fn) {
+    static constexpr float angles[][3] = {
+        { 0.0f,        0.0f,        0.0f        },
+        { shz::pi_f_2, 0.0f,        0.0f        },
+        { 0.0f,        shz::pi_f_2, 0.0f        },
+        { 0.0f,        0.0f,        shz::pi_f_2 },
+        { 0.3f,       -1.2f,        2.5f        },
+        {-2.9f,        0.7f,       -0.4f        },
+        { 1.1f,        1.3f,       -2.2f        },
+    };
+    static constexpr float start[16] = { 2.0f,  0.5f, -1.0f, 0.0f,
+                                         0.25f, 3.0f,  0.75f, 0.0f,
+                                        -1.5f,  1.0f,  1.25f, 0.0f,
+                                         7.0f,  8.0f,  9.0f,  1.0f };
+
+    for(const auto& a : angles) {
+        shz_glm_mat4 res, ref;
+        memcpy(res.glm, start, sizeof(start));
+        memcpy(ref.glm, start, sizeof(start));
+
+        fn(res.shz, a[0], a[1], a[2]);
+        glm_rotate_ordered_(ref.glm, order, a[0], a[1], a[2]);
+
+        for(int c = 0; c < 4; ++c)
+            for(int r = 0; r < 4; ++r)
+                if(shz::fabsf(res.glm[c][r] - ref.glm[c][r]) > 1e-3f * shz::fmaxf(1.0f, shz::fabsf(ref.glm[c][r])))
+                    return false;
+    }
+    return true;
+}
+
+template<typename F>
+static bool bench_mat4x4_rotation_(const char* shzName, const char* glmName, const char* order, F&& fn) {
+    static shz_glm_mat4 shzMat, glmMat;
+    glm_mat4_identity(shzMat.glm);
+    glm_mat4_identity(glmMat.glm);
+    return (benchmark_cmp<void>)(
+        shzName, [&fn](float a0, float a1, float a2) { fn(shzMat.shz, a0, a1, a2); },
+        glmName, [order](float a0, float a1, float a2) { glm_rotate_ordered_(glmMat.glm, order, a0, a1, a2); },
+        0.3f, -1.2f, 2.5f);
+}
+
+GBL_TEST_CASE(rotate_xyz)
+    GBL_TEST_VERIFY(check_mat4x4_rotation_("xyz", [](shz::mat4x4& m, float a0, float a1, float a2) {
+        m.rotate_xyz(a0, a1, a2);
+    }));
+    GBL_TEST_VERIFY(bench_mat4x4_rotation_("shz::mat4x4::rotate_xyz", "glm_rotate_x/y/z", "xyz",
+                                           [](shz::mat4x4& m, float a0, float a1, float a2) { m.rotate_xyz(a0, a1, a2); }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_zyx)
+    GBL_TEST_VERIFY(check_mat4x4_rotation_("zyx", [](shz::mat4x4& m, float a0, float a1, float a2) {
+        m.rotate_zyx(a0, a1, a2);
+    }));
+    GBL_TEST_VERIFY(bench_mat4x4_rotation_("shz::mat4x4::rotate_zyx", "glm_rotate_z/y/x", "zyx",
+                                           [](shz::mat4x4& m, float a0, float a1, float a2) { m.rotate_zyx(a0, a1, a2); }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_zxy)
+    GBL_TEST_VERIFY(check_mat4x4_rotation_("zxy", [](shz::mat4x4& m, float a0, float a1, float a2) {
+        m.rotate_zxy(a0, a1, a2);
+    }));
+    GBL_TEST_VERIFY(bench_mat4x4_rotation_("shz::mat4x4::rotate_zxy", "glm_rotate_z/x/y", "zxy",
+                                           [](shz::mat4x4& m, float a0, float a1, float a2) { m.rotate_zxy(a0, a1, a2); }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_yxz)
+    GBL_TEST_VERIFY(check_mat4x4_rotation_("yxz", [](shz::mat4x4& m, float a0, float a1, float a2) {
+        m.rotate_yxz(a0, a1, a2);
+    }));
+    GBL_TEST_VERIFY(bench_mat4x4_rotation_("shz::mat4x4::rotate_yxz", "glm_rotate_y/x/z", "yxz",
+                                           [](shz::mat4x4& m, float a0, float a1, float a2) { m.rotate_yxz(a0, a1, a2); }));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(copy,
                   swap,
                   inverse,
+                  inverse_rigid,
                   transform_vec3,
                   transform_vec4,
                   translate_reverse,
@@ -557,5 +810,11 @@ GBL_TEST_REGISTER(copy,
                   set_scale,
                   get_scale,
                   init_rotation_dir,
+                  rotate,
+                  rotate_dir,
+                  rotate_xyz,
+                  rotate_zyx,
+                  rotate_zxy,
+                  rotate_yxz,
                   blend,
                   to_quat)

@@ -175,60 +175,96 @@ SHZ_FORCE_INLINE float shz_vec4_magnitude_sqr(shz_vec4_t vec) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_vec2_magnitude(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return shz_sqrtf_fsrra(shz_vec2_magnitude_sqr(vec));
+    return shz_sqrtf(shz_vec2_magnitude_sqr(vec));
 }
 
 SHZ_FORCE_INLINE float shz_vec3_magnitude(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_sqrtf_fsrra(shz_vec3_magnitude_sqr(vec));
+    return shz_sqrtf(shz_vec3_magnitude_sqr(vec));
 }
 
 SHZ_FORCE_INLINE float shz_vec4_magnitude(shz_vec4_t vec) SHZ_NOEXCEPT {
+    return shz_sqrtf(shz_vec4_magnitude_sqr(vec));
+}
+
+SHZ_FORCE_INLINE float shz_vec2_magnitude_fsrra(shz_vec2_t vec) SHZ_NOEXCEPT {
+    return shz_sqrtf_fsrra(shz_vec2_magnitude_sqr(vec));
+}
+
+SHZ_FORCE_INLINE float shz_vec3_magnitude_fsrra(shz_vec3_t vec) SHZ_NOEXCEPT {
+    return shz_sqrtf_fsrra(shz_vec3_magnitude_sqr(vec));
+}
+
+SHZ_FORCE_INLINE float shz_vec4_magnitude_fsrra(shz_vec4_t vec) SHZ_NOEXCEPT {
     return shz_sqrtf_fsrra(shz_vec4_magnitude_sqr(vec));
 }
 
 SHZ_FORCE_INLINE float shz_vec2_magnitude_inv(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return shz_inv_sqrtf_fsrra(shz_vec2_magnitude_sqr(vec));
+    return shz_inv_sqrtf(shz_vec2_magnitude_sqr(vec));
 }
 
 SHZ_FORCE_INLINE float shz_vec3_magnitude_inv(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_inv_sqrtf_fsrra(shz_vec3_magnitude_sqr(vec));
+    return shz_inv_sqrtf(shz_vec3_magnitude_sqr(vec));
 }
 
 SHZ_FORCE_INLINE float shz_vec4_magnitude_inv(shz_vec4_t vec) SHZ_NOEXCEPT {
+    return shz_inv_sqrtf(shz_vec4_magnitude_sqr(vec));
+}
+
+SHZ_FORCE_INLINE float shz_vec2_magnitude_inv_fsrra(shz_vec2_t vec) SHZ_NOEXCEPT {
+    return shz_inv_sqrtf_fsrra(shz_vec2_magnitude_sqr(vec));
+}
+
+SHZ_FORCE_INLINE float shz_vec3_magnitude_inv_fsrra(shz_vec3_t vec) SHZ_NOEXCEPT {
+    return shz_inv_sqrtf_fsrra(shz_vec3_magnitude_sqr(vec));
+}
+
+SHZ_FORCE_INLINE float shz_vec4_magnitude_inv_fsrra(shz_vec4_t vec) SHZ_NOEXCEPT {
     return shz_inv_sqrtf_fsrra(shz_vec4_magnitude_sqr(vec));
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_normalize(shz_vec2_t vec) SHZ_NOEXCEPT {
-    return shz_vec2_scale(vec, shz_vec2_magnitude_inv(vec));
+    return shz_vec2_scale(vec, shz_vec2_magnitude_inv_fsrra(vec));
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_normalize(shz_vec3_t vec) SHZ_NOEXCEPT {
-    return shz_vec3_scale(vec, shz_vec3_magnitude_inv(vec));
+    return shz_vec3_scale(vec, shz_vec3_magnitude_inv_fsrra(vec));
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_normalize(shz_vec4_t vec) SHZ_NOEXCEPT {
-    return shz_vec4_scale(vec, shz_vec4_magnitude_inv(vec));
+    return shz_vec4_scale(vec, shz_vec4_magnitude_inv_fsrra(vec));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_normalize_or(shz_vec2_t vec, shz_vec2_t alt) SHZ_NOEXCEPT {
+    const float sqr_mag = shz_vec2_magnitude_sqr(vec);
+
+    return (sqr_mag == 0.0f)?
+        alt : shz_vec2_scale(vec, shz_inv_sqrtf_fsrra(sqr_mag));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_normalize_or(shz_vec3_t vec, shz_vec3_t alt) SHZ_NOEXCEPT {
+    const float sqr_mag = shz_vec3_magnitude_sqr(vec);
+
+    return (sqr_mag == 0.0f)?
+        alt : shz_vec3_scale(vec, shz_inv_sqrtf_fsrra(sqr_mag));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_normalize_or(shz_vec4_t vec, shz_vec4_t alt) SHZ_NOEXCEPT {
+    const float sqr_mag = shz_vec4_magnitude_sqr(vec);
+
+    return (sqr_mag == 0.0f)?
+        alt : shz_vec4_scale(vec, shz_inv_sqrtf_fsrra(sqr_mag));
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_normalize_safe(shz_vec2_t vec) SHZ_NOEXCEPT {
-    float mag = shz_vec2_magnitude_sqr(vec);
-
-    return (mag > 0.0f)? shz_vec2_scale(vec, shz_inv_sqrtf_fsrra(mag)) :
-                         shz_vec2_fill(0.0f);
+    return shz_vec2_normalize_or(vec, shz_vec2_fill(0.0f));
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_normalize_safe(shz_vec3_t vec) SHZ_NOEXCEPT {
-    float mag = shz_vec3_magnitude_sqr(vec);
-
-    return (mag > 0.0f)? shz_vec3_scale(vec, shz_inv_sqrtf_fsrra(mag)) :
-                         shz_vec3_fill(0.0f);
+    return shz_vec3_normalize_or(vec, shz_vec3_fill(0.0f));
 }
 
 SHZ_FORCE_INLINE shz_vec4_t shz_vec4_normalize_safe(shz_vec4_t vec) SHZ_NOEXCEPT {
-    float mag = shz_vec4_magnitude_sqr(vec);
-
-    return (mag > 0.0f)? shz_vec4_scale(vec, shz_inv_sqrtf_fsrra(mag)) :
-                         shz_vec4_fill(0.0f);
+    return shz_vec4_normalize_or(vec, shz_vec4_fill(0.0f));
 }
 
 SHZ_FORCE_INLINE shz_vec2_t shz_vec2_abs(shz_vec2_t vec) SHZ_NOEXCEPT {
@@ -602,8 +638,8 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_barycenter(shz_vec3_t p,
 
 SHZ_INLINE shz_vec3_t shz_vec3_perp(shz_vec3_t vec) SHZ_NOEXCEPT {
     shz_vec3_t cardinal_axis = shz_vec3_init(1.0f, 0.0f, 0.0f);
-    float min = shz_fabsf(vec.x);
-    float maybe_min;
+    float      min           = shz_fabsf(vec.x);
+    float      maybe_min;
 
     if ((maybe_min = shz_fabsf(vec.y)) < min) {
         min = maybe_min;

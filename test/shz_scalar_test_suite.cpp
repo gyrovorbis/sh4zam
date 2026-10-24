@@ -6,6 +6,7 @@
 
 #include <print>
 #include <array>
+#include <climits>
 
 #define GBL_SELF_TYPE shz_scalar_test_suite
 
@@ -620,6 +621,52 @@ GBL_TEST_CASE(remainderf)
     }
 GBL_TEST_CASE_END
 
+static volatile float powif_x_;
+static volatile int   powif_n_;
+
+GBL_TEST_CASE(powif)
+    {
+        for(int n : { 0, 1, 2, 3, 5, 8, 13, 31, -1, -3, -8 })
+            for(float x : { 0.5f, 1.5f, -1.25f, 2.0f, 0.9f }) {
+                powif_x_ = x; powif_n_ = n;
+                const float res = shz::powif(powif_x_, powif_n_);
+                const float ref = powf(x, (float)n);
+                GBL_TEST_VERIFY(shz::fabsf(res - ref) <= 1e-4f * shz::fmaxf(1.0f, shz::fabsf(ref)));
+            }
+
+        powif_x_ = 0.0f; powif_n_ = 0;
+        GBL_TEST_VERIFY(shz::powif(powif_x_, powif_n_) == 1.0f);
+        powif_x_ = 1.0f; powif_n_ = INT_MIN;
+        GBL_TEST_VERIFY(shz::powif(powif_x_, powif_n_) == 1.0f);
+        powif_x_ = -1.0f; powif_n_ = INT_MAX;
+        GBL_TEST_VERIFY(shz::powif(powif_x_, powif_n_) == -1.0f);
+        powif_x_ = 2.0f; powif_n_ = 10;
+        GBL_TEST_VERIFY(shz::powif(powif_x_, powif_n_) == 1024.0f);
+        powif_x_ = 2.0f; powif_n_ = -2;
+        GBL_TEST_VERIFY(shz::powif(powif_x_, powif_n_) == 0.25f);
+        powif_x_ = 3.0f;
+        GBL_TEST_VERIFY(shz::powif(powif_x_, 5) == 243.0f);
+    }
+
+    powif_x_ = 1.0013f; powif_n_ = 13;
+
+#ifdef SHZ_GNUC
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<float>)(
+            "shz::powif", [](float, int) { return shz::powif(powif_x_, powif_n_); },
+            "__builtin_powif", [](float, int) { return __builtin_powif(powif_x_, powif_n_); },
+            0.0f, 0
+        )
+    );
+#endif
+
+    (benchmark_cmp<float>)(
+        "shz::powif", [](float, int) { return shz::powif(powif_x_, powif_n_); },
+        "shz::powf", [](float, int) { return shz::powf(powif_x_, (float)powif_n_); },
+        0.0f, 0
+    );
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(min,
                   max,
                   clamp,
@@ -644,5 +691,6 @@ GBL_TEST_REGISTER(min,
                   logf,
                   log10f,
                   pow10f,
+                  powif,
                   fmodf,
                   remainderf)

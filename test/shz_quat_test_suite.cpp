@@ -3,6 +3,9 @@
 #include "sh4zam/shz_quat.hpp"
 
 #include <print>
+#include <array>
+#include <cglm/quat.h>
+#include <cglm/euler.h>
 
 #define GBL_SELF_TYPE   shz_quat_test_suite
 
@@ -85,17 +88,22 @@ namespace {
         void      (*mat_init)(shz_mat4x4_t*, float, float, float);
         shz::quat (*from_rotation)(float, float, float);
         shz::quat (*from_rotation_u16)(uint16_t, uint16_t, uint16_t);
+        shz::vec3 (*to_angles)(const shz::quat&);
         shz::vec3   axes[3];
     };
 
     const euler_order euler_orders[] = {
         { "xyz", shz_mat4x4_init_rotation_xyz, shz::quat::from_rotation_xyz, shz::quat::from_rotation_xyz_u16,
+          [](const shz::quat& q) { return q.to_angles_xyz(); },
           { { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } } },
         { "zyx", shz_mat4x4_init_rotation_zyx, shz::quat::from_rotation_zyx, shz::quat::from_rotation_zyx_u16,
+          [](const shz::quat& q) { return q.to_angles_zyx(); },
           { { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } } },
         { "zxy", shz_mat4x4_init_rotation_zxy, shz::quat::from_rotation_zxy, shz::quat::from_rotation_zxy_u16,
+          [](const shz::quat& q) { return q.to_angles_zxy(); },
           { { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } } },
         { "yxz", shz_mat4x4_init_rotation_yxz, shz::quat::from_rotation_yxz, shz::quat::from_rotation_yxz_u16,
+          [](const shz::quat& q) { return q.to_angles_yxz(); },
           { { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } } },
     };
 }
@@ -212,7 +220,7 @@ GBL_TEST_CASE(from_rotation)
             actual.init_rotation(q);
             GBL_TEST_VERIFY(actual == expected);
             // Tighter than ==, with headroom for FSCA quantizing angles to 1/65536 of a turn on SH4.
-            GBL_TEST_ERROR(max_element_error(actual, expected), 0.0f, 2e-3f, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_VERIFY(shz::fabsf(max_element_error(actual, expected)) <= 2e-3f);
 
             // Must equal the product of the axis quaternions, in the order of the name.
             const shz::quat product = shz::quat::from_axis_angle(order.axes[0], a[0]) *
@@ -221,7 +229,7 @@ GBL_TEST_CASE(from_rotation)
             GBL_TEST_VERIFY(q == product);
 
             // Must be a unit quaternion.
-            GBL_TEST_ERROR(q.magnitude(), 1.0f, 1e-4f, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_VERIFY(shz_equalf(q.magnitude(), 1.0f));
         }
     }
 
@@ -273,10 +281,10 @@ GBL_TEST_CASE(from_rotation_u16)
             actual.init_rotation(q);
             GBL_TEST_VERIFY(actual == expected);
             // Tighter than ==, with headroom for FSCA quantizing angles to 1/65536 of a turn on SH4.
-            GBL_TEST_ERROR(max_element_error(actual, expected), 0.0f, 2e-3f, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_VERIFY(shz::fabsf(max_element_error(actual, expected)) <= 2e-3f);
 
             // Must be a unit quaternion.
-            GBL_TEST_ERROR(q.magnitude(), 1.0f, 1e-4f, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_VERIFY(shz_equalf(q.magnitude(), 1.0f));
         }
     }
 
@@ -286,63 +294,223 @@ GBL_TEST_CASE(from_rotation_u16)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(to_angles_xyz)
-    auto near = [](float a, float b) {
-        return shz::fabsf(a - b) <= 3e-2f;
-    };
+#if SHZ_BACKEND == SHZ_SH4
+    GBL_TEST_SKIP("TODO: GCC 17 dev (20260630) miscompiles its own fsca expansion, swapping sin/cos lanes on spill. Re-enable once the toolchain is fixed.");
+#endif
+    {
+        auto near = [](float a, float b) {
+            return shz::fabsf(a - b) <= 3e-2f;
+        };
 
-    GBL_TEST_VERIFY(shz::quat::identity().to_angles_xyz() == shz::vec3(0.0f, 0.0f, 0.0f));
+        GBL_TEST_VERIFY(shz::quat::identity().to_angles_xyz() == shz::vec3(0.0f, 0.0f, 0.0f));
 
-    { // Single-axis rotations recover their angle, with its sign, on their own axis only.
-        const shz::vec3 axes[] = { {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} };
-        const float     angles[] = { shz::pi_f / 3.0f, -shz::pi_f / 3.0f, 0.6f, -1.2f };
+        { // Single-axis rotations recover their angle, with its sign, on their own axis only.
+            const shz::vec3 axes[] = { {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} };
+            const float     angles[] = { shz::pi_f / 3.0f, -shz::pi_f / 3.0f, 0.6f, -1.2f };
 
-        for(unsigned i = 0; i < 3; ++i) {
-            for(float angle : angles) {
-                const auto q = shz::quat::from_axis_angle(axes[i], angle);
-                const auto r = q.to_angles_xyz();
-
-                for(unsigned j = 0; j < 3; ++j)
-                    GBL_TEST_VERIFY(near(r[j], (i == j)? angle : 0.0f));
-
-                GBL_TEST_VERIFY(near(q.angle_x(), (i == 0)? angle : 0.0f));
-                GBL_TEST_VERIFY(near(q.angle_y(), (i == 1)? angle : 0.0f));
-                GBL_TEST_VERIFY(near(q.angle_z(), (i == 2)? angle : 0.0f));
-            }
-        }
-    }{ // Inverse of from_rotation_xyz() away from gimbal lock: X and Z in (-PI, PI), Y in (-PI/2, PI/2).
-        const float xzs[] = { -3.0f, -1.7f, -0.4f, 0.0f, 0.9f, 2.2f, 3.0f };
-        const float ys[]  = { -1.4f, -0.8f, -0.2f, 0.0f, 0.5f, 1.1f, 1.4f };
-
-        for(float x : xzs) {
-            for(float y : ys) {
-                for(float z : xzs) {
-                    const auto q = shz::quat::from_rotation_xyz(x, y, z);
+            for(unsigned i = 0; i < 3; ++i) {
+                for(float angle : angles) {
+                    const auto q = shz::quat::from_axis_angle(axes[i], angle);
                     const auto r = q.to_angles_xyz();
 
-                    GBL_TEST_VERIFY(near(r.x, x));
-                    GBL_TEST_VERIFY(near(r.y, y));
-                    GBL_TEST_VERIFY(near(r.z, z));
+                    for(unsigned j = 0; j < 3; ++j)
+                        GBL_TEST_VERIFY(near(r[j], (i == j)? angle : 0.0f));
 
-                    GBL_TEST_VERIFY(near(q.angle_x(), r.x));
-                    GBL_TEST_VERIFY(near(q.angle_y(), r.y));
-                    GBL_TEST_VERIFY(near(q.angle_z(), r.z));
+                    GBL_TEST_VERIFY(near(q.angle_x(), (i == 0)? angle : 0.0f));
+                    GBL_TEST_VERIFY(near(q.angle_y(), (i == 1)? angle : 0.0f));
+                    GBL_TEST_VERIFY(near(q.angle_z(), (i == 2)? angle : 0.0f));
+                }
+            }
+        }{ // Inverse of from_rotation_xyz() away from gimbal lock: X and Z in (-PI, PI), Y in (-PI/2, PI/2).
+            const float xzs[] = { -3.0f, -1.7f, -0.4f, 0.0f, 0.9f, 2.2f, 3.0f };
+            const float ys[]  = { -1.4f, -0.8f, -0.2f, 0.0f, 0.5f, 1.1f, 1.4f };
 
-                    GBL_TEST_VERIFY(same_rotation(shz::quat::from_rotation_xyz(r.x, r.y, r.z), q));
+            for(float x : xzs) {
+                for(float y : ys) {
+                    for(float z : xzs) {
+                        const auto q = shz::quat::from_rotation_xyz(x, y, z);
+                        const auto r = q.to_angles_xyz();
+
+                        GBL_TEST_VERIFY(near(r.x, x));
+                        GBL_TEST_VERIFY(near(r.y, y));
+                        GBL_TEST_VERIFY(near(r.z, z));
+
+                        GBL_TEST_VERIFY(near(q.angle_x(), r.x));
+                        GBL_TEST_VERIFY(near(q.angle_y(), r.y));
+                        GBL_TEST_VERIFY(near(q.angle_z(), r.z));
+
+                        GBL_TEST_VERIFY(same_rotation(shz::quat::from_rotation_xyz(r.x, r.y, r.z), q));
+                    }
+                }
+            }
+        }{ // Gimbal lock: the angles aren't unique, but they must still describe the same rotation.
+            const float locks[] = { shz::pi_f_2, -shz::pi_f_2 };
+            const float xzs[]   = { -2.0f, -0.5f, 0.0f, 0.7f, 2.5f };
+
+            for(float y : locks) {
+                for(float x : xzs) {
+                    for(float z : xzs) {
+                        const auto q = shz::quat::from_rotation_xyz(x, y, z);
+                        const auto r = q.to_angles_xyz();
+
+                        GBL_TEST_VERIFY(near(r.y, y));
+                        GBL_TEST_VERIFY(same_rotation(shz::quat::from_rotation_xyz(r.x, r.y, r.z), q));
+                    }
                 }
             }
         }
-    }{ // Gimbal lock: the angles aren't unique, but they must still describe the same rotation.
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(from_rotation_benchmark)
+    constexpr float u16_radians = shz::pi_f / 32768.0f;
+
+#define glm_quat_(order, x, y, z) \
+    [&] { \
+        vec3         angles = { x, y, z }; \
+        versor       v; \
+        glm_euler_##order##_quat(angles, v); \
+        return shz::quat(v[3], v[0], v[1], v[2]); \
+    }()
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_xyz",
+                                   [](float x, float y, float z) { return shz::quat::from_rotation_xyz(x, y, z); },
+                                   "glm_euler_xyz_quat",
+                                   [](float x, float y, float z) { return glm_quat_(xyz, x, y, z); },
+                                   0.4f, -0.8f, 1.2f)
+    );
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zyx",
+                                   [](float x, float y, float z) { return shz::quat::from_rotation_zyx(z, y, x); },
+                                   "glm_euler_zyx_quat",
+                                   [](float x, float y, float z) { return glm_quat_(zyx, x, y, z); },
+                                   0.4f, -0.8f, 1.2f)
+    );
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zxy",
+                                   [](float x, float y, float z) { return shz::quat::from_rotation_zxy(z, x, y); },
+                                   "glm_euler_zxy_quat",
+                                   [](float x, float y, float z) { return glm_quat_(zxy, x, y, z); },
+                                   0.4f, -0.8f, 1.2f)
+    );
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_yxz",
+                                   [](float x, float y, float z) { return shz::quat::from_rotation_yxz(y, x, z); },
+                                   "glm_euler_yxz_quat",
+                                   [](float x, float y, float z) { return glm_quat_(yxz, x, y, z); },
+                                   0.4f, -0.8f, 1.2f)
+    );
+    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_xyz_u16",
+                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_xyz_u16(x, y, z); },
+                                   "glm_euler_xyz_quat",
+                                   [](uint16_t x, uint16_t y, uint16_t z) {
+                                       return glm_quat_(xyz, x * u16_radians, y * u16_radians, z * u16_radians);
+                                   },
+                                   uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
+    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zyx_u16",
+                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_zyx_u16(z, y, x); },
+                                   "glm_euler_zyx_quat",
+                                   [](uint16_t x, uint16_t y, uint16_t z) {
+                                       return glm_quat_(zyx, x * u16_radians, y * u16_radians, z * u16_radians);
+                                   },
+                                   uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
+    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zxy_u16",
+                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_zxy_u16(z, x, y); },
+                                   "glm_euler_zxy_quat",
+                                   [](uint16_t x, uint16_t y, uint16_t z) {
+                                       return glm_quat_(zxy, x * u16_radians, y * u16_radians, z * u16_radians);
+                                   },
+                                   uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
+    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_yxz_u16",
+                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_yxz_u16(y, x, z); },
+                                   "glm_euler_yxz_quat",
+                                   [](uint16_t x, uint16_t y, uint16_t z) {
+                                       return glm_quat_(yxz, x * u16_radians, y * u16_radians, z * u16_radians);
+                                   },
+                                   uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
+
+#undef glm_quat_
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(to_angles_benchmark)
+    const auto q = shz::quat::from_rotation_xyz(0.4f, -0.8f, 1.2f);
+
+    auto glm_to_angles_xyz = [](const shz::quat& q) {
+        versor       v = { q.x, q.y, q.z, q.w };
+        mat4         m;
+        shz_glm_vec3 r;
+        glm_quat_mat4(v, m);
+        glm_euler_angles(m, r.glm);
+        return r.shz;
+    };
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_xyz", [](const shz::quat& q) { return q.to_angles_xyz(); },
+                                   "glm_quat_mat4 + glm_euler_angles", glm_to_angles_xyz, q)
+    );
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_zyx", [](const shz::quat& q) { return q.to_angles_zyx(); },
+                                   "glm_quat_mat4 + glm_euler_angles", glm_to_angles_xyz, q)
+    );
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_zxy", [](const shz::quat& q) { return q.to_angles_zxy(); },
+                                   "glm_quat_mat4 + glm_euler_angles", glm_to_angles_xyz, q)
+    );
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_yxz", [](const shz::quat& q) { return q.to_angles_yxz(); },
+                                   "glm_quat_mat4 + glm_euler_angles", glm_to_angles_xyz, q)
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(to_angles)
+#if SHZ_BACKEND == SHZ_SH4
+    GBL_TEST_SKIP("TODO: GCC 17 dev (20260630) miscompiles its own fsca expansion, swapping sin/cos lanes on spill. Re-enable once the toolchain is fixed.");
+#endif
+    {
+        auto near = [](float a, float b) {
+            return shz::fabsf(a - b) <= 3e-2f;
+        };
+
+        const float outers[] = { -3.0f, -1.7f, -0.4f, 0.0f, 0.9f, 2.2f, 3.0f };
+        const float middles[] = { -1.4f, -0.8f, -0.2f, 0.0f, 0.5f, 1.1f, 1.4f };
         const float locks[] = { shz::pi_f_2, -shz::pi_f_2 };
-        const float xzs[]   = { -2.0f, -0.5f, 0.0f, 0.7f, 2.5f };
 
-        for(float y : locks) {
-            for(float x : xzs) {
-                for(float z : xzs) {
-                    const auto q = shz::quat::from_rotation_xyz(x, y, z);
-                    const auto r = q.to_angles_xyz();
+        for(const auto& order : euler_orders) {
+            GBL_TEST_VERIFY(order.to_angles(shz::quat::identity()) == shz::vec3(0.0f, 0.0f, 0.0f));
 
-                    GBL_TEST_VERIFY(near(r.y, y));
-                    GBL_TEST_VERIFY(same_rotation(shz::quat::from_rotation_xyz(r.x, r.y, r.z), q));
+            for(unsigned i = 0; i < 3; ++i) {
+                for(float angle : { 0.6f, -1.2f }) {
+                    const auto r = order.to_angles(shz::quat::from_axis_angle(order.axes[i], angle));
+
+                    for(unsigned j = 0; j < 3; ++j)
+                        GBL_TEST_VERIFY(near(r[j], (i == j)? angle : 0.0f));
+                }
+            }
+
+            for(float a : outers) {
+                for(float b : middles) {
+                    for(float c : outers) {
+                        const auto q = order.from_rotation(a, b, c);
+                        const auto r = order.to_angles(q);
+
+                        GBL_TEST_VERIFY(near(r.x, a));
+                        GBL_TEST_VERIFY(near(r.y, b));
+                        GBL_TEST_VERIFY(near(r.z, c));
+                        GBL_TEST_VERIFY(same_rotation(order.from_rotation(r.x, r.y, r.z), q));
+                    }
+                }
+            }
+
+            for(float b : locks) {
+                for(float a : outers) {
+                    for(float c : outers) {
+                        const auto q = order.from_rotation(a, b, c);
+                        const auto r = order.to_angles(q);
+
+                        GBL_TEST_VERIFY(near(r.y, b));
+                        GBL_TEST_VERIFY(same_rotation(order.from_rotation(r.x, r.y, r.z), q));
+                    }
                 }
             }
         }
@@ -650,12 +818,144 @@ GBL_TEST_CASE(nlerp)
     }
 GBL_TEST_CASE_END
 
+static bool quat_close_(float a, float b) {
+    return std::fabs(a - b) <= 1e-4f * std::fmax(1.0f, std::fabs(b));
+}
+
+static bool quat_close_(const shz::quat& a, const shz::quat& b) {
+    return quat_close_(a.w, b.w) && quat_close_(a.x, b.x) &&
+           quat_close_(a.y, b.y) && quat_close_(a.z, b.z);
+}
+
+GBL_TEST_CASE(magnitude)
+    const shz::quat zero(0.0f, 0.0f, 0.0f, 0.0f);
+
+    GBL_TEST_VERIFY(zero.magnitude()     == 0.0f);
+    GBL_TEST_VERIFY(zero.magnitude_inv() == 0.0f);
+
+    for(const shz::quat& q : { shz::quat(1.0f, 2.0f, -3.0f, 4.0f),
+                               shz::quat(0.0f, 0.0f, 0.001f, 0.0f),
+                               shz::quat(-250.0f, 3.0f, 7.0f, -11.0f) }) {
+        const float ref = std::sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+
+        GBL_TEST_VERIFY(quat_close_(q.magnitude(),           ref));
+        GBL_TEST_VERIFY(quat_close_(q.magnitude_fsrra(),     ref));
+        GBL_TEST_VERIFY(quat_close_(q.magnitude_inv(),       1.0f / ref));
+        GBL_TEST_VERIFY(quat_close_(q.magnitude_inv_fsrra(), 1.0f / ref));
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(normalize)
+    const shz::quat zero(0.0f, 0.0f, 0.0f, 0.0f);
+    const shz::quat alt (0.0f, 1.0f, 0.0f, 0.0f);
+
+    GBL_TEST_VERIFY(zero.normalized_or(alt) == alt);
+    GBL_TEST_VERIFY(zero.normalized_safe()  == shz::quat::identity());
+    {
+        shz::quat q = zero;
+        q.normalize_or(alt);
+        GBL_TEST_VERIFY(q == alt);
+    }{
+        shz::quat q = zero;
+        q.normalize_safe();
+        GBL_TEST_VERIFY(q == shz::quat::identity());
+    }
+
+    for(const shz::quat& q : { shz::quat(1.0f, 2.0f, -3.0f, 4.0f),
+                               shz::quat(0.0f, 0.0f, 0.001f, 0.0f),
+                               shz::quat(-250.0f, 3.0f, 7.0f, -11.0f) }) {
+        const float     mag = std::sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+        const shz::quat ref(q.w / mag, q.x / mag, q.y / mag, q.z / mag);
+
+        GBL_TEST_VERIFY(quat_close_(q.normalized(),        ref));
+        GBL_TEST_VERIFY(quat_close_(q.normalized_or(alt),  ref));
+        GBL_TEST_VERIFY(quat_close_(q.normalized_safe(),   ref));
+
+        shz::quat inPlace = q;
+        inPlace.normalize_or(alt);
+        GBL_TEST_VERIFY(quat_close_(inPlace, ref));
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(inverse)
+    for(const shz::quat& q : { shz::quat(1.0f, 2.0f, -3.0f, 4.0f),
+                               shz::quat(0.5f, 0.0f, 0.001f, 0.0f),
+                               shz::quat::from_rotation_xyz(0.3f, -1.2f, 2.5f) }) {
+        const float     sqr = q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z;
+        const shz::quat ref(q.w / sqr, -q.x / sqr, -q.y / sqr, -q.z / sqr);
+
+        GBL_TEST_VERIFY(quat_close_(q.inverse(),       ref));
+        GBL_TEST_VERIFY(quat_close_(q * q.inverse(),   shz::quat::identity()));
+
+        shz::quat inPlace = q;
+        inPlace.invert();
+        GBL_TEST_VERIFY(quat_close_(inPlace, ref));
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(magnitude_benchmark)
+    const shz::quat q(gblRandf(), gblRandf(), gblRandf(), gblRandf());
+
+    auto glmQuat = [](const shz::quat& q) {
+        versor v = { q.x, q.y, q.z, q.w };
+        return std::to_array(v);
+    };
+
+    (benchmark_cmp<float>)("shz::quat::magnitude",
+                           [](const shz::quat& q) { return q.magnitude(); },
+                           "glm_quat_norm",
+                           [&](const shz::quat& q) { auto v = glmQuat(q); return glm_quat_norm(v.data()); },
+                           q);
+    (benchmark_cmp<float>)("shz::quat::magnitude_fsrra",
+                           [](const shz::quat& q) { return q.magnitude_fsrra(); },
+                           "glm_quat_norm",
+                           [&](const shz::quat& q) { auto v = glmQuat(q); return glm_quat_norm(v.data()); },
+                           q);
+    (benchmark_cmp<float>)("shz::quat::magnitude_inv",
+                           [](const shz::quat& q) { return q.magnitude_inv(); },
+                           "1.0f / glm_quat_norm",
+                           [&](const shz::quat& q) { auto v = glmQuat(q); return 1.0f / glm_quat_norm(v.data()); },
+                           q);
+    (benchmark_cmp<float>)("shz::quat::magnitude_inv_fsrra",
+                           [](const shz::quat& q) { return q.magnitude_inv_fsrra(); },
+                           "1.0f / glm_quat_norm",
+                           [&](const shz::quat& q) { auto v = glmQuat(q); return 1.0f / glm_quat_norm(v.data()); },
+                           q);
+    (benchmark_cmp<shz::quat>)("shz::quat::normalized",
+                               [](const shz::quat& q) { return q.normalized(); },
+                               "glm_quat_normalize_to",
+                               [&](const shz::quat& q) { auto v = glmQuat(q); versor d; glm_quat_normalize_to(v.data(), d); return shz::quat(d[3], d[0], d[1], d[2]); },
+                               q);
+    (benchmark_cmp<shz::quat>)("shz::quat::normalized_or",
+                               [](const shz::quat& q) { return q.normalized_or(shz::quat::identity()); },
+                               "glm_quat_normalize_to",
+                               [&](const shz::quat& q) { auto v = glmQuat(q); versor d; glm_quat_normalize_to(v.data(), d); return shz::quat(d[3], d[0], d[1], d[2]); },
+                               q);
+    (benchmark_cmp<shz::quat>)("shz::quat::normalized_safe",
+                               [](const shz::quat& q) { return q.normalized_safe(); },
+                               "glm_quat_normalize_to",
+                               [&](const shz::quat& q) { auto v = glmQuat(q); versor d; glm_quat_normalize_to(v.data(), d); return shz::quat(d[3], d[0], d[1], d[2]); },
+                               q);
+    (benchmark_cmp<shz::quat>)("shz::quat::inverse",
+                               [](const shz::quat& q) { return q.inverse(); },
+                               "glm_quat_inv",
+                               [&](const shz::quat& q) { auto v = glmQuat(q); versor d; glm_quat_inv(v.data(), d); return shz::quat(d[3], d[0], d[1], d[2]); },
+                               q);
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(identity,
                   from_axis_angle,
                   from_angles_xyz,
                   from_rotation,
                   from_rotation_u16,
-                  to_angles_xyz,
                   transform_vec3,
                   slerp,
-                  nlerp)
+                  nlerp,
+                  magnitude,
+                  normalize,
+                  inverse,
+                  magnitude_benchmark,
+                  from_rotation_benchmark,
+                  to_angles_benchmark,
+                  to_angles,
+                  to_angles_xyz)

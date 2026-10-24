@@ -438,7 +438,7 @@ SHZ_FORCE_INLINE float shz_log2f(float x) SHZ_NOEXCEPT {
         uint32_t i;
     } vx = { x };
 
-    const float y = (float)(vx.i) * 1.1920928955078125e-7f;
+    const float y = (float)(int32_t)vx.i * 1.1920928955078125e-7f;
 
     return y - 126.94269504f;
 }
@@ -472,7 +472,7 @@ SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT {
         uint32_t i;
         float    f;
     } v = {
-        (uint32_t)((1 << 23) * (clipp + 126.94269504f))
+        (uint32_t)(int32_t)((1 << 23) * (clipp + 126.94269504f))
     };
 
     return v.f;
@@ -492,6 +492,19 @@ SHZ_FORCE_INLINE float shz_powf(float x, float p) SHZ_NOEXCEPT {
         return __builtin_powf(x, p);
 #endif
     return shz_pow2f(p * shz_log2f(x));
+}
+
+SHZ_FORCE_INLINE float shz_powif(float x, int n) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
+    if(__builtin_constant_p(n))
+        return __builtin_powif(x, n);
+#endif
+
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_powif_sh4(x, n);
+#else
+    return shz_powif_sw(x, n);
+#endif
 }
 
 SHZ_FORCE_INLINE float shz_expf(float p) SHZ_NOEXCEPT {

@@ -66,3 +66,10 @@ void shz_xmtrx_blend_3x4_sw(const shz_mat3x4_t* matrix, float weight) {
         for(int r = 0; r < 3; ++r)
             xmtrx_state_->elem[c * 4 + r] += matrix->elem2D[c][r] * weight;
 }
+
+void shz_xmtrx_blend_4x3_sw(const shz_mat4x3_t* matrix, float weight) {
+    shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
+
+    for(int i = 0; i < 12; ++i)
+        xmtrx_state_->elem[i] += matrix->elem[i] * weight;
+}

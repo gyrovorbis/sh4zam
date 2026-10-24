@@ -7,17 +7,14 @@
  *  a secondary back-bank of 16 single-precision floating-point registers.
  *
  *  \todo
- *      - shz_xmtrx_xxx_fft()
  *      - shz_xmtrx_invert() (within XMTRX)
- *      - shz_xmtrx_position()
- *      - shz_xmtrx_size()
  *      - shz_xmtrx_angles()
  *      - shz_xmtrx_init_rotation_quat() (within XMTRX)
- *      - shz_xmtrx_apply_store_4x4()
  *
  *  \author 2025, 2026 Falco Girgis
  *  \author 2025 Twada
  *  \author 2026 TapamN
+ *  \author 2026 John Brooks
  *
  *  \copyright MIT License
  *
@@ -455,60 +452,84 @@ SHZ_INLINE void shz_xmtrx_apply_translation(float x, float y, float z) SHZ_NOEXC
 //! Multiplies the values of the inner 3x3 matrix by the given 3D scaling terms.
 SHZ_INLINE void shz_xmtrx_apply_scale(float x, float y, float z) SHZ_NOEXCEPT;
 
-//! Transforms the values of the inner 3x3 matrix by a rotation matrix of \p x radians about the X axis.
+/*! Deprecated way to multiply XMTRX by a rotation about the X axis.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_x(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate_x()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_x().")
 SHZ_INLINE void shz_xmtrx_apply_rotation_x(float x) SHZ_NOEXCEPT;
 
-//! Transforms the values of the inner 3x3 matrix by a rotation matrix of \p y radians about the Y axis.
+/*! Deprecated way to multiply XMTRX by a rotation about the Y axis.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_y(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate_y()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_y().")
 SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) SHZ_NOEXCEPT;
 
-//! Transforms the values of the inner 3x3 matrix by a rotation matrix of \p z radians about the Z axis.
+/*! Deprecated way to multiply XMTRX by a rotation about the Z axis.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_z(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate_z()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_z().")
 SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) SHZ_NOEXCEPT;
 
-/*! Multiplies and accumulates XMTRX by a 3D X-Y-Z rotation matrix, with the corresponding angles given in radians.
+/*! Deprecated way to multiply XMTRX by X-Y-Z rotation matrices.
 
-    The transform is applied to the inner 3x3 values within XMTRX, preserving the translational components.
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_xyz(), which it now forwards to.
 
-    \note
-    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
-
-    \sa shz_xmtrx_apply_rotation_zyx(), shz_xmtrx_apply_rotation_yxz()
+    \sa shz_xmtrx_rotate_xyz()
 */
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_xyz().")
 SHZ_INLINE void shz_xmtrx_apply_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT;
 
-/*! Multiplies and accumulates XMTRX by a 3D Z-Y-X rotation matrix, with the corresponding angles given in radians.
+/*! Deprecated way to multiply XMTRX by Z-Y-X rotation matrices.
 
-    The transform is applied to the inner 3x3 values within XMTRX, preserving the translational components.
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_zyx(), which it now forwards to.
 
-    \note
-    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
-
-    \sa shz_xmtrx_apply_rotation_xyz(), shz_xmtrx_apply_rotation_yxz()
+    \sa shz_xmtrx_rotate_zyx()
 */
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_zyx().")
 SHZ_INLINE void shz_xmtrx_apply_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
 
-/*! Multiplies and accumulates XMTRX by a 3D Z-X-Y rotation matrix, with the corresponding angles given in radians.
+/*! Deprecated way to multiply XMTRX by Z-X-Y rotation matrices.
 
-    The transform is applied to the inner 3x3 values within XMTRX, preserving the translational components.
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_zxy(), which it now forwards to.
 
-    \note
-    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
-
-    \sa shz_xmtrx_apply_rotation_zyx(), shz_xmtrx_apply_rotation_yxz()
+    \sa shz_xmtrx_rotate_zxy()
 */
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_zxy().")
 SHZ_INLINE void shz_xmtrx_apply_rotation_zxy(float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT;
 
-/*! Multiplies and accumulates XMTRX by a 3D Y-X-Z rotation matrix, with the corresponding angles given in radians.
+/*! Deprecated way to multiply XMTRX by Y-X-Z rotation matrices.
 
-    The transform is applied to the inner 3x3 values within XMTRX, preserving the translational components.
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_yxz(), which it now forwards to.
 
-    \note
-    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
-
-    \sa shz_xmtrx_apply_rotation_xyz(), shz_xmtrx_apply_rotation_zyx()
+    \sa shz_xmtrx_rotate_yxz()
 */
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_yxz().")
 SHZ_INLINE void shz_xmtrx_apply_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
 
-//! Transforms the values of the inner 3x3 matrix by a rotation matrix of \p angle radians about the axis with the given components.
+/*! Deprecated way to multiply XMTRX by a rotation about an arbitrary axis.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate().")
 SHZ_INLINE void shz_xmtrx_apply_rotation(float angle, float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Transforms the values of the inner 3x3 matrix by the rotation matrix represented by the given quaternion.
@@ -567,7 +588,20 @@ SHZ_INLINE void shz_xmtrx_apply_self(void) SHZ_NOEXCEPT;
     @{
 */
 
-//! Multiplies and accumulates XMTRX by a 3D translation matrix with the given components (glTranslatef() equivalent).
+/*! Multiplies a 3D translation matrix into XMTRX.
+
+    Constructs a 4x4 3D translation matrix, whose translation column has the
+    given components, RIGHT multiplying it into XMTRX, overwriting its previous
+    contents.
+
+    \note   This operation is equivalent to glTranslatef().
+
+    \param  x   X component of the translation vector.
+    \param  y   Y component of the translation vector.
+    \param  z   Z component of the translation vector.
+
+    \sa shz_xmtrx_translate_reverse(), shz_xmtrx_apply_translation()
+*/
 SHZ_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates XMTRX by a 3D scaling matrix with the given components (glScalef() equivalent).
@@ -594,8 +628,44 @@ SHZ_INLINE void shz_xmtrx_rotate_zxy(float zRadians, float xRadians, float yRadi
 //! Multiplies and accumulates XMTRX by 3D rotation matrices about the Y then X then Z axes.
 SHZ_INLINE void shz_xmtrx_rotate_yxz(float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT;
 
-//! Multiplies and accumulates XMTRX by the 3D rotation matrix formed by the given axis and angle (glRotatef equivalent).
+/*! Multiplies XMTRX by a 3D rotation matrix about an arbitrary axis.
+
+    Constructs a 4x4 rotation matrix of \p radians about the axis with the given
+    components, RIGHT multiplying it into XMTRX, overwriting its previous contents.
+    This rotates within the local frame of XMTRX, about its own origin, leaving the
+    translation column unmodified.
+
+    The axis does not need to be normalized.
+
+    \note
+    This is the equivalent of glRotatef().
+
+    \param radians     Angle of rotation, in radians.
+    \param xAxis       X component of the axis of rotation.
+    \param yAxis       Y component of the axis of rotation.
+    \param zAxis       Z component of the axis of rotation.
+
+    \sa shz_xmtrx_rotate_dir(), shz_xmtrx_rotate_x(), shz_xmtrx_rotate_y(), shz_xmtrx_rotate_z(), shz_xmtrx_rotate_xyz()
+*/
 SHZ_INLINE void shz_xmtrx_rotate(float radians, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
+
+/*! Multiplies XMTRX by a 3D rotation matrix about a prenormalized axis.
+
+    This is a faster version of shz_xmtrx_rotate() which skips normalizing the
+    axis of rotation. Constructs a 4x4 rotation matrix of \p radians about the
+    given axis, RIGHT multiplying it into XMTRX, leaving its translation column
+    unmodified.
+
+    \warning The vector components representing the axis of rotation must be prenormalized!
+
+    \param radians     Angle of rotation, in radians.
+    \param x           X component of the unit axis of rotation.
+    \param y           Y component of the unit axis of rotation.
+    \param z           Z component of the unit axis of rotation.
+
+    \sa shz_xmtrx_rotate(), shz_xmtrx_init_rotation_dir()
+*/
+SHZ_INLINE void shz_xmtrx_rotate_dir(float radians, float x, float y, float z) SHZ_NOEXCEPT;
 
 //!@}
 
@@ -847,14 +917,38 @@ shz_quat_t shz_xmtrx_to_quat(void) SHZ_NOEXCEPT;
 //! Returns the determinant of XMTRX.
 float shz_xmtrx_determinant(void) SHZ_NOEXCEPT;
 
+//! Returns the trace of the upper 2x2 submatrix of XMTRX.
+SHZ_INLINE float shz_xmtrx_trace_2x2(void) SHZ_NOEXCEPT;
+
+//! Returns the trace of the upper 3x3 submatrix of XMTRX.
+SHZ_INLINE float shz_xmtrx_trace_3x3(void) SHZ_NOEXCEPT;
+
+//! Returns the trace of the entire 4x4 matrix held within XMTRX.
+SHZ_INLINE float shz_xmtrx_trace_4x4(void) SHZ_NOEXCEPT;
+
 /*! Inverts XMTRX in-place.
 
     Stores XMTRX to memory, computes the inverse via shz_mat4x4_inverse(),
     and reloads the result.
 
-    \warning This routine is out-of-line.
+    \sa shz_xmtrx_invert_rigid()
 */
 void shz_xmtrx_invert(void) SHZ_NOEXCEPT;
+
+/*! Inverts the rigid transform held within XMTRX in-place.
+
+    XMTRX must hold a rigid affine transform [R t; 0 1], where R is orthonormal. The result,
+    [transpose(R), -transpose(R) * t; 0 1], is computed by transposing R rather than by a general
+    inversion, making this far cheaper than shz_xmtrx_invert().
+
+    \warning Scale, shear, and projective matrices are not inverted correctly. Use
+    shz_xmtrx_invert() for those.
+
+    \author John Brooks
+
+    \sa shz_xmtrx_invert()
+*/
+SHZ_INLINE void shz_xmtrx_invert_rigid(void) SHZ_NOEXCEPT;
 
 /*! Deprecated way to add and accumulate a scaled 4x4 matrix onto XMTRX.
 
@@ -879,7 +973,7 @@ SHZ_INLINE void shz_xmtrx_blend(const shz_mat4x4_t* matrix, float weight) SHZ_NO
     \param  matrix      4x4 matrix to multiply and accumulate onto XMTRX.
     \param  weight      Factor each element in \p matrix gets scaled by.
 
-    \sa shz_xmtrx_init_zero(), shz_xmtrx_blend_3x4()
+    \sa shz_xmtrx_init_zero(), shz_xmtrx_blend_3x4(), shz_xmtrx_blend_4x3()
 */
 SHZ_INLINE void shz_xmtrx_blend_4x4(const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT;
 
@@ -895,9 +989,22 @@ SHZ_INLINE void shz_xmtrx_blend_4x4(const shz_mat4x4_t* matrix, float weight) SH
     \param  matrix      3x4 matrix to multiply and accumulate onto XMTRX.
     \param  weight      Factor each element in \p matrix gets scaled by.
 
-    \sa shz_xmtrx_init_zero(), shz_xmtrx_blend_4x4()
+    \sa shz_xmtrx_init_zero(), shz_xmtrx_blend_4x4(), shz_xmtrx_blend_4x3()
 */
 SHZ_INLINE void shz_xmtrx_blend_3x4(const shz_mat3x4_t* matrix, float weight) SHZ_NOEXCEPT;
+
+/*! Adds and accumulates a scaled 4x3 matrix onto XMTRX.
+
+    Each component of \p matrix will be multiplied by \p weight, with the result
+    being added to the existing value of the corresponding component within the
+    first three columns of XMTRX. The fourth column of XMTRX is left unmodified.
+
+    \param  matrix      4x3 matrix to multiply and accumulate onto XMTRX.
+    \param  weight      Factor each element in \p matrix gets scaled by.
+
+    \sa shz_xmtrx_init_zero(), shz_xmtrx_blend_4x4(), shz_xmtrx_blend_3x4()
+*/
+SHZ_INLINE void shz_xmtrx_blend_4x3(const shz_mat4x3_t* matrix, float weight) SHZ_NOEXCEPT;
 
 //! @}
 

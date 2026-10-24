@@ -163,6 +163,8 @@ namespace shz {
     constexpr auto pow2f  = shz_pow2f;
     //! C++ alias for shz_powf().
     constexpr auto powf   = shz_powf;
+    //! C++ alias for shz_powif().
+    constexpr auto powif  = shz_powif;
     //! C++ alias for shz_pow10f().
     constexpr auto pow10f = shz_pow10f;
     //! C++ alias for shz_log2f().

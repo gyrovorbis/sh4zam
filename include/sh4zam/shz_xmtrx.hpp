@@ -332,7 +332,7 @@ struct xmtrx {
         init_rotation(angle, axis.x, axis.y, axis.z);
     }
 
-    //! C++ wrapper around shz_xmtrx_init_rotation_dir().
+    //! C++ wrapper around shz_xmtrx_init_rotation_dir(). The axis must be prenormalized!
     SHZ_FORCE_INLINE static void init_rotation_dir(float angle, const vec3& dir) noexcept {
         shz_xmtrx_init_rotation_dir(angle, dir.x, dir.y, dir.z);
     }
@@ -519,49 +519,59 @@ struct xmtrx {
         apply_scale(v.x, v.y, v.z);
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_rotation_x().
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_x(). Renamed to rotate_x().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_x().")
     SHZ_FORCE_INLINE static void apply_rotation_x(float x) noexcept {
-        shz_xmtrx_apply_rotation_x(x);
+        rotate_x(x);
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_rotation_y().
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_y(). Renamed to rotate_y().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_y().")
     SHZ_FORCE_INLINE static void apply_rotation_y(float y) noexcept {
-        shz_xmtrx_apply_rotation_y(y);
+        rotate_y(y);
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_rotation_z().
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_z(). Renamed to rotate_z().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_z().")
     SHZ_FORCE_INLINE static void apply_rotation_z(float z) noexcept {
-        shz_xmtrx_apply_rotation_z(z);
+        rotate_z(z);
     }
 
     //! C++ wrapper around shz_xmtrx_init_rotation_xyz().
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_xyz(). Renamed to rotate_xyz().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_xyz().")
     SHZ_FORCE_INLINE static void apply_rotation_xyz(float x, float y, float z) noexcept {
-        shz_xmtrx_apply_rotation_xyz(x, y, z);
+        rotate_xyz(x, y, z);
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_rotation_zyx().
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_zyx(). Renamed to rotate_zyx().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_zyx().")
     SHZ_FORCE_INLINE static void apply_rotation_zyx(float z, float y, float x) noexcept {
-        shz_xmtrx_apply_rotation_zyx(z, y, x);
+        rotate_zyx(z, y, x);
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_rotation_zxy().
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_zxy(). Renamed to rotate_zxy().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_zxy().")
     SHZ_FORCE_INLINE static void apply_rotation_zxy(float z, float x, float y) noexcept {
-        shz_xmtrx_apply_rotation_zxy(z, x, y);
+        rotate_zxy(z, x, y);
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_rotation_yxz().
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_yxz(). Renamed to rotate_yxz().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_yxz().")
     SHZ_FORCE_INLINE static void apply_rotation_yxz(float y, float x, float z) noexcept {
-        shz_xmtrx_apply_rotation_yxz(y, x, z);
+        rotate_yxz(y, x, z);
     }
 
-    // C++ wrapper around shz_xmtrx_apply_rotation().
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation(). Renamed to rotate().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate().")
     SHZ_FORCE_INLINE static void apply_rotation(float angle, float x, float y, float z) noexcept {
-        shz_xmtrx_apply_rotation(angle, x, y, z);
+        rotate(angle, x, y, z);
     }
 
-    // C++ wrapper around shz_xmtrx_apply_rotation().
-        SHZ_FORCE_INLINE static void apply_rotation(float angle, const vec3& axis) noexcept {
-        apply_rotation(angle, axis.x, axis.y, axis.z);
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation(). Renamed to rotate().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate().")
+    SHZ_FORCE_INLINE static void apply_rotation(float angle, const vec3& axis) noexcept {
+        rotate(angle, axis.x, axis.y, axis.z);
     }
 
     //! C++ wrapper around shz_xmtrx_apply_rotation_quat().
@@ -689,6 +699,16 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_rotate().
     SHZ_FORCE_INLINE static void rotate(float radians, const vec3& axis) noexcept {
         rotate(radians, axis.x, axis.y, axis.z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_dir(). The axis must be prenormalized!
+    SHZ_FORCE_INLINE static void rotate_dir(float radians, float x, float y, float z) noexcept {
+        shz_xmtrx_rotate_dir(radians, x, y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_dir(). The axis must be prenormalized!
+    SHZ_FORCE_INLINE static void rotate_dir(float radians, const vec3& dir) noexcept {
+        rotate_dir(radians, dir.x, dir.y, dir.z);
     }
 
 /*! \name  Reverse GL Transformations
@@ -934,6 +954,24 @@ struct xmtrx {
         shz_xmtrx_invert();
     }
 
+    //! C++ wrapper around shz_xmtrx_invert_rigid().
+    SHZ_FORCE_INLINE static void invert_rigid() noexcept {
+        shz_xmtrx_invert_rigid();
+    }
+
+    //! C++ wrapper around shz_xmtrx_trace_2x2(), shz_xmtrx_trace_3x3(), and shz_xmtrx_trace_4x4().
+    template<size_t M, size_t N=M>
+    SHZ_FORCE_INLINE static float trace() noexcept {
+        static_assert(M == N && M >= 2 && M <= 4, "Invalid dimensions provided for XMTRX trace!");
+
+        if constexpr(M == 4)
+            return shz_xmtrx_trace_4x4();
+        else if constexpr(M == 3)
+            return shz_xmtrx_trace_3x3();
+        else
+            return shz_xmtrx_trace_2x2();
+    }
+
     /*! Adds and accumulates a scaled 4x4 matrix onto XMTRX.
 
         Each component of \p joint_matrix will be multiplied by \p weight, with the result
@@ -962,6 +1000,18 @@ struct xmtrx {
     */
     SHZ_FORCE_INLINE static void blend(const shz_mat3x4_t& matrix, float weight) noexcept {
         shz_xmtrx_blend_3x4(&matrix, weight);
+    }
+
+    /*! Adds and accumulates a scaled 4x3 matrix onto the first three columns of XMTRX.
+
+        Each component of \p matrix will be multiplied by \p weight, with the result
+        being added to the existing value of that component of XMTRX. The fourth
+        column of XMTRX is left unmodified.
+
+        \sa shz::xmtrx::init_zero()
+    */
+    SHZ_FORCE_INLINE static void blend(const shz_mat4x3_t& matrix, float weight) noexcept {
+        shz_xmtrx_blend_4x3(&matrix, weight);
     }
 
 //! @}

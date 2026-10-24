@@ -13,7 +13,6 @@
  *              KOS-ports build or add SH4ZAM as a git submodule. See AGENTS.md.
  */
 
-
 // Force this translation unit to use the SH4 back-end.
 #undef  SHZ_BACKEND
 #define SHZ_BACKEND     SHZ_SH4
@@ -157,7 +156,6 @@ static void shz_fft_8pt(shz_complex_t* s, size_t size, size_t stage, float facto
     for(size_t twiddle = 0; twiddle < stage; ++twiddle) {
         shz_xmtrx_update_fft_butterfly(angle);
 
-#pragma GCC unroll 1
         for(size_t i = twiddle; i < size; i += (inc2 << 1)) {
             asm volatile(R"(
                 fmov.d  @%[x], dr0
@@ -185,16 +183,14 @@ static void shz_fft_8pt(shz_complex_t* s, size_t size, size_t stage, float facto
                 fmov.d  dr0, @%[c]
                 fmov.d  dr2, @%[d]
             )"
-            : "+m" (s[i]), "+m" (s[i + stage]),
-              "+m" (s[i + inc1]), "+m" (s[i + inc1 + stage]),
-              "+m" (s[i + inc2]), "+m" (s[i + inc2 + stage]),
-              "+m" (s[i + inc2 + inc1]), "+m" (s[i + inc2 + inc1 + stage])
+            :
             : [x] "r" (&s[i]), [y] "r" (&s[i + stage]),
               [z] "r" (&s[i + inc1]), [w] "r" (&s[i + inc1 + stage]),
               [a] "r" (&s[i + inc2]), [b] "r" (&s[i + inc2 + stage]),
               [c] "r" (&s[i + inc2 + inc1]), [d] "r" (&s[i + inc2 + inc1 + stage])
             : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5",
-              "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
+              "fr6", "fr7", "fr8", "fr9", "fr10", "fr11",
+              "memory");
         }
 
         SHZ_FSCHG();

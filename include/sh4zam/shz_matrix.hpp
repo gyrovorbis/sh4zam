@@ -350,40 +350,58 @@ namespace shz {
             apply_translation(v.x, v.y, v.z);
         }
 
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_x(). Renamed to rotate_x().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_x().")
         SHZ_FORCE_INLINE void apply_rotation_x(float angle) noexcept {
-            shz_mat4x4_apply_rotation_x(this, angle);
+            rotate_x(angle);
         }
 
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_y(). Renamed to rotate_y().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_y().")
         SHZ_FORCE_INLINE void apply_rotation_y(float angle) noexcept {
-            shz_mat4x4_apply_rotation_y(this, angle);
+            rotate_y(angle);
         }
 
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_z(). Renamed to rotate_z().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_z().")
         SHZ_FORCE_INLINE void apply_rotation_z(float angle) noexcept {
-            shz_mat4x4_apply_rotation_z(this, angle);
+            rotate_z(angle);
         }
 
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_xyz(). Renamed to rotate_xyz().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_xyz().")
         SHZ_FORCE_INLINE void apply_rotation_xyz(float xAngle, float yAngle, float zAngle) noexcept {
-            shz_mat4x4_apply_rotation_xyz(this, xAngle, yAngle, zAngle);
+            rotate_xyz(xAngle, yAngle, zAngle);
         }
 
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_zyx(). Renamed to rotate_zyx().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_zyx().")
         SHZ_FORCE_INLINE void apply_rotation_zyx(float zAngle, float yAngle, float xAngle) noexcept {
-            shz_mat4x4_apply_rotation_zyx(this, zAngle, yAngle, xAngle);
+            rotate_zyx(zAngle, yAngle, xAngle);
         }
 
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_zxy(). Renamed to rotate_zxy().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_zxy().")
         SHZ_FORCE_INLINE void apply_rotation_zxy(float zAngle, float xAngle, float yAngle) noexcept {
-            shz_mat4x4_apply_rotation_zxy(this, zAngle, xAngle, yAngle);
+            rotate_zxy(zAngle, xAngle, yAngle);
         }
 
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_yxz(). Renamed to rotate_yxz().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_yxz().")
         SHZ_FORCE_INLINE void apply_rotation_yxz(float yAngle, float xAngle, float zAngle) noexcept {
-            shz_mat4x4_apply_rotation_yxz(this, yAngle, xAngle, zAngle);
+            rotate_yxz(yAngle, xAngle, zAngle);
         }
 
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation(). Renamed to rotate().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate().")
         SHZ_FORCE_INLINE void apply_rotation(float angle, float x, float y, float z) noexcept {
-            shz_mat4x4_apply_rotation(this, angle, x, y, z);
+            rotate(angle, x, y, z);
         }
 
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation(). Renamed to rotate().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate().")
         SHZ_FORCE_INLINE void apply_rotation(float angle, vec3 axis) noexcept {
-            apply_rotation(angle, axis.x, axis.y, axis.z);
+            rotate(angle, axis.x, axis.y, axis.z);
         }
 
         SHZ_FORCE_INLINE void apply_rotation(const quat& q) noexcept {
@@ -483,6 +501,14 @@ namespace shz {
 
         SHZ_FORCE_INLINE void rotate(float radians, vec3 axis) noexcept {
             rotate(radians, axis.x, axis.y, axis.z);
+        }
+
+        SHZ_FORCE_INLINE void rotate_dir(float radians, float x, float y, float z) noexcept {
+            shz_mat4x4_rotate_dir(this, radians, x, y, z);
+        }
+
+        SHZ_FORCE_INLINE void rotate_dir(float radians, vec3 dir) noexcept {
+            rotate_dir(radians, dir.x, dir.y, dir.z);
         }
 
         //! @}
@@ -631,6 +657,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE void inverse_block_triangular(mat4x4* out) const noexcept {
             shz_mat4x4_inverse_block_triangular(this, out);
+        }
+
+        SHZ_FORCE_INLINE void inverse_rigid(mat4x4* out) const noexcept {
+            shz_mat4x4_inverse_rigid(this, out);
         }
 
         SHZ_FORCE_INLINE void decompose(vec3* translation, quat* rotation, vec3* scale) const noexcept {

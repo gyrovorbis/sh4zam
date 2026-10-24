@@ -769,63 +769,6 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_scale_sw(float x, float y, float z) SHZ_NO
     xmtrx_state_->col[2].z *= z;
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_x_sw(float x) SHZ_NOEXCEPT {
-    const float s = shz_sinf(x);
-    const float c = shz_cosf(x);
-    shz_vec4_t rot[4];
-    rot[0] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
-    rot[1] = shz_vec4_init(0.0f, c,    s,    0.0f);
-    rot[2] = shz_vec4_init(0.0f, -s,   c,    0.0f);
-    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
-    shz_xmtrx_mul4x4_cols_(rot);
-}
-
-SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_y_sw(float y) SHZ_NOEXCEPT {
-    const float s = shz_sinf(y);
-    const float c = shz_cosf(y);
-    shz_vec4_t rot[4];
-    rot[0] = shz_vec4_init(c,    0.0f, -s,   0.0f);
-    rot[1] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
-    rot[2] = shz_vec4_init(s,    0.0f, c,    0.0f);
-    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
-    shz_xmtrx_mul4x4_cols_(rot);
-}
-
-SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_z_sw(float z) SHZ_NOEXCEPT {
-    const float s = shz_sinf(z);
-    const float c = shz_cosf(z);
-    shz_vec4_t rot[4];
-    rot[0] = shz_vec4_init(c,    s,    0.0f, 0.0f);
-    rot[1] = shz_vec4_init(-s,   c,    0.0f, 0.0f);
-    rot[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
-    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
-    shz_xmtrx_mul4x4_cols_(rot);
-}
-
-SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_sw(float angle, float x, float y, float z) SHZ_NOEXCEPT {
-    float len2 = x * x + y * y + z * z;
-    float inv_len = shz_inv_sqrtf(len2);
-    x *= inv_len;
-    y *= inv_len;
-    z *= inv_len;
-
-    const float s = shz_sinf(angle);
-    const float c = shz_cosf(angle);
-    const float t = 1.0f - c;
-
-    const float xs = x * s, ys = y * s, zs = z * s;
-    const float xyt = x * y * t;
-    const float xzt = x * z * t;
-    const float yzt = y * z * t;
-
-    shz_vec4_t rot[4];
-    rot[0] = shz_vec4_init(x * x * t + c,  xyt + zs,  xzt - ys,  0.0f);
-    rot[1] = shz_vec4_init(xyt - zs,  y * y * t + c,  yzt + xs,  0.0f);
-    rot[2] = shz_vec4_init(xzt + ys,  yzt - xs,  z * z * t + c,  0.0f);
-    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
-    shz_xmtrx_mul4x4_cols_(rot);
-}
-
 SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_quat_sw(shz_quat_t q) SHZ_NOEXCEPT {
     const float xx = q.x * q.x, yy = q.y * q.y, zz = q.z * q.z;
     const float xy = q.x * q.y, xz = q.x * q.z, yz = q.y * q.z;
@@ -1032,13 +975,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_z_sw(float radians) SHZ_NOEXCEPT {
     shz_xmtrx_mul4x4_cols_(rot);
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_rotate_sw(float angle, float x, float y, float z) SHZ_NOEXCEPT {
-    float len2 = x * x + y * y + z * z;
-    float inv_len = shz_inv_sqrtf(len2);
-    x *= inv_len;
-    y *= inv_len;
-    z *= inv_len;
-
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_dir_sw(float angle, float x, float y, float z) SHZ_NOEXCEPT {
     const float s = shz_sinf(angle);
     const float c = shz_cosf(angle);
     const float t = 1.0f - c;
@@ -1054,6 +991,13 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_sw(float angle, float x, float y, float z
     rot[2] = shz_vec4_init(xzt + ys,  yzt - xs,  z * z * t + c,  0.0f);
     rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
     shz_xmtrx_mul4x4_cols_(rot);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_sw(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+    float len2 = x * x + y * y + z * z;
+    float inv_len = shz_inv_sqrtf(len2);
+
+    shz_xmtrx_rotate_dir_sw(angle, x * inv_len, y * inv_len, z * inv_len);
 }
 
 /* ========== Reverse GL-style API ========== */
@@ -1183,8 +1127,42 @@ SHZ_FORCE_INLINE void shz_xmtrx_abs_sw(void) SHZ_NOEXCEPT {
         xmtrx_state_->elem[i] = shz_fabsf(xmtrx_state_->elem[i]);
 }
 
+SHZ_FORCE_INLINE float shz_xmtrx_trace_2x2_sw(void) SHZ_NOEXCEPT {
+    const float* e = shz_xmtrx_state_()->elem;
+    return e[0] + e[5];
+}
+
+SHZ_FORCE_INLINE float shz_xmtrx_trace_3x3_sw(void) SHZ_NOEXCEPT {
+    const float* e = shz_xmtrx_state_()->elem;
+    return e[0] + e[5] + e[10];
+}
+
+SHZ_FORCE_INLINE float shz_xmtrx_trace_4x4_sw(void) SHZ_NOEXCEPT {
+    const float* e = shz_xmtrx_state_()->elem;
+    return e[0] + e[5] + e[10] + e[15];
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_invert_rigid_sw(void) SHZ_NOEXCEPT {
+    shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
+    float*        e = xmtrx_state_->elem;
+    const float   tx = e[12], ty = e[13], tz = e[14];
+    float         tmp;
+
+    e[12] = -((e[0] * tx) + (e[1] * ty) + (e[2]  * tz));
+    e[13] = -((e[4] * tx) + (e[5] * ty) + (e[6]  * tz));
+    e[14] = -((e[8] * tx) + (e[9] * ty) + (e[10] * tz));
+
+    tmp = e[1]; e[1] = e[4]; e[4] = tmp;
+    tmp = e[2]; e[2] = e[8]; e[8] = tmp;
+    tmp = e[6]; e[6] = e[9]; e[9] = tmp;
+
+    e[3] = e[7] = e[11] = 0.0f;
+    e[15] = 1.0f;
+}
+
 void shz_xmtrx_blend_4x4_sw(const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT;
 void shz_xmtrx_blend_3x4_sw(const shz_mat3x4_t* matrix, float weight) SHZ_NOEXCEPT;
+void shz_xmtrx_blend_4x3_sw(const shz_mat4x3_t* matrix, float weight) SHZ_NOEXCEPT;
 
 /* ========== Transformations ========== */
 

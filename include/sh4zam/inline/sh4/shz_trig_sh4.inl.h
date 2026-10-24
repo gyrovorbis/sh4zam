@@ -24,6 +24,18 @@
 #ifndef SHZ_TRIG_SH4_INL_H
 #define SHZ_TRIG_SH4_INL_H
 
+SHZ_FORCE_INLINE void shz_sincosf_ftrc_sh4(float units, float* s, float* c) SHZ_NOEXCEPT {
+    asm(R"(
+        ftrc    %2, fpul
+        fsca    fpul, dr8
+        fmov    fr8, %0
+        fmov    fr9, %1
+    )"
+    : "=&f" (*s), "=&f" (*c)
+    : "f" (units)
+    : "fpul", "fr8", "fr9");
+}
+
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16_sh4(uint16_t radians16) SHZ_NOEXCEPT {
     float rsin, rcos;
 
@@ -52,20 +64,10 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_sh4(float radians) SHZ_NOEXCEPT {
     float rsin, rcos;
 
 #ifdef __FAST_MATH__
-    rsin = __builtin_sinf(radians),
+    rsin = __builtin_sinf(radians);
     rcos = __builtin_cosf(radians);
 #else
-    const float r = radians * SHZ_FSCA_RAD_FACTOR;
-
-    asm(R"(
-        ftrc  %2, fpul
-        fsca  fpul, dr8
-        fmov  fr8, %0
-        fmov  fr9, %1
-    )"
-    : "=&f" (rsin), "=&f" (rcos)
-    : "f" (r)
-    : "fpul", "fr8", "fr9");
+    shz_sincosf_ftrc_sh4(radians * SHZ_FSCA_RAD_FACTOR, &rsin, &rcos);
 #endif
 
     return SHZ_INIT(shz_sincos_t, rsin, rcos);
@@ -78,17 +80,7 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosf_deg_sh4(float degrees) SHZ_NOEXCEPT {
     rsin = __builtin_sinf(SHZ_DEG_TO_RAD(degrees));
     rcos = __builtin_cosf(SHZ_DEG_TO_RAD(degrees));
 #else
-    const float d = degrees * SHZ_FSCA_DEG_FACTOR;
-
-    asm(R"(
-         ftrc  %2, fpul
-         fsca  fpul, dr8
-         fmov  fr8, %0
-         fmov  fr9, %1
-     )"
-     : "=&f" (rsin), "=&f" (rcos)
-     : "f" (d)
-     : "fpul", "fr8", "fr9");
+    shz_sincosf_ftrc_sh4(degrees * SHZ_FSCA_DEG_FACTOR, &rsin, &rcos);
 #endif
 
     return SHZ_INIT(shz_sincos_t, rsin, rcos);

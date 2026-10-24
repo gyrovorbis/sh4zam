@@ -235,14 +235,24 @@ namespace shz {
             return shz_quat_magnitude_sqr(*this);
         }
 
-        //! Returns the magnitude of the quaternion.
+        //! Returns the magnitude of the quaternion, safely returning 0.0f for a zero-length quaternion.
         SHZ_FORCE_INLINE float magnitude() const noexcept {
             return shz_quat_magnitude(*this);
         }
 
-        //! Returns the inverse of the magnitude of the quaternion.
+        //! Returns the magnitude of the quaternion, unsafely, using FSRRA. Divides by zero for a zero-length quaternion.
+        SHZ_FORCE_INLINE float magnitude_fsrra() const noexcept {
+            return shz_quat_magnitude_fsrra(*this);
+        }
+
+        //! Returns the inverse of the magnitude of the quaternion, safely returning 0.0f for a zero-length quaternion.
         SHZ_FORCE_INLINE float magnitude_inv() const noexcept {
             return shz_quat_magnitude_inv(*this);
+        }
+
+        //! Returns the inverse of the magnitude of the quaternion, unsafely, using FSRRA. Divides by zero for a zero-length quaternion.
+        SHZ_FORCE_INLINE float magnitude_inv_fsrra() const noexcept {
+            return shz_quat_magnitude_inv_fsrra(*this);
         }
 
         //! @}
@@ -255,6 +265,21 @@ namespace shz {
         //! Returns the tait-bryan rotation angles about the X, Y, then Z axes which are represented by the given quaternion.
         SHZ_FORCE_INLINE vec3 to_angles_xyz() const noexcept {
             return shz_quat_to_angles_xyz(*this);
+        }
+
+        //! Returns the tait-bryan rotation angles about the Z, Y, then X axes which are represented by the given quaternion.
+        SHZ_FORCE_INLINE vec3 to_angles_zyx() const noexcept {
+            return shz_quat_to_angles_zyx(*this);
+        }
+
+        //! Returns the tait-bryan rotation angles about the Z, X, then Y axes which are represented by the given quaternion.
+        SHZ_FORCE_INLINE vec3 to_angles_zxy() const noexcept {
+            return shz_quat_to_angles_zxy(*this);
+        }
+
+        //! Returns the tait-bryan rotation angles about the Y, X, then Z axes which are represented by the given quaternion.
+        SHZ_FORCE_INLINE vec3 to_angles_yxz() const noexcept {
+            return shz_quat_to_angles_yxz(*this);
         }
 
         //! Returns both the axis and angle of rotation through the pointer arguments.
@@ -284,6 +309,16 @@ namespace shz {
         //! Normalizes the given quaternion.
         SHZ_FORCE_INLINE void normalize() noexcept {
             *this = normalized();
+        }
+
+        //! Returns the given quaternion as a unit quaternion, or \p alt if it has a magnitude of 0.0f.
+        SHZ_FORCE_INLINE quat normalized_or(const quat& alt) const noexcept {
+            return shz_quat_normalize_or(*this, alt);
+        }
+
+        //! Normalizes the given quaternion, or sets it to \p alt if it has a magnitude of 0.0f.
+        SHZ_FORCE_INLINE void normalize_or(const quat& alt) noexcept {
+            *this = normalized_or(alt);
         }
 
         //! Returns a safely normalized quaternion from the given quaternion, protecting against division-by-zero.

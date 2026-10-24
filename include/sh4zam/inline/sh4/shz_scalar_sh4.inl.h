@@ -18,14 +18,17 @@
 #ifndef SHZ_SCALAR_SH4_INL_H
 #define SHZ_SCALAR_SH4_INL_H
 
-SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra_sh4(float x) SHZ_NOEXCEPT {
-    asm("fsrra %0" : "+f" (x));
-
-    return x;
-}
+/*
+    Private toggle for swapping SH4 back-end to use the FIPR instruction for
+    dot products and squared magnitude routines. Defaults to disabled.
+*/
+//#define SHZ_SH4_DOT_FIPR
 
 SHZ_FORCE_INLINE float shz_dot8f_sh4(float x1, float y1, float z1, float w1,
                                      float x2, float y2, float z2, float w2) SHZ_NOEXCEPT {
+#ifndef SHZ_SH4_DOT_FIPR
+    return x1 * x2 + y1 * y2 + z1 * z2 + w1 * w2;
+#else
     register float rx1 asm("fr4")  = y1;
     register float ry1 asm("fr5")  = x1;
     register float rz1 asm("fr6")  = w1;
@@ -41,6 +44,7 @@ SHZ_FORCE_INLINE float shz_dot8f_sh4(float x1, float y1, float z1, float w1,
           "f" (rx2), "f" (ry2), "f" (rz2));
 
     return rw2;
+#endif
 }
 
 SHZ_FORCE_INLINE float shz_dot6f_sh4(float x1, float y1, float z1,
@@ -50,6 +54,9 @@ SHZ_FORCE_INLINE float shz_dot6f_sh4(float x1, float y1, float z1,
 }
 
 SHZ_FORCE_INLINE float shz_mag_sqr4f_sh4(float x, float y, float z, float w) SHZ_NOEXCEPT {
+#ifndef SHZ_SH4_DOT_FIPR
+    return x * x + y * y + z * z + w * w;
+#else
     register float ry asm("fr4") = y;
     register float rx asm("fr5") = x;
     register float rw asm("fr6") = w;
@@ -60,10 +67,17 @@ SHZ_FORCE_INLINE float shz_mag_sqr4f_sh4(float x, float y, float z, float w) SHZ
         : "f" (rx), "f" (ry), "f" (rw));
 
     return rz;
+#endif
 }
 
 SHZ_FORCE_INLINE float shz_mag_sqr3f_sh4(float x, float y, float z) SHZ_NOEXCEPT {
     return shz_mag_sqr4f_sh4(x, y, z, 0.0f);
+}
+
+SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra_sh4(float x) SHZ_NOEXCEPT {
+    asm("fsrra %0" : "+f" (x));
+
+    return x;
 }
 
 #if 1
@@ -132,5 +146,39 @@ SHZ_FORCE_INLINE float shz_cbrt_magic_sh4_broken(float x) SHZ_NOEXCEPT {
 #endif
 
 //! \endcond
+
+/* Routine gifted from World Series Baseball 2k2.
+   Credit to its lead technologist, John Brooks. */
+SHZ_FORCE_INLINE float shz_powif_sh4(float x, int n) SHZ_NOEXCEPT {
+    float result, tmp;
+
+    asm(R"(
+        fldi1     %[r]
+        cmp/pz    %[n]
+        bt        1f
+        fldi1     %[t]
+        fdiv      %[x], %[t]
+        fmov      %[t], %[x]
+        neg       %[n], %[n]
+    1:
+        tst       %[n], %[n]
+        bt        3f
+    2:
+        shlr      %[n]
+        bf        4f
+        fmul      %[x], %[r]
+    4:
+        tst       %[n], %[n]
+        bt        3f
+        bra       2b
+        fmul      %[x], %[x]
+    3:
+    )"
+    : [r] "=&f" (result), [x] "+f" (x), [n] "+r" (n), [t] "=&f" (tmp)
+    :
+    : "t");
+
+    return result;
+}
 
 #endif

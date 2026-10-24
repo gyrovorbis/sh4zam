@@ -484,27 +484,27 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_screen(float width, float height) SHZ_NOEXC
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT {
     shz_xmtrx_init_rotation_x(xAngle);
-    shz_xmtrx_apply_rotation_y(yAngle);
-    shz_xmtrx_apply_rotation_z(zAngle);
+    shz_xmtrx_rotate_y(yAngle);
+    shz_xmtrx_rotate_z(zAngle);
 }
 
 // Same as yaw, pitch, roll
 SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT {
     shz_xmtrx_init_rotation_z(zAngle);
-    shz_xmtrx_apply_rotation_y(yAngle);
-    shz_xmtrx_apply_rotation_x(xAngle);
+    shz_xmtrx_rotate_y(yAngle);
+    shz_xmtrx_rotate_x(xAngle);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_zxy(float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT {
     shz_xmtrx_init_rotation_z(zAngle);
-    shz_xmtrx_apply_rotation_x(xAngle);
-    shz_xmtrx_apply_rotation_y(yAngle);
+    shz_xmtrx_rotate_x(xAngle);
+    shz_xmtrx_rotate_y(yAngle);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT {
     shz_xmtrx_init_rotation_y(yAngle);
-    shz_xmtrx_apply_rotation_x(xAngle);
-    shz_xmtrx_apply_rotation_z(zAngle);
+    shz_xmtrx_rotate_x(xAngle);
+    shz_xmtrx_rotate_z(zAngle);
 }
 
 /* ========== Apply Operations ========== */
@@ -700,35 +700,19 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_scale(float x, float y, float z) SHZ_NOEXC
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_x(float x) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_SH4
-    shz_xmtrx_apply_rotation_x_sh4(x);
-#else
-    shz_xmtrx_apply_rotation_x_sw(x);
-#endif
+    shz_xmtrx_rotate_x(x);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_y(float y) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_SH4
-    shz_xmtrx_apply_rotation_y_sh4(y);
-#else
-    shz_xmtrx_apply_rotation_y_sw(y);
-#endif
+    shz_xmtrx_rotate_y(y);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_z(float z) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_SH4
-    shz_xmtrx_apply_rotation_z_sh4(z);
-#else
-    shz_xmtrx_apply_rotation_z_sw(z);
-#endif
+    shz_xmtrx_rotate_z(z);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation(float angle, float x, float y, float z) SHZ_NOEXCEPT {
-#if SHZ_BACKEND == SHZ_SH4
-    shz_xmtrx_apply_rotation_sh4(angle, x, y, z);
-#else
-    shz_xmtrx_apply_rotation_sw(angle, x, y, z);
-#endif
+    shz_xmtrx_rotate(angle, x, y, z);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_quat(shz_quat_t q) SHZ_NOEXCEPT {
@@ -740,27 +724,19 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_quat(shz_quat_t q) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT {
-    shz_xmtrx_apply_rotation_x(xAngle);
-    shz_xmtrx_apply_rotation_y(yAngle);
-    shz_xmtrx_apply_rotation_z(zAngle);
+    shz_xmtrx_rotate_xyz(xAngle, yAngle, zAngle);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT {
-    shz_xmtrx_apply_rotation_z(zAngle);
-    shz_xmtrx_apply_rotation_y(yAngle);
-    shz_xmtrx_apply_rotation_x(xAngle);
+    shz_xmtrx_rotate_zyx(zAngle, yAngle, xAngle);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_zxy(float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT {
-    shz_xmtrx_apply_rotation_z(zAngle);
-    shz_xmtrx_apply_rotation_x(xAngle);
-    shz_xmtrx_apply_rotation_y(yAngle);
+    shz_xmtrx_rotate_zxy(zAngle, xAngle, yAngle);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT {
-    shz_xmtrx_apply_rotation_y(yAngle);
-    shz_xmtrx_apply_rotation_x(xAngle);
-    shz_xmtrx_apply_rotation_z(zAngle);
+    shz_xmtrx_rotate_yxz(yAngle, xAngle, zAngle);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT {
@@ -919,6 +895,14 @@ SHZ_INLINE void shz_xmtrx_rotate(float angle, float x, float y, float z) SHZ_NOE
 #endif
 }
 
+SHZ_INLINE void shz_xmtrx_rotate_dir(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_dir_sh4(angle, x, y, z);
+#else
+    shz_xmtrx_rotate_dir_sw(angle, x, y, z);
+#endif
+}
+
 /* ========== Reverse GL Transformations ========== */
 
 SHZ_FORCE_INLINE void shz_xmtrx_translate_reverse(float x, float y, float z) SHZ_NOEXCEPT {
@@ -1059,6 +1043,38 @@ SHZ_FORCE_INLINE void shz_xmtrx_abs(void) SHZ_NOEXCEPT {
 #endif
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_invert_rigid(void) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_invert_rigid_sh4();
+#else
+    shz_xmtrx_invert_rigid_sw();
+#endif
+}
+
+SHZ_FORCE_INLINE float shz_xmtrx_trace_2x2(void) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_xmtrx_trace_2x2_sh4();
+#else
+    return shz_xmtrx_trace_2x2_sw();
+#endif
+}
+
+SHZ_FORCE_INLINE float shz_xmtrx_trace_3x3(void) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_xmtrx_trace_3x3_sh4();
+#else
+    return shz_xmtrx_trace_3x3_sw();
+#endif
+}
+
+SHZ_FORCE_INLINE float shz_xmtrx_trace_4x4(void) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_xmtrx_trace_4x4_sh4();
+#else
+    return shz_xmtrx_trace_4x4_sw();
+#endif
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_blend(const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT {
     shz_xmtrx_blend_4x4(matrix, weight);
 }
@@ -1076,6 +1092,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_blend_3x4(const shz_mat3x4_t* matrix, float weig
     shz_xmtrx_blend_3x4_sh4(matrix, weight);
 #else
     shz_xmtrx_blend_3x4_sw(matrix, weight);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_blend_4x3(const shz_mat4x3_t* matrix, float weight) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_blend_4x3_sh4(matrix, weight);
+#else
+    shz_xmtrx_blend_4x3_sw(matrix, weight);
 #endif
 }
 

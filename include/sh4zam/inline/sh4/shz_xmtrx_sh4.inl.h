@@ -8,6 +8,7 @@
  *  \author 2025, 2026 Falco Girgis
  *  \author 2025 Twada
  *  \author 2026 TapamN
+ *  \author 2026 John brooks
  *
  *  \copyright MIT License
  *
@@ -53,7 +54,7 @@ SHZ_FORCE_INLINE float shz_xmtrx_read_sh4(shz_xmtrx_reg_t xf) SHZ_NOEXCEPT {
         case SHZ_XMTRX_XF13: SHZ_XFER_FPR_(13); break;
         case SHZ_XMTRX_XF14: SHZ_XFER_FPR_(14); break;
         case SHZ_XMTRX_XF15: SHZ_XFER_FPR_(15); break;
-        default: assert(false);
+        default: assert(false); SHZ_UNREACHABLE();
     }
 
 #undef SHZ_XFER_FPR_
@@ -1475,80 +1476,10 @@ SHZ_INLINE void shz_xmtrx_init_rotation_z_sh4(float z) SHZ_NOEXCEPT {
     : "fpul");
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_sh4(float angle, float x, float y, float z) SHZ_NOEXCEPT {
-    register float x_ asm("fr4") = x;
-    register float y_ asm("fr5") = y;
-    register float z_ asm("fr6") = z;
-    register float a_ asm("fr7") = angle * SHZ_FSCA_RAD_FACTOR;
+/* Rodrigues' Rotation Formula
 
-    asm volatile(R"(
-        ftrc	fr7, fpul
-        fsca	fpul, dr2
-        fldi1	fr0
-        fsub	fr3, fr0	/* 1-cos */
-
-        fldi0	fr7
-        fipr	fv4, fv4
-        fsrra	fr7
-        fmul	fr7, fr4
-        fmul	fr7, fr5
-        fmul	fr7, fr6
-
-        fmov	fr4, fr1
-        fmul	fr2, fr1	/* xsin */
-        fmov	fr5, fr7
-        fmul	fr2, fr7	/* ysin */
-        fmul	fr6, fr2	/* zsin */
-
-        fmov	fr4, fr8
-        fmul	fr0, fr8
-        fmov	fr5, fr9
-        fmul	fr8, fr9	/* xy(1-cos) */
-        fmul	fr6, fr8	/* xz(1-cos) */
-        fmov	fr6, fr10
-        fmul	fr0, fr6
-        fmul	fr6, fr10
-        fadd	fr3, fr10	/* zz(1-cos)+cos */
-        fmul	fr5, fr6	/* yz(1-cos) */
-        fmul	fr5, fr5
-        fmul	fr0, fr5
-        fadd	fr3, fr5	/* yy(1-cos)+cos */
-        fmul	fr4, fr0
-        fmul	fr4, fr0
-        fadd	fr3, fr0	/* xx(1-cos)+cos */
-
-        fmov	fr8, fr3	/* xz(1-cos) */
-        fmov	fr9, fr4	/* xy(1-cos) */
-        fadd	fr7, fr8
-        fmov	fr6, fr9
-        fsub	fr1, fr9
-        fldi0	fr11
-
-        fadd	fr1, fr6
-        fmov	fr4, fr1
-        fsub	fr2, fr4
-        fsub	fr7, fr3
-        fldi0	fr7
-
-        fadd	fr2, fr1
-        fmov	fr3, fr2
-        fldi0	fr3
-
-        fldi0   fr12
-        fldi0   fr13
-        fldi0   fr14
-        fldi1   fr15
-
-        frchg
-    )"
-    : "+f"(x_), "+f"(y_), "+f"(z_), "+f"(a_)
-    :
-    : "fr0", "fr1", "fr2", "fr3", "fr8", "fr9", "fr10", "fr11",
-      "fr12", "fr13", "fr14", "fr15", "fpul");
-}
-
-/* Rodrigues' rotation formula, s = sin(angle), c = cos(angle), t = 1 - c,
-   (x, y, z) = normalized axis. Column-major XMTRX layout, XF[4*col + row]:
+    s = sin(angle), c = cos(angle), t = 1 - c
+    <x, y, z> = axis (prenormalized)
 
        XF0  = x*x*t + c    XF4  = x*y*t - z*s  XF8  = x*z*t + y*s  XF12 = 0
        XF1  = x*y*t + z*s  XF5  = y*y*t + c    XF9  = y*z*t - x*s  XF13 = 0
@@ -1621,6 +1552,12 @@ SHZ_INLINE void shz_xmtrx_init_rotation_dir_sh4(float angle, float x, float y, f
     :
     : "f" (fr4), "f" (fr5), "f" (fr6), "f" (fr7)
     : "fpul");
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_sh4(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+    const shz_vec3_t dir = shz_vec3_normalize(shz_vec3_init(x, y, z));
+
+    shz_xmtrx_init_rotation_dir_sh4(angle, dir.x, dir.y, dir.z);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_translation_sh4(float x, float y, float z) SHZ_NOEXCEPT {
@@ -2372,54 +2309,50 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_translation_sh4(void) SHZ_NOEXCEPT {
     return shz_vec3_init(fr4, fr5, fr6);
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_get_scale_sh4(void) SHZ_NOEXCEPT {
-    register float fr1 asm("fr1");
-    register float fr5 asm("fr5");
-    register float fr9 asm("fr9");
+SHZ_INLINE shz_vec3_t shz_xmtrx_get_scale_sh4(void) SHZ_NOEXCEPT {
+    register float fr3  asm("fr3");
+    register float fr6  asm("fr6");
+    register float fr10 asm("fr10");
     uintptr_t zero;
 
     asm volatile(R"(
         mov       #0, %[z]
         fschg
         lds       %[z], fpul
-        fmov      xd0, dr8
+        mov       #4, %[z]
         fmov      xd2, dr10
-        float     fpul, fr11
-        fmov      xd4, dr4
+        shll16    %[z]
         fmov      xd6, dr6
+        float     fpul, fr11
+        fmov      xd10, dr2
         float     fpul, fr7
+        fmov      xd0, dr8
+        float     fpul, fr3
+        fmov      xd4, dr4
+        shll8     %[z]
         fmov      xd8, dr0
         fipr      fv8, fv8
-        float     fpul, fr10
-        fmov      xd10, dr2
-        fldi0     fr3
+        lds       %[z], fpul
         fipr      fv4, fv4
+        fsts      fpul, fr10
         fipr      fv0, fv0
-        fmov      dr10, dr8
-        fsrra     fr11
-        fmov      dr6, dr4
-        fsrra     fr7
-        fmov      dr2, dr0
-        fsrra     fr3
-        fcmp/eq   fr9, fr10
-        bt/s      1f
-        fcmp/eq   fr5, fr10
-        fmul      fr11, fr9
-    1:  bt/s      2f
-        fcmp/eq   fr1, fr10
-        fmul      fr7, fr5
-    2:  bt/s      3f
+        fsts      fpul, fr6
+        fadd      fr11, fr10
+        fadd      fr7, fr6
+        fsqrt     fr3
+        fsrra     fr10
+        fsrra     fr6
+        fmul      fr11, fr10
+        fmul      fr7, fr6
         fschg
-        fmul      fr3, fr1
-    3:
     )"
-    : "=f" (fr1), "=f" (fr5), "=f" (fr9),
-      [z] "=r" (zero)
+    : "=f" (fr3), "=f" (fr6), "=f" (fr10),
+       [z] "=r" (zero)
     :
-    : "fpul", "fr0", "fr2", "fr3", "fr4",
-      "fr6", "fr7", "fr8", "fr10", "fr11");
+    : "fpul", "fr0", "fr1", "fr2", "fr4",
+      "fr5", "fr7", "fr8", "fr9", "fr11");
 
-    return shz_vec3_init(fr9, fr5, fr1);
+    return shz_vec3_init(fr10, fr6, fr3);
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_translation_sh4(float x, float y, float z) SHZ_NOEXCEPT {
@@ -2474,169 +2407,75 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_scale_sh4(float x, float y, float z) SHZ_N
     : "fr0", "fr1", "fr2", "fr3");
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_apply_rotation_x_sh4(float x) SHZ_NOEXCEPT {
-    x *= SHZ_FSCA_RAD_FACTOR;
+SHZ_INLINE void shz_xmtrx_rotate_dir_sh4(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+    register float fr12 asm("fr12") = x;
+    register float fr13 asm("fr13") = y;
+    register float fr14 asm("fr14") = z;
+    register float fr15 asm("fr15") = angle * SHZ_FSCA_RAD_FACTOR;
 
     asm volatile(R"(
-        ftrc    %0, fpul
-
-        fldi0   fr7
-        fsca    fpul, dr4
-        fldi0   fr8
-        fldi0   fr11
-
-        fmov    fr4, fr9
-        fmov    fr5, fr10
-        fneg    fr9
-
-        fmov    fr4, fr6
-        fldi0   fr4
-
-        ftrv    xmtrx, fv8
+        ftrc    fr15, fpul
+        fldi1   fr15                ! fr15 = 1
+        fsca    fpul, dr8           ! fr8  = s, fr9 = c
+        fmov    fr8, fr10           ! fr10 = s
+        fmov    fr8, fr7            ! fr7  = s
+        fsub    fr9, fr15           ! fr15 = t = 1-c
+        fmov    fr8, fr11           ! fr11 = s
+        fmul    fr14, fr7           ! fr7  = z*s
+        fmov    fr15, fr0           ! fr0  = t
+        fmul    fr13, fr11          ! fr11 = y*s
+        fmov    fr7, fr1            ! fr1  = z*s
+        fmul    fr12, fr0           ! fr0  = x*t
+        fmov    fr11, fr8           ! fr8  = y*s
+        fmac    fr0, fr13, fr1      ! fr1  = x*y*t + z*s  => XF1
+        fneg    fr11                ! fr11 = -y*s
+        fmac    fr0, fr14, fr8      ! fr8  = x*z*t + y*s  => XF8
+        fmov    fr11, fr2           ! fr2  = -y*s
+        fneg    fr7                 ! fr7  = -z*s
+        fmac    fr0, fr14, fr2      ! fr2  = x*z*t - y*s  => XF2
+        fmov    fr7, fr4            ! fr4  = -z*s
+        fmac    fr0, fr13, fr4      ! fr4  = x*y*t - z*s  => XF4
+        fmov    fr9, fr6            ! fr6  = c
+        fmov    fr10, fr3           ! fr3  = s
+        fmac    fr0, fr12, fr6      ! fr6  = x*x*t + c    => XF0
+        fmov    fr15, fr0           ! fr0  = t
+        fmul    fr12, fr3           ! fr3  = x*s
+        fmov    fr9, fr5            ! fr5  = c
+        fmul    fr13, fr0           ! fr0  = y*t
+        flds    fr6, fpul           ! fpul = XF0 value
+        fmov    fr3, fr6            ! fr6  = x*s
+        fmac    fr0, fr13, fr5      ! fr5  = y*y*t + c    => XF5
+        fneg    fr3                 ! fr3  = -x*s
+        fmac    fr0, fr14, fr6      ! fr6  = y*z*t + x*s  => XF6
+        fmov    fr9, fr10           ! fr10 = c
+        fmul    fr14, fr15          ! fr15 = z*t
+        fmov    fr3, fr9            ! fr9  = -x*s
+        fmac    fr0, fr14, fr9      ! fr9  = y*z*t - x*s  => XF9
+        fldi0   fr7                 ! fr7  = 0            => XF7
         ftrv    xmtrx, fv4
-
+        fmov    fr15, fr0           ! fr0  = z*t
+        fmac    fr0, fr14, fr10     ! fr10 = z*z*t + c    => XF10
+        fsts    fpul, fr0           ! fr0                 => XF0
+        fldi0   fr11                ! fr11 = 0            => XF11
+        fldi0   fr3                 ! fr3  = 0            => XF3
         fschg
-        fmov    dr8, xd8
-        fmov    dr10, xd10
-        fmov    dr4, xd4
-        fmov    dr6, xd6
-        fschg
-    )"
-    :
-    : "f" (x)
-    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
-}
-
-SHZ_INLINE void shz_xmtrx_apply_rotation_y_sh4(float y) SHZ_NOEXCEPT {
-    y *= SHZ_FSCA_RAD_FACTOR;
-
-    asm volatile(R"(
-        ftrc    %0, fpul
-
-        fldi0   fr9
-        fsca    fpul, dr6
-        fldi0   fr11
-        fmov    fr6, fr8
-        fmov    fr7, fr10
-        fmov    fr7, fr4
-        fldi0   fr5
         ftrv    xmtrx, fv8
-
-        fneg    fr6
-        fldi0   fr7
-        ftrv    xmtrx, fv4
-
-        fschg
-        fmov    dr8, xd8
-        fmov    dr10, xd10
-        fmov    dr4, xd0
-        fmov    dr6, xd2
-        fschg
-    )"
-    :
-    : "f" (y)
-    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
-}
-
-SHZ_INLINE void shz_xmtrx_apply_rotation_z_sh4(float z) SHZ_NOEXCEPT {
-    z *= SHZ_FSCA_RAD_FACTOR;
-
-    asm volatile(R"(
-        ftrc    %0, fpul
-
-        fldi0   fr2
-        fsca    fpul, dr4
-        fldi0   fr3
-        fmov    fr4, fr1
-        fmov    fr5, fr0
-
-        fneg    fr4
-        fldi0   fr6
-        fldi0   fr7
-
+        fmov    xd12, dr12          ! fr12, fr13          => XF12, XF13
         ftrv    xmtrx, fv0
-        ftrv    xmtrx, fv4
-
+        fmov    xd14, dr14          ! fr14, fr15          => XF14, XF15
         fschg
-        fmov    dr0, xd0
-        fmov    dr2, xd2
-        fmov    dr4, xd4
-        fmov    dr6, xd6
-        fschg
-    )"
-    :
-    : "f" (z)
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fpul");
-}
-
-SHZ_INLINE void shz_xmtrx_apply_rotation_sh4(float angle, float x, float y, float z) SHZ_NOEXCEPT {
-    register float x_ asm("fr4") = x;
-    register float y_ asm("fr5") = y;
-    register float z_ asm("fr6") = z;
-    register float a_ asm("fr7") = angle * SHZ_FSCA_RAD_FACTOR;
-
-    asm volatile(R"(
-        ftrc	fr7, fpul
-        fsca	fpul, dr2
-        fldi1	fr0
-        fsub	fr3, fr0	/* 1-cos */
-
-        fldi0	fr7
-        fipr	fv4, fv4
-        fsrra	fr7
-        fmul	fr7, fr4
-        fmul	fr7, fr5
-        fmul	fr7, fr6
-
-        fmov	fr4, fr1
-        fmul	fr2, fr1	/* xsin */
-        fmov	fr5, fr7
-        fmul	fr2, fr7	/* ysin */
-        fmul	fr6, fr2	/* zsin */
-
-        fmov	fr4, fr8
-        fmul	fr0, fr8
-        fmov	fr5, fr9
-        fmul	fr8, fr9	/* xy(1-cos) */
-        fmul	fr6, fr8	/* xz(1-cos) */
-        fmov	fr6, fr10
-        fmul	fr0, fr6
-        fmul	fr6, fr10
-        fadd	fr3, fr10	/* zz(1-cos)+cos */
-        fmul	fr5, fr6	/* yz(1-cos) */
-        fmul	fr5, fr5
-        fmul	fr0, fr5
-        fadd	fr3, fr5	/* yy(1-cos)+cos */
-        fmul	fr4, fr0
-        fmul	fr4, fr0
-        fadd	fr3, fr0	/* xx(1-cos)+cos */
-
-        fmov	fr8, fr3	/* xz(1-cos) */
-        fmov	fr9, fr4	/* xy(1-cos) */
-        fadd	fr7, fr8
-        fmov	fr6, fr9
-        fsub	fr1, fr9
-        fldi0	fr11
-        ftrv	xmtrx, fv8
-
-        fadd	fr1, fr6
-        fmov	fr4, fr1
-        fsub	fr2, fr4
-        fsub	fr7, fr3
-        fldi0	fr7
-        ftrv	xmtrx, fv4
-
-        fadd	fr2, fr1
-        fmov	fr3, fr2
-        fldi0	fr3
-        ftrv	xmtrx, fv0
-
         frchg
     )"
-    : "+f"(x_), "+f"(y_), "+f"(z_), "+f"(a_)
+    : "+f" (fr12), "+f" (fr13), "+f" (fr14), "+f" (fr15)
     :
-    : "fr0", "fr1", "fr2", "fr3", "fr8", "fr9", "fr10", "fr11",
-      "fr12", "fr13", "fr14", "fr15", "fpul");
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_rotate_sh4(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+    const shz_vec3_t dir = shz_vec3_normalize(shz_vec3_init(x, y, z));
+
+    shz_xmtrx_rotate_dir_sh4(angle, dir.x, dir.y, dir.z);
 }
 
 SHZ_INLINE void shz_xmtrx_apply_rotation_quat_sh4(shz_quat_t q) SHZ_NOEXCEPT {
@@ -3338,266 +3177,153 @@ SHZ_INLINE void shz_xmtrx_apply_self_sh4(void) SHZ_NOEXCEPT {
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
+/* This routine and its optimization tricks are from World Series Baseball 2k2.
+   Credit for it goes to John Brooks, its lead technologist. */
 SHZ_FORCE_INLINE void shz_xmtrx_translate_sh4(float x, float y, float z) SHZ_NOEXCEPT {
-    register float fr12 asm("fr12") = x;
-    register float fr13 asm("fr13") = y;
-    register float fr14 asm("fr14") = z;
-    uintptr_t zero;
+    register float fr4 asm("fr4") = x;
+    register float fr5 asm("fr5") = y;
+    register float fr6 asm("fr6") = z;
+    register float fr7 asm("fr7") = 1.0f;
 
     asm volatile(R"(
-        mov     #0, %[z]
-        fldi0   fr1
-        lds     %[z], fpul
-        fldi1   fr0
-        float   fpul, fr2
-        fldi1   fr5
-        float   fpul, fr3
-        fldi0   fr4
-        float   fpul, fr7
-        fldi0   fr6
-        float   fpul, fr8
-        fldi0   fr9
-        ftrv    xmtrx, fv0
-        fldi1   fr15
         ftrv    xmtrx, fv4
-        fldi1   fr10
-        ftrv    xmtrx, fv12
-        fldi0   fr11
-        ftrv    xmtrx, fv8
-        frchg
+        fschg
+        fmov    dr4, xd12
+        fmov    dr6, xd14
+        fschg
     )"
-    : "+f" (fr12), "+f" (fr13), "+f" (fr14), [z] "=r" (zero)
-    :
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
-      "fr8", "fr9", "fr10", "fr11", "fr15", "fpul");
+    : "+f" (fr4), "+f" (fr5), "+f" (fr6), "+f" (fr7));
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_scale_sh4(float x, float y, float z) SHZ_NOEXCEPT {
-    register float fr0  asm("fr0")  = x;
-    register float fr5  asm("fr5")  = y;
-    register float fr10 asm("fr10") = z;
-    uintptr_t zero;
+    register float fr4 asm("fr4") = x;
+    register float fr5 asm("fr5") = y;
+    register float fr6 asm("fr6") = z;
 
     asm volatile(R"(
-        mov     #0, %[z]
-        fldi0   fr1
-        lds     %[z], fpul
-        fldi0   fr2
-        float   fpul, fr3
-        fldi0   fr4
-        float   fpul, fr11
-        fldi1   fr15
-        float   fpul, fr14
         fschg
-        fmov    dr2, dr6
-        ftrv    xmtrx, fv0
-        fmov    dr6, dr8
-        ftrv    xmtrx, fv4
-        fmov    dr8, dr12
-        ftrv    xmtrx, fv8
-        fschg
-        ftrv    xmtrx, fv12
+        fmov    xd12, dr0
+        fmov    dr4, xd12
         frchg
+        fmov    dr14, xd2
+        fmov    xd6, dr14
+        fmul    fr12, fr0
+        fmul    fr12, fr1
+        fmul    fr12, fr2
+        fmul    fr12, fr3
+        fmul    fr13, fr4
+        fmul    fr13, fr5
+        fmul    fr13, fr6
+        fmul    fr13, fr7
+        fmov    xd0, dr12
+        fmul    fr14, fr8
+        fmul    fr14, fr9
+        fmul    fr14, fr10
+        fmul    fr14, fr11
+        fmov    xd2, dr14
+        frchg
+        fschg
     )"
-    : "+f" (fr0), "+f" (fr5), "+f" (fr10), [z] "=r" (zero)
     :
-    : "fpul", "fr1", "fr2", "fr3", "fr4", "fr6", "fr7",
-      "fr8", "fr9", "fr11", "fr12", "fr13", "fr14", "fr15");
+    : "f" (fr4), "f" (fr5), "f" (fr6)
+    : "fr0", "fr1", "fr2", "fr3");
 }
 
 SHZ_INLINE void shz_xmtrx_rotate_x_sh4(float x) SHZ_NOEXCEPT {
-    register float x_ asm("fr4") = x * SHZ_FSCA_RAD_FACTOR;
-    asm volatile(R"(
-        ftrc    fr4, fpul
-        fsca    fpul, dr0
+    x *= SHZ_FSCA_RAD_FACTOR;
 
-        fldi0   fr4
-        fmov    fr1, fr5
-        fmov    fr0, fr6
+    asm volatile(R"(
+        ftrc    %0, fpul
+
         fldi0   fr7
+        fsca    fpul, dr4
         fldi0   fr8
+        fldi0   fr11
+
+        fmov    fr4, fr9
+        fmov    fr5, fr10
+        fneg    fr9
+
+        fmov    fr4, fr6
+        fldi0   fr4
+
+        ftrv    xmtrx, fv8
         ftrv    xmtrx, fv4
 
-        fmov    fr0, fr9
-        fneg    fr9
-        fmov    fr1, fr10
-        fldi0   fr11
-        fldi0   fr12
-        ftrv    xmtrx, fv8
-
-        fldi0   fr13
-        fldi0   fr14
-        fldi1   fr15
-        fldi1   fr0
-        ftrv    xmtrx, fv12
-
-        fldi0   fr1
-        fldi0   fr2
-        fldi0   fr3
-        ftrv    xmtrx, fv0
-
-        frchg
+        fschg
+        fmov    dr8, xd8
+        fmov    dr10, xd10
+        fmov    dr4, xd4
+        fmov    dr6, xd6
+        fschg
     )"
-    : "+f" (x_)
     :
-    : "fr0", "fr1", "fr2", "fr3", "fr5", "fr6", "fr7",
-      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
-      "fpul");
+    : "f" (x)
+    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
 }
 
 SHZ_INLINE void shz_xmtrx_rotate_y_sh4(float y) SHZ_NOEXCEPT {
-    register float y_ asm ("fr4") = y * SHZ_FSCA_RAD_FACTOR;
+    y *= SHZ_FSCA_RAD_FACTOR;
+
     asm volatile(R"(
         ftrc    %0, fpul
-        fsca    fpul, dr0
-
-        fldi0   fr4
-        fldi1   fr5
-        fldi0   fr6
-        fldi0   fr7
-        fmov    fr0, fr8
-        ftrv    xmtrx, fv4
 
         fldi0   fr9
-        fmov    fr1, fr10
+        fsca    fpul, dr6
         fldi0   fr11
-        fldi0   fr12
+        fmov    fr6, fr8
+        fmov    fr7, fr10
+        fmov    fr7, fr4
+        fldi0   fr5
         ftrv    xmtrx, fv8
 
-        fldi0   fr13
-        fldi0   fr14
-        fldi1   fr15
-        fmov    fr0, fr2
-        ftrv    xmtrx, fv12
+        fneg    fr6
+        fldi0   fr7
+        ftrv    xmtrx, fv4
 
-        fneg    fr2
-        fldi0   fr3
-        fmov    fr1, fr0
-        fldi0   fr1
-        ftrv    xmtrx, fv0
-
-        frchg
+        fschg
+        fmov    dr8, xd8
+        fmov    dr10, xd10
+        fmov    dr4, xd0
+        fmov    dr6, xd2
+        fschg
     )"
-    : "+f" (y_)
     :
-    : "fr0", "fr1", "fr2", "fr3", "fr5", "fr6", "fr7",
-      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
-      "fpul");
+    : "f" (y)
+    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
 }
 
 SHZ_INLINE void shz_xmtrx_rotate_z_sh4(float z) SHZ_NOEXCEPT {
-    register float z_ asm("fr4") = z * SHZ_FSCA_RAD_FACTOR;
+    z *= SHZ_FSCA_RAD_FACTOR;
+
     asm volatile(R"(
         ftrc    %0, fpul
-        fsca    fpul, dr4
 
-        fmov    fr5, fr0
-        fmov    fr4, fr1
         fldi0   fr2
+        fsca    fpul, dr4
         fldi0   fr3
-        ftrv    xmtrx, fv0
+        fmov    fr4, fr1
+        fmov    fr5, fr0
 
         fneg    fr4
         fldi0   fr6
         fldi0   fr7
+
+        ftrv    xmtrx, fv0
         ftrv    xmtrx, fv4
 
-        fldi0   fr8
-        fldi0   fr9
-        fldi1   fr10
-        fldi0   fr11
-        ftrv    xmtrx, fv8
-
-        fldi0   fr12
-        fldi0   fr13
-        fldi0   fr14
-        fldi1   fr15
-        ftrv    xmtrx, fv12
-
-        frchg
+        fschg
+        fmov    dr0, xd0
+        fmov    dr2, xd2
+        fmov    dr4, xd4
+        fmov    dr6, xd6
+        fschg
     )"
-    : "+f" (z_)
     :
-    : "fr0", "fr1", "fr2", "fr3", "fr5", "fr6", "fr7",
-      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
-      "fpul");
+    : "f" (z)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_rotate_sh4(float angle, float x, float y, float z) SHZ_NOEXCEPT {
-    register float x_ asm("fr4") = x;
-    register float y_ asm("fr5") = y;
-    register float z_ asm("fr6") = z;
-    register float a_ asm("fr7") = angle * SHZ_FSCA_RAD_FACTOR;
-
-    asm volatile(R"(
-        ftrc	fr7, fpul
-        fsca	fpul, dr2
-        fldi1	fr0
-        fsub	fr3, fr0	/* 1-cos */
-
-        fldi0	fr7
-        fipr	fv4, fv4
-        fsrra	fr7
-        fmul	fr7, fr4
-        fmul	fr7, fr5
-        fmul	fr7, fr6
-
-        fmov	fr4, fr1
-        fmul	fr2, fr1	/* xsin */
-        fmov	fr5, fr7
-        fmul	fr2, fr7	/* ysin */
-        fmul	fr6, fr2	/* zsin */
-
-        fmov	fr4, fr8
-        fmul	fr0, fr8
-        fmov	fr5, fr9
-        fmul	fr8, fr9	/* xy(1-cos) */
-        fmul	fr6, fr8	/* xz(1-cos) */
-        fmov	fr6, fr10
-        fmul	fr0, fr6
-        fmul	fr6, fr10
-        fadd	fr3, fr10	/* zz(1-cos)+cos */
-        fmul	fr5, fr6	/* yz(1-cos) */
-        fmul	fr5, fr5
-        fmul	fr0, fr5
-        fadd	fr3, fr5	/* yy(1-cos)+cos */
-        fmul	fr4, fr0
-        fmul	fr4, fr0
-        fadd	fr3, fr0	/* xx(1-cos)+cos */
-
-        fmov	fr8, fr3	/* xz(1-cos) */
-        fmov	fr9, fr4	/* xy(1-cos) */
-        fadd	fr7, fr8
-        fmov	fr6, fr9
-        fsub	fr1, fr9
-        fldi0	fr11
-        ftrv	xmtrx, fv8
-
-        fadd	fr1, fr6
-        fmov	fr4, fr1
-        fsub	fr2, fr4
-        fsub	fr7, fr3
-        fldi0	fr7
-        ftrv	xmtrx, fv4
-
-        fadd	fr2, fr1
-        fmov	fr3, fr2
-        fldi0	fr3
-        ftrv	xmtrx, fv0
-
-        fldi0   fr12
-        fldi0   fr13
-        fldi0   fr14
-        fldi1   fr15
-        ftrv    xmtrx, fv12
-
-        frchg
-    )"
-    : "+f"(x_), "+f"(y_), "+f"(z_), "+f"(a_)
-    :
-    : "fr0", "fr1", "fr2", "fr3", "fr8", "fr9", "fr10", "fr11",
-      "fr12", "fr13", "fr14", "fr15", "fpul");
-}
 
 SHZ_INLINE void shz_xmtrx_add_4x4_sh4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     asm volatile(R"(
@@ -3737,6 +3463,107 @@ SHZ_INLINE void shz_xmtrx_abs_sh4(void) SHZ_NOEXCEPT {
     )");
 }
 
+/* Routine gifted from World Series Baseball 2k2.
+   Credit to its lead technologist, John Brooks. */
+SHZ_INLINE void shz_xmtrx_invert_rigid_sh4(void) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        frchg
+        fldi0   fr3                 ! Force affine bottom row.
+        fsub    fr11, fr11
+        fldi0   fr7
+        fldi1   fr15
+
+        flds    fr1, fpul           ! Save R10 for the first transpose swap.
+        fipr    fv12, fv0           ! FR3  = dot(t, basis column 0).
+        fmov    fr4, fr1
+        fipr    fv12, fv4           ! FR7  = dot(t, basis column 1).
+        fsts    fpul, fr4
+        fipr    fv12, fv8           ! FR11 = dot(t, basis column 2).
+
+        fldi0   fr12
+        fsub    fr14, fr14
+        fsub    fr3, fr12           ! Translation x = -dot(t, column 0).
+        fldi0   fr13
+        fsub    fr7, fr13           ! Translation y = -dot(t, column 1).
+        flds    fr2, fpul           ! Swap R20 and R02.
+        fsub    fr11, fr14          ! Translation z = -dot(t, column 2).
+        fmov    fr8, fr2
+        fsub    fr3, fr3            ! Restore affine bottom row after FIPRs.
+        fsts    fpul, fr8
+        fsub    fr7, fr7
+        flds    fr6, fpul           ! Swap R21 and R12.
+        fsub    fr11, fr11
+        fmov    fr9, fr6
+        fsts    fpul, fr9
+
+        frchg
+    )"
+    :
+    :
+    : "fpul");
+}
+
+SHZ_FORCE_INLINE float shz_xmtrx_trace_2x2_sh4(void) SHZ_NOEXCEPT {
+    float trace = 0.0f;
+
+    asm volatile(R"(
+        fschg
+        fmov   xd0, dr4
+        fadd   fr4, %[t]
+        fmov   xd4, dr4
+        fschg
+        fadd   fr5, %[t]
+    )"
+    : [t] "+f" (trace)
+    :
+    : "fr4", "fr5");
+
+    return trace;
+}
+
+SHZ_FORCE_INLINE float shz_xmtrx_trace_3x3_sh4(void) SHZ_NOEXCEPT {
+    float trace = 0.0f;
+
+    asm volatile(R"(
+        fschg
+        fmov   xd0, dr4
+        fadd   fr4, %[t]
+        fmov   xd4, dr4
+        fadd   fr5, %[t]
+        fmov   xd10, dr4
+        fschg
+        fadd   fr4, %[t]
+    )"
+    : [t] "+f" (trace)
+    :
+    : "fr4", "fr5");
+
+    return trace;
+}
+
+SHZ_FORCE_INLINE float shz_xmtrx_trace_4x4_sh4(void) SHZ_NOEXCEPT {
+    float trace = 0.0f;
+
+    asm volatile(R"(
+        fschg
+        fmov   xd0, dr4
+        fadd   fr4, %[t]
+        fmov   xd4, dr4
+        fadd   fr5, %[t]
+        fmov   xd10, dr4
+        fadd   fr4, %[t]
+        fmov   xd14, dr4
+        fschg
+        fadd   fr5, %[t]
+    )"
+    : [t] "+f" (trace)
+    :
+    : "fr4", "fr5");
+
+    return trace;
+}
+
+
 SHZ_INLINE void shz_xmtrx_blend_4x4_sh4(const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT {
     register float fr0 asm("fr0") = weight;
 
@@ -3830,6 +3657,57 @@ SHZ_INLINE void shz_xmtrx_blend_3x4_sh4(const shz_mat3x4_t* matrix, float weight
         frchg
         fmov    dr2, xd0
         fschg
+    )"
+    : [j] "+r" (matrix)
+    : "f" (fr0), "m" (*matrix)
+    : "fr2", "fr3", "fr4", "fr5", "fr6",
+      "fr7", "fr8", "fr9", "fr10", "fr11");
+}
+
+SHZ_INLINE void shz_xmtrx_blend_4x3_sh4(const shz_mat4x3_t* matrix, float weight) SHZ_NOEXCEPT {
+    register float fr0 asm("fr0") = weight;
+
+    asm volatile(R"(
+        fschg
+        fmov    xd0, dr2
+        fmov    xd2, dr4
+        fmov    xd4, dr6
+        fmov    dr0, xd0
+        fschg
+        fmov.s  @%[j]+, fr8
+        add     #28, %[j]
+        pref    @%[j]
+        add     #-28, %[j]
+        fmac    fr0, fr8, fr2
+        fmov.s  @%[j]+, fr9
+        fmov.s  @%[j]+, fr10
+        fmac    fr0, fr9, fr3
+        fmov.s  @%[j]+, fr11
+        fmac    fr0, fr10, fr4
+        fmov.s  @%[j]+, fr8
+        fmac    fr0, fr11, fr5
+        fmov.s  @%[j]+, fr9
+        fmac    fr0, fr8, fr6
+        fmac    fr0, fr9, fr7
+        frchg
+        fmov.s  @%[j]+, fr2
+        fmov.s  @%[j]+, fr3
+        fmac    fr0, fr2, fr6
+        fmov.s  @%[j]+, fr4
+        fmac    fr0, fr3, fr7
+        fmov.s  @%[j]+, fr5
+        fmac    fr0, fr4, fr8
+        fmov.s  @%[j]+, fr2
+        fmac    fr0, fr5, fr9
+        fmov.s  @%[j]+, fr3
+        fmac    fr0, fr2, fr10
+        fmac    fr0, fr3, fr11
+        fschg
+        fmov    xd6, dr4
+        fmov    xd4, dr2
+        fmov    xd2, dr0
+        fschg
+        frchg
     )"
     : [j] "+r" (matrix)
     : "f" (fr0), "m" (*matrix)

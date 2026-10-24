@@ -102,10 +102,11 @@ SHZ_INLINE shz_quat_t shz_quat_from_rotation_yxz(float yAngle, float xAngle, flo
 /*! Equivalent to shz_quat_from_rotation_xyz(), with 16-bit binary angles (65536 per turn, the FSCA unit).
 
     For games whose orientations are stored as 16-bit angles, such as N64 titles. Signed 16-bit
-    angles can be passed as they are. The half angles go to FSCA directly, without a conversion to
-    radians, so an odd angle is off by half a unit (1/131072 of a turn) in its half angle.
+    angles can be passed as they are. The angles are converted to radians and forwarded to
+    shz_quat_from_rotation_xyz(), so the half angles are quantized to FSCA's 1/65536 of a turn,
+    which can be off by up to half a unit for odd angles.
 
-    \sa shz_sincosu16()
+    \sa shz_quat_from_rotation_xyz(), shz_sincosu16()
 */
 SHZ_INLINE shz_quat_t shz_quat_from_rotation_xyz_u16(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT;
 
@@ -176,17 +177,138 @@ SHZ_INLINE float shz_quat_angle_z(shz_quat_t q) SHZ_NOEXCEPT;
 //! Returns both the axis and angle of rotation simultaneously (faster if both are needed) from the given quaternion.
 SHZ_INLINE void shz_quat_to_axis_angle(shz_quat_t q, shz_vec3_t* vec, float* angle) SHZ_NOEXCEPT;
 
-//! Returns the roll, pitch, and yaw angles of rotation represented by the given quaternion.
+/*! Decomposes the given quaternion into X, Y, then Z Tait-Bryan angles.
+
+    Returns the angles a, b, and c, in radians, such that the given quaternion is equal to
+    Qx(a) * Qy(b) * Qz(c), making this the inverse of
+    shz_quat_from_rotation_xyz(). The angles are returned in the same order as that routine
+    takes them: x = X angle, y = Y angle, z = Z angle.
+
+    The outer angles are in [-PI, PI] and the middle angle is in [-PI/2, PI/2].
+
+    \note   At gimbal lock, when the middle angle is +/-PI/2, the outer angles are not unique.
+            The returned angles still reconstruct the same rotation.
+
+    \param  q   Unit quaternion to decompose.
+
+    \returns    The X, Y, and Z angles of rotation, in radians.
+
+    \sa shz_quat_from_rotation_xyz(), shz_quat_angle_x(), shz_quat_angle_y(), shz_quat_angle_z()
+*/
 SHZ_INLINE shz_vec3_t shz_quat_to_angles_xyz(shz_quat_t q) SHZ_NOEXCEPT;
+
+/*! Decomposes the given quaternion into Z, Y, then X Tait-Bryan angles.
+
+    Returns the angles a, b, and c, in radians, such that the given quaternion is equal to
+    Qz(a) * Qy(b) * Qx(c), making this the inverse of
+    shz_quat_from_rotation_zyx(). The angles are returned in the same order as that routine
+    takes them: x = Z angle, y = Y angle, z = X angle.
+
+    The outer angles are in [-PI, PI] and the middle angle is in [-PI/2, PI/2].
+
+    \note   At gimbal lock, when the middle angle is +/-PI/2, the outer angles are not unique.
+            The returned angles still reconstruct the same rotation.
+
+    \param  q   Unit quaternion to decompose.
+
+    \returns    The Z, Y, and X angles of rotation, in radians.
+
+    \sa shz_quat_from_rotation_zyx(), shz_quat_to_angles_xyz()
+*/
+SHZ_INLINE shz_vec3_t shz_quat_to_angles_zyx(shz_quat_t q) SHZ_NOEXCEPT;
+
+/*! Decomposes the given quaternion into Z, X, then Y Tait-Bryan angles.
+
+    Returns the angles a, b, and c, in radians, such that the given quaternion is equal to
+    Qz(a) * Qx(b) * Qy(c), making this the inverse of
+    shz_quat_from_rotation_zxy(). The angles are returned in the same order as that routine
+    takes them: x = Z angle, y = X angle, z = Y angle.
+
+    The outer angles are in [-PI, PI] and the middle angle is in [-PI/2, PI/2].
+
+    \note   At gimbal lock, when the middle angle is +/-PI/2, the outer angles are not unique.
+            The returned angles still reconstruct the same rotation.
+
+    \param  q   Unit quaternion to decompose.
+
+    \returns    The Z, X, and Y angles of rotation, in radians.
+
+    \sa shz_quat_from_rotation_zxy(), shz_quat_to_angles_yxz()
+*/
+SHZ_INLINE shz_vec3_t shz_quat_to_angles_zxy(shz_quat_t q) SHZ_NOEXCEPT;
+
+/*! Decomposes the given quaternion into Y, X, then Z Tait-Bryan angles.
+
+    Returns the angles a, b, and c, in radians, such that the given quaternion is equal to
+    Qy(a) * Qx(b) * Qz(c), making this the inverse of
+    shz_quat_from_rotation_yxz(). The angles are returned in the same order as that routine
+    takes them: x = Y angle, y = X angle, z = Z angle.
+
+    The outer angles are in [-PI, PI] and the middle angle is in [-PI/2, PI/2].
+
+    \note   At gimbal lock, when the middle angle is +/-PI/2, the outer angles are not unique.
+            The returned angles still reconstruct the same rotation.
+
+    \param  q   Unit quaternion to decompose.
+
+    \returns    The Y, X, and Z angles of rotation, in radians.
+
+    \sa shz_quat_from_rotation_yxz(), shz_quat_to_angles_zxy()
+*/
+SHZ_INLINE shz_vec3_t shz_quat_to_angles_yxz(shz_quat_t q) SHZ_NOEXCEPT;
 
 //! Returns the squared magnitude of the given quaternion.
 SHZ_INLINE float shz_quat_magnitude_sqr(shz_quat_t quat) SHZ_NOEXCEPT;
 
-//! Returns the magnitude of the given quaternion.
+/*! Returns the magnitude of the given quaternion.
+
+    Safely returns `0.0f` when \p quat has a magnitude of `0.0f`.
+
+    \param  quat    The quaternion whose magnitude is returned.
+    \returns        The magnitude of \p quat.
+
+    \sa shz_quat_magnitude_fsrra(), shz_quat_magnitude_sqr(), shz_quat_magnitude_inv()
+*/
 SHZ_INLINE float shz_quat_magnitude(shz_quat_t quat) SHZ_NOEXCEPT;
 
-//! Returns the inverse magnitude of the given quaternion.
+/*! Returns the magnitude of the given quaternion, unsafely, using FSRRA.
+
+    Faster alternative to shz_quat_magnitude() which does not check for a
+    zero-length quaternion.
+
+    \warning Results in a division-by-zero when \p quat has a magnitude of `0.0f`.
+
+    \param  quat    The quaternion whose magnitude is returned.
+    \returns        The magnitude of \p quat.
+
+    \sa shz_quat_magnitude()
+*/
+SHZ_INLINE float shz_quat_magnitude_fsrra(shz_quat_t quat) SHZ_NOEXCEPT;
+
+/*! Returns the inverse magnitude of the given quaternion.
+
+    Safely returns `0.0f` when \p quat has a magnitude of `0.0f`.
+
+    \param  quat    The quaternion whose inverse magnitude is returned.
+    \returns        `1.0f` divided by the magnitude of \p quat.
+
+    \sa shz_quat_magnitude_inv_fsrra(), shz_quat_magnitude()
+*/
 SHZ_INLINE float shz_quat_magnitude_inv(shz_quat_t quat) SHZ_NOEXCEPT;
+
+/*! Returns the inverse magnitude of the given quaternion, unsafely, using FSRRA.
+
+    Faster alternative to shz_quat_magnitude_inv() which does not check for a
+    zero-length quaternion.
+
+    \warning Results in a division-by-zero when \p quat has a magnitude of `0.0f`.
+
+    \param  quat    The quaternion whose inverse magnitude is returned.
+    \returns        `1.0f` divided by the magnitude of \p quat.
+
+    \sa shz_quat_magnitude_inv()
+*/
+SHZ_INLINE float shz_quat_magnitude_inv_fsrra(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -195,19 +317,58 @@ SHZ_INLINE float shz_quat_magnitude_inv(shz_quat_t quat) SHZ_NOEXCEPT;
     @{
 */
 
-//! Returns the normalized form of the given quaternion.
+/*! Returns the normalized form of the given quaternion.
+
+    This is the fastest normalization routine, which does not check for a
+    zero-length quaternion.
+
+    \warning Results in a division-by-zero when \p quat has a magnitude of `0.0f`.
+
+    \param  quat    The quaternion to normalize.
+    \returns        The unit quaternion in the same direction as \p quat.
+
+    \sa shz_quat_normalize_or(), shz_quat_normalize_safe()
+*/
 SHZ_INLINE shz_quat_t shz_quat_normalize(shz_quat_t quat) SHZ_NOEXCEPT;
+
+/*! Returns the normalized form of the given quaternion, or an alternate value.
+
+    Safely returns \p alt when \p quat has a magnitude of `0.0f` and cannot be normalized.
+
+    \param  quat    The quaternion to normalize.
+    \param  alt     The quaternion to return when \p quat cannot be normalized.
+    \returns        The unit quaternion in the same direction as \p quat, or \p alt.
+
+    \sa shz_quat_normalize(), shz_quat_normalize_safe()
+*/
+SHZ_INLINE shz_quat_t shz_quat_normalize_or(shz_quat_t quat, shz_quat_t alt) SHZ_NOEXCEPT;
 
 /*! SAFELY returns the normalized form of the given quaternion.
 
-    Returns the identity quaternion when magnitude is 0.0f.
+    Safely returns the identity quaternion when \p quat has a magnitude of `0.0f`
+    and cannot be normalized.
+
+    \param  quat    The quaternion to normalize.
+    \returns        The unit quaternion in the same direction as \p quat, or the identity.
+
+    \sa shz_quat_normalize(), shz_quat_normalize_or(), shz_quat_identity()
 */
 SHZ_INLINE shz_quat_t shz_quat_normalize_safe(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! Returns the conjugate of the given quaternion.
 SHZ_INLINE shz_quat_t shz_quat_conjugate(shz_quat_t quat) SHZ_NOEXCEPT;
 
-//! Returns the inverse of the given quaternion
+/*! Returns the inverse of the given quaternion.
+
+    The inverse is the conjugate of \p quat divided by its squared magnitude.
+
+    \warning Results in a division-by-zero when \p quat has a magnitude of `0.0f`.
+
+    \param  quat    The quaternion to invert.
+    \returns        The inverse of \p quat.
+
+    \sa shz_quat_conjugate()
+*/
 SHZ_INLINE shz_quat_t shz_quat_inv(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! Returns the negation of the given quaternion.

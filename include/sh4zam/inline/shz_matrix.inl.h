@@ -254,51 +254,35 @@ SHZ_INLINE void shz_mat4x4_apply_scale(shz_mat4x4_t* mat, float x, float y, floa
 }
 
 SHZ_INLINE void shz_mat4x4_apply_rotation_x(shz_mat4x4_t* mat, float xAngle) SHZ_NOEXCEPT {
-    shz_xmtrx_load_4x4(mat);
-    shz_xmtrx_apply_rotation_x(xAngle);
-    shz_xmtrx_store_4x4(mat);
+    shz_mat4x4_rotate_x(mat, xAngle);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_rotation_y(shz_mat4x4_t* mat, float yAngle) SHZ_NOEXCEPT {
-    shz_xmtrx_load_4x4(mat);
-    shz_xmtrx_apply_rotation_y(yAngle);
-    shz_xmtrx_store_4x4(mat);
+    shz_mat4x4_rotate_y(mat, yAngle);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_rotation_z(shz_mat4x4_t* mat, float zAngle) SHZ_NOEXCEPT {
-    shz_xmtrx_load_4x4(mat);
-    shz_xmtrx_apply_rotation_z(zAngle);
-    shz_xmtrx_store_4x4(mat);
+    shz_mat4x4_rotate_z(mat, zAngle);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_rotation_xyz(shz_mat4x4_t* mat, float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT {
-    shz_xmtrx_load_4x4(mat);
-    shz_xmtrx_apply_rotation_xyz(xAngle, yAngle, zAngle);
-    shz_xmtrx_store_4x4(mat);
+    shz_mat4x4_rotate_xyz(mat, xAngle, yAngle, zAngle);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_rotation_zyx(shz_mat4x4_t* mat, float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT {
-    shz_xmtrx_load_4x4(mat);
-    shz_xmtrx_apply_rotation_zyx(zAngle, yAngle, xAngle);
-    shz_xmtrx_store_4x4(mat);
+    shz_mat4x4_rotate_zyx(mat, zAngle, yAngle, xAngle);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_rotation_zxy(shz_mat4x4_t* mat, float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT {
-    shz_xmtrx_load_4x4(mat);
-    shz_xmtrx_apply_rotation_zxy(zAngle, xAngle, yAngle);
-    shz_xmtrx_store_4x4(mat);
+    shz_mat4x4_rotate_zxy(mat, zAngle, xAngle, yAngle);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_rotation_yxz(shz_mat4x4_t* mat, float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT {
-    shz_xmtrx_load_4x4(mat);
-    shz_xmtrx_apply_rotation_yxz(yAngle, xAngle, zAngle);
-    shz_xmtrx_store_4x4(mat);
+    shz_mat4x4_rotate_yxz(mat, yAngle, xAngle, zAngle);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_rotation(shz_mat4x4_t* mat, float angle, float x, float y, float z) SHZ_NOEXCEPT {
-    shz_xmtrx_load_4x4(mat);
-    shz_xmtrx_apply_rotation(angle, x, y, z);
-    shz_xmtrx_store_4x4(mat);
+    shz_mat4x4_rotate(mat, angle, x, y, z);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT {
@@ -428,6 +412,12 @@ SHZ_FORCE_INLINE void shz_mat4x4_rotate_yxz(shz_mat4x4_t* mat, float yRadians, f
 SHZ_INLINE void shz_mat4x4_rotate(shz_mat4x4_t* mat, float radians, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(mat);
     shz_xmtrx_rotate(radians, xAxis, yAxis, zAxis);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_rotate_dir(shz_mat4x4_t* mat, float radians, float x, float y, float z) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_dir(radians, x, y, z);
     shz_xmtrx_store_4x4(mat);
 }
 
@@ -732,10 +722,14 @@ SHZ_INLINE float shz_mat4x4_3x3_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEP
     return shz_vec3_dot(mat->col[0].xyz, shz_vec3_cross(mat->col[1].xyz, mat->col[2].xyz));
 }
 
-SHZ_INLINE void shz_mat4x4_3x3_inverse_unscaled(const shz_mat4x4_t* mat4, shz_mat3x3_t* mat3) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_mat4x4_3x3_adjugate(const shz_mat4x4_t* mat4, shz_mat3x3_t* mat3) SHZ_NOEXCEPT {
     mat3->col[0] = shz_vec3_cross(shz_mat4x4_row(mat4, 1).xyz, shz_mat4x4_row(mat4, 2).xyz);
     mat3->col[1] = shz_vec3_cross(shz_mat4x4_row(mat4, 2).xyz, shz_mat4x4_row(mat4, 0).xyz);
     mat3->col[2] = shz_vec3_cross(shz_mat4x4_row(mat4, 0).xyz, shz_mat4x4_row(mat4, 1).xyz);
+}
+
+SHZ_INLINE void shz_mat4x4_3x3_inverse_unscaled(const shz_mat4x4_t* mat4, shz_mat3x3_t* mat3) SHZ_NOEXCEPT {
+    shz_mat4x4_3x3_adjugate(mat4, mat3);
 }
 
 SHZ_INLINE void shz_mat4x4_3x3_inverse(const shz_mat4x4_t* mat4, shz_mat3x3_t* invmat3) SHZ_NOEXCEPT {
@@ -745,8 +739,14 @@ SHZ_INLINE void shz_mat4x4_3x3_inverse(const shz_mat4x4_t* mat4, shz_mat3x3_t* i
 
     const float inv_det = shz_invf(determinant);
 
-    shz_mat4x4_3x3_inverse_unscaled(mat4, invmat3);
+    shz_mat4x4_3x3_adjugate(mat4, invmat3);
     shz_mat3x3_scale(invmat3, invmat3, inv_det);
+}
+
+SHZ_INLINE void shz_mat4x4_inverse_rigid(const shz_mat4x4_t* mtx, shz_mat4x4_t* out) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mtx);
+    shz_xmtrx_invert_rigid();
+    shz_xmtrx_store_4x4(out);
 }
 
 SHZ_INLINE void shz_mat3x3_scale(shz_mat3x3_t* dst, const shz_mat3x3_t* src, float value) SHZ_NOEXCEPT {
@@ -761,15 +761,20 @@ SHZ_INLINE void shz_mat3x3_transpose(const shz_mat3x3_t* mtrx,
     shz_xmtrx_store_3x3(out);
 }
 
-SHZ_INLINE void shz_mat3x3_inverse_unscaled(const shz_mat3x3_t* mtrx,
-                                 shz_mat3x3_t* out) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_mat3x3_adjugate(const shz_mat3x3_t* mtrx,
+                                    shz_mat3x3_t* out) SHZ_NOEXCEPT {
     // the transpose gives easy access to the rows as columns
     alignas(32) shz_mat3x3_t transpose;
     shz_mat3x3_transpose(mtrx, &transpose);
 
-    out->col[0] = shz_vec3_cross(transpose.col[1], transpose.col[2]),
-    out->col[1] = shz_vec3_cross(transpose.col[2], transpose.col[0]),
+    out->col[0] = shz_vec3_cross(transpose.col[1], transpose.col[2]);
+    out->col[1] = shz_vec3_cross(transpose.col[2], transpose.col[0]);
     out->col[2] = shz_vec3_cross(transpose.col[0], transpose.col[1]);
+}
+
+SHZ_INLINE void shz_mat3x3_inverse_unscaled(const shz_mat3x3_t* mtrx,
+                                            shz_mat3x3_t* out) SHZ_NOEXCEPT {
+    shz_mat3x3_adjugate(mtrx, out);
 }
 
 SHZ_INLINE void shz_mat3x3_inverse(const shz_mat3x3_t* mtrx,
@@ -779,7 +784,7 @@ SHZ_INLINE void shz_mat3x3_inverse(const shz_mat3x3_t* mtrx,
     assert(determinant != 0.0f &&
            "shz_mat3x3_inverse: matrix is singular and cannot be inverted");
     const float inv_det = shz_invf(determinant);
-    shz_mat3x3_inverse_unscaled(mtrx, out);
+    shz_mat3x3_adjugate(mtrx, out);
     for (int i = 0; i < 3; i++) {
         out->col[i] = shz_vec3_scale(out->col[i], inv_det);
     }

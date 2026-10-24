@@ -188,6 +188,8 @@
 #   define SHZ_LIKELY(e)               __builtin_expect(!!(e), 1)
     //! Tells GCC that the expression is likely to be false (used for conditional and loop optimizations)
 #   define SHZ_UNLIKELY(e)             __builtin_expect(!!(e), 0)
+    //! Tells GCC that a code path can never be reached, which is undefined behavior if it is.
+#   define SHZ_UNREACHABLE()           __builtin_unreachable()
     //! Tells GCC the pointer paraemter is unique and is not aliased by another parameter
 #   define SHZ_RESTRICT                __restrict__
     //! Creates a software memory barrier beyond which any loads or stores may not be reordered
@@ -235,6 +237,8 @@
 #   define SHZ_LIKELY(e)              (e)
     //! Unimplemented for MSVC.
 #   define SHZ_UNLIKELY(e)            (e)
+    //! Tells MSVC that a code path can never be reached, which is undefined behavior if it is.
+#   define SHZ_UNREACHABLE()          __assume(0)
     //! Tells MSVC the pointer paraemter is unique and is not aliased by another parameter.
 #   define SHZ_RESTRICT               __restrict
     //! Unimplemented for MSVC.

@@ -275,9 +275,14 @@ struct vecN: C {
     //! Returns the dot product of the given vector against three others.
     SHZ_FORCE_INLINE vec3 dot(const CppType& v1, const CppType& v2, const CppType& v3) const noexcept;
 
-    //! Returns the magnitude of the given vector.
+    //! Returns the magnitude of the given vector, safely returning 0.0f for a zero-length vector.
     SHZ_FORCE_INLINE float magnitude() const noexcept {
         return shz_vec_magnitude(*static_cast<const CppType*>(this));
+    }
+
+    //! Returns the magnitude of the given vector, unsafely, using FSRRA. Divides by zero for a zero-length vector.
+    SHZ_FORCE_INLINE float magnitude_fsrra() const noexcept {
+        return shz_vec_magnitude_fsrra(*static_cast<const CppType*>(this));
     }
 
     //! Returns the squared magnitude of the given vector.
@@ -285,9 +290,14 @@ struct vecN: C {
         return shz_vec_magnitude_sqr(*static_cast<const CppType*>(this));
     }
 
-    //! Returns the inverse magnitude of the given vector.
+    //! Returns the inverse magnitude of the given vector, safely returning 0.0f for a zero-length vector.
     SHZ_FORCE_INLINE float magnitude_inv() const noexcept {
         return shz_vec_magnitude_inv(*static_cast<const CppType*>(this));
+    }
+
+    //! Returns the inverse magnitude of the given vector, unsafely, using FSRRA. Divides by zero for a zero-length vector.
+    SHZ_FORCE_INLINE float magnitude_inv_fsrra() const noexcept {
+        return shz_vec_magnitude_inv_fsrra(*static_cast<const CppType*>(this));
     }
 
     //! Returns the direction vector resulting from normalizing the given vector.
@@ -300,6 +310,11 @@ struct vecN: C {
         return shz_vec_normalize_safe(*static_cast<const CppType*>(this));
     }
 
+    //! Returns the direction vector of a given vector, or \p alt if it has a magnitude of 0.0f.
+    SHZ_FORCE_INLINE CppType direction_or(const CppType& alt) const noexcept {
+        return shz_vec_normalize_or(*static_cast<const CppType*>(this), alt);
+    }
+
     //! Normalizes the given vector.
     SHZ_FORCE_INLINE void normalize() noexcept {
         *static_cast<CppType*>(this) = shz_vec_normalize(*static_cast<const CppType*>(this));
@@ -310,6 +325,11 @@ struct vecN: C {
         *static_cast<CppType*>(this) = shz_vec_normalize_safe(*static_cast<const CppType*>(this));
     }
 
+    //! Normalizes the given vector, or sets it to \p alt if it has a magnitude of 0.0f.
+    SHZ_FORCE_INLINE void normalize_or(const CppType& alt) noexcept {
+        *static_cast<CppType*>(this) = shz_vec_normalize_or(*static_cast<const CppType*>(this), alt);
+    }
+
     //! Return the normalized vector.
     SHZ_FORCE_INLINE CppType normalized() const noexcept {
         return shz_vec_normalize(*static_cast<const CppType*>(this));
@@ -318,6 +338,11 @@ struct vecN: C {
     //! Return the normalized vector, safely protecting against division-by-zero.
     SHZ_FORCE_INLINE CppType normalized_safe() const noexcept {
         return shz_vec_normalize_safe(*static_cast<const CppType*>(this));
+    }
+
+    //! Return the normalized vector, or \p alt if it has a magnitude of 0.0f.
+    SHZ_FORCE_INLINE CppType normalized_or(const CppType& alt) const noexcept {
+        return shz_vec_normalize_or(*static_cast<const CppType*>(this), alt);
     }
 
     //! Returns the magnitude of the difference between two vectors as their distance.
@@ -523,7 +548,7 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
 */
     /*! Rotates a 3D vector about the X axis by the given number of radians.
 
-        \sa shz::xmtrx::apply_rotation_x()
+        \sa shz::xmtrx::rotate_x()
     */
     SHZ_FORCE_INLINE vec3 rotate_x(float angle) const noexcept {
         return shz_vec3_rotate_x(*this, angle);
@@ -531,7 +556,7 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
 
     /*! Rotates a 3D vector about the Y axis by the given number of radians.
 
-        \sa shz::xmtrx::apply_rotation_y()
+        \sa shz::xmtrx::rotate_y()
     */
     SHZ_FORCE_INLINE vec3 rotate_y(float angle) const noexcept {
         return shz_vec3_rotate_y(*this, angle);
@@ -539,7 +564,7 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
 
     /*! Rotates a 3D vector about the Z axis by the given number of radians.
 
-        \sa shz::xmtrx::apply_rotation_z()
+        \sa shz::xmtrx::rotate_z()
     */
     SHZ_FORCE_INLINE vec3 rotate_z(float angle) const noexcept {
         return shz_vec3_rotate_z(*this, angle);
