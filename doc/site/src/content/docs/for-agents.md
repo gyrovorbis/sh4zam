@@ -85,7 +85,7 @@ Model matrix, optimal form (from [Matrix Transforms](/guides/matrix-transforms.m
 
 void updateModel(shz_mat4x4_t* model, const Transform* transform) {
     shz_xmtrx_init_rotation_xyz(transform->xRot, transform->yRot, transform->zRot);
-    shz_xmtrx_apply_scale(transform->scale, transform->scale, transform->scale);
+    shz_xmtrx_scale_3x3(transform->scale, transform->scale, transform->scale);
     shz_xmtrx_set_translation(transform->pos.x, transform->pos.y, transform->pos.z);
     shz_xmtrx_store_4x4(model);
 }

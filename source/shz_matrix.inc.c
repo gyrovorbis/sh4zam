@@ -1,9 +1,12 @@
 /*! \file
- *  \brief   Out-of-line in-memory matrix routines.
+ *  \brief   Back-end-agnostic out-of-line in-memory matrix routines.
  *  \ingroup matrix
  *
- *  This file contains the implementations for any routines within
- *  the matrix API which have been declared out-of-line.
+ *  This file contains the implementations of the larger matrix routines,
+ *  which are compiled once per back-end rather than inlined. It is never
+ *  compiled directly: each back-end's source file defines SHZ_BACKEND and
+ *  SHZ_IMPL_SUFFIX, then includes it, producing uniquely suffixed symbols
+ *  which the inline dispatchers in shz_matrix.inl.h choose between.
  *
  *  \author    2025 Daniel Fairchild
  *  \author    2026 Falco Girgis
@@ -14,31 +17,13 @@
  */
 
 #include "sh4zam/shz_matrix.h"
-#include "sh4zam/shz_mem.h"
 
-void shz_mat4x4_inverse_block_triangular(const shz_mat4x4_t* mtrx, shz_mat4x4_t* out) {
-    alignas(32) shz_mat3x3_t invM;
-    shz_vec3_t out3xyz;
-    float inv_w;
-
-    //shz_dcache_alloc_line(&invM);
-    //SHZ_MEMORY_BARRIER_SOFT();
-
-    shz_mat4x4_3x3_inverse(mtrx, &invM);
-    inv_w = shz_invf(mtrx->col[3].w);
-
-    out->col[0] = shz_vec3_vec4(invM.col[0], 0.0f);
-    out->col[1] = shz_vec3_vec4(invM.col[1], 0.0f);
-    out->col[2] = shz_vec3_vec4(invM.col[2], 0.0f);
-
-    out3xyz = shz_mat3x3_transform_vec3(&invM, mtrx->col[3].xyz);
-    out3xyz = shz_vec3_scale(out3xyz, -inv_w);
-
-    out->col[3] = shz_vec3_vec4(out3xyz, inv_w);
-}
+#define SHZ_IMPL_CAT__(a, b)    a##b
+#define SHZ_IMPL_CAT_(a, b)     SHZ_IMPL_CAT__(a, b)
+#define SHZ_IMPL_FN(name)       SHZ_IMPL_CAT_(name, SHZ_IMPL_SUFFIX)
 
 SHZ_HOT
-void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) {
+void SHZ_IMPL_FN(shz_mat4x4_inverse)(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) SHZ_NOEXCEPT {
     assert(mtrx != out && "shz_mat4x4_inverse: in-place inversion is not supported");
     //SHZ_PREFETCH(mtrx);
 
@@ -54,29 +39,29 @@ void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ
 
         // General case for full 4x4 matrix inversion, roughly ported from cglm
     const float c[12] = {
-        [ 0] = shz_fmaf(mtrx->elem2D[2][2],  mtrx->elem2D[3][3],
+        shz_fmaf(mtrx->elem2D[2][2],  mtrx->elem2D[3][3],
                        -mtrx->elem2D[2][3] * mtrx->elem2D[3][2]),
-        [ 1] = shz_fmaf(mtrx->elem2D[0][2],  mtrx->elem2D[1][3],
+        shz_fmaf(mtrx->elem2D[0][2],  mtrx->elem2D[1][3],
                        -mtrx->elem2D[0][3] * mtrx->elem2D[1][2]),
-        [ 2] = shz_fmaf(mtrx->elem2D[2][0],  mtrx->elem2D[3][3],
+        shz_fmaf(mtrx->elem2D[2][0],  mtrx->elem2D[3][3],
                        -mtrx->elem2D[2][3] * mtrx->elem2D[3][0]),
-        [ 3] = shz_fmaf(mtrx->elem2D[0][0],  mtrx->elem2D[1][3],
+        shz_fmaf(mtrx->elem2D[0][0],  mtrx->elem2D[1][3],
                        -mtrx->elem2D[0][3] * mtrx->elem2D[1][0]),
-        [ 4] = shz_fmaf(mtrx->elem2D[2][1],  mtrx->elem2D[3][3],
+        shz_fmaf(mtrx->elem2D[2][1],  mtrx->elem2D[3][3],
                        -mtrx->elem2D[2][3] * mtrx->elem2D[3][1]),
-        [ 5] = shz_fmaf(mtrx->elem2D[0][1],  mtrx->elem2D[1][3],
+        shz_fmaf(mtrx->elem2D[0][1],  mtrx->elem2D[1][3],
                        -mtrx->elem2D[0][3] * mtrx->elem2D[1][1]),
-        [ 6] = shz_fmaf(mtrx->elem2D[2][0],  mtrx->elem2D[3][1],
+        shz_fmaf(mtrx->elem2D[2][0],  mtrx->elem2D[3][1],
                        -mtrx->elem2D[2][1] * mtrx->elem2D[3][0]),
-        [ 7] = shz_fmaf(mtrx->elem2D[0][0],  mtrx->elem2D[1][1],
+        shz_fmaf(mtrx->elem2D[0][0],  mtrx->elem2D[1][1],
                        -mtrx->elem2D[0][1] * mtrx->elem2D[1][0]),
-        [ 8] = shz_fmaf(mtrx->elem2D[2][1],  mtrx->elem2D[3][2],
+        shz_fmaf(mtrx->elem2D[2][1],  mtrx->elem2D[3][2],
                        -mtrx->elem2D[2][2] * mtrx->elem2D[3][1]),
-        [ 9] = shz_fmaf(mtrx->elem2D[0][1],  mtrx->elem2D[1][2],
+        shz_fmaf(mtrx->elem2D[0][1],  mtrx->elem2D[1][2],
                        -mtrx->elem2D[0][2] * mtrx->elem2D[1][1]),
-        [10] = shz_fmaf(mtrx->elem2D[2][0],  mtrx->elem2D[3][2],
+        shz_fmaf(mtrx->elem2D[2][0],  mtrx->elem2D[3][2],
                        -mtrx->elem2D[2][2] * mtrx->elem2D[3][0]),
-        [11] = shz_fmaf(mtrx->elem2D[0][0],  mtrx->elem2D[1][2],
+        shz_fmaf(mtrx->elem2D[0][0],  mtrx->elem2D[1][2],
                        -mtrx->elem2D[0][2] * mtrx->elem2D[1][0])
     };
 
@@ -148,11 +133,10 @@ void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ
     out->elem2D[3][3] = +c10c12c8.y * inv_det;
 }
 
-
-void shz_mat4x4_decompose(const shz_mat4x4_t* mat,
-                          shz_vec3_t* translation,
-                          shz_quat_t* rotation,
-                          shz_vec3_t* scale) {
+void SHZ_IMPL_FN(shz_mat4x4_decompose)(const shz_mat4x4_t* mat,
+                                       shz_vec3_t* translation,
+                                       shz_quat_t* rotation,
+                                       shz_vec3_t* scale) SHZ_NOEXCEPT {
     if(translation)
         *translation = shz_mat4x4_get_translation(mat);
 
@@ -171,11 +155,12 @@ void shz_mat4x4_decompose(const shz_mat4x4_t* mat,
         const float inv_sy = shz_invf_fsrra(s.y);
         const float inv_sz = shz_invf_fsrra(s.z);
 
-        const shz_mat4x4_t norm = {
-            .col[0].xyz = shz_vec3_scale(mat->left.xyz,    inv_sx),
-            .col[1].xyz = shz_vec3_scale(mat->up.xyz,      inv_sy),
-            .col[2].xyz = shz_vec3_scale(mat->forward.xyz, inv_sz)
-        };
+        shz_mat4x4_t norm;
+
+        norm.col[0] = shz_vec3_vec4(shz_vec3_scale(mat->left.xyz,    inv_sx), 0.0f);
+        norm.col[1] = shz_vec3_vec4(shz_vec3_scale(mat->up.xyz,      inv_sy), 0.0f);
+        norm.col[2] = shz_vec3_vec4(shz_vec3_scale(mat->forward.xyz, inv_sz), 0.0f);
+        norm.col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 0.0f);
 
         *rotation = shz_mat4x4_to_quat(&norm);
     }

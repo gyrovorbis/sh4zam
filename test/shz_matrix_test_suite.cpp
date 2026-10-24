@@ -84,8 +84,8 @@ GBL_TEST_CASE(inverse)
     shz::mat4x4 inverted, invertedInverted;
 
     mat.shz.init_identity();
-    mat.shz.apply_scale(2.0f, 3.0f, 4.0f);
-    mat.shz.apply_translation(10.0f, 20.0f, 30.0f);
+    mat.shz.scale_3x3(2.0f, 3.0f, 4.0f);
+    mat.shz.add_translation(10.0f, 20.0f, 30.0f);
     mat.shz.rotate_x(shz::pi_f);
     mat.shz.inverse(&inverted);
     inverted.inverse(&invertedInverted);
@@ -108,8 +108,8 @@ GBL_TEST_CASE(inverse_rigid)
 
     for(const auto& c : cases) {
         mat.shz.init_rotation_xyz(c.rx, c.ry, c.rz);
-        mat.shz.apply_scale(c.mirror, 1.0f, 1.0f);
-        mat.shz.apply_translation(c.tx, c.ty, c.tz);
+        mat.shz.scale_3x3(c.mirror, 1.0f, 1.0f);
+        mat.shz.add_translation(c.tx, c.ty, c.tz);
 
         mat.shz.inverse_rigid(&shzInverted);
         glm_mat4_copy(mat.glm, glmInverted.glm);
@@ -146,11 +146,11 @@ GBL_TEST_CASE(transform_vec3)
     GBL_TEST_VERIFY(mat.shz.transform(shz::vec3( 1.0f, 2.0f, 3.0f )) ==
                     shz::vec3(  1.0f, 2.0f, 3.0f ));
 
-    mat.shz.apply_scale(1.0f, 2.0f, 3.0f);
+    mat.shz.scale_3x3(1.0f, 2.0f, 3.0f);
     GBL_TEST_VERIFY(mat.shz.transform(shz::vec3( 1.0f, 2.0f, 3.0f )) ==
                     shz::vec3(  1.0f, 4.0f, 9.0f ));
 
-    mat.shz.apply_translation(-3.0f, -2.0f, -1.0f);
+    mat.shz.add_translation(-3.0f, -2.0f, -1.0f);
     GBL_TEST_VERIFY(mat.shz.transform(shz::vec3( 1.0f, 2.0f, 3.0f )) ==
                     shz::vec3(  1.0f, 4.0f, 9.0f ));
 
@@ -180,11 +180,11 @@ GBL_TEST_CASE(transform_vec4)
     GBL_TEST_VERIFY(mat.shz.transform({ 1.0f, 2.0f, 3.0f, 4.0f }) ==
                         shz::vec4(  1.0f, 2.0f, 3.0f, 4.0f ));
 
-    mat.shz.apply_scale(1.0f, 2.0f, 3.0f);
+    mat.shz.scale_3x3(1.0f, 2.0f, 3.0f);
     GBL_TEST_VERIFY(mat.shz.transform({ 1.0f, 2.0f, 3.0f, 4.0f }) ==
                         shz::vec4(  1.0f, 4.0f, 9.0f, 4.0f ));
 
-    mat.shz.apply_translation(-3.0f, -2.0f, -1.0f);
+    mat.shz.add_translation(-3.0f, -2.0f, -1.0f);
     GBL_TEST_VERIFY(mat.shz.transform({ 1.0f, 2.0f, 3.0f, 1.0f }) ==
                         shz::vec4( -2.0f, 2.0f, 8.0f, 1.0f ));
 
@@ -231,7 +231,7 @@ GBL_TEST_CASE(translate_reverse)
     alignas(32) shz_glm_mat4 mat;
 
     mat.shz.init_identity();
-    mat.shz.apply_scale(2.0f, 3.0f, 4.0f);
+    mat.shz.scale_3x3(2.0f, 3.0f, 4.0f);
 
     shz_glm_mat4 before;
     before.shz = mat.shz;
@@ -270,7 +270,7 @@ GBL_TEST_CASE(scale_reverse)
     alignas(32) shz_glm_mat4 mat;
 
     mat.shz.init_identity();
-    mat.shz.apply_translation(1.0f, 2.0f, 3.0f);
+    mat.shz.add_translation(1.0f, 2.0f, 3.0f);
 
     shz_glm_mat4 before;
     before.shz = mat.shz;
@@ -330,7 +330,7 @@ GBL_TEST_CASE(set_scale)
     {
         mat.shz.init_identity();
         mat.shz.rotate_x(shz::deg_to_rad(42.0f));
-        mat.shz.apply_translation(1.0f, 2.0f, 3.0f);
+        mat.shz.add_translation(1.0f, 2.0f, 3.0f);
 
         shz::vec3 priorTranslation = mat.shz.get_translation();
 
@@ -390,7 +390,7 @@ GBL_TEST_CASE(get_scale)
         mat.shz.init_identity();
         mat.shz.rotate_x(shz::deg_to_rad(30.0f));
         mat.shz.rotate_y(shz::deg_to_rad(60.0f));
-        mat.shz.apply_scale(3.0f, 4.0f, 5.0f);
+        mat.shz.scale_3x3(3.0f, 4.0f, 5.0f);
 
         vec3 glmScale;
         glm_decompose_scalev(mat.glm, glmScale);
@@ -799,6 +799,17 @@ GBL_TEST_CASE(rotate_yxz)
                                            [](shz::mat4x4& m, float a0, float a1, float a2) { m.rotate_yxz(a0, a1, a2); }));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(permute_wzyx)
+    alignas(32) std::array<uint8_t, sizeof(shz_glm_mat4) + alignof(shz_glm_mat4)> buffer;
+    auto& mat = *reinterpret_cast<shz_glm_mat4*>(buffer.data() + alignof(shz_glm_mat4));
+
+    mat.shz.init_identity();
+    mat.shz.permute_wzyx();
+
+    GBL_TEST_VERIFY(mat.shz.transform(shz::vec4(1.0f, 2.0f, 3.0f, 4.0f)) ==
+                    shz::vec4(4.0f, 3.0f, 2.0f, 1.0f));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(copy,
                   swap,
                   inverse,
@@ -816,5 +827,6 @@ GBL_TEST_REGISTER(copy,
                   rotate_zyx,
                   rotate_zxy,
                   rotate_yxz,
+                  permute_wzyx,
                   blend,
                   to_quat)

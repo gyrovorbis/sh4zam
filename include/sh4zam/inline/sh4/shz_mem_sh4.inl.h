@@ -450,13 +450,18 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
           uint8_t *d = (      uint8_t *)dst;
     size_t copied;
 
-    SHZ_PREFETCH(src);
-
     if(bytes < 32) {
-        shz_memcpy1_sh4(d, s, bytes);
+        (memcpy)(d, s, bytes);
     } else {
-        uintptr_t prelude = ((uintptr_t)d & 31);
+        SHZ_PREFETCH(src);
 
+        uintptr_t src_unalign = ((uintptr_t)s & 0x3);
+        if(src_unalign) {
+            (memcpy)(d, s, bytes);
+            return dst;
+        }
+
+        uintptr_t prelude = ((uintptr_t)d & 31);
         if(prelude) {
             copied = 32 - prelude;
             shz_memcpy1_sh4_(d, s, copied);
@@ -464,8 +469,6 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
             d     += copied;
             s     += copied;
         }
-
-        SHZ_PREFETCH(s);
 
         copied = 0;
         if(!(((uintptr_t)s) & 0x7)) {
@@ -482,6 +485,9 @@ SHZ_FORCE_INLINE void* shz_memcpy_sh4(      void* SHZ_RESTRICT dst,
         } else if(bytes >= 2 && !(((uintptr_t)s) & 1)) {
             copied = bytes & ~1;
             shz_memcpy2_sh4(d, s, copied);
+        } else {
+            (memcpy)(d, s, bytes);
+            return dst;
         }
 
         bytes -= copied;

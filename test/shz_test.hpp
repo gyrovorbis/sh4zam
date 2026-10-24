@@ -309,7 +309,19 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
 
 #define benchmark(res, f, ...) (benchmark)(res, #f, f __VA_OPT__(,) __VA_ARGS__)
 
-template<typename R, typename ShzFn, typename RefFn, typename... Args>
+struct benchmark_cmp_result {
+    uint64_t             shzUncached;
+    uint64_t             refUncached;
+    uint64_t             shzCached;
+    uint64_t             refCached;
+    float                uncachedGainz;
+    float                cachedGainz;
+    shz_benchmark_result gainz;
+};
+
+inline benchmark_cmp_result benchmark_cmp_last{};
+
+template<typename R, bool Quiet = false, typename ShzFn, typename RefFn, typename... Args>
 SHZ_NO_INLINE
 bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
                    const char* refName, RefFn&& refFn,
@@ -353,14 +365,16 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
         run(&result);
     }
 
+    if constexpr(!Quiet) {
 #if SHZ_TARGET == SHZ_SH4
-    benchmark_print(shzName, true,  shzUncache);
+        benchmark_print(shzName, true,  shzUncache);
 #endif
-    benchmark_print(shzName, false, shzCache);
+        benchmark_print(shzName, false, shzCache);
 #if SHZ_TARGET == SHZ_SH4
-    benchmark_print(refName, true,  refUncache);
+        benchmark_print(refName, true,  refUncache);
 #endif
-    benchmark_print(refName, false, refCache);
+        benchmark_print(refName, false, refCache);
+    }
 
 #if SHZ_TARGET == SHZ_SH4
     const uint64_t shzUncacheCyc = shzUncache.cycles;
@@ -373,6 +387,9 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
     const uint64_t refUncacheCyc = refUncache.ns;
     const uint64_t refCacheCyc   = refCache.ns;
 #endif
+
+    benchmark_cmp_last = { shzUncacheCyc, refUncacheCyc, shzCacheCyc, refCacheCyc,
+                           1.0f, 1.0f, SHZ_BENCHMARK_EQUAL };
 
 #ifndef SHZ_DISABLE_BENCHMARKS
     float cacheGainz   = shzCacheCyc?   ((float)refCacheCyc   / (float)shzCacheCyc  ) : 1.0f;
@@ -450,6 +467,13 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
     } else {
         gainz = SHZ_BENCHMARK_LOSSEZ;
     }
+
+    benchmark_cmp_last.uncachedGainz = uncacheGainz;
+    benchmark_cmp_last.cachedGainz   = cacheGainz;
+    benchmark_cmp_last.gainz         = gainz;
+
+    if constexpr(Quiet)
+        return true;
 
     const GBL_RESULT result = GblTestScenario_reportResult(GBL_TEST_SCENARIO(GBL_CTX_CONTEXT()),
                                                            SHZ_BENCHMARK_RESULT_GROUP,

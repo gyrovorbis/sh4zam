@@ -237,17 +237,6 @@ SHZ_INLINE void shz_xmtrx_store_2x2(shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
 //! Initializes XMTRX to the 4x4 identity matrix.
 SHZ_INLINE void shz_xmtrx_init_identity(void) SHZ_NOEXCEPT;
 
-/*! Safely initializes XMTRX to be a 4D identity matrix.
-
-    \deprecated
-    shz_xmtrx_init_identity() is already safe now by default. This routine
-    simply calls directly into it and should not be used.
-
-    \sa shz_xmtrx_init_identity()
-*/
-SHZ_DEPRECATED("Operation is always safe now. Use default version.")
-SHZ_INLINE void shz_xmtrx_init_identity_safe(void) SHZ_NOEXCEPT;
-
 //! Initializes XMTRX to contain the value of 0.0f for each element.
 SHZ_INLINE void shz_xmtrx_init_zero(void) SHZ_NOEXCEPT;
 
@@ -390,9 +379,8 @@ SHZ_INLINE void shz_xmtrx_init_perspective(float fov, float aspect, float znear)
 /*! Initializes XMTRX to a 3D rotation matrix with its orientation given by a quaternion.
 
     \warning This routine clobbers any previous XMTRX contents.
-    \warning This routine is out-of-line.
 */
-void shz_xmtrx_init_rotation_quat(shz_quat_t q) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_init_rotation_quat(shz_quat_t q) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -447,102 +435,22 @@ SHZ_INLINE void shz_xmtrx_apply_transpose_3x3(const shz_mat3x3_t* matrix) SHZ_NO
 SHZ_INLINE void shz_xmtrx_apply_2x2(const shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
 
 //! Adds the values of the given 3 components to the 3D translation components of XMTRX.
-SHZ_INLINE void shz_xmtrx_apply_translation(float x, float y, float z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_add_translation(float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Multiplies the values of the inner 3x3 matrix by the given 3D scaling terms.
-SHZ_INLINE void shz_xmtrx_apply_scale(float x, float y, float z) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply XMTRX by a rotation about the X axis.
-
-    \deprecated
-    This routine has been renamed to shz_xmtrx_rotate_x(), which it now forwards to.
-
-    \sa shz_xmtrx_rotate_x()
-*/
-SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_x().")
-SHZ_INLINE void shz_xmtrx_apply_rotation_x(float x) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply XMTRX by a rotation about the Y axis.
-
-    \deprecated
-    This routine has been renamed to shz_xmtrx_rotate_y(), which it now forwards to.
-
-    \sa shz_xmtrx_rotate_y()
-*/
-SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_y().")
-SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply XMTRX by a rotation about the Z axis.
-
-    \deprecated
-    This routine has been renamed to shz_xmtrx_rotate_z(), which it now forwards to.
-
-    \sa shz_xmtrx_rotate_z()
-*/
-SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_z().")
-SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply XMTRX by X-Y-Z rotation matrices.
-
-    \deprecated
-    This routine has been renamed to shz_xmtrx_rotate_xyz(), which it now forwards to.
-
-    \sa shz_xmtrx_rotate_xyz()
-*/
-SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_xyz().")
-SHZ_INLINE void shz_xmtrx_apply_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply XMTRX by Z-Y-X rotation matrices.
-
-    \deprecated
-    This routine has been renamed to shz_xmtrx_rotate_zyx(), which it now forwards to.
-
-    \sa shz_xmtrx_rotate_zyx()
-*/
-SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_zyx().")
-SHZ_INLINE void shz_xmtrx_apply_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply XMTRX by Z-X-Y rotation matrices.
-
-    \deprecated
-    This routine has been renamed to shz_xmtrx_rotate_zxy(), which it now forwards to.
-
-    \sa shz_xmtrx_rotate_zxy()
-*/
-SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_zxy().")
-SHZ_INLINE void shz_xmtrx_apply_rotation_zxy(float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply XMTRX by Y-X-Z rotation matrices.
-
-    \deprecated
-    This routine has been renamed to shz_xmtrx_rotate_yxz(), which it now forwards to.
-
-    \sa shz_xmtrx_rotate_yxz()
-*/
-SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_yxz().")
-SHZ_INLINE void shz_xmtrx_apply_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply XMTRX by a rotation about an arbitrary axis.
-
-    \deprecated
-    This routine has been renamed to shz_xmtrx_rotate(), which it now forwards to.
-
-    \sa shz_xmtrx_rotate()
-*/
-SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate().")
-SHZ_INLINE void shz_xmtrx_apply_rotation(float angle, float x, float y, float z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_scale_3x3(float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Transforms the values of the inner 3x3 matrix by the rotation matrix represented by the given quaternion.
-SHZ_INLINE void shz_xmtrx_apply_rotation_quat(shz_quat_t quat) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_rotate_quat(shz_quat_t quat) SHZ_NOEXCEPT;
 
 //! Applies the 3D "lookAt" matrix constructed with the given vector components onto XMTRX. Equivalent to gluLookAt().
-SHZ_INLINE void shz_xmtrx_apply_lookat(shz_vec3_t eye, shz_vec3_t center, shz_vec3_t up) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_lookat(shz_vec3_t eye, shz_vec3_t center, shz_vec3_t up) SHZ_NOEXCEPT;
 
 //! Applies a 2D orthographic projection matrix onto XMTRX, equivalent to glOrtho().
-SHZ_INLINE void shz_xmtrx_apply_ortho(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_ortho(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
 
 //! Applies a frustum projection matrix onto XMTRX, equivalent to glFrustum().
-SHZ_INLINE void shz_xmtrx_apply_frustum(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_frustum(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the perspective matrix constructed from the given values onto XMTRX.
 
@@ -553,7 +461,7 @@ SHZ_INLINE void shz_xmtrx_apply_frustum(float left, float right, float bottom, f
      0.0f      | 0.0f      |  0.0f     | nz
      0.0f      | 0.0f      | -1.0f     | 0.0f
 */
-SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float znear) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_perspective(float fov, float aspect, float znear) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the viewport matrix created with the given components.
 
@@ -564,19 +472,19 @@ SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float znear
      0.0f      | 0.0f      | 1.0f      | 0.0f
      0.0f      | 0.0f      | 0.0f      | 1.0f
 */
-SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_screen(float width, float height) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates the 3D symmetric skew matrix with the given components onto XMTRX.
-SHZ_INLINE void shz_xmtrx_apply_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_skew_symmetric(float x, float y, float z) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in WXYZ order.
-SHZ_INLINE void shz_xmtrx_apply_permutation_wxyz(void) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_permute_wxyz(void) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in YZWX order.
-SHZ_INLINE void shz_xmtrx_apply_permutation_yzwx(void) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_permute_yzwx(void) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in WZYX order.
-SHZ_INLINE void shz_xmtrx_apply_permutation_wzyx(void) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_permute_wzyx(void) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulatse the XMTRX matrix by itself, squaring it.
 SHZ_INLINE void shz_xmtrx_apply_self(void) SHZ_NOEXCEPT;
@@ -600,7 +508,7 @@ SHZ_INLINE void shz_xmtrx_apply_self(void) SHZ_NOEXCEPT;
     \param  y   Y component of the translation vector.
     \param  z   Z component of the translation vector.
 
-    \sa shz_xmtrx_translate_reverse(), shz_xmtrx_apply_translation()
+    \sa shz_xmtrx_translate_reverse(), shz_xmtrx_add_translation()
 */
 SHZ_INLINE void shz_xmtrx_translate(float x, float y, float z) SHZ_NOEXCEPT;
 
@@ -912,10 +820,10 @@ SHZ_INLINE void shz_xmtrx_negate(void) SHZ_NOEXCEPT;
 SHZ_INLINE void shz_xmtrx_abs(void) SHZ_NOEXCEPT;
 
 //! Constructs a quaternion from the 3D rotation matrix within XMTRX.
-shz_quat_t shz_xmtrx_to_quat(void) SHZ_NOEXCEPT;
+SHZ_INLINE shz_quat_t shz_xmtrx_to_quat(void) SHZ_NOEXCEPT;
 
 //! Returns the determinant of XMTRX.
-float shz_xmtrx_determinant(void) SHZ_NOEXCEPT;
+SHZ_INLINE float shz_xmtrx_determinant(void) SHZ_NOEXCEPT;
 
 //! Returns the trace of the upper 2x2 submatrix of XMTRX.
 SHZ_INLINE float shz_xmtrx_trace_2x2(void) SHZ_NOEXCEPT;
@@ -933,7 +841,7 @@ SHZ_INLINE float shz_xmtrx_trace_4x4(void) SHZ_NOEXCEPT;
 
     \sa shz_xmtrx_invert_rigid()
 */
-void shz_xmtrx_invert(void) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_xmtrx_invert(void) SHZ_NOEXCEPT;
 
 /*! Inverts the rigid transform held within XMTRX in-place.
 
@@ -949,17 +857,6 @@ void shz_xmtrx_invert(void) SHZ_NOEXCEPT;
     \sa shz_xmtrx_invert()
 */
 SHZ_INLINE void shz_xmtrx_invert_rigid(void) SHZ_NOEXCEPT;
-
-/*! Deprecated way to add and accumulate a scaled 4x4 matrix onto XMTRX.
-
-    \deprecated
-    This routine has been renamed to shz_xmtrx_blend_4x4(), as support is being
-    added to blend matrices of different dimensions onto XMTRX.
-
-    \sa shz_xmtrx_blend_4x4()
-*/
-SHZ_DEPRECATED("Renamed to shz_xmtrx_blend_4x4().")
-SHZ_INLINE void shz_xmtrx_blend(const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT;
 
 /*! Adds and accumulates a scaled 4x4 matrix onto XMTRX.
 
@@ -1005,6 +902,235 @@ SHZ_INLINE void shz_xmtrx_blend_3x4(const shz_mat3x4_t* matrix, float weight) SH
     \sa shz_xmtrx_init_zero(), shz_xmtrx_blend_4x4(), shz_xmtrx_blend_3x4()
 */
 SHZ_INLINE void shz_xmtrx_blend_4x3(const shz_mat4x3_t* matrix, float weight) SHZ_NOEXCEPT;
+
+//! @}
+
+/*! \name  Deprecated
+    \brief Deprecated routines, kept only for backwards compatibility.
+    @{
+*/
+
+/*! Safely initializes XMTRX to be a 4D identity matrix.
+
+    \deprecated
+    shz_xmtrx_init_identity() is already safe now by default. This routine
+    simply calls directly into it and should not be used.
+
+    \sa shz_xmtrx_init_identity()
+*/
+SHZ_DEPRECATED("Operation is always safe now. Use default version.")
+SHZ_INLINE void shz_xmtrx_init_identity_safe(void) SHZ_NOEXCEPT;
+
+/*! Deprecated way to add the given 3 components to the 3D translation components of XMTRX.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_add_translation(), which it now forwards to.
+
+    \sa shz_xmtrx_add_translation()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_add_translation().")
+SHZ_INLINE void shz_xmtrx_apply_translation(float x, float y, float z) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply the values of the inner 3x3 matrix by the given 3D scaling terms.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_scale_3x3(), which it now forwards to.
+
+    \sa shz_xmtrx_scale_3x3()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_scale_3x3().")
+SHZ_INLINE void shz_xmtrx_apply_scale(float x, float y, float z) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply XMTRX by a rotation about the X axis.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_x(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate_x()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_x().")
+SHZ_INLINE void shz_xmtrx_apply_rotation_x(float x) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply XMTRX by a rotation about the Y axis.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_y(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate_y()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_y().")
+SHZ_INLINE void shz_xmtrx_apply_rotation_y(float y) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply XMTRX by a rotation about the Z axis.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_z(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate_z()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_z().")
+SHZ_INLINE void shz_xmtrx_apply_rotation_z(float z) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply XMTRX by X-Y-Z rotation matrices.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_xyz(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate_xyz()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_xyz().")
+SHZ_INLINE void shz_xmtrx_apply_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply XMTRX by Z-Y-X rotation matrices.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_zyx(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate_zyx()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_zyx().")
+SHZ_INLINE void shz_xmtrx_apply_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply XMTRX by Z-X-Y rotation matrices.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_zxy(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate_zxy()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_zxy().")
+SHZ_INLINE void shz_xmtrx_apply_rotation_zxy(float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply XMTRX by Y-X-Z rotation matrices.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_yxz(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate_yxz()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_yxz().")
+SHZ_INLINE void shz_xmtrx_apply_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply XMTRX by a rotation about an arbitrary axis.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate().")
+SHZ_INLINE void shz_xmtrx_apply_rotation(float angle, float x, float y, float z) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_xmtrx_rotate_quat().
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_rotate_quat(), which it now forwards to.
+
+    \sa shz_xmtrx_rotate_quat()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_rotate_quat().")
+SHZ_INLINE void shz_xmtrx_apply_rotation_quat(shz_quat_t quat) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_xmtrx_lookat().
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_lookat(), which it now forwards to.
+
+    \sa shz_xmtrx_lookat()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_lookat().")
+SHZ_INLINE void shz_xmtrx_apply_lookat(shz_vec3_t eye, shz_vec3_t center, shz_vec3_t up) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_xmtrx_ortho().
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_ortho(), which it now forwards to.
+
+    \sa shz_xmtrx_ortho()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_ortho().")
+SHZ_INLINE void shz_xmtrx_apply_ortho(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_xmtrx_frustum().
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_frustum(), which it now forwards to.
+
+    \sa shz_xmtrx_frustum()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_frustum().")
+SHZ_INLINE void shz_xmtrx_apply_frustum(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_xmtrx_perspective().
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_perspective(), which it now forwards to.
+
+    \sa shz_xmtrx_perspective()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_perspective().")
+SHZ_INLINE void shz_xmtrx_apply_perspective(float fov, float aspect, float znear) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_xmtrx_screen().
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_screen(), which it now forwards to.
+
+    \sa shz_xmtrx_screen()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_screen().")
+SHZ_INLINE void shz_xmtrx_apply_screen(float width, float height) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_xmtrx_skew_symmetric().
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_skew_symmetric(), which it now forwards to.
+
+    \sa shz_xmtrx_skew_symmetric()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_skew_symmetric().")
+SHZ_INLINE void shz_xmtrx_apply_symmetric_skew(float x, float y, float z) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_xmtrx_permute_wxyz().
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_permute_wxyz(), which it now forwards to.
+
+    \sa shz_xmtrx_permute_wxyz()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_permute_wxyz().")
+SHZ_INLINE void shz_xmtrx_apply_permutation_wxyz(void) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_xmtrx_permute_yzwx().
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_permute_yzwx(), which it now forwards to.
+
+    \sa shz_xmtrx_permute_yzwx()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_permute_yzwx().")
+SHZ_INLINE void shz_xmtrx_apply_permutation_yzwx(void) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_xmtrx_permute_wzyx().
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_permute_wzyx(), which it now forwards to.
+
+    \sa shz_xmtrx_permute_wzyx()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_permute_wzyx().")
+SHZ_INLINE void shz_xmtrx_apply_permutation_wzyx(void) SHZ_NOEXCEPT;
+
+/*! Deprecated way to add and accumulate a scaled 4x4 matrix onto XMTRX.
+
+    \deprecated
+    This routine has been renamed to shz_xmtrx_blend_4x4(), as support is being
+    added to blend matrices of different dimensions onto XMTRX.
+
+    \sa shz_xmtrx_blend_4x4()
+*/
+SHZ_DEPRECATED("Renamed to shz_xmtrx_blend_4x4().")
+SHZ_INLINE void shz_xmtrx_blend(const shz_mat4x4_t* matrix, float weight) SHZ_NOEXCEPT;
 
 //! @}
 

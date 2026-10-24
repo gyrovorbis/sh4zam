@@ -23,7 +23,7 @@
 #endif
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_init(float w, float x, float y, float z) SHZ_NOEXCEPT {
-    return SHZ_INIT(shz_quat_t, .w = w, .x = x, .y = y, .z = z);
+    return SHZ_INIT(shz_quat_t, { { w, { { x, y, z } } } });
 }
 
 SHZ_FORCE_INLINE shz_quat_t shz_quat_identity(void) SHZ_NOEXCEPT {
@@ -356,3 +356,5 @@ SHZ_INLINE shz_vec3_t shz_quat_transform_vec3(shz_quat_t q, shz_vec3_t v) SHZ_NO
 }
 
 //! \endcond
+
+#include "../shz_xmtrx.h"

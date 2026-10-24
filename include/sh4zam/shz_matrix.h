@@ -43,10 +43,10 @@
           to a given transform, setting the other components to identity.
         - shz_mat4x4_set_translation(): **Sets** only the values
           corresponding to the given transform, leaving the others alone.
-        - shz_mat4x4_apply_translation(): **Apply** transform operation,
+        - shz_mat4x4_add_translation(): **Add** transform operation,
           updates only the values corresponding to the given transform based
-          on their current values (additively in this case, multiplicatively
-          for scaling and rotation).
+          on their current values. The matching scaling and rotation calls
+          update them multiplicatively instead.
         - shz_mat4x4_translate(): **GL-based** transform operation,
           multiplying and accumulating the given matrix by a matrix which
           has been initialized to the given transform.
@@ -65,7 +65,7 @@ SHZ_DECLS_BEGIN
     \warning
     This structure MUST be aligned on 8-byte boundaries!
 */
-typedef SHZ_ALIGNAS(8) struct shz_mat4x4 {
+typedef struct SHZ_ALIGNAS(8) shz_mat4x4 {
     union {                     //!< Inner convenience union.
         float      elem[16];        //!< Access the matrix as a 1D array of 16 single-precision floats.
         float      elem2D[4][4];    //!< Access the matrix as a 2D array of 4x4 single-precision floats.
@@ -92,19 +92,6 @@ typedef shz_mat4x4_t shz_mat4x4;
     \warning This routine clobbers XMTRX.
 */
 SHZ_INLINE void shz_mat4x4_init_identity(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
-
-/*! Safely initializes the given matrix to the 4x4 identity matrix.
-
-    \warning This routine clobbers XMTRX.
-
-    \deprecated
-    shz_mat4x4_init_identity() is already safe now by default. This routine
-    simply calls directly into it and should not be used.
-
-    \sa shz_mat4x4_init_identity()
-*/
-SHZ_DEPRECATED("Operation is always safe now. Use default version.")
-SHZ_INLINE void shz_mat4x4_init_identity_safe(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
 /*! Initializes the given matrix with all 0s for its element values.
 
@@ -295,10 +282,10 @@ SHZ_INLINE void shz_mat4x4_init_perspective(shz_mat4x4_t* mat, float fov, float 
     \note    Any output pointer may be NULL to skip that component.
     \warning This routine clobbers XMTRX.
 */
-void shz_mat4x4_decompose(const shz_mat4x4_t* mat,
-                          shz_vec3_t* translation,
-                          shz_quat_t* rotation,
-                          shz_vec3_t* scale) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_decompose(const shz_mat4x4_t* mat,
+                                     shz_vec3_t* translation,
+                                     shz_quat_t* rotation,
+                                     shz_vec3_t* scale) SHZ_NOEXCEPT;
 
 //! @}
 
@@ -337,17 +324,6 @@ SHZ_INLINE void shz_mat4x4_3x3(const shz_mat4x4_t* mat4, shz_mat3x3_t* mat3) SHZ
     \sa shz_mat3x3_adjugate(), shz_mat4x4_3x3_inverse()
 */
 SHZ_INLINE void shz_mat4x4_3x3_adjugate(const shz_mat4x4_t* mat4, shz_mat3x3_t* adjmat3) SHZ_NOEXCEPT;
-
-/*! Extracts the top-left 3x3 of the given 4x4 matrix and computes its adjugate.
-
-    \deprecated
-    Misnamed. This routine computes the adjugate, not an inverse, and simply calls directly into
-    shz_mat4x4_3x3_adjugate().
-
-    \sa shz_mat4x4_3x3_adjugate()
-*/
-SHZ_DEPRECATED("Misnamed. Use shz_mat4x4_3x3_adjugate().")
-SHZ_INLINE void shz_mat4x4_3x3_inverse_unscaled(const shz_mat4x4_t* mat4, shz_mat3x3_t* invmat3) SHZ_NOEXCEPT;
 
 //! Extracts and inverts the top-level 3x3 (which may be scaled) of the given 4x4 matrix.
 SHZ_INLINE void shz_mat4x4_3x3_inverse(const shz_mat4x4_t* mat4, shz_mat3x3_t* invmat3) SHZ_NOEXCEPT;
@@ -421,147 +397,73 @@ SHZ_INLINE void shz_mat4x4_apply_transpose_unaligned(shz_mat4x4_t* dst, const fl
 
     \note This routine does not use XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_add_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the scale-related elements of the given matrix by the given 3D components.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply \p mat by a rotation about the X axis.
-
-    \deprecated
-    This routine has been renamed to shz_mat4x4_rotate_x(), which it now forwards to.
-
-    \sa shz_mat4x4_rotate_x()
-*/
-SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_x().")
-SHZ_INLINE void shz_mat4x4_apply_rotation_x(shz_mat4x4_t* mat, float xAngle) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply \p mat by a rotation about the Y axis.
-
-    \deprecated
-    This routine has been renamed to shz_mat4x4_rotate_y(), which it now forwards to.
-
-    \sa shz_mat4x4_rotate_y()
-*/
-SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_y().")
-SHZ_INLINE void shz_mat4x4_apply_rotation_y(shz_mat4x4_t* mat, float yAngle) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply \p mat by a rotation about the Z axis.
-
-    \deprecated
-    This routine has been renamed to shz_mat4x4_rotate_z(), which it now forwards to.
-
-    \sa shz_mat4x4_rotate_z()
-*/
-SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_z().")
-SHZ_INLINE void shz_mat4x4_apply_rotation_z(shz_mat4x4_t* mat, float zAngle) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply \p mat by X-Y-Z rotation matrices.
-
-    \deprecated
-    This routine has been renamed to shz_mat4x4_rotate_xyz(), which it now forwards to.
-
-    \sa shz_mat4x4_rotate_xyz()
-*/
-SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_xyz().")
-SHZ_INLINE void shz_mat4x4_apply_rotation_xyz(shz_mat4x4_t* mat, float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply \p mat by Z-Y-X rotation matrices.
-
-    \deprecated
-    This routine has been renamed to shz_mat4x4_rotate_zyx(), which it now forwards to.
-
-    \sa shz_mat4x4_rotate_zyx()
-*/
-SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_zyx().")
-SHZ_INLINE void shz_mat4x4_apply_rotation_zyx(shz_mat4x4_t* mat, float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply \p mat by Z-X-Y rotation matrices.
-
-    \deprecated
-    This routine has been renamed to shz_mat4x4_rotate_zxy(), which it now forwards to.
-
-    \sa shz_mat4x4_rotate_zxy()
-*/
-SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_zxy().")
-SHZ_INLINE void shz_mat4x4_apply_rotation_zxy(shz_mat4x4_t* mat, float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply \p mat by Y-X-Z rotation matrices.
-
-    \deprecated
-    This routine has been renamed to shz_mat4x4_rotate_yxz(), which it now forwards to.
-
-    \sa shz_mat4x4_rotate_yxz()
-*/
-SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_yxz().")
-SHZ_INLINE void shz_mat4x4_apply_rotation_yxz(shz_mat4x4_t* mat, float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
-
-/*! Deprecated way to multiply \p mat by a rotation about an arbitrary axis.
-
-    \deprecated
-    This routine has been renamed to shz_mat4x4_rotate(), which it now forwards to.
-
-    \sa shz_mat4x4_rotate()
-*/
-SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate().")
-SHZ_INLINE void shz_mat4x4_apply_rotation(shz_mat4x4_t* mat, float angle, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_3x3_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the given matrix with a rotation matrix whose orientation is given by a quaternion.
 
     \note This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_rotate_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
 
 /*! Applies the 3D "lookAt" matrix constructed with the given vector components onto the given matrix.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_lookat(shz_mat4x4_t* m, shz_vec3_t pos, shz_vec3_t target, shz_vec3_t up) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_lookat(shz_mat4x4_t* m, shz_vec3_t pos, shz_vec3_t target, shz_vec3_t up) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the ortho matrix constructed from the given values onto the given matrix.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_ortho(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_ortho(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the frustum matrix constructed from the given values onto the given matrix.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_frustum(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_frustum(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the perspective matrix constructed from the given values onto the given matrix.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_perspective(shz_mat4x4_t* m, float fov, float aspect, float znear) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_perspective(shz_mat4x4_t* m, float fov, float aspect, float znear) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the viewport matrix created with the given components ont othe given matrix.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_screen(shz_mat4x4_t* m, float width, float height) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_screen(shz_mat4x4_t* m, float width, float height) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the given matrix with a symmetric skew matrix formed from the given 3D vector components.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_symmetric_skew(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_skew_symmetric(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in WXYZ order.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_permutation_wxyz(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_permute_wxyz(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in YZWX order.
 
     \warning This routine clobbers XMTRX.
 */
-SHZ_INLINE void shz_mat4x4_apply_permutation_yzwx(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_permute_yzwx(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates a permutation matrix, which reorders the components of transformed vectors to be in WZYX order.
+
+    \warning This routine clobbers XMTRX.
+*/
+SHZ_INLINE void shz_mat4x4_permute_wzyx(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
 /*! Multiplies and accumulates the given matrix onto itself.
 
@@ -896,7 +798,7 @@ SHZ_INLINE void shz_mat4x4_transpose(const shz_mat4x4_t* mat, shz_mat4x4_t* out)
     \param mtrx     Pointer to the 4x4 matrix to invert.
     \param out      Pointer to the resulting inverted matrix.
 */
-void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) SHZ_NOEXCEPT;
 
 /*! Computes the inverse of a 4x4 matrix in block-triangular form.
 
@@ -918,7 +820,7 @@ void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ
 
     \sa shz_mat4x4_inverse_rigid()
 */
-void shz_mat4x4_inverse_block_triangular(const shz_mat4x4_t* mtx, shz_mat4x4_t* out) SHZ_NOEXCEPT;
+SHZ_INLINE void shz_mat4x4_inverse_block_triangular(const shz_mat4x4_t* mtx, shz_mat4x4_t* out) SHZ_NOEXCEPT;
 
 /*! Computes the inverse of a rigid 4x4 transform matrix.
 
@@ -980,7 +882,7 @@ SHZ_INLINE void shz_mat4x4_blend(shz_mat4x4_t* dst, const shz_mat4x4_t* matrix, 
     \warning
     This structure MUST be aligned on 8-byte boundaries!
 */
-typedef SHZ_ALIGNAS(8) struct shz_mat2x2 {
+typedef struct SHZ_ALIGNAS(8) shz_mat2x2 {
     union {
         float       elem[4];
         float       elem2D[2][2];
@@ -1059,17 +961,6 @@ SHZ_INLINE void shz_mat3x3_transpose(const shz_mat3x3_t* mat, shz_mat3x3_t* out)
  */
 SHZ_INLINE void shz_mat3x3_adjugate(const shz_mat3x3_t* mat, shz_mat3x3_t* out) SHZ_NOEXCEPT;
 
-/*! Computes the adjugate of a 3x3 matrix.
-
-    \deprecated
-    Misnamed. This routine computes the adjugate, not an inverse, and simply calls directly into
-    shz_mat3x3_adjugate().
-
-    \sa shz_mat3x3_adjugate()
- */
-SHZ_DEPRECATED("Misnamed. Use shz_mat3x3_adjugate().")
-SHZ_INLINE void shz_mat3x3_inverse_unscaled(const shz_mat3x3_t* mat, shz_mat3x3_t* out) SHZ_NOEXCEPT;
-
 /*! Computes the inverse of a 3x3 matrix.
 
     \note Only valid for non-singular matrices.
@@ -1091,6 +982,238 @@ SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3(const shz_mat3x3_t* m, shz_vec3_
 SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3_transpose(const shz_mat3x3_t* m, shz_vec3_t v) SHZ_NOEXCEPT;
 
 //! \endcond
+
+/*! \name  Deprecated
+    \brief Deprecated routines, kept only for backwards compatibility.
+    @{
+*/
+
+/*! Safely initializes the given matrix to the 4x4 identity matrix.
+
+    \warning This routine clobbers XMTRX.
+
+    \deprecated
+    shz_mat4x4_init_identity() is already safe now by default. This routine
+    simply calls directly into it and should not be used.
+
+    \sa shz_mat4x4_init_identity()
+*/
+SHZ_DEPRECATED("Operation is always safe now. Use default version.")
+SHZ_INLINE void shz_mat4x4_init_identity_safe(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
+/*! Extracts the top-left 3x3 of the given 4x4 matrix and computes its adjugate.
+
+    \deprecated
+    Misnamed. This routine computes the adjugate, not an inverse, and simply calls directly into
+    shz_mat4x4_3x3_adjugate().
+
+    \sa shz_mat4x4_3x3_adjugate()
+*/
+SHZ_DEPRECATED("Misnamed. Use shz_mat4x4_3x3_adjugate().")
+SHZ_INLINE void shz_mat4x4_3x3_inverse_unscaled(const shz_mat4x4_t* mat4, shz_mat3x3_t* invmat3) SHZ_NOEXCEPT;
+
+/*! Deprecated way to add the given 3D vector components to the translational values of the given matrix.
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_add_translation(), which it now forwards to.
+
+    \sa shz_mat4x4_add_translation()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_add_translation().")
+SHZ_INLINE void shz_mat4x4_apply_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply and accumulate the scale-related elements of the given matrix by the given 3D components.
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_3x3_scale(), which it now forwards to.
+
+    \sa shz_mat4x4_3x3_scale()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_3x3_scale().")
+SHZ_INLINE void shz_mat4x4_apply_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply \p mat by a rotation about the X axis.
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_x(), which it now forwards to.
+
+    \sa shz_mat4x4_rotate_x()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_x().")
+SHZ_INLINE void shz_mat4x4_apply_rotation_x(shz_mat4x4_t* mat, float xAngle) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply \p mat by a rotation about the Y axis.
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_y(), which it now forwards to.
+
+    \sa shz_mat4x4_rotate_y()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_y().")
+SHZ_INLINE void shz_mat4x4_apply_rotation_y(shz_mat4x4_t* mat, float yAngle) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply \p mat by a rotation about the Z axis.
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_z(), which it now forwards to.
+
+    \sa shz_mat4x4_rotate_z()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_z().")
+SHZ_INLINE void shz_mat4x4_apply_rotation_z(shz_mat4x4_t* mat, float zAngle) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply \p mat by X-Y-Z rotation matrices.
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_xyz(), which it now forwards to.
+
+    \sa shz_mat4x4_rotate_xyz()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_xyz().")
+SHZ_INLINE void shz_mat4x4_apply_rotation_xyz(shz_mat4x4_t* mat, float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply \p mat by Z-Y-X rotation matrices.
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_zyx(), which it now forwards to.
+
+    \sa shz_mat4x4_rotate_zyx()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_zyx().")
+SHZ_INLINE void shz_mat4x4_apply_rotation_zyx(shz_mat4x4_t* mat, float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply \p mat by Z-X-Y rotation matrices.
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_zxy(), which it now forwards to.
+
+    \sa shz_mat4x4_rotate_zxy()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_zxy().")
+SHZ_INLINE void shz_mat4x4_apply_rotation_zxy(shz_mat4x4_t* mat, float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply \p mat by Y-X-Z rotation matrices.
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_yxz(), which it now forwards to.
+
+    \sa shz_mat4x4_rotate_yxz()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_yxz().")
+SHZ_INLINE void shz_mat4x4_apply_rotation_yxz(shz_mat4x4_t* mat, float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
+
+/*! Deprecated way to multiply \p mat by a rotation about an arbitrary axis.
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate(), which it now forwards to.
+
+    \sa shz_mat4x4_rotate()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate().")
+SHZ_INLINE void shz_mat4x4_apply_rotation(shz_mat4x4_t* mat, float angle, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_mat4x4_rotate_quat().
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_rotate_quat(), which it now forwards to.
+
+    \sa shz_mat4x4_rotate_quat()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_rotate_quat().")
+SHZ_INLINE void shz_mat4x4_apply_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_mat4x4_lookat().
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_lookat(), which it now forwards to.
+
+    \sa shz_mat4x4_lookat()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_lookat().")
+SHZ_INLINE void shz_mat4x4_apply_lookat(shz_mat4x4_t* m, shz_vec3_t pos, shz_vec3_t target, shz_vec3_t up) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_mat4x4_ortho().
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_ortho(), which it now forwards to.
+
+    \sa shz_mat4x4_ortho()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_ortho().")
+SHZ_INLINE void shz_mat4x4_apply_ortho(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_mat4x4_frustum().
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_frustum(), which it now forwards to.
+
+    \sa shz_mat4x4_frustum()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_frustum().")
+SHZ_INLINE void shz_mat4x4_apply_frustum(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_mat4x4_perspective().
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_perspective(), which it now forwards to.
+
+    \sa shz_mat4x4_perspective()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_perspective().")
+SHZ_INLINE void shz_mat4x4_apply_perspective(shz_mat4x4_t* m, float fov, float aspect, float znear) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_mat4x4_screen().
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_screen(), which it now forwards to.
+
+    \sa shz_mat4x4_screen()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_screen().")
+SHZ_INLINE void shz_mat4x4_apply_screen(shz_mat4x4_t* m, float width, float height) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_mat4x4_skew_symmetric().
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_skew_symmetric(), which it now forwards to.
+
+    \sa shz_mat4x4_skew_symmetric()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_skew_symmetric().")
+SHZ_INLINE void shz_mat4x4_apply_symmetric_skew(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_mat4x4_permute_wxyz().
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_permute_wxyz(), which it now forwards to.
+
+    \sa shz_mat4x4_permute_wxyz()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_permute_wxyz().")
+SHZ_INLINE void shz_mat4x4_apply_permutation_wxyz(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
+/*! Deprecated name for shz_mat4x4_permute_yzwx().
+
+    \deprecated
+    This routine has been renamed to shz_mat4x4_permute_yzwx(), which it now forwards to.
+
+    \sa shz_mat4x4_permute_yzwx()
+*/
+SHZ_DEPRECATED("Renamed to shz_mat4x4_permute_yzwx().")
+SHZ_INLINE void shz_mat4x4_apply_permutation_yzwx(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
+/*! Computes the adjugate of a 3x3 matrix.
+
+    \deprecated
+    Misnamed. This routine computes the adjugate, not an inverse, and simply calls directly into
+    shz_mat3x3_adjugate().
+
+    \sa shz_mat3x3_adjugate()
+ */
+SHZ_DEPRECATED("Misnamed. Use shz_mat3x3_adjugate().")
+SHZ_INLINE void shz_mat3x3_inverse_unscaled(const shz_mat3x3_t* mat, shz_mat3x3_t* out) SHZ_NOEXCEPT;
+
+//! @}
 
 #include "inline/shz_matrix.inl.h"
 

@@ -152,8 +152,13 @@
 #ifdef SHZ_GNUC
     //! Forces a function or type to be aligned by \p N bytes.
 #   define SHZ_ALIGNAS(N)              __attribute__((aligned((N))))
+#   if SHZ_TARGET == SHZ_SH4
+    //! The SH4 has no SIMD registers, so \p N bytes of scalars is just an array.
+#       define SHZ_SIMD(N)             [N/4]
+#   else
     //! Tells GCC that a scalar type is to be treated as a vector of size \p N.
-#   define SHZ_SIMD(N)                 __attribute__((vector_size((N))))
+#       define SHZ_SIMD(N)             __attribute__((vector_size((N))))
+#   endif
     //! Tells GCC that a particular function should be optimized for performance.
 #   define SHZ_HOT                     __attribute__((hot))
     //! Tells GCC that a particular function should be optimized for size.
@@ -249,6 +254,18 @@
 #   define SHZ_INSTR_BARRIER()
 #endif
 
+#if defined(__has_attribute)
+#   if __has_attribute(access)
+        //! Tells GCC that the given \p arg number of the given \p size is accessed with the given \p mode.
+#       define SHZ_ACCESS(...)  __attribute__((access(__VA_ARGS__)))
+#   endif
+#endif
+
+#ifndef SHZ_ACCESS
+    //! Unsupported by non-GCC compilers.
+#   define SHZ_ACCESS(...)
+#endif
+
 #ifndef __cplusplus
     //! Dummy define provided for C++ compatibility
 #   define SHZ_DECLS_BEGIN
@@ -259,11 +276,11 @@
     //! Dummy define provided for C++ compatibility
 #   define SHZ_NOEXCEPT
     //! Temporary struct initialization statement to use within C.
-#if defined(SHZ_MSVC)
-#   define SHZ_INIT(type, ...)         ((type){ __VA_ARGS__ })
-#else
-#   define SHZ_INIT(type, ...)         ({ type r = { __VA_ARGS__ }; r; })
-#endif
+#   if defined(SHZ_MSVC)
+#       define SHZ_INIT(type, ...)      ((type){ __VA_ARGS__ })
+#   else
+#       define SHZ_INIT(type, ...)      ({ type r = { __VA_ARGS__ }; r; })
+#   endif
     //! Conversion macro for zero-overhead conversions, taking the given \p value to a value of the given \p type.
 #   define SHZ_CONVERT(type, value) \
         (((struct { \
@@ -283,30 +300,34 @@
     //! Tells the compiler that the function does not throw exceptions
 #   define SHZ_NOEXCEPT                 noexcept
     //! Temporary struct initialization statement to use within C++.
-#if defined(SHZ_MSVC)
-#   define SHZ_INIT(type, ...)         (type{ __VA_ARGS__ })
-#else
-#   define SHZ_INIT(type, ...)         ({ type r = { __VA_ARGS__ }; r; })
-#endif
+#   if defined(SHZ_MSVC)
+#       define SHZ_INIT(type, ...)      (type{ __VA_ARGS__ })
+#   else
+#       define SHZ_INIT(type, ...)      ({ type r = { __VA_ARGS__ }; r; })
+#   endif
     //! Conversion macro for zero-overhead conversions that handles pointers/references \p from and \p type.
-#   define SHZ_CONVERT(type, from) \
-        [&]<typename To, typename V>(V&& value) -> To { \
-            using TNR = std::remove_reference_t<To>; \
-            using VNR = std::remove_reference_t<V>; \
-            if constexpr (std::is_pointer_v<To>) { \
-                if constexpr (std::is_pointer_v<VNR>) { \
-                    return reinterpret_cast<To>(value); \
-                } else { \
-                    return reinterpret_cast<To>(&value); \
-                } \
-            } else if constexpr (std::is_reference_v<To>) { \
-                static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes when converting to a reference type."); \
-                return reinterpret_cast<To>(value); \
-            } else { \
-                static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes."); \
-                return reinterpret_cast<To&>(value); \
-            } \
-        }.template operator()<type>(from)
+#   define SHZ_CONVERT(type, from)  shz_convert_<type>(from)
+#   include <type_traits>
+extern "C++" {
+    template<typename To, typename V>
+    SHZ_FORCE_INLINE To shz_convert_(V&& value) noexcept {
+        using TNR = std::remove_reference_t<To>;
+        using VNR = std::remove_reference_t<V>;
+        if constexpr (std::is_pointer_v<To>) {
+            if constexpr (std::is_pointer_v<VNR>) {
+                return reinterpret_cast<To>(value);
+            } else {
+                return reinterpret_cast<To>(&value);
+            }
+        } else if constexpr (std::is_reference_v<To>) {
+            static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes when converting to a reference type.");
+            return reinterpret_cast<To>(value);
+        } else {
+            static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes.");
+            return reinterpret_cast<To&>(value);
+        }
+    }
+}
 #endif
 //! @}
 //! \endcond

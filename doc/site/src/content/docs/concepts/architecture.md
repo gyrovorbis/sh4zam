@@ -26,9 +26,10 @@ include/sh4zam/
     sw/shz_<module>_sw.inl.h      portable C
     spu/shz_vector_spu.inl.h      Cell SPU (vector only)
 source/
-  shz_matrix.c  shz_quat.c  shz_version.c  shz_xmtrx.c      out-of-line, any back-end
-  sh4/shz_xmtrx_sh4.s  sh4/shz_mem_sh4.s  sh4/shz_complex_sh4.c
-  sw/shz_xmtrx_sw.c    sw/shz_complex_sw.c
+  shz_version.c                                              out-of-line, any back-end
+  shz_matrix.inc.c                                           shared body, compiled once per back-end
+  sh4/shz_xmtrx_sh4.s  sh4/shz_mem_sh4.s  sh4/shz_complex_sh4.c  sh4/shz_matrix_sh4.c
+  sw/shz_xmtrx_sw.c    sw/shz_complex_sw.c    sw/shz_matrix_sw.c
 example/   bruces_balls/  pvr_dma/
 test/      one *_test_suite.cpp per module, libGimbal + cglm submodules
 ```

@@ -53,6 +53,41 @@ target_link_libraries(MyProject PUBLIC sh4zam)
 
 The SH4 back-end assumes the FPU is in single-precision mode (`-m4-single` or `-m4-single-only`); see [Back-ends](/concepts/backends/#targets-are-not-back-ends) for other modes. Release builds should define `NDEBUG`: SH4ZAM asserts alignment and sizes in debug builds. The rest of the flags that matter are in [Optimization Tips](/guides/optimization/).
 
+## Force the software back-end
+
+On Dreamcast, you can build against SH4ZAM's portable C back-end instead of the SH4 one by defining `SHZ_BACKEND` as `SHZ_SW`. The software back-end is always compiled into `libsh4zam.a`, so the library doesn't need to be rebuilt, and the API is identical, so nothing in your code changes. This is useful for:
+
+- **Bug testing.** If a bug goes away with the software back-end, it's likely in an SH4 routine; if it stays, it's likely in your code.
+- **Measuring performance.** Building the same program both ways shows how much the accelerated back-end is actually buying you.
+
+### CMake
+
+Add the definition to your own target:
+
+```cmake
+target_compile_definitions(MyProject PRIVATE SHZ_BACKEND=SHZ_SW)
+```
+
+If SH4ZAM is part of your CMake tree, set its `SHZ_BACKEND` cache variable before adding it instead. The `sh4zam` target then exports `SHZ_BACKEND=SHZ_SW` to everything that links it:
+
+```cmake
+set(SHZ_BACKEND SW CACHE STRING "" FORCE)
+add_subdirectory(external/sh4zam)
+target_link_libraries(MyProject PUBLIC sh4zam)
+```
+
+Or leave `CMakeLists.txt` alone and set it when configuring: `kos-cmake -DSHZ_BACKEND=SW -S . -B build`.
+
+### Makefile
+
+Add the definition to your project's `Makefile`. KallistiOS's `Makefile.rules` passes `CPPFLAGS` to both C and C++ files:
+
+```make
+CPPFLAGS += -DSHZ_BACKEND=SHZ_SW
+```
+
+Remove it to switch back to the SH4 back-end.
+
 ## Check the version you linked
 
 `shz_version.h` lets you compare the headers you compiled against with the library you linked:

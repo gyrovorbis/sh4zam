@@ -9,7 +9,7 @@ Every SH4ZAM name is built from the same few parts: a module prefix, a verb, and
 
 | Kind | Pattern | Example |
 | --- | --- | --- |
-| C function | `shz_<module>_<verb>[_<qualifier>]` | `shz_vec3_cross()`, `shz_xmtrx_apply_rotation_x()` |
+| C function | `shz_<module>_<verb>[_<qualifier>]` | `shz_vec3_cross()`, `shz_xmtrx_rotate_x()` |
 | Scalar/trig C function | `shz_<name>` (usually the `<math.h>` name) | `shz_floorf()`, `shz_sinf()` |
 | C type | `shz_<name>_t` | `shz_vec3_t`, `shz_mat4x4_t`, `shz_quat_t` |
 | C type, alternate | `shz_<name>` (same type, "for those who hate POSIX-style") | `shz_vec3`, `shz_mat4x4` |
@@ -18,7 +18,7 @@ Every SH4ZAM name is built from the same few parts: a module prefix, a verb, and
 | C++ namespace | `shz::` | |
 | C++ scalar/trig | `shz::<name>`, a `constexpr` alias of the C function | `shz::floorf` is `shz_floorf` |
 | C++ types | `shz::<name>`, deriving from the C struct | `shz::vec3 : shz_vec3_t` |
-| C++ XMTRX | `shz::xmtrx::<verb>`, static member functions | `shz::xmtrx::apply_rotation_x()` |
+| C++ XMTRX | `shz::xmtrx::<verb>`, static member functions | `shz::xmtrx::rotate_x()` |
 
 Module prefixes: `vec2`/`vec3`/`vec4` (vector), `quat`, `mat4x4`/`mat3x3`/... (matrix), `xmtrx`, complex functions are C99-style (`shz_caddf()`, `shz_cabsf()`), memory functions are libc-style (`shz_memcpy()`).
 

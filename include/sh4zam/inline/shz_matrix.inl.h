@@ -241,16 +241,24 @@ SHZ_INLINE void shz_mat4x4_apply_transpose_unaligned(shz_mat4x4_t* dst, const fl
     shz_xmtrx_store_4x4(dst);
 }
 
-SHZ_FORCE_INLINE void shz_mat4x4_apply_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_mat4x4_add_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
     mat->pos.x += x;
     mat->pos.y += y;
     mat->pos.z += z;
 }
 
-SHZ_INLINE void shz_mat4x4_apply_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_mat4x4_apply_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
+    shz_mat4x4_add_translation(mat, x, y, z);
+}
+
+SHZ_INLINE void shz_mat4x4_3x3_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(mat);
-    shz_xmtrx_apply_scale(x, y, z);
+    shz_xmtrx_scale_3x3(x, y, z);
     shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_apply_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
+    shz_mat4x4_3x3_scale(mat, x, y, z);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_rotation_x(shz_mat4x4_t* mat, float xAngle) SHZ_NOEXCEPT {
@@ -285,57 +293,99 @@ SHZ_INLINE void shz_mat4x4_apply_rotation(shz_mat4x4_t* mat, float angle, float 
     shz_mat4x4_rotate(mat, angle, x, y, z);
 }
 
-SHZ_INLINE void shz_mat4x4_apply_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_mat4x4_rotate_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(m);
-    shz_xmtrx_apply_rotation_quat(q);
+    shz_xmtrx_rotate_quat(q);
+    shz_xmtrx_store_4x4(m);
+}
+
+SHZ_INLINE void shz_mat4x4_apply_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT {
+    shz_mat4x4_rotate_quat(m, q);
+}
+
+SHZ_INLINE void shz_mat4x4_lookat(shz_mat4x4_t* m, shz_vec3_t pos, shz_vec3_t target, shz_vec3_t up) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(m);
+    shz_xmtrx_lookat(pos, target, up);
     shz_xmtrx_store_4x4(m);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_lookat(shz_mat4x4_t* m, shz_vec3_t pos, shz_vec3_t target, shz_vec3_t up) SHZ_NOEXCEPT {
+    shz_mat4x4_lookat(m, pos, target, up);
+}
+
+SHZ_INLINE void shz_mat4x4_ortho(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(m);
-    shz_xmtrx_apply_lookat(pos, target, up);
+    shz_xmtrx_ortho(left, right, bottom, top, znear, zfar);
     shz_xmtrx_store_4x4(m);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_ortho(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
+    shz_mat4x4_ortho(m, left, right, bottom, top, znear, zfar);
+}
+
+SHZ_INLINE void shz_mat4x4_frustum(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(m);
-    shz_xmtrx_apply_ortho(left, right, bottom, top, znear, zfar);
+    shz_xmtrx_frustum(left, right, bottom, top, znear, zfar);
     shz_xmtrx_store_4x4(m);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_frustum(shz_mat4x4_t* m, float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
+    shz_mat4x4_frustum(m, left, right, bottom, top, znear, zfar);
+}
+
+SHZ_INLINE void shz_mat4x4_perspective(shz_mat4x4_t* m, float fov, float aspect, float znear) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(m);
-    shz_xmtrx_apply_frustum(left, right, bottom, top, znear, zfar);
+    shz_xmtrx_perspective(fov, aspect, znear);
     shz_xmtrx_store_4x4(m);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_perspective(shz_mat4x4_t* m, float fov, float aspect, float znear) SHZ_NOEXCEPT {
+    shz_mat4x4_perspective(m, fov, aspect, znear);
+}
+
+SHZ_INLINE void shz_mat4x4_screen(shz_mat4x4_t* m, float width, float height) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(m);
-    shz_xmtrx_apply_perspective(fov, aspect, znear);
+    shz_xmtrx_screen(width, height);
     shz_xmtrx_store_4x4(m);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_screen(shz_mat4x4_t* m, float width, float height) SHZ_NOEXCEPT {
-    shz_xmtrx_load_4x4(m);
-    shz_xmtrx_apply_screen(width, height);
-    shz_xmtrx_store_4x4(m);
+    shz_mat4x4_screen(m, width, height);
 }
 
-SHZ_INLINE void shz_mat4x4_apply_symmetric_skew(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT{
+SHZ_INLINE void shz_mat4x4_skew_symmetric(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT{
     shz_xmtrx_load_4x4(mat);
-    shz_xmtrx_apply_symmetric_skew(x, y, z);
+    shz_xmtrx_skew_symmetric(x, y, z);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_apply_symmetric_skew(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT {
+    shz_mat4x4_skew_symmetric(mat, x, y, z);
+}
+
+SHZ_INLINE void shz_mat4x4_permute_wxyz(shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_permute_wxyz();
     shz_xmtrx_store_4x4(mat);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_permutation_wxyz(shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+    shz_mat4x4_permute_wxyz(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_permute_yzwx(shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(mat);
-    shz_xmtrx_apply_permutation_wxyz();
+    shz_xmtrx_permute_yzwx();
     shz_xmtrx_store_4x4(mat);
 }
 
 SHZ_INLINE void shz_mat4x4_apply_permutation_yzwx(shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+    shz_mat4x4_permute_yzwx(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_permute_wzyx(shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(mat);
-    shz_xmtrx_apply_permutation_yzwx();
+    shz_xmtrx_permute_wzyx();
     shz_xmtrx_store_4x4(mat);
 }
 
@@ -788,6 +838,91 @@ SHZ_INLINE void shz_mat3x3_inverse(const shz_mat3x3_t* mtrx,
     for (int i = 0; i < 3; i++) {
         out->col[i] = shz_vec3_scale(out->col[i], inv_det);
     }
+}
+
+SHZ_INLINE void shz_mat4x4_inverse_block_triangular(const shz_mat4x4_t* mtrx, shz_mat4x4_t* out) SHZ_NOEXCEPT {
+    alignas(32) shz_mat3x3_t invM;
+    shz_vec3_t out3xyz;
+    float inv_w;
+
+    //shz_dcache_alloc_line(&invM);
+    //SHZ_MEMORY_BARRIER_SOFT();
+
+    shz_mat4x4_3x3_inverse(mtrx, &invM);
+    inv_w = shz_invf(mtrx->col[3].w);
+
+    out->col[0] = shz_vec3_vec4(invM.col[0], 0.0f);
+    out->col[1] = shz_vec3_vec4(invM.col[1], 0.0f);
+    out->col[2] = shz_vec3_vec4(invM.col[2], 0.0f);
+
+    out3xyz = shz_mat3x3_transform_vec3(&invM, mtrx->col[3].xyz);
+    out3xyz = shz_vec3_scale(out3xyz, -inv_w);
+
+    out->col[3] = shz_vec3_vec4(out3xyz, inv_w);
+}
+
+#if SHZ_BACKEND == SHZ_SH4
+void shz_mat4x4_inverse_sh4(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) SHZ_NOEXCEPT;
+void shz_mat4x4_decompose_sh4(const shz_mat4x4_t* mat, shz_vec3_t* translation, shz_quat_t* rotation, shz_vec3_t* scale) SHZ_NOEXCEPT;
+#else
+void shz_mat4x4_inverse_sw(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) SHZ_NOEXCEPT;
+void shz_mat4x4_decompose_sw(const shz_mat4x4_t* mat, shz_vec3_t* translation, shz_quat_t* rotation, shz_vec3_t* scale) SHZ_NOEXCEPT;
+#endif
+
+SHZ_FORCE_INLINE void shz_mat4x4_inverse(const shz_mat4x4_t* SHZ_RESTRICT mtrx, shz_mat4x4_t* SHZ_RESTRICT out) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_mat4x4_inverse_sh4(mtrx, out);
+#else
+    shz_mat4x4_inverse_sw(mtrx, out);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_mat4x4_decompose(const shz_mat4x4_t* mat,
+                                           shz_vec3_t* translation,
+                                           shz_quat_t* rotation,
+                                           shz_vec3_t* scale) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_mat4x4_decompose_sh4(mat, translation, rotation, scale);
+#else
+    shz_mat4x4_decompose_sw(mat, translation, rotation, scale);
+#endif
+}
+
+SHZ_INLINE shz_quat_t shz_quat_from_look_axis(shz_vec3_t forward, shz_vec3_t up) SHZ_NOEXCEPT {
+    shz_mat4x4_t mat;
+
+    mat.forward = shz_vec3_vec4(shz_vec3_normalize(forward), 0.0f);
+    mat.left    = shz_vec3_vec4(shz_vec3_normalize(shz_vec3_cross(up, mat.forward.xyz)), 0.0f);
+    mat.up      = shz_vec3_vec4(shz_vec3_normalize(shz_vec3_cross(mat.forward.xyz, mat.left.xyz)), 0.0f);
+
+    return shz_mat4x4_to_quat(&mat);
+}
+
+SHZ_INLINE shz_quat_t shz_xmtrx_to_quat(void) SHZ_NOEXCEPT {
+    shz_mat4x4_t xmtrx;
+
+    shz_xmtrx_store_4x4(&xmtrx);
+    return shz_mat4x4_to_quat(&xmtrx);
+}
+
+SHZ_INLINE float shz_xmtrx_determinant(void) SHZ_NOEXCEPT {
+    shz_mat4x4_t xmtrx;
+
+    shz_xmtrx_store_4x4(&xmtrx);
+    return shz_mat4x4_determinant(&xmtrx);
+}
+
+SHZ_INLINE void shz_xmtrx_init_rotation_quat(shz_quat_t q) SHZ_NOEXCEPT {
+    shz_mat4x4_t mat;
+    shz_mat4x4_init_rotation_quat(&mat, q);
+    shz_xmtrx_load_4x4(&mat);
+}
+
+SHZ_INLINE void shz_xmtrx_invert(void) SHZ_NOEXCEPT {
+    shz_mat4x4_t mat, inv;
+    shz_xmtrx_store_4x4(&mat);
+    shz_mat4x4_inverse(&mat, &inv);
+    shz_xmtrx_load_4x4(&inv);
 }
 
 //! \endcond

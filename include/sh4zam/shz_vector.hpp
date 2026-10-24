@@ -19,14 +19,16 @@
 #ifndef SHZ_VECTOR_HPP
 #define SHZ_VECTOR_HPP
 
-#include <compare>
-#include <concepts>
 #include <type_traits>
 #include <utility>
 
 #include "shz_vector.h"
 #include "shz_scalar.hpp"
 #include "shz_trig.hpp"
+
+#ifdef SHZ_CPP20
+#   include <compare>
+#endif
 
 namespace shz {
 
@@ -67,7 +69,8 @@ struct vecN: C {
         CType(const_cast<const CType&>(other)) {}
 
     //! Conversion operator for going from a layout-compatible vector type to a SH4ZAM vector type.
-    SHZ_FORCE_INLINE static CppType from(const auto& raw) noexcept {
+    template<typename T>
+    SHZ_FORCE_INLINE static CppType from(const T& raw) noexcept {
         return *reinterpret_cast<const CppType*>(&raw);
     }
 
@@ -78,7 +81,8 @@ struct vecN: C {
     }
 
     //! Conversion operator for accessing an existing pointer type as though it were a refrence to a SH4ZAM type.
-    SHZ_FORCE_INLINE CppType& deref(const auto* raw) noexcept {
+    template<typename T>
+    SHZ_FORCE_INLINE CppType& deref(const T* raw) noexcept {
         return *const_cast<CppType*>(reinterpret_cast<const CppType*>(raw));
     }
 
@@ -320,17 +324,17 @@ struct vecN: C {
 
     //! Normalizes the given vector.
     SHZ_FORCE_INLINE void normalize() noexcept {
-        *static_cast<CppType*>(this) = shz_vec_normalize(*static_cast<const CppType*>(this));
+        *static_cast<CppType*>(this) = CppType(shz_vec_normalize(*static_cast<const CppType*>(this)));
     }
 
     //! Normalizes the given vector, safely protecting against division-by-zero.
     SHZ_FORCE_INLINE void normalize_safe() noexcept {
-        *static_cast<CppType*>(this) = shz_vec_normalize_safe(*static_cast<const CppType*>(this));
+        *static_cast<CppType*>(this) = CppType(shz_vec_normalize_safe(*static_cast<const CppType*>(this)));
     }
 
     //! Normalizes the given vector, or sets it to \p alt if it has a magnitude of 0.0f.
     SHZ_FORCE_INLINE void normalize_or(const CppType& alt) noexcept {
-        *static_cast<CppType*>(this) = shz_vec_normalize_or(*static_cast<const CppType*>(this), alt);
+        *static_cast<CppType*>(this) = CppType(shz_vec_normalize_or(*static_cast<const CppType*>(this), alt));
     }
 
     //! Return the normalized vector.

@@ -65,22 +65,6 @@ SHZ_INLINE shz_quat_t shz_quat_identity(void) SHZ_NOEXCEPT;
 //! Returns true if the two given quaternions are considered equal based on either absolute or relative tolerance.
 SHZ_INLINE bool shz_quat_equal(shz_quat_t a, shz_quat_t b) SHZ_NOEXCEPT;
 
-/*! Initializes and returns a quaternion with the given X-Y-Z rotations in radians.
-
-    The rotation is applied first around the X-axis, then the Y-, then the Z-axis.
-
-    \note
-    These angles are Tait-Bryan angles representing an intrinsic rotation.
-
-    \deprecated
-    Redundant with shz_quat_from_rotation_xyz(). This routine simply calls
-    directly into it and should not be used.
-
-    \sa shz_quat_from_rotation_xyz()
-*/
-SHZ_DEPRECATED("Redundant. Use shz_quat_from_rotation_xyz().")
-SHZ_INLINE shz_quat_t shz_quat_from_angles_xyz(float xangle, float yangle, float zangle) SHZ_NOEXCEPT;
-
 /*! Returns the quaternion of the rotation shz_xmtrx_init_rotation_xyz() builds, from angles in radians.
 
     The result equals the product of the axis quaternions in the order of the name, Qx * Qy * Qz,
@@ -123,7 +107,7 @@ SHZ_INLINE shz_quat_t shz_quat_from_rotation_yxz_u16(uint16_t yAngle, uint16_t x
 SHZ_INLINE shz_quat_t shz_quat_from_axis_angle(shz_vec3_t axis, float angle) SHZ_NOEXCEPT;
 
 //! Creates a quaternion looking in the given direction with the given reference direction.
-shz_quat_t shz_quat_from_look_axis(shz_vec3_t forward, shz_vec3_t up) SHZ_NOEXCEPT;
+SHZ_INLINE shz_quat_t shz_quat_from_look_axis(shz_vec3_t forward, shz_vec3_t up) SHZ_NOEXCEPT;
 
 //! Returns the quaternion representing the rotation from axis \p v1 to \p v2.
 SHZ_INLINE shz_quat_t shz_quat_from_rotated_axis(shz_vec3_t v1, shz_vec3_t v2) SHZ_NOEXCEPT;
@@ -435,9 +419,32 @@ SHZ_INLINE shz_quat_t shz_quat_rotate_towards(shz_quat_t from, shz_quat_t to, fl
     quaternion. If you plan to rotate multiple vectors by the same quaternion,
     you should use the XMTRX API to apply the quaternion as a rotation matrix.
 
-    \sa shz_xmtrx_apply_rotation_quat()
+    \sa shz_xmtrx_rotate_quat()
 */
 SHZ_INLINE shz_vec3_t shz_quat_transform_vec3(shz_quat_t q, shz_vec3_t v) SHZ_NOEXCEPT;
+
+//! @}
+
+/*! \name  Deprecated
+    \brief Deprecated routines, kept only for backwards compatibility.
+    @{
+*/
+
+/*! Initializes and returns a quaternion with the given X-Y-Z rotations in radians.
+
+    The rotation is applied first around the X-axis, then the Y-, then the Z-axis.
+
+    \note
+    These angles are Tait-Bryan angles representing an intrinsic rotation.
+
+    \deprecated
+    Redundant with shz_quat_from_rotation_xyz(). This routine simply calls
+    directly into it and should not be used.
+
+    \sa shz_quat_from_rotation_xyz()
+*/
+SHZ_DEPRECATED("Redundant. Use shz_quat_from_rotation_xyz().")
+SHZ_INLINE shz_quat_t shz_quat_from_angles_xyz(float xangle, float yangle, float zangle) SHZ_NOEXCEPT;
 
 //! @}
 

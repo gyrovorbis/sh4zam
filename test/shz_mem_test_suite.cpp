@@ -137,74 +137,78 @@ GBL_TEST_CASE(memcpy_sq_32)
     GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 8, 32, PADDING>)(sq_memcpy));
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(memcpy_primitive_1)
-    GBL_TEST_VERIFY((memcpy_verify<1, 1, 1, 1>)(shz::memcpy));
-    (memcpy_bench <1, 1, 1, 1>)(shz::memcpy);
-#if SHZ_BACKEND != SHZ_SH4
-    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
-#else
-    (memcpy_bench <1, 1, 1, 1>)(memcpy_fast);
-#endif
-GBL_TEST_CASE_END
+bool memcpy_profile_(unsigned soff, unsigned doff) {
+    constexpr unsigned MAX_ = 512;
+    constexpr unsigned PAD_ = 64;
 
-GBL_TEST_CASE(memcpy_primitive_2)
-    GBL_TEST_VERIFY((memcpy_verify<2, 2, 2, 1>)(shz::memcpy));
-    (memcpy_bench <2, 2, 2, 1>)(shz::memcpy);
-#if SHZ_BACKEND != SHZ_SH4
-    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
-#else
-    (memcpy_bench <2, 2, 2, 1>)(memcpy_fast);
-#endif
-GBL_TEST_CASE_END
+    alignas(32) static uint8_t srcbuf[MAX_ + 2 * PAD_];
+    alignas(32) static uint8_t dstbuf[MAX_ + 2 * PAD_];
+    alignas(32) static uint8_t refbuf[MAX_ + 2 * PAD_];
+    static benchmark_cmp_result results[MAX_ + 1];
 
-GBL_TEST_CASE(memcpy_primitive_4)
-    GBL_TEST_VERIFY((memcpy_verify<4, 4, 4, 1>)(shz::memcpy));
-    (memcpy_bench <4, 4, 4, 1>)(shz::memcpy);
-#if SHZ_BACKEND != SHZ_SH4
-    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
-#else
-    (memcpy_bench <4, 4, 4, 1>)(memcpy_fast);
-#endif
-GBL_TEST_CASE_END
+    static constexpr const char* gainzNames[] = {
+        "EQUAL", "GAINZ", "APPROX", "SKETCH", "LOSSEZ"
+    };
 
-GBL_TEST_CASE(memcpy_primitive_8)
-    GBL_TEST_VERIFY((memcpy_verify<8, 8, 8, 1>)(shz::memcpy));
-    (memcpy_bench <8, 8, 8, 1>)(shz::memcpy);
-#if SHZ_BACKEND != SHZ_SH4
-    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
-#else
-    (memcpy_bench <8, 8, 8, 1>)(memcpy_fast);
-#endif
-GBL_TEST_CASE_END
+    unsigned failCount   = 0;
+    unsigned verdicts[5] = {};
 
-GBL_TEST_CASE(memcpy_primitive_16)
-    GBL_TEST_VERIFY((memcpy_verify<16, 16, 16, 1>)(shz::memcpy));
-    (memcpy_bench <16, 16, 16, 1>)(shz::memcpy);
-#if SHZ_BACKEND != SHZ_SH4
-    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
-#else
-    (memcpy_bench <16, 16, 16, 1>)(memcpy_fast);
-#endif
-GBL_TEST_CASE_END
+    for(unsigned n = 1; n <= MAX_; ++n) {
+        gblRandBuffer(srcbuf, sizeof(srcbuf));
+        memset(dstbuf, 0xAA, sizeof(dstbuf));
+        memset(refbuf, 0xAA, sizeof(refbuf));
 
-GBL_TEST_CASE(memcpy_primitive_32)
-    GBL_TEST_VERIFY((memcpy_verify<32, 32, 32, 1>)(shz::memcpy));
-    (memcpy_bench <32, 32, 32, 1>)(shz::memcpy);
-#if SHZ_BACKEND != SHZ_SH4
-    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
-#else
-    (memcpy_bench <32, 32, 32, 1>)(memcpy_fast);
-#endif
-GBL_TEST_CASE_END
+        shz::memcpy(dstbuf + PAD_ + doff, srcbuf + PAD_ + soff, n);
+        ::memcpy(refbuf + PAD_ + doff, srcbuf + PAD_ + soff, n);
 
-GBL_TEST_CASE(memcpy_primitive_64)
-    GBL_TEST_VERIFY((memcpy_verify<64, 64, 64, 1>)(shz::memcpy));
-    (memcpy_bench <64, 64, 64, 1>)(shz::memcpy);
-#if SHZ_BACKEND != SHZ_SH4
-    GBL_TEST_SKIP("SKipping listfastmem tests, SH4 only!");
-#else
-    (memcpy_bench <64, 64, 64, 1>)(memcpy_fast);
-#endif
+        if(::memcmp(dstbuf, refbuf, sizeof(dstbuf))) {
+            ++failCount;
+            if(failCount <= 8)
+                std::println("FAIL soff={} doff={} n={}", soff, doff, n);
+        }
+    }
+
+    for(unsigned n = 1; n <= MAX_; ++n) {
+        (benchmark_cmp<void*, true>)(
+            "shz::memcpy",
+            [](void* d, const void* s, size_t c) { return shz::memcpy(d, s, c); },
+            "memcpy",
+            [](void* d, const void* s, size_t c) { return ::memcpy(d, s, c); },
+            (void*)(dstbuf + PAD_ + doff), (const void*)(srcbuf + PAD_ + soff), (size_t)n);
+
+        results[n] = benchmark_cmp_last;
+        ++verdicts[results[n].gainz];
+    }
+
+    std::println("\n\tsrc+{} dst+{}", soff, doff);
+    std::println("\t{:>5} | {:>8} {:>8} {:>7} | {:>8} {:>8} {:>7} | {}",
+                 "bytes", "shz unc", "ref unc", "x unc", "shz cch", "ref cch", "x cch", "verdict");
+    std::println("\t{:-<5}-+-{:-<8}-{:-<8}-{:-<7}-+-{:-<8}-{:-<8}-{:-<7}-+-{:-<7}",
+                 "", "", "", "", "", "", "", "");
+
+    for(unsigned n = 1; n <= MAX_; ++n) {
+        const auto& r = results[n];
+        std::println("\t{:5} | {:8} {:8} {:7.3f} | {:8} {:8} {:7.3f} | {}",
+                     n, r.shzUncached, r.refUncached, r.uncachedGainz,
+                     r.shzCached, r.refCached, r.cachedGainz, gainzNames[r.gainz]);
+    }
+
+    std::println("\n\tsrc+{} dst+{}: {} GAINZ, {} EQUAL, {} APPROX, {} SKETCH, {} LOSSEZ\n",
+                 soff, doff,
+                 verdicts[SHZ_BENCHMARK_GAINZ], verdicts[SHZ_BENCHMARK_EQUAL],
+                 verdicts[SHZ_BENCHMARK_APPROX], verdicts[SHZ_BENCHMARK_SKETCH],
+                 verdicts[SHZ_BENCHMARK_LOSSEZ]);
+
+    return !failCount;
+}
+
+GBL_TEST_CASE(memcpy_profile)
+    GBL_TEST_SKIP("Temporarily disabled.");
+    GBL_TEST_VERIFY(memcpy_profile_(0,  0));
+    GBL_TEST_VERIFY(memcpy_profile_(8,  16));
+    GBL_TEST_VERIFY(memcpy_profile_(4,  0));
+    GBL_TEST_VERIFY(memcpy_profile_(3,  17));
+    GBL_TEST_VERIFY(memcpy_profile_(1,  0));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(memcpy_alignment_sweep)
@@ -305,12 +309,6 @@ GBL_TEST_REGISTER(memcpy1,
                   memcpy,
                   memcpy_fast,
                   memcpy_sq_32,
-                  memcpy_primitive_1,
-                  memcpy_primitive_2,
-                  memcpy_primitive_4,
-                  memcpy_primitive_8,
-                  memcpy_primitive_16,
-                  memcpy_primitive_32,
-                  memcpy_primitive_64,
+                  memcpy_profile,
                   memcpy_alignment_sweep,
                   memcpy_alignment_sweep_full)

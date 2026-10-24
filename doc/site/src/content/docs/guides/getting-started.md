@@ -51,8 +51,8 @@ int main(int argc, const char *argv[]) {
     shz_mat4x4_t mat = {};
 
     shz_xmtrx_init_diagonal(vec2.x, vec2.y, vec2.z, vec2.w);
-    shz_xmtrx_apply_rotation_x(shz_vec4_dot(vec1, vec2));
-    shz_xmtrx_apply_translation(vec1.x, vec1.y, vec1.z);
+    shz_xmtrx_rotate_x(shz_vec4_dot(vec1, vec2));
+    shz_xmtrx_add_translation(vec1.x, vec1.y, vec1.z);
     shz_xmtrx_store_4x4(&mat);
 
     shz_vec4_t vec3 = shz_xmtrx_transform_vec4(vec2);
@@ -74,8 +74,8 @@ int main(int argc, const char* argv[]) {
     shz::mat4x4 mat {};
 
     shz::xmtrx::init_diagonal(vec2.x, vec2.y, vec2.z, vec2.w);
-    shz::xmtrx::apply_rotation_x(vec1.dot(vec2));
-    shz::xmtrx::apply_translation(vec1.x, vec1.y, vec1.z);
+    shz::xmtrx::rotate_x(vec1.dot(vec2));
+    shz::xmtrx::add_translation(vec1.x, vec1.y, vec1.z);
     shz::xmtrx::store(&mat);
 
     shz::vec4 vec3 = shz::xmtrx::transform(vec2);
@@ -84,7 +84,7 @@ int main(int argc, const char* argv[]) {
 }
 ```
 
-Upstream's README passes `vec2.y, vec2.z` to `apply_translation()` in the C++ version; it is fixed to match the C version here. C++ can still use the C API by design, and every C++ type is also compatible with its corresponding C type and the C API, so you can mix and match.
+Upstream's README passes `vec2.y, vec2.z` to `add_translation()` in the C++ version; it is fixed to match the C version here. C++ can still use the C API by design, and every C++ type is also compatible with its corresponding C type and the C API, so you can mix and match.
 
 The C sample uses `{}` empty initialization, which is C23. With an older C standard, write `shz_mat4x4_t mat = {0};`.
 

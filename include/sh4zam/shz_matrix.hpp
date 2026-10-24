@@ -93,11 +93,6 @@ namespace shz {
             shz_mat4x4_init_identity(this);
         }
 
-        SHZ_DEPRECATED("Operation is always safe now. Use default version.")
-        SHZ_FORCE_INLINE void init_identity_safe() noexcept {
-            shz_mat4x4_init_identity(this);
-        }
-
         SHZ_FORCE_INLINE void init_zero() noexcept {
             shz_mat4x4_init_zero(this);
         }
@@ -334,110 +329,56 @@ namespace shz {
             shz_mat4x4_apply_transpose_unaligned(this, mat);
         }
 
-        SHZ_FORCE_INLINE void apply_scale(float x, float y, float z) noexcept {
-            shz_mat4x4_apply_scale(this, x, y, z);
-        }
-        
-        SHZ_FORCE_INLINE void apply_scale(const vec3& v) noexcept {
-            apply_scale(v.x, v.y, v.z);
+        SHZ_FORCE_INLINE void scale_3x3(float x, float y, float z) noexcept {
+            shz_mat4x4_3x3_scale(this, x, y, z);
         }
 
-        SHZ_FORCE_INLINE void apply_translation(float x, float y, float z) noexcept {
-            shz_mat4x4_apply_translation(this, x, y, z);
+        SHZ_FORCE_INLINE void scale_3x3(const vec3& v) noexcept {
+            scale_3x3(v.x, v.y, v.z);
         }
 
-        SHZ_FORCE_INLINE void apply_translation(const vec3& v) noexcept {
-            apply_translation(v.x, v.y, v.z);
+        SHZ_FORCE_INLINE void add_translation(float x, float y, float z) noexcept {
+            shz_mat4x4_add_translation(this, x, y, z);
         }
 
-        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_x(). Renamed to rotate_x().
-        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_x().")
-        SHZ_FORCE_INLINE void apply_rotation_x(float angle) noexcept {
-            rotate_x(angle);
+        SHZ_FORCE_INLINE void add_translation(const vec3& v) noexcept {
+            add_translation(v.x, v.y, v.z);
         }
 
-        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_y(). Renamed to rotate_y().
-        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_y().")
-        SHZ_FORCE_INLINE void apply_rotation_y(float angle) noexcept {
-            rotate_y(angle);
+        SHZ_FORCE_INLINE void lookat(vec3 pos, vec3 target, vec3 up) noexcept {
+            shz_mat4x4_lookat(this, pos, target, up);
         }
 
-        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_z(). Renamed to rotate_z().
-        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_z().")
-        SHZ_FORCE_INLINE void apply_rotation_z(float angle) noexcept {
-            rotate_z(angle);
+        SHZ_FORCE_INLINE void ortho(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+            shz_mat4x4_ortho(this, left, right, bottom, top, znear, zfar);
         }
 
-        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_xyz(). Renamed to rotate_xyz().
-        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_xyz().")
-        SHZ_FORCE_INLINE void apply_rotation_xyz(float xAngle, float yAngle, float zAngle) noexcept {
-            rotate_xyz(xAngle, yAngle, zAngle);
+        SHZ_FORCE_INLINE void frustum(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+            shz_mat4x4_frustum(this, left, right, bottom, top, znear, zfar);
         }
 
-        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_zyx(). Renamed to rotate_zyx().
-        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_zyx().")
-        SHZ_FORCE_INLINE void apply_rotation_zyx(float zAngle, float yAngle, float xAngle) noexcept {
-            rotate_zyx(zAngle, yAngle, xAngle);
+        SHZ_FORCE_INLINE void perspective(float fov, float aspect, float znear) noexcept {
+            shz_mat4x4_perspective(this, fov, aspect, znear);
         }
 
-        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_zxy(). Renamed to rotate_zxy().
-        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_zxy().")
-        SHZ_FORCE_INLINE void apply_rotation_zxy(float zAngle, float xAngle, float yAngle) noexcept {
-            rotate_zxy(zAngle, xAngle, yAngle);
+        SHZ_FORCE_INLINE void screen(float width, float height) noexcept {
+            shz_mat4x4_screen(this, width, height);
         }
 
-        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_yxz(). Renamed to rotate_yxz().
-        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_yxz().")
-        SHZ_FORCE_INLINE void apply_rotation_yxz(float yAngle, float xAngle, float zAngle) noexcept {
-            rotate_yxz(yAngle, xAngle, zAngle);
+        SHZ_FORCE_INLINE void skew_symmetric(float x, float y, float z) noexcept {
+            shz_mat4x4_skew_symmetric(this, x, y, z);
         }
 
-        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation(). Renamed to rotate().
-        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate().")
-        SHZ_FORCE_INLINE void apply_rotation(float angle, float x, float y, float z) noexcept {
-            rotate(angle, x, y, z);
+        SHZ_FORCE_INLINE void permute_wxyz() noexcept {
+            shz_mat4x4_permute_wxyz(this);
         }
 
-        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation(). Renamed to rotate().
-        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate().")
-        SHZ_FORCE_INLINE void apply_rotation(float angle, vec3 axis) noexcept {
-            rotate(angle, axis.x, axis.y, axis.z);
+        SHZ_FORCE_INLINE void permute_yzwx() noexcept {
+            shz_mat4x4_permute_yzwx(this);
         }
 
-        SHZ_FORCE_INLINE void apply_rotation(const quat& q) noexcept {
-            shz_mat4x4_apply_rotation_quat(this, q);
-        }
-
-        SHZ_FORCE_INLINE void apply_lookat(vec3 pos, vec3 target, vec3 up) noexcept {
-            shz_mat4x4_apply_lookat(this, pos, target, up);
-        }
-
-        SHZ_FORCE_INLINE void apply_ortho(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
-            shz_mat4x4_apply_ortho(this, left, right, bottom, top, znear, zfar);
-        }
-
-        SHZ_FORCE_INLINE void apply_frustum(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
-            shz_mat4x4_apply_frustum(this, left, right, bottom, top, znear, zfar);
-        }
-
-        SHZ_FORCE_INLINE void apply_perspective(float fov, float aspect, float znear) noexcept {
-            shz_mat4x4_apply_perspective(this, fov, aspect, znear);
-        }
-
-        SHZ_FORCE_INLINE void apply_screen(float width, float height) noexcept {
-            shz_mat4x4_apply_screen(this, width, height);
-        }
-
-        SHZ_FORCE_INLINE void apply_symmetric_skew(float x, float y, float z) noexcept {
-            shz_mat4x4_apply_symmetric_skew(this, x, y, z);
-        }
-
-        SHZ_FORCE_INLINE void apply_permutation_wxyz() noexcept {
-            shz_mat4x4_apply_permutation_wxyz(this);
-        }
-
-        SHZ_FORCE_INLINE void apply_permutation_yzwx() noexcept {
-            shz_mat4x4_apply_permutation_yzwx(this);
+        SHZ_FORCE_INLINE void permute_wzyx() noexcept {
+            shz_mat4x4_permute_wzyx(this);
         }
 
         SHZ_FORCE_INLINE void apply_self() noexcept {
@@ -501,6 +442,10 @@ namespace shz {
 
         SHZ_FORCE_INLINE void rotate(float radians, vec3 axis) noexcept {
             rotate(radians, axis.x, axis.y, axis.z);
+        }
+
+        SHZ_FORCE_INLINE void rotate(const quat& q) noexcept {
+            shz_mat4x4_rotate_quat(this, q);
         }
 
         SHZ_FORCE_INLINE void rotate_dir(float radians, float x, float y, float z) noexcept {
@@ -681,6 +626,150 @@ namespace shz {
         */
         SHZ_FORCE_INLINE void blend(const shz_mat4x4_t& matrix, float weight) noexcept {
             shz_mat4x4_blend(this, &matrix, weight);
+        }
+
+        //! @}
+
+        /*! \name  Deprecated
+            \brief Deprecated routines, kept only for backwards compatibility.
+            @{
+        */
+
+        SHZ_DEPRECATED("Operation is always safe now. Use default version.")
+        SHZ_FORCE_INLINE void init_identity_safe() noexcept {
+            shz_mat4x4_init_identity(this);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_scale(). Renamed to scale_3x3().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::scale_3x3().")
+        SHZ_FORCE_INLINE void apply_scale(float x, float y, float z) noexcept {
+            scale_3x3(x, y, z);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_scale(). Renamed to scale_3x3().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::scale_3x3().")
+        SHZ_FORCE_INLINE void apply_scale(const vec3& v) noexcept {
+            scale_3x3(v.x, v.y, v.z);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_translation(). Renamed to add_translation().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::add_translation().")
+        SHZ_FORCE_INLINE void apply_translation(float x, float y, float z) noexcept {
+            add_translation(x, y, z);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_translation(). Renamed to add_translation().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::add_translation().")
+        SHZ_FORCE_INLINE void apply_translation(const vec3& v) noexcept {
+            add_translation(v.x, v.y, v.z);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_x(). Renamed to rotate_x().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_x().")
+        SHZ_FORCE_INLINE void apply_rotation_x(float angle) noexcept {
+            rotate_x(angle);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_y(). Renamed to rotate_y().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_y().")
+        SHZ_FORCE_INLINE void apply_rotation_y(float angle) noexcept {
+            rotate_y(angle);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_z(). Renamed to rotate_z().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_z().")
+        SHZ_FORCE_INLINE void apply_rotation_z(float angle) noexcept {
+            rotate_z(angle);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_xyz(). Renamed to rotate_xyz().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_xyz().")
+        SHZ_FORCE_INLINE void apply_rotation_xyz(float xAngle, float yAngle, float zAngle) noexcept {
+            rotate_xyz(xAngle, yAngle, zAngle);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_zyx(). Renamed to rotate_zyx().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_zyx().")
+        SHZ_FORCE_INLINE void apply_rotation_zyx(float zAngle, float yAngle, float xAngle) noexcept {
+            rotate_zyx(zAngle, yAngle, xAngle);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_zxy(). Renamed to rotate_zxy().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_zxy().")
+        SHZ_FORCE_INLINE void apply_rotation_zxy(float zAngle, float xAngle, float yAngle) noexcept {
+            rotate_zxy(zAngle, xAngle, yAngle);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_yxz(). Renamed to rotate_yxz().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate_yxz().")
+        SHZ_FORCE_INLINE void apply_rotation_yxz(float yAngle, float xAngle, float zAngle) noexcept {
+            rotate_yxz(yAngle, xAngle, zAngle);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation(). Renamed to rotate().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate().")
+        SHZ_FORCE_INLINE void apply_rotation(float angle, float x, float y, float z) noexcept {
+            rotate(angle, x, y, z);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation(). Renamed to rotate().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate().")
+        SHZ_FORCE_INLINE void apply_rotation(float angle, vec3 axis) noexcept {
+            rotate(angle, axis.x, axis.y, axis.z);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_rotation_quat(). Renamed to rotate().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::rotate().")
+        SHZ_FORCE_INLINE void apply_rotation(const quat& q) noexcept {
+            rotate(q);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_lookat(). Renamed to lookat().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::lookat().")
+        SHZ_FORCE_INLINE void apply_lookat(vec3 pos, vec3 target, vec3 up) noexcept {
+            lookat(pos, target, up);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_ortho(). Renamed to ortho().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::ortho().")
+        SHZ_FORCE_INLINE void apply_ortho(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+            ortho(left, right, bottom, top, znear, zfar);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_frustum(). Renamed to frustum().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::frustum().")
+        SHZ_FORCE_INLINE void apply_frustum(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+            frustum(left, right, bottom, top, znear, zfar);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_perspective(). Renamed to perspective().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::perspective().")
+        SHZ_FORCE_INLINE void apply_perspective(float fov, float aspect, float znear) noexcept {
+            perspective(fov, aspect, znear);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_screen(). Renamed to screen().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::screen().")
+        SHZ_FORCE_INLINE void apply_screen(float width, float height) noexcept {
+            screen(width, height);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_symmetric_skew(). Renamed to skew_symmetric().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::skew_symmetric().")
+        SHZ_FORCE_INLINE void apply_symmetric_skew(float x, float y, float z) noexcept {
+            skew_symmetric(x, y, z);
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_permutation_wxyz(). Renamed to permute_wxyz().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::permute_wxyz().")
+        SHZ_FORCE_INLINE void apply_permutation_wxyz() noexcept {
+            permute_wxyz();
+        }
+
+        //! Deprecated C++ wrapper around shz_mat4x4_apply_permutation_yzwx(). Renamed to permute_yzwx().
+        SHZ_DEPRECATED("Renamed to shz::mat4x4::permute_yzwx().")
+        SHZ_FORCE_INLINE void apply_permutation_yzwx() noexcept {
+            permute_yzwx();
         }
 
         //! @}

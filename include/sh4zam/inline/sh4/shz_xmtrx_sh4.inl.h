@@ -1691,7 +1691,7 @@ SHZ_INLINE void shz_xmtrx_init_outer_product_sh4(shz_vec4_t a, shz_vec4_t b) SHZ
     : "fr0", "fr1", "fr2", "fr3", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_symmetric_skew_sh4(float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_skew_symmetric_sh4(float x, float y, float z) SHZ_NOEXCEPT {
     asm volatile(R"(
         fldi0   fr0
         fmov.s  @%[z], fr1
@@ -2355,7 +2355,7 @@ SHZ_INLINE shz_vec3_t shz_xmtrx_get_scale_sh4(void) SHZ_NOEXCEPT {
     return shz_vec3_init(fr10, fr6, fr3);
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_apply_translation_sh4(float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_add_translation_sh4(float x, float y, float z) SHZ_NOEXCEPT {
     register float fr4 asm("fr4") = x;
     register float fr5 asm("fr5") = y;
     register float fr6 asm("fr6") = z;
@@ -2376,7 +2376,7 @@ SHZ_FORCE_INLINE void shz_xmtrx_apply_translation_sh4(float x, float y, float z)
     : "fr8", "fr9", "fr10", "fr11");
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_apply_scale_sh4(float x, float y, float z) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void shz_xmtrx_scale_3x3_sh4(float x, float y, float z) SHZ_NOEXCEPT {
     register float fr4 asm("fr4") = x;
     register float fr5 asm("fr5") = y;
     register float fr6 asm("fr6") = z;
@@ -2478,7 +2478,7 @@ SHZ_INLINE void shz_xmtrx_rotate_sh4(float angle, float x, float y, float z) SHZ
     shz_xmtrx_rotate_dir_sh4(angle, dir.x, dir.y, dir.z);
 }
 
-SHZ_INLINE void shz_xmtrx_apply_rotation_quat_sh4(shz_quat_t q) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_rotate_quat_sh4(shz_quat_t q) SHZ_NOEXCEPT {
     register float x asm("fr12") = q.x;
     register float y asm("fr13") = q.y;
     register float z asm("fr14") = q.z;
@@ -2566,9 +2566,6 @@ SHZ_INLINE void shz_xmtrx_apply_rotation_quat_sh4(shz_quat_t q) SHZ_NOEXCEPT {
       "fr8", "fr9", "fr10", "fr11");
 }
 
-shz_quat_t shz_xmtrx_to_quat_sh4(void) SHZ_NOEXCEPT;
-float shz_xmtrx_determinant_sh4(void) SHZ_NOEXCEPT;
-
 SHZ_INLINE void shz_xmtrx_transpose_sh4(void) SHZ_NOEXCEPT {
     asm volatile (R"(
         frchg
@@ -2604,7 +2601,7 @@ SHZ_INLINE void shz_xmtrx_transpose_sh4(void) SHZ_NOEXCEPT {
     : "fpul");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_lookat_sh4(shz_vec3_t eye,
+SHZ_INLINE void shz_xmtrx_lookat_sh4(shz_vec3_t eye,
                                            shz_vec3_t center,
                                            shz_vec3_t up) SHZ_NOEXCEPT {
     asm volatile(R"(
@@ -2728,7 +2725,7 @@ SHZ_INLINE void shz_xmtrx_apply_lookat_sh4(shz_vec3_t eye,
 }
 
 
-SHZ_INLINE void shz_xmtrx_apply_ortho_sh4(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_ortho_sh4(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
     shz_vec3_t box   = shz_vec3_inv(shz_vec3_init(right - left, top - bottom, zfar - znear));
     shz_vec3_t scale = shz_vec3_mul(shz_vec3_init(2.0f, 2.0f, -2.0f), box);
     shz_vec3_t trans = shz_vec3_mul(shz_vec3_init(-(right + left), -(top + bottom), -(zfar + znear)), box);
@@ -2769,7 +2766,7 @@ SHZ_INLINE void shz_xmtrx_apply_ortho_sh4(float left, float right, float bottom,
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_frustum_sh4(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_frustum_sh4(float left, float right, float bottom, float top, float znear, float zfar) SHZ_NOEXCEPT {
     const float values[6] = {
         2.0f * znear / (right - left),
         2.0f * znear / (top - bottom),
@@ -2815,7 +2812,7 @@ SHZ_INLINE void shz_xmtrx_apply_frustum_sh4(float left, float right, float botto
 }
 
 // ****************************************************************
-// void shz_xmtrx_apply_perspective(float f, float a, float nz)
+// void shz_xmtrx_perspective(float f, float a, float nz)
 // ****************************************************************
 //  fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
 // -----------+-----------+-----------+-----------
@@ -2824,7 +2821,7 @@ SHZ_INLINE void shz_xmtrx_apply_frustum_sh4(float left, float right, float botto
 // 	0.0f      | 0.0f      | 0.0f      | nz
 // 	0.0f      | 0.0f      | -1.0f     | 0.0f
 // ****************************************************************
-SHZ_INLINE void shz_xmtrx_apply_perspective_sh4(float fov, float aspect, float znear) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_perspective_sh4(float fov, float aspect, float znear) SHZ_NOEXCEPT {
     register float f asm("fr4") = fov * 0.5f * SHZ_FSCA_RAD_FACTOR;
     register float a asm("fr5") = aspect;
     register float n asm("fr6") = znear;
@@ -2927,7 +2924,7 @@ SHZ_INLINE void shz_xmtrx_init_screen_sh4(float width, float height) SHZ_NOEXCEP
 }
 
 // ****************************************************************
-// shz_xmtrx_apply_screen(float w, float h)
+// shz_xmtrx_screen(float w, float h)
 // ****************************************************************
 //  fr[n + 0] | fr[n + 4] | fr[n + 8] | fr[n + 12]
 // -----------+-----------+-----------+-----------
@@ -2936,7 +2933,7 @@ SHZ_INLINE void shz_xmtrx_init_screen_sh4(float width, float height) SHZ_NOEXCEP
 // 	0.0f      | 0.0f      | 1.0f      | 0.0f
 //  0.0f      | 0.0f      | 0.0f      | 1.0f
 // ****************************************************************
-SHZ_INLINE void shz_xmtrx_apply_screen_sh4(float width, float height) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_screen_sh4(float width, float height) SHZ_NOEXCEPT {
     register float w asm("fr4") = width * 0.5f;
     register float h asm("fr5") = height * 0.5f;
 
@@ -2996,7 +2993,7 @@ SHZ_INLINE void shz_xmtrx_init_permutation_wxyz_sh4(void) SHZ_NOEXCEPT {
     )");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_permutation_wxyz_sh4(void) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_permute_wxyz_sh4(void) SHZ_NOEXCEPT {
     uintptr_t zero;
 
     asm volatile(R"(
@@ -3057,7 +3054,7 @@ SHZ_INLINE void shz_xmtrx_init_permutation_yzwx_sh4(void) SHZ_NOEXCEPT {
     )");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_permutation_yzwx_sh4(void) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_permute_yzwx_sh4(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         fldi0   fr0
         fldi0   fr1
@@ -3114,7 +3111,7 @@ SHZ_INLINE void shz_xmtrx_init_permutation_wzyx_sh4(void) SHZ_NOEXCEPT {
     )");
 }
 
-SHZ_INLINE void shz_xmtrx_apply_permutation_wzyx_sh4(void) SHZ_NOEXCEPT {
+SHZ_INLINE void shz_xmtrx_permute_wzyx_sh4(void) SHZ_NOEXCEPT {
     asm volatile(R"(
         fldi0 fr0
         fldi0 fr1

@@ -47,7 +47,7 @@ void updateModel(shz_mat4x4_t* model, const Transform* transform) {
        Initialize directly to a compound rotation matrix. */
     shz_xmtrx_init_rotation_xyz(transform->xRot, transform->yRot, transform->zRot);
     // Only "apply" scale to the inner 3x3 submatrix with scaling components.
-    shz_xmtrx_apply_scale(transform->scale, transform->scale, transform->scale);
+    shz_xmtrx_scale_3x3(transform->scale, transform->scale, transform->scale);
     // Directly set the translational component values of XMTRX.
     shz_xmtrx_set_translation(transform->pos.x, transform->pos.y, transform->pos.z);
     // Only write to our in-memory matrix after we're done operating within XMTRX.
@@ -73,7 +73,7 @@ These three snippets are upstream's own, from `doc/guide.dox`. The `Transform` s
 
 void updateModel(shz::mat4x4* model, const Transform& transform) {
     shz::xmtrx::init_rotation_xyz(transform.xRot, transform.yRot, transform.zRot);
-    shz::xmtrx::apply_scale(transform.scale, transform.scale, transform.scale);
+    shz::xmtrx::scale_3x3(transform.scale, transform.scale, transform.scale);
     shz::xmtrx::set_translation(transform.pos.x, transform.pos.y, transform.pos.z);
     shz::xmtrx::store(model);
 }
@@ -87,7 +87,7 @@ Every transform comes in up to four versions. Using translation as the example:
 | --- | --- |
 | `shz_xmtrx_init_translation()` | **Initializes** the whole matrix to the transform; everything else becomes identity. |
 | `shz_xmtrx_set_translation()` | **Sets** only the translation components, leaving the others alone. |
-| `shz_xmtrx_apply_translation()` | **Applies** the transform to the affected components based on their current values (adds for translation, multiplies the submatrix for scale/rotation). |
+| `shz_xmtrx_add_translation()` | **Adds** to the translation components based on their current values. The matching scale and rotation calls multiply the submatrix instead. |
 | `shz_xmtrx_translate()` | **GL-style**: multiplies the whole matrix by a matrix initialized to the transform. |
 
 The in-memory `shz_mat4x4_*` API uses the same verbs. When order of operations matters (you need a true matrix product), use the GL-style call or `shz_xmtrx_apply_4x4()` with a matrix you prepared earlier.

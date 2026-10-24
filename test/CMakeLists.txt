@@ -57,6 +57,8 @@ if(PLATFORM_DREAMCAST)
     kos_run_target(Sh4zamTests run-sh4zam-tests)
 endif()
 
+add_subdirectory(util)
+
 option(SHZ_DISABLE_BENCHMARKS "Disable SH4ZAM test benchmarks" OFF)
 
 if(SHZ_DISABLE_BENCHMARKS)

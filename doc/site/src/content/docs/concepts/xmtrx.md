@@ -42,7 +42,7 @@ void draw_mesh(const shz_mat4x4_t* view_proj, shz_vec3_t pos, float yaw,
                const shz_vec3_t* verts, shz_vec4_t* out, unsigned count) {
     shz_xmtrx_load_4x4(view_proj);              // memory -> XMTRX
     shz_xmtrx_translate(pos.x, pos.y, pos.z);   // GL-style multiply, in registers
-    shz_xmtrx_apply_rotation_y(yaw);            // only touches the rotation submatrix
+    shz_xmtrx_rotate_y(yaw);                    // GL-style multiply, in registers
 
     for (unsigned i = 0; i < count; ++i)        // one FTRV per vertex
         out[i] = shz_xmtrx_transform_vec4(shz_vec3_vec4(verts[i], 1.0f));
@@ -58,7 +58,7 @@ void draw_mesh(const shz::mat4x4& view_proj, shz::vec3 pos, float yaw,
                const shz::vec3* verts, shz::vec4* out, unsigned count) {
     shz::xmtrx::load(view_proj);
     shz::xmtrx::translate(pos.x, pos.y, pos.z);
-    shz::xmtrx::apply_rotation_y(yaw);
+    shz::xmtrx::rotate_y(yaw);
 
     for (unsigned i = 0; i < count; ++i)
         out[i] = shz::xmtrx::transform(shz::vec4(verts[i], 1.0f));
@@ -90,8 +90,8 @@ Transform-and-lighting needs W first, to divide the other components by it, but 
 
 void setup_projection(shz_mat4x4_t* out, float fov, float aspect, float near_z) {
     shz_xmtrx_init_permutation_wxyz();
-    shz_xmtrx_apply_screen(640.0f, 480.0f);
-    shz_xmtrx_apply_perspective(fov, aspect, near_z);
+    shz_xmtrx_screen(640.0f, 480.0f);
+    shz_xmtrx_perspective(fov, aspect, near_z);
     shz_xmtrx_store_4x4(out);
 }
 

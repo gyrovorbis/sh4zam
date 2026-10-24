@@ -937,11 +937,11 @@ static void load_obj(const char *filename, pvr_list_t list)
 static void setup_matrix(void)
 {
     shz_xmtrx_init_identity();
-    shz_xmtrx_apply_screen(640, 480);
-    shz_xmtrx_apply_perspective(SHZ_DEG_TO_RAD(70.0f), 1.33333f, 0.0f);
+    shz_xmtrx_screen(640, 480);
+    shz_xmtrx_perspective(SHZ_DEG_TO_RAD(70.0f), 1.33333f, 0.0f);
 
-    shz_xmtrx_apply_rotation_y(cam_yaw);
-    shz_xmtrx_apply_rotation_x(cam_pitch);
+    shz_xmtrx_rotate_y(cam_yaw);
+    shz_xmtrx_rotate_x(cam_pitch);
     shz_xmtrx_translate(-cam_x, cam_y, -cam_z);
 }
 

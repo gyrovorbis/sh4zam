@@ -47,9 +47,9 @@ static void setup_projection_view(shz_mat4x4_t* mat) {
 
     shz_dcache_alloc_line(mat);
     shz_xmtrx_init_permutation_wxyz();
-    shz_xmtrx_apply_screen(screen_width, screen_height);
+    shz_xmtrx_screen(screen_width, screen_height);
     shz_dcache_alloc_line(((void*)mat) + 32);
-    shz_xmtrx_apply_perspective(fov, aspect, near_z);
+    shz_xmtrx_perspective(fov, aspect, near_z);
     shz_xmtrx_store_4x4(mat);
 }
 ```
@@ -62,8 +62,8 @@ XMTRX starts as a permutation matrix, so every vector transformed by it comes ou
 static void apply_model_matrix(shz_vec3_t pos, shz_vec2_t rot, const shz_mat4x4_t* proj_view) {
     shz_xmtrx_load_4x4(proj_view);
     shz_xmtrx_translate(pos.x, pos.y, -pos.z);
-    shz_xmtrx_apply_rotation_x(rot.x);
-    shz_xmtrx_apply_rotation_y(rot.y);
+    shz_xmtrx_rotate_x(rot.x);
+    shz_xmtrx_rotate_y(rot.y);
 }
 ```
 

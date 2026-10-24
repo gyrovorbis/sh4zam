@@ -22,8 +22,8 @@
 `SH4ZAM` is a hand-optimized, general-purpose math and linear algebra library for harnessing the floating-point power of the SH4 processor in the Sega Dreamcast. It originally began as a collection of inline assembly routines developed specifically to accelerate the math in the Grand Theft Auto 3 and Vice City DC ports. These routines, along with many others from various contributors, have been separated and combined into a single standalone library, which can be leveraged to bring gainz to the Dreamcast and SuperH communities at large.
 
 # Features
-- Dual, modern, interoperable C17 and C++20 APIs
-- Extra API features supported for C23 and C++23
+- Dual, modern, interoperable C11 and C++17 APIs
+- Extra API features supported for C23, C++20 and C++23
 - Ergonomic, overhead-free composition from either C or C++
 - Clean header files, separating interface from implementation
 - Constexpr evaluation handled for both C and C++
@@ -57,8 +57,8 @@ int main(int argc, const char *argv[]) {
     shz_mat4x4_t mat = {};
 
     shz_xmtrx_init_diagonal(vec2.x, vec2.y, vec2.z, vec2.w);
-    shz_xmtrx_apply_rotation_x(shz_vec4_dot(vec1, vec2));
-    shz_xmtrx_apply_translation(vec1.x, vec1.y, vec1.z);
+    shz_xmtrx_rotate_x(shz_vec4_dot(vec1, vec2));
+    shz_xmtrx_add_translation(vec1.x, vec1.y, vec1.z);
     shz_xmtrx_store_4x4(&mat);
 
     shz_vec4_t vec3 = shz_xmtrx_transform_vec4(vec2);
@@ -81,8 +81,8 @@ int main(int argc, const char* argv[]) {
     shz::mat4x4 mat {};
 
     shz::xmtrx::init_diagonal(vec2.x, vec2.y, vec2.z, vec2.w);
-    shz::xmtrx::apply_rotation_x(vec1.dot(vec2));
-    shz::xmtrx::apply_translation(vec1.x, vec1.y, vec1.z);
+    shz::xmtrx::rotate_x(vec1.dot(vec2));
+    shz::xmtrx::add_translation(vec1.x, vec1.y, vec1.z);
     shz::xmtrx::store(&mat);
 
     shz::vec4 vec3 = shz::xmtrx::transform(vec2);
@@ -207,3 +207,4 @@ Special thanks to the following individuals who have either directly or indirect
 - TechProGabe
 - LobotomyDC
 - Haikuno
+- Brendan "Cypress" Lawson

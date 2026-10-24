@@ -34,20 +34,19 @@ set(SHZ_BACKEND ${SHZ_BACKEND_DEFAULT} CACHE STRING "Select SH4ZAM back-end impl
 set_property(CACHE SHZ_BACKEND PROPERTY STRINGS ${SHZ_BACKEND_OPTIONS})
 
 set(SHZ_SOURCES
-    source/shz_matrix.c
-    source/shz_quat.c
-    source/shz_version.c
-    source/shz_xmtrx.c)
+    source/shz_version.c)
 
 if(PLATFORM_DREAMCAST)
     list(APPEND SHZ_SOURCES
          source/sh4/shz_complex_sh4.c
+         source/sh4/shz_matrix_sh4.c
          source/sh4/shz_xmtrx_sh4.s
          source/sh4/shz_mem_sh4.s)
 endif()
 
 list(APPEND SHZ_SOURCES
      source/sw/shz_complex_sw.c
+     source/sw/shz_matrix_sw.c
      source/sw/shz_xmtrx_sw.c)
 
 set(SHZ_INCLUDES

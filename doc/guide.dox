@@ -174,7 +174,7 @@ void updateModel(shz_mat4x4_t* model, const Transform* transform) {
        Initialize directly to a compound rotation matrix. */
     shz_xmtrx_init_rotation_xyz(transform->xRot, transform->yRot, transform->zRot);
     // Only "apply" scale to the inner 3x3 submatrix with scaling components.
-    shz_xmtrx_apply_scale(transform->scale, transform->scale, transform->scale);
+    shz_xmtrx_scale_3x3(transform->scale, transform->scale, transform->scale);
     // Directly set the translational component values of XMTRX.
     shz_xmtrx_set_translation(transform->pos.x, transform->pos.y, transform->pos.z);
     // Only write to our in-memory matrix after we're done operating within XMTRX.

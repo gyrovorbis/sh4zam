@@ -15,6 +15,11 @@
 
 #include "shz_cdefs.h"
 
+#if (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L) || (defined(__cplusplus) && __cplusplus >= 202002L)
+    //! Defined if building with C++20 to enable optional features.
+#   define SHZ_CPP20    1
+#endif
+
 #if (defined(_MSVC_LANG) && _MSVC_LANG > 202002L) || (defined(__cplusplus) && __cplusplus > 202002L)
     //! Defined if building with C++23 to enable optional features.
 #   define SHZ_CPP23    1

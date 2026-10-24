@@ -23,11 +23,15 @@
 #ifndef SHZ_COMPLEX_HPP
 #define SHZ_COMPLEX_HPP
 
-#include <compare>
 #include <type_traits>
 #include <utility>
 
 #include "shz_complex.h"
+#include "shz_cdefs.hpp"
+
+#ifdef SHZ_CPP20
+#   include <compare>
+#endif
 
 namespace shz {
 

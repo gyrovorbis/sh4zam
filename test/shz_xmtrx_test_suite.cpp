@@ -279,7 +279,7 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(store_4x4)
     randomize_xmtrx_();
-    shz::mat4x4 mat;
+    alignas(32) shz::mat4x4 mat;
     shz::xmtrx::store(&mat);
     std::array<float, 16> array = std::to_array(mat.elem);
     //GBL_TEST_SKIP("No fucking clue why this shits the bed.");
@@ -1015,13 +1015,13 @@ GBL_TEST_CASE(apply_reverse_transpose_unaligned_4x4)
 #endif
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(apply_translation)
+GBL_TEST_CASE(add_translation)
     // Apply against identity.
     // Expectation: Only touches translation parts of the matrix
     {
         randomize_xmtrx_();
         shz::xmtrx::init_identity();
-        shz::xmtrx::apply_translation(10.0f, -20.0f, 30.0f);
+        shz::xmtrx::add_translation(10.0f, -20.0f, 30.0f);
 
         GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                     { 1.0f, 0.0f, 0.0f, 10.0f,
@@ -1036,7 +1036,7 @@ GBL_TEST_CASE(apply_translation)
     {
         randomize_xmtrx_();
         shz::xmtrx::init_fill(32.0f);
-        shz::xmtrx::apply_translation(20.0f, -100.0f, -60.0f);
+        shz::xmtrx::add_translation(20.0f, -100.0f, -60.0f);
 
         GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                     {
@@ -1052,8 +1052,8 @@ GBL_TEST_CASE(apply_translation)
         randomize_xmtrx_();
         shz::xmtrx::init_identity();
 
-        shz::xmtrx::apply_translation(2.0f, 3.0f, -4.0f);
-        shz::xmtrx::apply_translation(5.0f, 6.0f,  7.0f);
+        shz::xmtrx::add_translation(2.0f, 3.0f, -4.0f);
+        shz::xmtrx::add_translation(5.0f, 6.0f,  7.0f);
 
         shz::mat4x4 res;
         shz::xmtrx::store(&res);
@@ -1088,8 +1088,8 @@ GBL_TEST_CASE(apply_translation)
 
         GBL_TEST_VERIFY(
             (benchmark_cmp<void>)(
-                "shz::xmtrx::apply_translation", [](float x, float y, float z) {
-                    shz::xmtrx::apply_translation(x, y, z);
+                "shz::xmtrx::add_translation", [](float x, float y, float z) {
+                    shz::xmtrx::add_translation(x, y, z);
                 },
                 "glm_translate", [&](float x, float y, float z) {
                     vec3 t = { x, y, z };
@@ -1134,7 +1134,7 @@ GBL_TEST_CASE(set_translation)
     }
 
     // Test overwrite (NOT composition) semantics.
-    // Expectation: The second call fully replaces the first, unlike apply_translation().
+    // Expectation: The second call fully replaces the first, unlike add_translation().
     {
         randomize_xmtrx_();
         shz::xmtrx::init_identity();
@@ -1258,7 +1258,7 @@ GBL_TEST_CASE(set_scale)
     }
 
     // Test overwrite (NOT composition) semantics.
-    // Expectation: The second call fully replaces the first, unlike apply_scale().
+    // Expectation: The second call fully replaces the first, unlike scale_3x3().
     {
         randomize_xmtrx_();
         shz::xmtrx::init_identity();
@@ -1310,7 +1310,7 @@ GBL_TEST_CASE(get_scale)
         shz::xmtrx::init_identity();
         shz::xmtrx::rotate_x(shz::deg_to_rad(30.0f));
         shz::xmtrx::rotate_y(shz::deg_to_rad(60.0f));
-        shz::xmtrx::apply_scale(3.0f, 4.0f, 5.0f);
+        shz::xmtrx::scale_3x3(3.0f, 4.0f, 5.0f);
 
         shz::mat4x4 mat;
         shz::xmtrx::store(&mat);
@@ -1349,7 +1349,7 @@ GBL_TEST_CASE(get_scale)
         shz::xmtrx::init_identity();
         shz::xmtrx::rotate_x(shz::deg_to_rad(30.0f));
         shz::xmtrx::rotate_y(shz::deg_to_rad(60.0f));
-        shz::xmtrx::apply_scale(3.0f, 4.0f, 5.0f);
+        shz::xmtrx::scale_3x3(3.0f, 4.0f, 5.0f);
 
         shz::mat4x4 mat;
         shz::xmtrx::store(&mat);
@@ -1372,13 +1372,13 @@ GBL_TEST_CASE(get_scale)
     }
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(apply_scale)
+GBL_TEST_CASE(scale_3x3)
     // Apply against identity.
     // Expectation: Diagonal scale cells filled in the 3x3 part.
     {
         randomize_xmtrx_();
         shz::xmtrx::init_identity();
-        shz::xmtrx::apply_scale(10.0f, -20.0f, 30.0f);
+        shz::xmtrx::scale_3x3(10.0f, -20.0f, 30.0f);
         GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                     { 10.0f, 0.0f, 0.0f, 0.0f,
                         0.0f, -20.0f, 0.0f, 0.0f,
@@ -1390,7 +1390,7 @@ GBL_TEST_CASE(apply_scale)
     {
         randomize_xmtrx_();
         shz::xmtrx::init_fill(32.0f);
-        shz::xmtrx::apply_scale(20.0f, -100.0f, -60.0f);
+        shz::xmtrx::scale_3x3(20.0f, -100.0f, -60.0f);
 
         GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                     {
@@ -1406,7 +1406,7 @@ GBL_TEST_CASE(apply_scale)
         randomize_xmtrx_();
         shz::xmtrx::init_identity();
 
-        shz::xmtrx::apply_scale(0.0f, 0.0f, 0.0f);
+        shz::xmtrx::scale_3x3(0.0f, 0.0f, 0.0f);
 
         GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                     {
@@ -1421,7 +1421,7 @@ GBL_TEST_CASE(apply_scale)
     {
         randomize_xmtrx_();
         shz::xmtrx::init_fill(5.0f);
-        shz::xmtrx::apply_scale(1.0f, 1.0f, 1.0f);
+        shz::xmtrx::scale_3x3(1.0f, 1.0f, 1.0f);
 
         GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                     {
@@ -1437,8 +1437,8 @@ GBL_TEST_CASE(apply_scale)
         randomize_xmtrx_();
         shz::xmtrx::init_identity();
 
-        shz::xmtrx::apply_scale(2.0f, 3.0f, 4.0f);
-        shz::xmtrx::apply_scale(5.0f, 6.0f, 7.0f);
+        shz::xmtrx::scale_3x3(2.0f, 3.0f, 4.0f);
+        shz::xmtrx::scale_3x3(5.0f, 6.0f, 7.0f);
 
         shz::mat4x4 res;
         shz::xmtrx::store(&res);
@@ -1473,8 +1473,8 @@ GBL_TEST_CASE(apply_scale)
 
         GBL_TEST_VERIFY(
             (benchmark_cmp<void>)(
-                "shz::xmtrx::apply_scale", [](float x, float y, float z) {
-                    shz::xmtrx::apply_scale(x, y, z);
+                "shz::xmtrx::scale_3x3", [](float x, float y, float z) {
+                    shz::xmtrx::scale_3x3(x, y, z);
                 },
                 "glm_scale", [&](float x, float y, float z) {
                     volatile vec3 s = { x, y, z };
@@ -1617,9 +1617,9 @@ GBL_TEST_CASE(rotate_dir)
     }
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(apply_rotation_quat)
+GBL_TEST_CASE(rotate_quat)
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_rotation_quat({ 0.5f, 0.5f, 0.5f, 0.5f });
+    shz::xmtrx::rotate_quat({ 0.5f, 0.5f, 0.5f, 0.5f });
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                                 {
                                     0.0f, 0.0f, 1.0f, 0.0f,
@@ -1628,7 +1628,7 @@ GBL_TEST_CASE(apply_rotation_quat)
                                     0.0f, 0.0f, 0.0f, 1.0f }));
 
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_rotation_quat({ 0.7071068f, 0.0f, 0.0f, 0.7071068f });
+    shz::xmtrx::rotate_quat({ 0.7071068f, 0.0f, 0.0f, 0.7071068f });
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                                 {
                                     0.0f, -1.0f, 0.0f, 0.0f,
@@ -1636,16 +1636,16 @@ GBL_TEST_CASE(apply_rotation_quat)
                                     0.0f, 0.0f, 1.0f, 0.0f,
                                     0.0f, 0.0f, 0.0f, 1.0f }));
 
-    (benchmark)(nullptr, "shz::xmtrx::apply_rotation(quat))",
+    (benchmark)(nullptr, "shz::xmtrx::rotate_quat",
                 [](shz::quat q) {
-                    shz::xmtrx::apply_rotation_quat(q);
+                    shz::xmtrx::rotate_quat(q);
                 }, shz::quat{ 1.0f, 2.0f, 3.0f, 4.0f });
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(apply_permutation_wxyz)
+GBL_TEST_CASE(permute_wxyz)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_permutation_wxyz();
+    shz::xmtrx::permute_wxyz();
 
     shz::vec4 input = { 1.0f, 2.0f, 3.0f, 4.0f };
     auto output = shz::xmtrx::transform(input);
@@ -1658,10 +1658,10 @@ GBL_TEST_CASE(apply_permutation_wxyz)
 
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(apply_permutation_yzwx)
+GBL_TEST_CASE(permute_yzwx)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_permutation_yzwx();
+    shz::xmtrx::permute_yzwx();
 
     shz::vec4 input = { 1.0f, 2.0f, 3.0f, 4.0f };
     auto output = shz::xmtrx::transform(input);
@@ -1674,10 +1674,10 @@ GBL_TEST_CASE(apply_permutation_yzwx)
 
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(apply_permutation_wzyx)
+GBL_TEST_CASE(permute_wzyx)
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_permutation_wzyx();
+    shz::xmtrx::permute_wzyx();
 
     shz::vec4 input = { 1.0f, 2.0f, 3.0f, 4.0f };
     auto output = shz::xmtrx::transform(input);
@@ -2204,9 +2204,9 @@ GBL_TEST_CASE(rotate_z)
     );
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(apply_ortho)
+GBL_TEST_CASE(ortho)
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_ortho(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f);
+    shz::xmtrx::ortho(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f);
     union {
         alignas(16) mat4 cmat;
         shz::mat4x4 shzcmat;
@@ -2222,9 +2222,9 @@ GBL_TEST_CASE(apply_ortho)
     GBL_TEST_VERIFY(shzmat == cunion.shzcmat);
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(apply_frustum)
+GBL_TEST_CASE(frustum)
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_frustum(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f);
+    shz::xmtrx::frustum(0.0f, 640.0f, 480.0f, 0.0f, 0.0f, 1000.0f);
     union {
         alignas(16) mat4 cmat;
         shz::mat4x4 shzcmat;
@@ -2240,7 +2240,7 @@ GBL_TEST_CASE(apply_frustum)
     GBL_TEST_VERIFY(shzmat == cunion.shzcmat);
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(apply_perspective)
+GBL_TEST_CASE(perspective)
 #if 1
     GBL_TEST_SKIP("Not equivalent to any CGLM reference. Figure out why.");
 #else
@@ -2250,7 +2250,7 @@ GBL_TEST_CASE(apply_perspective)
     } cunion;
 
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_perspective(shz::deg_to_rad(45.0f), 640.0f / 480.0f, 0.0f);
+    shz::xmtrx::perspective(shz::deg_to_rad(45.0f), 640.0f / 480.0f, 0.0f);
     glm_perspective_infinite_rh_no(shz::deg_to_rad(45.0f), 640.0f / 480.0f, 0.0f, cunion.cmat);
     shz::mat4x4 shzmat;
     shz::xmtrx::store(&shzmat);
@@ -2263,14 +2263,14 @@ GBL_TEST_CASE(apply_perspective)
 #endif
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(apply_screen)
+GBL_TEST_CASE(screen)
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_screen(640.0f, 480.0f);
+    shz::xmtrx::screen(640.0f, 480.0f);
 
     shz::mat4x4 applied_screen_mat;
     shz::xmtrx::store(&applied_screen_mat);
 
-    // Ensure apply_screen computes
+    // Ensure screen computes
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                 { 320.0f, -0.0f,   0.0f, 320.0f,
                  -0.0f,   -240.0f, 0.0f, 240.0f,
@@ -2280,8 +2280,8 @@ GBL_TEST_CASE(apply_screen)
     // Check bruces balls
     randomize_xmtrx_();
     shz::xmtrx::init_identity();
-    shz::xmtrx::apply_permutation_wxyz();
-    shz::xmtrx::apply_screen(640.0f, 480.0f);
+    shz::xmtrx::permute_wxyz();
+    shz::xmtrx::screen(640.0f, 480.0f);
 
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
             { 0.0f,   -0.0f,   0.0f, 1.0f,
@@ -2296,15 +2296,15 @@ GBL_TEST_CASE(apply_screen)
     shz::xmtrx::store(&init_screen_mat);
 
     GBL_TEST_VERIFY(applied_screen_mat == init_screen_mat);
-    (benchmark)(nullptr, "shz::xmtrx::apply_screen", [&] { shz::xmtrx::apply_screen(640.0f, 480.0f); });
+    (benchmark)(nullptr, "shz::xmtrx::screen", [&] { shz::xmtrx::screen(640.0f, 480.0f); });
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(apply_lookat)
+GBL_TEST_CASE(lookat)
     auto test = [](shz::vec3 eye, shz::vec3 center, shz::vec3 up) {
         shz::mat4x4 shzMat, cglmMat;
 
         shz::xmtrx::init_identity();
-        shz::xmtrx::apply_lookat(eye, center, up);
+        shz::xmtrx::lookat(eye, center, up);
         shz::xmtrx::store(&shzMat);
 
         glm_lookat_rh(*(vec3*)&eye, *(vec3*)&center, *(vec3*)&up, *(mat4*)&cglmMat);
@@ -2451,7 +2451,7 @@ GBL_TEST_CASE(store_transpose_3x4)
 
     shz::xmtrx::load_transpose(src);
 
-    shz_mat3x4_t dst;
+    alignas(32) shz_mat3x4_t dst;
     shz::xmtrx::store_transpose(&dst);
 
     for(unsigned i = 0; i < 12; ++i)
@@ -2906,7 +2906,7 @@ GBL_TEST_CASE(store_3x3)
                                                 4.0f, -5.0f, 6.0f, 0.0f,
                                                 7.0f, 8.0f, -9.0f, 0.0f,
                                                 0.0f, 0.0f,  0.0f, 1.0f } };
-    shz_mat3x3_t out;
+    alignas(32) shz_mat3x3_t out;
 
     randomize_xmtrx_();
     shz::xmtrx::load(wide);
@@ -2924,7 +2924,7 @@ GBL_TEST_CASE(store_transpose_3x3)
                                                 4.0f, -5.0f, 6.0f, 0.0f,
                                                 7.0f, 8.0f, -9.0f, 0.0f,
                                                 0.0f, 0.0f,  0.0f, 1.0f } };
-    shz_mat3x3_t out;
+    alignas(32) shz_mat3x3_t out;
 
     randomize_xmtrx_();
     shz::xmtrx::load(wide);
@@ -3026,7 +3026,7 @@ GBL_TEST_CASE(blend_4x4)
     // Blend a single joint matrix onto a known starting matrix.
     // Expectation: XMTRX[i] = XMTRX_old[i] + joint[i] * weight, for all 16
     // elements--a straight per-element weighted accumulate, matching the
-    // skeletal-skinning blend semantics (see shz_xmtrx_blend_sw()).
+    // skeletal-skinning blend semantics (see shz_xmtrx_blend_4x4_sw()).
     {
         randomize_xmtrx_();
         shz::xmtrx::init_fill(2.0f);
@@ -3362,7 +3362,7 @@ GBL_TEST_CASE(transform_vec4)
     {
         shz::vec4 expected = { 4.713826f, 5.545148f, 1.741025f, 0.000000f };
         shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
-        shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
+        shz::xmtrx::scale_3x3(2.0f, 2.0f, 2.0f);
         shz::vec4 vout = shz::xmtrx::transform(v);
         float dist = vout.distance(expected);
         GBL_TEST_VERIFY(dist <= 0.001f);
@@ -3373,8 +3373,8 @@ GBL_TEST_CASE(transform_vec4)
     {
         shz::vec4 expected = { 4.713826f, 5.545148f, 1.741025f, 0.000000f };
         shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
-        shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
-        shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
+        shz::xmtrx::scale_3x3(2.0f, 2.0f, 2.0f);
+        shz::xmtrx::add_translation(10.0f, 20.0f, 30.0f);
         shz::vec4 vout = shz::xmtrx::transform(v);
         float dist = vout.distance(expected);
         GBL_TEST_VERIFY(dist <= 0.001f);
@@ -3402,8 +3402,8 @@ GBL_TEST_CASE(transform_vec4)
         v.w = 1.0f;
         shz::vec4 expected = { 14.713826f, 25.545149f, 31.741024f, 1.000000f };
         shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
-        shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
-        shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
+        shz::xmtrx::scale_3x3(2.0f, 2.0f, 2.0f);
+        shz::xmtrx::add_translation(10.0f, 20.0f, 30.0f);
         shz::vec4 vout = shz::xmtrx::transform(v);
         float dist = vout.distance(expected);
         GBL_TEST_VERIFY(dist <= 0.001f);
@@ -3444,8 +3444,8 @@ GBL_TEST_CASE(transform_vec3)
 
     shz::vec3 expected = { 11.286173f, 10.454851f, 14.258974f };
     shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
-    shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
-    shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
+    shz::xmtrx::scale_3x3(2.0f, 2.0f, 2.0f);
+    shz::xmtrx::add_translation(10.0f, 20.0f, 30.0f);
 
     shz::vec3 v = { 5.0f, 6.0f, 7.0f };
     shz::vec3 vout = shz::xmtrx::transform(v);
@@ -3459,8 +3459,8 @@ GBL_TEST_CASE(transform_vec2)
 
     shz::vec2 expected = { 4.679756f, 14.664473f };
     shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
-    shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
-    shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
+    shz::xmtrx::scale_3x3(2.0f, 2.0f, 2.0f);
+    shz::xmtrx::add_translation(10.0f, 20.0f, 30.0f);
 
     shz::vec2 v = { 5.0f, 6.0f };
     shz::vec2 vout = shz::xmtrx::transform(v);
@@ -3476,8 +3476,8 @@ GBL_TEST_CASE(transform_point3)
     // Expectation: Translation applied.
     shz::vec3 expected = { 33.442780f, 19.434233f, 67.122986f };
     shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
-    shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
-    shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
+    shz::xmtrx::scale_3x3(2.0f, 2.0f, 2.0f);
+    shz::xmtrx::add_translation(10.0f, 20.0f, 30.0f);
 
     shz::vec3 p = { 4.0f, 5.0f, 21.0f };
     shz::vec3 vout = shz::xmtrx::transform_point(p);
@@ -3492,8 +3492,8 @@ GBL_TEST_CASE(transform_point2)
     // Expectation: Translation applied.
     shz::vec2 expected = { 13.623529f, 32.063099f };
     shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 1.0f, 1.0f);
-    shz::xmtrx::apply_scale(2.0f, 2.0f, 2.0f);
-    shz::xmtrx::apply_translation(10.0f, 20.0f, 30.0f);
+    shz::xmtrx::scale_3x3(2.0f, 2.0f, 2.0f);
+    shz::xmtrx::add_translation(10.0f, 20.0f, 30.0f);
 
     shz::vec2 p = { 4.0f, 5.0f };
     shz::vec2 vout = shz::xmtrx::transform_point(p);
@@ -3586,18 +3586,18 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_reverse_unaligned_4x4,
                   apply_reverse_transpose_4x4,
                   apply_reverse_transpose_unaligned_4x4,
-                  apply_translation,
+                  add_translation,
                   get_translation,
                   set_translation,
                   set_scale,
                   get_scale,
-                  apply_scale,
+                  scale_3x3,
                   rotate,
                   rotate_dir,
-                  apply_rotation_quat,
-                  apply_permutation_wxyz,
-                  apply_permutation_yzwx,
-                  apply_permutation_wzyx,
+                  rotate_quat,
+                  permute_wxyz,
+                  permute_yzwx,
+                  permute_wzyx,
                   load_apply_4x4,
                   load_apply_unaligned_4x4,
                   apply_store_4x4,
@@ -3615,11 +3615,11 @@ GBL_TEST_REGISTER(read_write_registers,
                   rotate_zyx,
                   rotate_zxy,
                   rotate_yxz,
-                  apply_ortho,
-                  apply_frustum,
-                  apply_perspective,
-                  apply_screen,
-                  apply_lookat,
+                  ortho,
+                  frustum,
+                  perspective,
+                  screen,
+                  lookat,
                   load_3x4,
                   load_transpose_3x4,
                   load_rows_3x4,

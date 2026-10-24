@@ -11,6 +11,14 @@ Release notes summarized from the upstream tags and release commits. The full hi
 - `shz_vec_inv_sqrtf()` and `shz_vec_sqrtf()` added to the type-generic routines and the C++ wrappers.
 - XMTRX, `shz_fmodf()` and `shz_memcpyN()` bug fixes; fixes to `load_apply_store_4x4` and `store_aligned32_4x4`.
 - Build fixes for the KOS + SH toolchain stable versions and for Clang.
+- `shz_xmtrx_apply_translation()`, `shz_mat4x4_apply_translation()` and their C++ wrappers renamed to `shz_xmtrx_add_translation()`, `shz_mat4x4_add_translation()`, `shz::xmtrx::add_translation()` and `shz::mat4x4::add_translation()`; the old names are deprecated and forward to the new ones.
+- `shz_xmtrx_apply_scale()`, `shz_mat4x4_apply_scale()` and their C++ wrappers renamed to `shz_xmtrx_scale_3x3()`, `shz_mat4x4_3x3_scale()`, `shz::xmtrx::scale_3x3()` and `shz::mat4x4::scale_3x3()`; the old names are deprecated and forward to the new ones.
+- XMTRX and mat4x4 GL-style transforms dropped their `apply_` prefix: `apply_rotation_quat` → `rotate_quat`, `apply_lookat` → `lookat`, `apply_ortho` → `ortho`, `apply_frustum` → `frustum`, `apply_perspective` → `perspective`, `apply_screen` → `screen`, `apply_symmetric_skew` → `skew_symmetric` and `apply_permutation_*` → `permute_*`, in both the C and C++ APIs; the old names are deprecated and forward to the new ones.
+- `shz_mat4x4_permute_wzyx()` and `shz::mat4x4::permute_wzyx()` added, matching XMTRX.
+- `shz::mat4x4::apply_rotation(const quat&)` renamed to `shz::mat4x4::rotate(const quat&)`; the old overload is deprecated.
+- Back-end routines renamed to match their public names, and every deprecated routine moved into a `Deprecated` section at the end of its API's documentation.
+- The C++ API now supports C++17, with extra features for C++20 and C++23. C++23-only features stay behind `SHZ_CPP23`, and `SHZ_CPP20` is defined for C++20 builds. `shz::vecN::normalize()`, `normalize_safe()` and `normalize_or()` no longer fail with an ambiguous assignment below C++23, and `shz_complex.hpp` included on its own now enables its C++23 features.
+- The documented C requirement is now C11 (previously stated as C17), with GNU extensions required.
 
 ## v0.9.1 (2026-09-25): XMTRX gainz, bug fixes, SW back-end on SH4
 

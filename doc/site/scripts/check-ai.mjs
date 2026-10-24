@@ -124,7 +124,7 @@ else {
 	}
 	// Stale names in older header prose: referenced, never declared.
 	const stale = ['shz_xmtrx_trans_vec2', 'shz_xmtrx_trans_vec3', 'shz_xmtrx_trans_vec4', 'shz_xmtrx_load_apply'];
-	const expected = [...names].filter((n) => !todo.has(n) && !stale.includes(n));
+	const expected = [...names].filter((n) => !todo.has(n) && !stale.includes(n) && !n.endsWith('_'));
 	const have = new Set(index.symbols.map((s) => s.name));
 	const missing = expected.filter((n) => !have.has(n));
 	if (missing.length) fail(3, `index.json lacks ${missing.length} header names: ${missing.slice(0, 10).join(', ')} (a new header needs an entry in MODULES in scripts/data/modules.mjs; see README.md)`);

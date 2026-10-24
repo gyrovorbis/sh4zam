@@ -119,7 +119,7 @@ static void setup_projection_view(shz_mat4x4_t* mat) {
        explicitly in SH4ZAM for fine-grained control.
     
     */
-    shz_xmtrx_apply_screen(screen_width, screen_height);
+    shz_xmtrx_screen(screen_width, screen_height);
     // Allocate the cache line above the second half of the matrix.
     shz_dcache_alloc_line(((void*)mat) + 32);
     /* Apply a perspective projection matrix.
@@ -127,7 +127,7 @@ static void setup_projection_view(shz_mat4x4_t* mat) {
        NOTE: far_z is automatically expected to be FLOAT_MAX, so it
        is not explicitly configured here.
     */
-    shz_xmtrx_apply_perspective(fov, aspect, near_z);
+    shz_xmtrx_perspective(fov, aspect, near_z);
     // Store the resulting matrix for later.
     shz_xmtrx_store_4x4(mat);
 }
@@ -145,9 +145,9 @@ static void apply_model_matrix(shz_vec3_t pos,
     // Apply a translation matrix to position the ball in 3D space.
     shz_xmtrx_translate(pos.x, pos.y, -pos.z);
     // Apply a rotation matrix to rotate the ball about the X axis.
-    shz_xmtrx_apply_rotation_x(rot.x);
+    shz_xmtrx_rotate_x(rot.x);
     // Apply a rotation matrix to rotate the ball about the Y axis.
-    shz_xmtrx_apply_rotation_y(rot.y);
+    shz_xmtrx_rotate_y(rot.y);
 }
 
 /*! Renders a single one of Bruce's balls.

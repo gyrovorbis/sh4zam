@@ -49,7 +49,7 @@ export function checkIdentifiers() {
 	for (const f of files) {
 		const text = fs.readFileSync(f, 'utf8');
 		const rel = path.relative(ROOT, f).replace(/\\/g, '/');
-		for (const m of text.matchAll(/\b((?:shz|SHZ)_[A-Za-z0-9_]+)(\.(?:h|hpp|c|cpp|s|inl)\b)?(\*)?/g)) {
+		for (const m of text.matchAll(/\b((?:shz|SHZ)_[A-Za-z0-9_]+)(\.(?:h|hpp|c|cpp|s|inl|inc)\b)?(\*)?/g)) {
 			const [, name, ext, star] = m;
 			if (ext || star || PATTERN_PREFIX.test(name) || ALLOW.has(name) || names.has(name)) continue;
 			// shz_<module>.h style placeholders, shz_<name>_t patterns

@@ -36,7 +36,7 @@ For KOS users, use `kos-cmake` instead of your system `cmake` command.
 
 `SHZ_BACKEND` and `SHZ_TLS_MODEL` are added to the library's `PUBLIC` compile definitions, so anything linking the `sh4zam` target sees the same values the library was built with.
 
-The project builds as C11 and C++20 (`CMAKE_C_STANDARD 11`, `CMAKE_CXX_STANDARD 20`, GNU extensions on). Your own code can use C17, C23, C++20 or C++23; some API features are only available with C23 or C++23.
+The project builds as C11 and C++20 (`CMAKE_C_STANDARD 11`, `CMAKE_CXX_STANDARD 20`, GNU extensions on). Your own code can use C11, C17, C23, C++17, C++20 or C++23; some API features are only available with C23, C++20 or C++23. C code needs GNU extensions, so use a GNU dialect (`gnu11` or later, or keep `CMAKE_C_EXTENSIONS` on) rather than a strict ISO mode.
 
 ## Software back-end on desktop
 

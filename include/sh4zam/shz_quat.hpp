@@ -15,11 +15,14 @@
 #ifndef SHZ_QUAT_HPP
 #define SHZ_QUAT_HPP
 
-#include <compare>
 #include <tuple>
 
 #include "shz_quat.h"
 #include "shz_vector.hpp"
+
+#ifdef SHZ_CPP20
+#   include <compare>
+#endif
 
 namespace shz {
 
@@ -68,12 +71,6 @@ namespace shz {
             return shz_quat_identity();
         }
         
-        //! C++ convenience wrapper for shz_quat_from_angles_xyz().
-        SHZ_DEPRECATED("Redundant. Use from_rotation_xyz().")
-        SHZ_FORCE_INLINE static quat from_angles_xyz(float x, float y, float z) noexcept {
-            return shz_quat_from_rotation_xyz(x, y, z);
-        }
-
         //! C++ convenience wrapper for shz_quat_from_rotation_xyz().
         SHZ_FORCE_INLINE static quat from_rotation_xyz(float x, float y, float z) noexcept {
             return shz_quat_from_rotation_xyz(x, y, z);
@@ -480,6 +477,19 @@ namespace shz {
             scale(shz_invf(rhs));
             return *this;
         }
+
+        /*! \name  Deprecated
+            \brief Deprecated routines, kept only for backwards compatibility.
+            @{
+        */
+
+        //! C++ convenience wrapper for shz_quat_from_angles_xyz().
+        SHZ_DEPRECATED("Redundant. Use from_rotation_xyz().")
+        SHZ_FORCE_INLINE static quat from_angles_xyz(float x, float y, float z) noexcept {
+            return shz_quat_from_rotation_xyz(x, y, z);
+        }
+
+        //! @}
     };
 
     //! Alternate C++ alias for quat, for those who like POSIX style.

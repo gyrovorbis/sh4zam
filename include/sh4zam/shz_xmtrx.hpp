@@ -246,12 +246,6 @@ struct xmtrx {
         shz_xmtrx_init_identity();
     }
 
-    //! C++ wrapper around shz_xmtrx_init_identity_safe().
-    SHZ_DEPRECATED("Operation is always safe now. Use default version.")
-    SHZ_FORCE_INLINE static void init_identity_safe() noexcept {
-        shz_xmtrx_init_identity();
-    }
-
     //! C++ wrapper around shz_xmtrx_init_zero().
     SHZ_FORCE_INLINE static void init_zero() noexcept {
         shz_xmtrx_init_zero();
@@ -499,129 +493,74 @@ struct xmtrx {
         shz_xmtrx_apply_reverse_transpose_3x4(&mat);
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_translation().
-    SHZ_FORCE_INLINE static void apply_translation(float x, float y, float z) noexcept {
-        shz_xmtrx_apply_translation(x, y, z);
+    //! C++ wrapper around shz_xmtrx_add_translation().
+    SHZ_FORCE_INLINE static void add_translation(float x, float y, float z) noexcept {
+        shz_xmtrx_add_translation(x, y, z);
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_translation().
-    SHZ_FORCE_INLINE static void apply_translation(const vec3& v) noexcept {
-        apply_translation(v.x, v.y, v.z);
+    //! C++ wrapper around shz_xmtrx_add_translation().
+    SHZ_FORCE_INLINE static void add_translation(const vec3& v) noexcept {
+        add_translation(v.x, v.y, v.z);
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_scale().
-    SHZ_FORCE_INLINE static void apply_scale(float x, float y, float z) noexcept {
-        shz_xmtrx_apply_scale(x, y, z);
+    //! C++ wrapper around shz_xmtrx_scale_3x3().
+    SHZ_FORCE_INLINE static void scale_3x3(float x, float y, float z) noexcept {
+        shz_xmtrx_scale_3x3(x, y, z);
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_scale().
-    SHZ_FORCE_INLINE static void apply_scale(const vec3& v) noexcept {
-        apply_scale(v.x, v.y, v.z);
+    //! C++ wrapper around shz_xmtrx_scale_3x3().
+    SHZ_FORCE_INLINE static void scale_3x3(const vec3& v) noexcept {
+        scale_3x3(v.x, v.y, v.z);
     }
 
-    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_x(). Renamed to rotate_x().
-    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_x().")
-    SHZ_FORCE_INLINE static void apply_rotation_x(float x) noexcept {
-        rotate_x(x);
+    //! C++ wrapper around shz_xmtrx_rotate_quat().
+    SHZ_FORCE_INLINE static void rotate_quat(const quat& q) noexcept {
+        shz_xmtrx_rotate_quat(q);
     }
 
-    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_y(). Renamed to rotate_y().
-    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_y().")
-    SHZ_FORCE_INLINE static void apply_rotation_y(float y) noexcept {
-        rotate_y(y);
+    //! C++ wrapper around shz_xmtrx_lookat().
+    SHZ_FORCE_INLINE static void lookat(const vec3& eye, const vec3& center, const vec3& up) noexcept {
+        shz_xmtrx_lookat(eye, center, up);
     }
 
-    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_z(). Renamed to rotate_z().
-    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_z().")
-    SHZ_FORCE_INLINE static void apply_rotation_z(float z) noexcept {
-        rotate_z(z);
+    //! C++ wrapper around shz_xmtrx_ortho().
+    SHZ_FORCE_INLINE static void ortho(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+        shz_xmtrx_ortho(left, right, bottom, top, znear, zfar);
     }
 
-    //! C++ wrapper around shz_xmtrx_init_rotation_xyz().
-    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_xyz(). Renamed to rotate_xyz().
-    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_xyz().")
-    SHZ_FORCE_INLINE static void apply_rotation_xyz(float x, float y, float z) noexcept {
-        rotate_xyz(x, y, z);
+    //! C++ wrapper around shz_xmtrx_frustum().
+    SHZ_FORCE_INLINE static void frustum(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+        shz_xmtrx_frustum(left, right, bottom, top, znear, zfar);
     }
 
-    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_zyx(). Renamed to rotate_zyx().
-    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_zyx().")
-    SHZ_FORCE_INLINE static void apply_rotation_zyx(float z, float y, float x) noexcept {
-        rotate_zyx(z, y, x);
+    //! C++ wrapper around shz_xmtrx_perspective().
+    SHZ_FORCE_INLINE static void perspective(float fov, float aspect, float znear) noexcept {
+        shz_xmtrx_perspective(fov, aspect, znear);
     }
 
-    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_zxy(). Renamed to rotate_zxy().
-    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_zxy().")
-    SHZ_FORCE_INLINE static void apply_rotation_zxy(float z, float x, float y) noexcept {
-        rotate_zxy(z, x, y);
+    //! C++ wrapper around shz_xmtrx_skew_symmetric().
+    SHZ_FORCE_INLINE static void skew_symmetric(float x, float y, float z) noexcept {
+        shz_xmtrx_skew_symmetric(x, y, z);
     }
 
-    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_yxz(). Renamed to rotate_yxz().
-    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_yxz().")
-    SHZ_FORCE_INLINE static void apply_rotation_yxz(float y, float x, float z) noexcept {
-        rotate_yxz(y, x, z);
+    //! C++ wrapper around shz_xmtrx_screen().
+    SHZ_FORCE_INLINE static void screen(float width, float height) noexcept {
+        shz_xmtrx_screen(width, height);
     }
 
-    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation(). Renamed to rotate().
-    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate().")
-    SHZ_FORCE_INLINE static void apply_rotation(float angle, float x, float y, float z) noexcept {
-        rotate(angle, x, y, z);
+    //! C++ wrapper around shz_xmtrx_permute_wxyz().
+    SHZ_FORCE_INLINE static void permute_wxyz() noexcept {
+        shz_xmtrx_permute_wxyz();
     }
 
-    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation(). Renamed to rotate().
-    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate().")
-    SHZ_FORCE_INLINE static void apply_rotation(float angle, const vec3& axis) noexcept {
-        rotate(angle, axis.x, axis.y, axis.z);
+    //! C++ wrapper around shz_xmtrx_permute_yzwx().
+    SHZ_FORCE_INLINE static void permute_yzwx() noexcept {
+        shz_xmtrx_permute_yzwx();
     }
 
-    //! C++ wrapper around shz_xmtrx_apply_rotation_quat().
-    SHZ_FORCE_INLINE static void apply_rotation_quat(const quat& q) noexcept {
-        shz_xmtrx_apply_rotation_quat(q);
-    }
-
-    //! C++ wrapper around shz_xmtrx_apply_lookat().
-    SHZ_FORCE_INLINE static void apply_lookat(const vec3& eye, const vec3& center, const vec3& up) noexcept {
-        shz_xmtrx_apply_lookat(eye, center, up);
-    }
-
-    //! C++ wrapper around shz_xmtrx_apply_ortho().
-    SHZ_FORCE_INLINE static void apply_ortho(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
-        shz_xmtrx_apply_ortho(left, right, bottom, top, znear, zfar);
-    }
-
-    //! C++ wrapper around shz_xmtrx_apply_frustum().
-    SHZ_FORCE_INLINE static void apply_frustum(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
-        shz_xmtrx_apply_frustum(left, right, bottom, top, znear, zfar);
-    }
-
-    //! C++ wrapper around shz_xmtrx_apply_perspective().
-    SHZ_FORCE_INLINE static void apply_perspective(float fov, float aspect, float znear) noexcept {
-        shz_xmtrx_apply_perspective(fov, aspect, znear);
-    }
-
-    //! C++ wrapper around shz_xmtrx_apply_symmetric_skew().
-    SHZ_FORCE_INLINE static void apply_symmetric_skew(float x, float y, float z) noexcept {
-        shz_xmtrx_apply_symmetric_skew(x, y, z);
-    }
-
-    //! C++ wrapper around shz_xmtrx_apply_screen().
-    SHZ_FORCE_INLINE static void apply_screen(float width, float height) noexcept {
-        shz_xmtrx_apply_screen(width, height);
-    }
-
-    //! C++ wrapper around shz_xmtrx_apply_permutation_wxyz().
-    SHZ_FORCE_INLINE static void apply_permutation_wxyz() noexcept {
-        shz_xmtrx_apply_permutation_wxyz();
-    }
-
-    //! C++ wrapper around shz_xmtrx_apply_permutation_yzwx().
-    SHZ_FORCE_INLINE static void apply_permutation_yzwx() noexcept {
-        shz_xmtrx_apply_permutation_yzwx();
-    }
-
-    //! C++ wrapper around shz_xmtrx_apply_permutation_wzyx().
-    SHZ_FORCE_INLINE static void apply_permutation_wzyx() noexcept {
-        shz_xmtrx_apply_permutation_wzyx();
+    //! C++ wrapper around shz_xmtrx_permute_wzyx().
+    SHZ_FORCE_INLINE static void permute_wzyx() noexcept {
+        shz_xmtrx_permute_wzyx();
     }
 
     //! C++ wrapper around shz_xmtrx_apply_self().
@@ -1016,6 +955,157 @@ struct xmtrx {
 
 //! @}
 
+    /*! \name  Deprecated
+        \brief Deprecated routines, kept only for backwards compatibility.
+        @{
+    */
+
+    //! C++ wrapper around shz_xmtrx_init_identity_safe().
+    SHZ_DEPRECATED("Operation is always safe now. Use default version.")
+    SHZ_FORCE_INLINE static void init_identity_safe() noexcept {
+        shz_xmtrx_init_identity();
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_translation(). Renamed to add_translation().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::add_translation().")
+    SHZ_FORCE_INLINE static void apply_translation(float x, float y, float z) noexcept {
+        add_translation(x, y, z);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_translation(). Renamed to add_translation().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::add_translation().")
+    SHZ_FORCE_INLINE static void apply_translation(const vec3& v) noexcept {
+        add_translation(v.x, v.y, v.z);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_scale(). Renamed to scale_3x3().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::scale_3x3().")
+    SHZ_FORCE_INLINE static void apply_scale(float x, float y, float z) noexcept {
+        scale_3x3(x, y, z);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_scale(). Renamed to scale_3x3().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::scale_3x3().")
+    SHZ_FORCE_INLINE static void apply_scale(const vec3& v) noexcept {
+        scale_3x3(v.x, v.y, v.z);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_x(). Renamed to rotate_x().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_x().")
+    SHZ_FORCE_INLINE static void apply_rotation_x(float x) noexcept {
+        rotate_x(x);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_y(). Renamed to rotate_y().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_y().")
+    SHZ_FORCE_INLINE static void apply_rotation_y(float y) noexcept {
+        rotate_y(y);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_z(). Renamed to rotate_z().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_z().")
+    SHZ_FORCE_INLINE static void apply_rotation_z(float z) noexcept {
+        rotate_z(z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_rotation_xyz().
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_xyz(). Renamed to rotate_xyz().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_xyz().")
+    SHZ_FORCE_INLINE static void apply_rotation_xyz(float x, float y, float z) noexcept {
+        rotate_xyz(x, y, z);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_zyx(). Renamed to rotate_zyx().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_zyx().")
+    SHZ_FORCE_INLINE static void apply_rotation_zyx(float z, float y, float x) noexcept {
+        rotate_zyx(z, y, x);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_zxy(). Renamed to rotate_zxy().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_zxy().")
+    SHZ_FORCE_INLINE static void apply_rotation_zxy(float z, float x, float y) noexcept {
+        rotate_zxy(z, x, y);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_yxz(). Renamed to rotate_yxz().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_yxz().")
+    SHZ_FORCE_INLINE static void apply_rotation_yxz(float y, float x, float z) noexcept {
+        rotate_yxz(y, x, z);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation(). Renamed to rotate().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate().")
+    SHZ_FORCE_INLINE static void apply_rotation(float angle, float x, float y, float z) noexcept {
+        rotate(angle, x, y, z);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation(). Renamed to rotate().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate().")
+    SHZ_FORCE_INLINE static void apply_rotation(float angle, const vec3& axis) noexcept {
+        rotate(angle, axis.x, axis.y, axis.z);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_rotation_quat(). Renamed to rotate_quat().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::rotate_quat().")
+    SHZ_FORCE_INLINE static void apply_rotation_quat(const quat& q) noexcept {
+        rotate_quat(q);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_lookat(). Renamed to lookat().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::lookat().")
+    SHZ_FORCE_INLINE static void apply_lookat(const vec3& eye, const vec3& center, const vec3& up) noexcept {
+        lookat(eye, center, up);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_ortho(). Renamed to ortho().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::ortho().")
+    SHZ_FORCE_INLINE static void apply_ortho(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+        ortho(left, right, bottom, top, znear, zfar);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_frustum(). Renamed to frustum().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::frustum().")
+    SHZ_FORCE_INLINE static void apply_frustum(float left, float right, float bottom, float top, float znear, float zfar) noexcept {
+        frustum(left, right, bottom, top, znear, zfar);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_perspective(). Renamed to perspective().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::perspective().")
+    SHZ_FORCE_INLINE static void apply_perspective(float fov, float aspect, float znear) noexcept {
+        perspective(fov, aspect, znear);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_symmetric_skew(). Renamed to skew_symmetric().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::skew_symmetric().")
+    SHZ_FORCE_INLINE static void apply_symmetric_skew(float x, float y, float z) noexcept {
+        skew_symmetric(x, y, z);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_screen(). Renamed to screen().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::screen().")
+    SHZ_FORCE_INLINE static void apply_screen(float width, float height) noexcept {
+        screen(width, height);
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_permutation_wxyz(). Renamed to permute_wxyz().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::permute_wxyz().")
+    SHZ_FORCE_INLINE static void apply_permutation_wxyz() noexcept {
+        permute_wxyz();
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_permutation_yzwx(). Renamed to permute_yzwx().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::permute_yzwx().")
+    SHZ_FORCE_INLINE static void apply_permutation_yzwx() noexcept {
+        permute_yzwx();
+    }
+
+    //! Deprecated C++ wrapper around shz_xmtrx_apply_permutation_wzyx(). Renamed to permute_wzyx().
+    SHZ_DEPRECATED("Renamed to shz::xmtrx::permute_wzyx().")
+    SHZ_FORCE_INLINE static void apply_permutation_wzyx() noexcept {
+        permute_wzyx();
+    }
+
+    //! @}
 };
 }
 

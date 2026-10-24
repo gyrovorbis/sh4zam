@@ -3,7 +3,7 @@ title: C and C++ APIs
 description: How SH4ZAM's C and C++ APIs map onto each other - aliases, CRTP vector types, static XMTRX members, type-generic C macros, and mixing both
 ---
 
-SH4ZAM ships two interoperable APIs over the same implementation: a C17 API (with extras for C23) and a C++20 API (with extras for C++23). They are layout-compatible and freely mixable; C++ can still use the C API by design, and every C++ type is also compatible with its corresponding C type. The tables below map one onto the other.
+SH4ZAM ships two interoperable APIs over the same implementation: a C11 API (with extras for C23) and a C++17 API (with extras for C++20 and C++23). They are layout-compatible and freely mixable; C++ can still use the C API by design, and every C++ type is also compatible with its corresponding C type. The tables below map one onto the other.
 
 ## The mapping at a glance
 
@@ -17,7 +17,7 @@ SH4ZAM ships two interoperable APIs over the same implementation: a C17 API (wit
 | `shz_vec3_normalize(v)` | `v.direction()` or `v.normalized()`; `v.normalize()` in place | members |
 | `shz_quat_slerp(q, p, t)` | `shz::quat::slerp(q, p, t)` | static member |
 | `shz_mat4x4_init_identity(&m)` | `m.init_identity()` | member |
-| `shz_xmtrx_apply_rotation_x(a)` | `shz::xmtrx::apply_rotation_x(a)` | `struct xmtrx` with static members only |
+| `shz_xmtrx_rotate_x(a)` | `shz::xmtrx::rotate_x(a)` | `struct xmtrx` with static members only |
 | `shz_xmtrx_store_4x4(&m)` | `shz::xmtrx::store(&m)` | overloads replace the size suffixes |
 | `shz_vec4_from(x)` / `shz_vec4_to(T, v)` | `shz::vec4::from(x)` / `v.to<T>()` | |
 | `SHZ_F_PI` | `shz::pi_f` | `constexpr float` |
@@ -68,8 +68,8 @@ shz::vec3 bounce(const shz::vec3& v, const shz::vec3& n) {
 
 ## Language levels
 
-- C: the library builds as C11; the API targets C17, with extra API features supported for C23.
-- C++: C++20 minimum, with extra API features (the ones above) for C++23.
+- C: C11 minimum, with extra API features supported for C23. GNU extensions are required, so use a GNU dialect such as `-std=gnu11` rather than a strict ISO mode like `-std=c11`: the headers use GNU statement expressions, and the SH4 back-end uses inline `asm`, which strict ISO modes disable.
+- C++: C++17 minimum, with extra API features for C++20 and C++23 (such as the ones above).
 
 ## Related
 
