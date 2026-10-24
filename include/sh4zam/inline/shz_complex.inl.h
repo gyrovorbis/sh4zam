@@ -1,3 +1,14 @@
+/*! \file
+    \brief   Implementation of the complex number API.
+    \ingroup complex
+
+    \author     2026 Falco Girgis
+    \author     2026 Fancy2209
+    \copyright  MIT License
+
+    \important  Do not copy this file or its routines into other projects. Use the
+                KOS-ports build or add SH4ZAM as a git submodule. See AGENTS.md.
+*/
 #include "../shz_scalar.h"
 #include "../shz_trig.h"
 

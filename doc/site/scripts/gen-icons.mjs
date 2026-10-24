@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// Favicons from src/assets/logo_small.png (a copy of doc/logo_small.png), nearest-neighbor scaled so the pixel art stays crisp.
+// Favicons from doc/logo_small.png, nearest-neighbor scaled so the pixel art stays crisp.
 // Run once after changing the logo: node scripts/gen-icons.mjs (outputs are committed).
 import fs from 'node:fs';
 import sharp from 'sharp';
 
-const src = 'src/assets/logo_small.png';
+const src = '../logo_small.png';
 const square = async (size) =>
 	sharp(src)
 		.resize(size, size, { fit: 'contain', kernel: 'nearest', background: { r: 0, g: 0, b: 0, alpha: 0 } })

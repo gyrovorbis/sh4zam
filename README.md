@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/gyrovorbis/sh4zam">
-    <img src="http://sh4zam.com/logo.png" alt="SH4ZAM">
+    <img src="doc/logo.png" alt="SH4ZAM">
   </a>
   <h3 align="center"><strong>SH4ZAM!</strong></h3>
   <p align="center">
@@ -95,6 +95,9 @@ NOTE: <i>C++ can still use the C API by design, and every C++ type is also compa
 
 # Installation
 
+> [!IMPORTANT]
+> **Please don't copy and paste SH4ZAM into your codebase**, whether by hand or through an AI agent. Copied code falls out of sync and misses every SH4-specific fix, new feature, and optimization that lands upstream. Use the KallistiOS port below, or add this repository as a git submodule and link the `sh4zam` CMake target. If you need something SH4ZAM doesn't have, or were able to further optimize something, please [open an issue or feature request](https://github.com/gyrovorbis/sh4zam/issues) or submit a pull request! See [AGENTS.md](AGENTS.md) for the instructions given to AI agents.
+
 ## KallistiOS
 SH4ZAM is now an official part of [kos-ports](https://github.com/KallistiOS/kos-ports), meaning that it is now directly integrated within the [KallistiOS](https://github.com/KallistiOS/KallistiOS) ecosystem and will be automatically set up as part of the regular KOS installation process. If you're following the standard community guide for [Setting up KallistiOS](https://dreamcast.wiki/Getting_Started_with_Dreamcast_development), SH4ZAM will be installed as part of the [Building KOS Ports](https://dreamcast.wiki/Getting_Started_with_Dreamcast_development#Building_kos-ports) step. If you're using [DreamSDK](https://dreamsdk.org/) to manage your KallistiOS development environment, SH4ZAM may be installed from the `KallistiOS Ports` tab.
 
@@ -112,6 +115,17 @@ This will build and install the statically linked library as well as the public 
 If you would like to also build and run the unit tests, include `-DSHZ_ENABLE_TESTS=on` within the `cmake` command. Now a separate binary for the unit test executable should be built as well.
 
 NOTE: <i>For KOS users, use `kos-cmake` instead of your system `cmake` command!</i>
+
+## Git Submodule
+To pin a specific version of SH4ZAM, or to use it outside of KallistiOS, add it to your project as a git submodule:
+```
+git submodule add https://github.com/gyrovorbis/sh4zam.git external/sh4zam
+```
+Then add it to your CMake build and link against the `sh4zam` target, which exports its include directory:
+```cmake
+add_subdirectory(external/sh4zam)
+target_link_libraries(<your_target> PRIVATE sh4zam)
+```
 
 # Examples
 Examples can be found within the `example` subdirectory. New examples are always welcome to be contributed!

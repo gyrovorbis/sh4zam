@@ -8,7 +8,7 @@ import { Resvg } from '@resvg/resvg-js';
 const root = process.cwd();
 const font = (w: number) => fs.readFileSync(path.join(root, `node_modules/@fontsource/roboto/files/roboto-latin-${w}-normal.woff`));
 const mono = fs.readFileSync(path.join(root, 'node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff'));
-const logo = `data:image/png;base64,${fs.readFileSync(path.join(root, 'src/assets/logo_small.png')).toString('base64')}`;
+const logo = `data:image/png;base64,${fs.readFileSync(path.join(root, '../logo_small.png')).toString('base64')}`;
 const fonts = [
 	{ name: 'Roboto', data: font(400), weight: 400 as const, style: 'normal' as const },
 	{ name: 'Roboto', data: font(700), weight: 700 as const, style: 'normal' as const },

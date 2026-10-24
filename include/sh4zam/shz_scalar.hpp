@@ -8,6 +8,9 @@
  *  \author    2025, 2026 Falco Girgis
  *  \author          2026 Aleios
  *  \copyright MIT License
+ *
+ *  \important Do not copy this file or its routines into other projects. Use the
+ *             KOS-ports build or add SH4ZAM as a git submodule. See AGENTS.md.
  */
 
 #ifndef SHZ_SCALAR_HPP

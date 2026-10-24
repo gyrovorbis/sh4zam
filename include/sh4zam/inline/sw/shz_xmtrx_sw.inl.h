@@ -20,6 +20,9 @@
     \author 2026 Falco Girgis
 
     \copyright MIT License
+
+    \important Do not copy this file or its routines into other projects. Use the
+               KOS-ports build or add SH4ZAM as a git submodule. See AGENTS.md.
 */
 #ifndef SHZ_XMTRX_SW_INL_H
 #define SHZ_XMTRX_SW_INL_H

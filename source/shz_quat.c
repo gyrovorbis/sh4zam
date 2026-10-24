@@ -8,6 +8,9 @@
     \author 2025 Falco Girgis
 
     \copyright MIT License
+
+    \important Do not copy this file or its routines into other projects. Use the
+               KOS-ports build or add SH4ZAM as a git submodule. See AGENTS.md.
 */
 
 #include "sh4zam/shz_quat.h"
