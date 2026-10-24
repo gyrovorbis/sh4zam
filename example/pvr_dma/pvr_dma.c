@@ -1080,8 +1080,8 @@ int main(int argc, char **argv)
     pvr_poly_compile(&default_hdr, &cxt);
     load_obj("/rd/test/untitled.obj", poly_type);
 
-    uint32 frames = 0;
-    uint32 last_time = timer_ms_gettime64();
+    uint32_t frames = 0;
+    uint32_t last_time = timer_ms_gettime64();
     float fps = 0.0f;
     pvr_set_bg_color(0.102f * 0.5f, 0.219f * 0.5f, 0.165f * 0.5f);
     pvr_fog_table_color(1.0f, 0.102f * 0.5f, 0.219f * 0.5f, 0.165f * 0.5f);
@@ -1125,7 +1125,7 @@ int main(int argc, char **argv)
 
         frames++;
 
-        uint32 current_time = timer_ms_gettime64();
+        uint32_t current_time = timer_ms_gettime64();
 
         if (current_time - last_time >= 2000)
         {
