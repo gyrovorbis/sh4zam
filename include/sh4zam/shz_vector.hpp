@@ -107,19 +107,19 @@ struct vecN: C {
 
 #ifdef SHZ_CPP23
     //! Overloaded subscript operator -- allows for indexing vectors like an array.
-    SHZ_FORCE_INLINE decltype(auto) operator[](this auto&& self, size_t index) noexcept {
+    SHZ_FORCE_INLINE auto& operator[](this auto&& self, size_t index) noexcept {
         using Elem = std::conditional_t<std::is_const_v<std::remove_reference_t<decltype(self)>>, const float, float>;
-        return std::forward_like<decltype(self)>(reinterpret_cast<Elem*>(&self.e)[index]);
+        return reinterpret_cast<Elem*>(&self.e)[index];
     }
 
     //! Returns an iterator to the beginning of the vector -- For STL support.
     SHZ_FORCE_INLINE auto begin(this auto&& self) noexcept {
-        return std::forward_like<decltype(self)>(&self[0]);
+        return &self[0];
     }
 
     //! Returns an iterator to the end of the vector -- For STL support.
     SHZ_FORCE_INLINE auto end(this auto&& self) noexcept {
-        return std::forward_like<decltype(self)>(&self[Rows]);
+        return &self[Rows];
     }
 
     //! Overloaded space-ship operator, for generic lexicographical comparison of vectors.
