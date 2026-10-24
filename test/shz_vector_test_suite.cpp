@@ -1004,12 +1004,42 @@ static bool vec_magnitude_safety_(const V& v) {
 }
 
 template<typename V>
-static bool vec_normalize_or_(const V& v, const V& alt, const V& safe_alt) {
-    const V zero(0.0f);
-    V       ref;
+static bool vec_subscript_() {
+    V v(0.0f);
 
     for(std::size_t i = 0; i < vec_dim_<V>; ++i)
-        ref[i] = v[i] / std::sqrt(v.magnitude_sqr());
+        v[i] = static_cast<float>(i + 1) * 1.5f;
+
+    const V& cv = v;
+    float    sum = 0.0f;
+    for(float e : cv)
+        sum += e;
+
+    bool ok = (cv.end() - cv.begin()) == static_cast<std::ptrdiff_t>(vec_dim_<V>);
+    for(std::size_t i = 0; i < vec_dim_<V>; ++i) {
+        ok = ok && cv[i] == static_cast<float>(i + 1) * 1.5f;
+        ok = ok && &cv[i] == cv.begin() + i;
+        ok = ok && reinterpret_cast<const float*>(&cv)[i] == cv[i];
+    }
+
+    for(float& e : v)
+        e = -e;
+    for(std::size_t i = 0; i < vec_dim_<V>; ++i)
+        ok = ok && v[i] == static_cast<float>(i + 1) * -1.5f;
+
+    return ok && sum == 1.5f * static_cast<float>(vec_dim_<V> * (vec_dim_<V> + 1) / 2);
+}
+
+GBL_TEST_CASE(vecSubscript)
+    GBL_TEST_VERIFY(vec_subscript_<shz::vec2>());
+    GBL_TEST_VERIFY(vec_subscript_<shz::vec3>());
+    GBL_TEST_VERIFY(vec_subscript_<shz::vec4>());
+GBL_TEST_CASE_END
+
+template<typename V>
+static bool vec_normalize_or_(const V& v, const V& alt, const V& safe_alt) {
+    const V zero(0.0f);
+    const V ref = v / std::sqrt(v.magnitude_sqr());
 
     V inPlaceOr   = zero;
     V inPlaceSafe = zero;
@@ -1168,6 +1198,7 @@ GBL_TEST_REGISTER(vec2Construct,
                   vec2MagnitudeInv,
                   vec2Direction,
                   vecMagnitudeSafety,
+                  vecSubscript,
                   vecNormalizeOr,
                   vecMagnitudeBenchmark,
                   vec3Dot,

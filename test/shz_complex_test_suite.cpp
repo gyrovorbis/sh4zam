@@ -1240,10 +1240,41 @@ GBL_TEST_CASE(fft)
     );
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(op_subscript)
+    {
+        shz::complex c(0.0f, 0.0f);
+        c[0] = 3.5f;
+        c[1] = -1.25f;
+        const shz::complex& cc = c;
+
+        GBL_TEST_VERIFY(c.real == 3.5f && c.imag == -1.25f);
+        GBL_TEST_VERIFY(cc[0] == 3.5f && cc[1] == -1.25f);
+        GBL_TEST_VERIFY(&cc[0] == &c.real && &cc[1] == &c.imag);
+        GBL_TEST_VERIFY(cc.begin() == &c.real && cc.end() - cc.begin() == 2);
+    }
+
+    {
+        shz::complex c(3.5f, -1.25f);
+        const shz::complex& cc = c;
+        float sum = 0.0f;
+        for(float e : cc)
+            sum += e;
+        for(float& e : c)
+            e *= 2.0f;
+
+        GBL_TEST_VERIFY(sum == 2.25f);
+        GBL_TEST_VERIFY(c.real == 7.0f && c.imag == -2.5f);
+    }
+
+    GBL_TEST_VERIFY((shz::complex(1.0f, 2.0f) <=> shz::complex(1.0f, 3.0f)) < 0);
+    GBL_TEST_VERIFY((shz::complex(2.0f, 0.0f) <=> shz::complex(1.0f, 9.0f)) > 0);
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(ctor_default,
                   ctor_value,
                   ctor_c_type,
                   op_assign,
+                  op_subscript,
                   op_add_assign,
                   op_sub_assign,
                   op_mul_assign_complex,

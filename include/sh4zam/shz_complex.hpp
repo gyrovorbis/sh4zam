@@ -24,6 +24,8 @@
 #define SHZ_COMPLEX_HPP
 
 #include <compare>
+#include <type_traits>
+#include <utility>
 
 #include "shz_complex.h"
 
@@ -64,7 +66,8 @@ namespace shz {
 #ifdef SHZ_CPP23
         //! Overloaded subscript operator -- allows for indexing complex numbers like a 2-element array.
         SHZ_FORCE_INLINE decltype(auto) operator[](this auto&& self, size_t index) noexcept {
-            return std::forward_like<decltype(self)>(reinterpret_cast<const float*>(&self)[index]);
+            using Elem = std::conditional_t<std::is_const_v<std::remove_reference_t<decltype(self)>>, const float, float>;
+            return std::forward_like<decltype(self)>(reinterpret_cast<Elem*>(&self)[index]);
         }
 
         //! Returns an iterator to the beginning of the vector -- For STL support.
