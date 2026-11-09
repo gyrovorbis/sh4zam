@@ -3780,6 +3780,95 @@ SHZ_INLINE void shz_xmtrx_rotate_z_sh4(float z) SHZ_NOEXCEPT {
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fpul");
 }
 
+SHZ_INLINE void shz_xmtrx_rotate_x_u16_sh4(uint16_t radians16) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        lds     %0, fpul
+
+        fldi0   fr7
+        fsca    fpul, dr4
+        fldi0   fr8
+        fldi0   fr11
+
+        fmov    fr4, fr9
+        fmov    fr5, fr10
+        fneg    fr9
+
+        fmov    fr4, fr6
+        fldi0   fr4
+
+        ftrv    xmtrx, fv8
+        ftrv    xmtrx, fv4
+
+        fschg
+        fmov    dr8, xd8
+        fmov    dr10, xd10
+        fmov    dr4, xd4
+        fmov    dr6, xd6
+        fschg
+    )"
+    :
+    : "r" (radians16)
+    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_rotate_y_u16_sh4(uint16_t radians16) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        lds     %0, fpul
+
+        fldi0   fr9
+        fsca    fpul, dr6
+        fldi0   fr11
+        fmov    fr6, fr8
+        fmov    fr7, fr10
+        fmov    fr7, fr4
+        fldi0   fr5
+        ftrv    xmtrx, fv8
+
+        fneg    fr6
+        fldi0   fr7
+        ftrv    xmtrx, fv4
+
+        fschg
+        fmov    dr8, xd8
+        fmov    dr10, xd10
+        fmov    dr4, xd0
+        fmov    dr6, xd2
+        fschg
+    )"
+    :
+    : "r" (radians16)
+    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_rotate_z_u16_sh4(uint16_t radians16) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        lds     %0, fpul
+
+        fldi0   fr2
+        fsca    fpul, dr4
+        fldi0   fr3
+        fmov    fr4, fr1
+        fmov    fr5, fr0
+
+        fneg    fr4
+        fldi0   fr6
+        fldi0   fr7
+
+        ftrv    xmtrx, fv0
+        ftrv    xmtrx, fv4
+
+        fschg
+        fmov    dr0, xd0
+        fmov    dr2, xd2
+        fmov    dr4, xd4
+        fmov    dr6, xd6
+        fschg
+    )"
+    :
+    : "r" (radians16)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fpul");
+}
+
 
 SHZ_INLINE void shz_xmtrx_add_4x4_sh4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
     asm volatile(R"(

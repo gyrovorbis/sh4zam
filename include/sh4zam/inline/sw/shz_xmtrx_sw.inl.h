@@ -953,6 +953,18 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_x_sw(float radians) SHZ_NOEXCEPT {
     shz_xmtrx_mul4x4_cols_(rot);
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_x_u16_sw(uint16_t radians16) SHZ_NOEXCEPT {
+    const shz_sincos_t sc = shz_sincosu16(radians16);
+    const float s = sc.sin;
+    const float c = sc.cos;
+    shz_vec4_t rot[4];
+    rot[0] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
+    rot[1] = shz_vec4_init(0.0f, c,    s,    0.0f);
+    rot[2] = shz_vec4_init(0.0f, -s,   c,    0.0f);
+    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+    shz_xmtrx_mul4x4_cols_(rot);
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_y_sw(float radians) SHZ_NOEXCEPT {
     const float s = shz_sinf(radians);
     const float c = shz_cosf(radians);
@@ -964,9 +976,33 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_y_sw(float radians) SHZ_NOEXCEPT {
     shz_xmtrx_mul4x4_cols_(rot);
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_y_u16_sw(uint16_t radians16) SHZ_NOEXCEPT {
+    const shz_sincos_t sc = shz_sincosu16(radians16);
+    const float s = sc.sin;
+    const float c = sc.cos;
+    shz_vec4_t rot[4];
+    rot[0] = shz_vec4_init(c,    0.0f, -s,   0.0f);
+    rot[1] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
+    rot[2] = shz_vec4_init(s,    0.0f, c,    0.0f);
+    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+    shz_xmtrx_mul4x4_cols_(rot);
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_z_sw(float radians) SHZ_NOEXCEPT {
     const float s = shz_sinf(radians);
     const float c = shz_cosf(radians);
+    shz_vec4_t rot[4];
+    rot[0] = shz_vec4_init(c,    s,    0.0f, 0.0f);
+    rot[1] = shz_vec4_init(-s,   c,    0.0f, 0.0f);
+    rot[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
+    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+    shz_xmtrx_mul4x4_cols_(rot);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_z_u16_sw(uint16_t radians16) SHZ_NOEXCEPT {
+    const shz_sincos_t sc = shz_sincosu16(radians16);
+    const float s = sc.sin;
+    const float c = sc.cos;
     shz_vec4_t rot[4];
     rot[0] = shz_vec4_init(c,    s,    0.0f, 0.0f);
     rot[1] = shz_vec4_init(-s,   c,    0.0f, 0.0f);

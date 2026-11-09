@@ -3516,6 +3516,39 @@ GBL_TEST_CASE_END
 
 
 
+GBL_TEST_CASE(rotate_u16)
+    // 16-bit binary angles, 0x4000 per quarter turn, against the radian rotation of each angle.
+    const uint16_t angles[] = { 0x0000, 0x2000, 0x4000, 0x8000, 0xc000, 0x04d2, 0xfedc, 0xffff };
+    const struct {
+        void (*u16)(uint16_t);
+        void (*radians)(float);
+    } axes[] = {
+        { shz::xmtrx::rotate_x_u16, shz::xmtrx::rotate_x },
+        { shz::xmtrx::rotate_y_u16, shz::xmtrx::rotate_y },
+        { shz::xmtrx::rotate_z_u16, shz::xmtrx::rotate_z },
+    };
+
+    for(const auto& axis : axes) {
+        for(uint16_t angle : angles) {
+            shz::mat4x4 expected, actual;
+
+            shz::xmtrx::init_identity();
+            shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+            axis.radians((int16_t)angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+            shz::xmtrx::store(&expected);
+
+            shz::xmtrx::init_identity();
+            shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+            axis.u16(angle);
+            shz::xmtrx::store(&actual);
+
+            GBL_TEST_VERIFY(actual == expected);
+        }
+    }
+
+    (benchmark)(nullptr, "shz::xmtrx::rotate_x_u16", [] { shz::xmtrx::rotate_x_u16(0x2000); });
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(rotate_xyz)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_xyz(a0, a1, a2);
@@ -3622,6 +3655,7 @@ GBL_TEST_REGISTER(read_write_registers,
                   rotate_x,
                   rotate_y,
                   rotate_z,
+                  rotate_u16,
                   rotate_xyz,
                   rotate_zyx,
                   rotate_zxy,

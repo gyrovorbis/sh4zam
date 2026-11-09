@@ -929,6 +929,30 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_z(float radians) SHZ_NOEXCEPT {
 #endif
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_x_u16(uint16_t radians16) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_x_u16_sh4(radians16);
+#else
+    shz_xmtrx_rotate_x_u16_sw(radians16);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_y_u16(uint16_t radians16) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_y_u16_sh4(radians16);
+#else
+    shz_xmtrx_rotate_y_u16_sw(radians16);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_z_u16(uint16_t radians16) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_z_u16_sh4(radians16);
+#else
+    shz_xmtrx_rotate_z_u16_sw(radians16);
+#endif
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_rotate_xyz_sh4(xAngle, yAngle, zAngle);
