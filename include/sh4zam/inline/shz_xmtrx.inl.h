@@ -483,28 +483,44 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_screen(float width, float height) SHZ_NOEXC
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_init_rotation_xyz_sh4(xAngle, yAngle, zAngle);
+#else
     shz_xmtrx_init_rotation_x(xAngle);
     shz_xmtrx_rotate_y(yAngle);
     shz_xmtrx_rotate_z(zAngle);
+#endif
 }
 
 // Same as yaw, pitch, roll
 SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_init_rotation_zyx_sh4(zAngle, yAngle, xAngle);
+#else
     shz_xmtrx_init_rotation_z(zAngle);
     shz_xmtrx_rotate_y(yAngle);
     shz_xmtrx_rotate_x(xAngle);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_zxy(float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_init_rotation_zxy_sh4(zAngle, xAngle, yAngle);
+#else
     shz_xmtrx_init_rotation_z(zAngle);
     shz_xmtrx_rotate_x(xAngle);
     shz_xmtrx_rotate_y(yAngle);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_init_rotation_yxz_sh4(yAngle, xAngle, zAngle);
+#else
     shz_xmtrx_init_rotation_y(yAngle);
     shz_xmtrx_rotate_x(xAngle);
     shz_xmtrx_rotate_z(zAngle);
+#endif
 }
 
 /* ========== Apply Operations ========== */
@@ -914,27 +930,43 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_z(float radians) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_xyz(float xAngle, float yAngle, float zAngle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_xyz_sh4(xAngle, yAngle, zAngle);
+#else
     shz_xmtrx_rotate_x(xAngle);
     shz_xmtrx_rotate_y(yAngle);
     shz_xmtrx_rotate_z(zAngle);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_zyx(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_zyx_sh4(zAngle, yAngle, xAngle);
+#else
     shz_xmtrx_rotate_z(zAngle);
     shz_xmtrx_rotate_y(yAngle);
     shz_xmtrx_rotate_x(xAngle);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_zxy(float zAngle, float xAngle, float yAngle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_zxy_sh4(zAngle, xAngle, yAngle);
+#else
     shz_xmtrx_rotate_z(zAngle);
     shz_xmtrx_rotate_x(xAngle);
     shz_xmtrx_rotate_y(yAngle);
+#endif
 }
 
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_yxz_sh4(yAngle, xAngle, zAngle);
+#else
     shz_xmtrx_rotate_y(yAngle);
     shz_xmtrx_rotate_x(xAngle);
     shz_xmtrx_rotate_z(zAngle);
+#endif
 }
 
 SHZ_INLINE void shz_xmtrx_rotate(float angle, float x, float y, float z) SHZ_NOEXCEPT {

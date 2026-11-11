@@ -27,7 +27,7 @@ bool memcpy_bench(auto&& pFn) {
     static MemcpyBuffer<Bytes, SrcAlign, Pad> src;
     static MemcpyBuffer<Bytes, DstAlign, Pad> dst;
 
-    return benchmark_cmp(void*, pFn, memcpy, dst.buffer.data(), src.buffer.data(), Bytes);
+    return (benchmark_cmp<void*>)("pFn", bench_fn(pFn), "memcpy", bench_fn(memcpy), dst.buffer.data(), src.buffer.data(), Bytes);
 }
 
 template<size_t Bytes, size_t SrcAlign, size_t DstAlign, size_t Pad>

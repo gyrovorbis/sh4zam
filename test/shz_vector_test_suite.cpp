@@ -265,7 +265,7 @@ GBL_TEST_CASE(vec3Dot2)
                                        return l.dot(r1, r2);
                                    },
                                    "scalar",
-                                   scalar,
+                                   bench_fn(scalar),
                                    l, r1, r2);
         }(v1, v2, v3);
         return success;
@@ -318,7 +318,7 @@ GBL_TEST_CASE(vec3Dot3)
                                        return l.dot(r1, r2, r3);
                                    },
                                    "scalar",
-                                   scalar,
+                                   bench_fn(scalar),
                                    l, r1, r2, r3);
     }
 GBL_TEST_CASE_END

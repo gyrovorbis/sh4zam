@@ -315,7 +315,7 @@ GBL_TEST_CASE(crecipf)
     }
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::crecipf",
-        shz::crecipf,
+        bench_fn(shz::crecipf),
         "1/(std::complex)",
         [](shz::complex c) {
             auto r = std::complex<float>(1.0f, 0.0f) / std::complex<float>(c.real, c.imag);
@@ -342,7 +342,7 @@ GBL_TEST_CASE(cabsf)
     GBL_TEST_VERIFY(test({-3.0f, -4.0f}));  // |-3-4i| = 5
     GBL_TEST_VERIFY((benchmark_cmp<float>)(
         "shz::cabsf",
-        shz::cabsf,
+        bench_fn(shz::cabsf),
         "std::abs",
         [](shz::complex c) { return abs(std::complex<float>(c.real, c.imag)); },
         shz::complex{3.0f, 4.0f}));
@@ -360,7 +360,7 @@ GBL_TEST_CASE(inv_cabsf)
     GBL_TEST_VERIFY(test({0.0f, 2.0f}));   // 1/2
     GBL_TEST_VERIFY((benchmark_cmp<float>)(
         "shz::inv_cabsf",
-        shz::inv_cabsf,
+        bench_fn(shz::inv_cabsf),
         "1.0f/std::abs",
         [](shz::complex c) { return 1.0f / abs(std::complex<float>(c.real, c.imag)); },
         shz::complex{3.0f, 4.0f}));
@@ -378,10 +378,10 @@ GBL_TEST_CASE(cnormf)
     GBL_TEST_VERIFY(test({0.0f,  0.0f}));   // 0
     GBL_TEST_VERIFY(test({-2.0f, -2.0f}));  // 8
     GBL_TEST_VERIFY((benchmark_cmp<float>)(
+        "shz::cnormf",
+        bench_fn(shz::cnormf),
         "std::norm",
         [](volatile shz::complex c) { return std::norm(std::complex<float>(static_cast<float>(c.real), static_cast<float>(c.imag))); },
-        "shz::cnormf",
-        shz::cnormf,
         shz::complex{3.0f, 4.0f}));
 GBL_TEST_CASE_END
 
@@ -399,7 +399,7 @@ GBL_TEST_CASE(cargf)
     GBL_TEST_VERIFY(test({1.0f, -1.0f}));   // arg = -pi/4
     GBL_TEST_VERIFY((benchmark_cmp<float>)(
         "shz::cargf",
-        shz::cargf,
+        bench_fn(shz::cargf),
         "std::arg",
         [](shz::complex c) { return std::arg(std::complex<float>(c.real, c.imag)); },
         shz::complex{1.0f, 1.0f}));
@@ -421,7 +421,7 @@ GBL_TEST_CASE(conjf)
         [[maybe_unused]]
         bool gainz = (benchmark_cmp<shz::complex>)(
             "shz::conjf",
-            shz::conjf,
+            bench_fn(shz::conjf),
             "std::conj",
             [](volatile shz::complex c) {
                 auto r = std::conj(std::complex<float>(static_cast<float>(c.real), static_cast<float>(c.imag)));
@@ -475,7 +475,7 @@ GBL_TEST_CASE(csqrtf)
     GBL_TEST_VERIFY(test({3.0f,  4.0f}));   // sqrt(3+4i)
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::csqrtf",
-        shz::csqrtf,
+        bench_fn(shz::csqrtf),
         "std::sqrt",
         [](shz::complex c) {
             auto r = std::sqrt(std::complex<float>(c.real, c.imag));
@@ -522,7 +522,7 @@ GBL_TEST_CASE(cexpf)
     GBL_TEST_VERIFY(test({1.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::cexpf",
-        shz::cexpf,
+        bench_fn(shz::cexpf),
         "std::exp",
         [](shz::complex c) {
             auto r = std::exp(std::complex<float>(c.real, c.imag));
@@ -547,7 +547,7 @@ GBL_TEST_CASE(clogf)
     GBL_TEST_VERIFY(test({3.0f,  4.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::clogf",
-        shz::clogf,
+        bench_fn(shz::clogf),
         "std::log",
         [](shz::complex c) {
             auto r = std::log(std::complex<float>(c.real, c.imag));
@@ -570,7 +570,7 @@ GBL_TEST_CASE(clog10f)
     GBL_TEST_VERIFY(test({0.0f,  1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::clog10f",
-        shz::clog10f,
+        bench_fn(shz::clog10f),
         "std::log10",
         [](shz::complex c) {
             auto r = std::log10(std::complex<float>(c.real, c.imag));
@@ -598,7 +598,7 @@ GBL_TEST_CASE(csinf)
     GBL_TEST_VERIFY(test({SHZ_F_PI / 2.0f, 0.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::csinf",
-        shz::csinf,
+        bench_fn(shz::csinf),
         "std::sin",
         [](shz::complex c) {
             auto r = std::sin(std::complex<float>(c.real, c.imag));
@@ -622,7 +622,7 @@ GBL_TEST_CASE(ccosf)
     GBL_TEST_VERIFY(test({SHZ_F_PI, 0.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::ccosf",
-        shz::ccosf,
+        bench_fn(shz::ccosf),
         "std::cos",
         [](shz::complex c) {
             auto r = std::cos(std::complex<float>(c.real, c.imag));
@@ -645,7 +645,7 @@ GBL_TEST_CASE(ctanf)
     GBL_TEST_VERIFY(test({0.5f, 0.5f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::ctanf",
-        shz::ctanf,
+        bench_fn(shz::ctanf),
         "std::tan",
         [](shz::complex c) {
             auto r = std::tan(std::complex<float>(c.real, c.imag));
@@ -667,7 +667,7 @@ GBL_TEST_CASE(ccscf)
     GBL_TEST_VERIFY(test({1.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::ccscf",
-        shz::ccscf,
+        bench_fn(shz::ccscf),
         "1/std::sin",
         [](shz::complex c) {
             auto r = std::complex<float>(1.0f, 0.0f) / std::sin(std::complex<float>(c.real, c.imag));
@@ -690,7 +690,7 @@ GBL_TEST_CASE(csecf)
     GBL_TEST_VERIFY(test({1.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::csecf",
-        shz::csecf,
+        bench_fn(shz::csecf),
         "1/std::cos",
         [](shz::complex c) {
             auto r = std::complex<float>(1.0f, 0.0f) / std::cos(std::complex<float>(c.real, c.imag));
@@ -713,7 +713,7 @@ GBL_TEST_CASE(ccotf)
     GBL_TEST_VERIFY(test({0.5f, 0.5f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::ccotf",
-        shz::ccotf,
+        bench_fn(shz::ccotf),
         "std::cos/std::sin",
         [](shz::complex c) {
             auto sc = std::complex<float>(c.real, c.imag);
@@ -737,7 +737,7 @@ GBL_TEST_CASE(casinf)
     GBL_TEST_VERIFY(test({0.5f, 0.5f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::casinf",
-        shz::casinf,
+        bench_fn(shz::casinf),
         "std::asin",
         [](shz::complex c) {
             auto r = std::asin(std::complex<float>(c.real, c.imag));
@@ -760,7 +760,7 @@ GBL_TEST_CASE(cacosf)
     GBL_TEST_VERIFY(test({0.5f, 0.5f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::cacosf",
-        shz::cacosf,
+        bench_fn(shz::cacosf),
         "std::acos",
         [](shz::complex c) {
             auto r = std::acos(std::complex<float>(c.real, c.imag));
@@ -783,7 +783,7 @@ GBL_TEST_CASE(catanf)
     GBL_TEST_VERIFY(test({0.5f, 0.5f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::catanf",
-        shz::catanf,
+        bench_fn(shz::catanf),
         "std::atan",
         [](shz::complex c) {
             auto r = std::atan(std::complex<float>(c.real, c.imag));
@@ -807,7 +807,7 @@ GBL_TEST_CASE(cacscf)
     GBL_TEST_VERIFY(test({0.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::cacscf",
-        shz::cacscf,
+        bench_fn(shz::cacscf),
         "std::asin(1/z)",
         [](shz::complex c) {
             auto sc = std::complex<float>(c.real, c.imag);
@@ -831,7 +831,7 @@ GBL_TEST_CASE(casecf)
     GBL_TEST_VERIFY(test({1.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::casecf",
-        shz::casecf,
+        bench_fn(shz::casecf),
         "std::acos(1/z)",
         [](shz::complex c) {
             auto sc = std::complex<float>(c.real, c.imag);
@@ -856,7 +856,7 @@ GBL_TEST_CASE(cacotf)
     GBL_TEST_VERIFY(test({0.5f, 0.5f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::cacotf",
-        shz::cacotf,
+        bench_fn(shz::cacotf),
         "std::atan(1/z)",
         [](shz::complex c) {
             auto sc = std::complex<float>(c.real, c.imag);
@@ -884,7 +884,7 @@ GBL_TEST_CASE(csinhf)
     GBL_TEST_VERIFY(test({1.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::csinhf",
-        shz::csinhf,
+        bench_fn(shz::csinhf),
         "std::sinh",
         [](shz::complex c) {
             auto r = std::sinh(std::complex<float>(c.real, c.imag));
@@ -907,7 +907,7 @@ GBL_TEST_CASE(ccoshf)
     GBL_TEST_VERIFY(test({1.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::ccoshf",
-        shz::ccoshf,
+        bench_fn(shz::ccoshf),
         "std::cosh",
         [](shz::complex c) {
             auto r = std::cosh(std::complex<float>(c.real, c.imag));
@@ -930,7 +930,7 @@ GBL_TEST_CASE(ctanhf)
     GBL_TEST_VERIFY(test({0.5f, 0.5f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::ctanhf",
-        shz::ctanhf,
+        bench_fn(shz::ctanhf),
         "std::tanh",
         [](shz::complex c) {
             auto r = std::tanh(std::complex<float>(c.real, c.imag));
@@ -952,7 +952,7 @@ GBL_TEST_CASE(ccschf)
     GBL_TEST_VERIFY(test({1.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::ccschf",
-        shz::ccschf,
+        bench_fn(shz::ccschf),
         "1/std::sinh",
         [](shz::complex c) {
             auto r = std::complex<float>(1.0f, 0.0f) / std::sinh(std::complex<float>(c.real, c.imag));
@@ -975,7 +975,7 @@ GBL_TEST_CASE(csechf)
     GBL_TEST_VERIFY(test({1.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::csechf",
-        shz::csechf,
+        bench_fn(shz::csechf),
         "1/std::cosh",
         [](shz::complex c) {
             auto r = std::complex<float>(1.0f, 0.0f) / std::cosh(std::complex<float>(c.real, c.imag));
@@ -998,7 +998,7 @@ GBL_TEST_CASE(ccothf)
     GBL_TEST_VERIFY(test({0.5f, 0.5f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::ccothf",
-        shz::ccothf,
+        bench_fn(shz::ccothf),
         "std::cosh/std::sinh",
         [](shz::complex c) {
             auto sc = std::complex<float>(c.real, c.imag);
@@ -1022,7 +1022,7 @@ GBL_TEST_CASE(casinhf)
     GBL_TEST_VERIFY(test({1.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::casinhf",
-        shz::casinhf,
+        bench_fn(shz::casinhf),
         "std::asinh",
         [](shz::complex c) {
             auto r = std::asinh(std::complex<float>(c.real, c.imag));
@@ -1045,7 +1045,7 @@ GBL_TEST_CASE(cacoshf)
     GBL_TEST_VERIFY(test({1.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::cacoshf",
-        shz::cacoshf,
+        bench_fn(shz::cacoshf),
         "std::acosh",
         [](shz::complex c) {
             auto r = std::acosh(std::complex<float>(c.real, c.imag));
@@ -1068,7 +1068,7 @@ GBL_TEST_CASE(catanhf)
     GBL_TEST_VERIFY(test({0.5f, 0.5f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::catanhf",
-        shz::catanhf,
+        bench_fn(shz::catanhf),
         "std::atanh",
         [](shz::complex c) {
             auto r = std::atanh(std::complex<float>(c.real, c.imag));
@@ -1091,7 +1091,7 @@ GBL_TEST_CASE(cacschf)
     GBL_TEST_VERIFY(test({1.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::cacschf",
-        shz::cacschf,
+        bench_fn(shz::cacschf),
         "std::asinh(1/z)",
         [](shz::complex c) {
             auto sc = std::complex<float>(c.real, c.imag);
@@ -1115,7 +1115,7 @@ GBL_TEST_CASE(casechf)
     GBL_TEST_VERIFY(test({0.5f, 0.5f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::casechf",
-        shz::casechf,
+        bench_fn(shz::casechf),
         "std::acosh(1/z)",
         [](shz::complex c) {
             auto sc = std::complex<float>(c.real, c.imag);
@@ -1139,7 +1139,7 @@ GBL_TEST_CASE(cacothf)
     GBL_TEST_VERIFY(test({1.0f, 1.0f}));
     GBL_TEST_VERIFY((benchmark_cmp<shz::complex>)(
         "shz::cacothf",
-        shz::cacothf,
+        bench_fn(shz::cacothf),
         "std::atanh(1/z)",
         [](shz::complex c) {
             auto sc = std::complex<float>(c.real, c.imag);
@@ -1233,8 +1233,8 @@ GBL_TEST_CASE(fft)
 
     GBL_TEST_VERIFY(
         (benchmark_cmp<std::nullptr_t>(
-            "shz::fft",         shz::fft,
-            "cooley_tukey_fft", cooley_tukey_fft,
+            "shz::fft",         bench_fn(shz::fft),
+            "cooley_tukey_fft", bench_fn(cooley_tukey_fft),
             samples[0], 1024
         ))
     );

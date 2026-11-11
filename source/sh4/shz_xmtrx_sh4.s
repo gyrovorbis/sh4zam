@@ -11,13 +11,6 @@
 !             KOS-ports build or add SH4ZAM as a git submodule. See AGENTS.md.
 !!
 
-    .section .text._shz_xmtrx_load_apply_store_4x4_sh4, "ax", %progbits
-.globl _shz_xmtrx_load_apply_store_4x4_sh4
-    .section .text._shz_xmtrx_load_apply_store_3x4_sh_, "ax", %progbits
-.globl _shz_xmtrx_load_apply_store_3x4_sh4
-    .section .text._shz_xmtrx_load_apply_store_4x4_sh4, "ax", %progbits
-.globl _shz_xmtrx_load_apply_store_3x3_sh4
-
 !
 ! void shz_xmtrx_load_apply_store_4x4(shz_mat4x4_t* out, const shz_mat4x4_t* matrix1, const shz_mat4x4_t* matrix2)
 !
@@ -25,6 +18,8 @@
 ! r5: matrix1 : First input matrix which gets loaded into XMTRX.
 ! r6: matrix2 : Second input matrix which is applied onto XMTRX.
 !
+    .section .text._shz_xmtrx_load_apply_store_4x4_sh4, "ax", %progbits
+    .globl _shz_xmtrx_load_apply_store_4x4_sh4
     .align 5
 _shz_xmtrx_load_apply_store_4x4_sh4:
     mov       r5, r7
@@ -99,6 +94,8 @@ _shz_xmtrx_load_apply_store_4x4_sh4:
 ! r5: matrix1 : First input matrix which gets loaded into XMTRX.
 ! r6: matrix2 : Second input matrix which is applied onto XMTRX.
 !
+    .section .text._shz_xmtrx_load_apply_store_3x4_sh4, "ax", %progbits
+    .globl _shz_xmtrx_load_apply_store_3x4_sh4
     .align 5
 _shz_xmtrx_load_apply_store_3x4_sh4:
     mov       r5, r7
@@ -187,7 +184,6 @@ _shz_xmtrx_load_apply_store_3x4_sh4:
     rts
     fmov.s    fr0, @-r4
 
-
 !
 ! void shz_xmtrx_load_apply_store_3x3(shz_mat3x3_t* out, const shz_mat3x3_t* matrix1, const shz_mat3x3_t* matrix2)
 !
@@ -195,6 +191,8 @@ _shz_xmtrx_load_apply_store_3x4_sh4:
 ! r5: matrix1 : First input matrix which gets loaded into XMTRX.
 ! r6: matrix2 : Second input matrix which is applied onto XMTRX.
 !
+    .section .text._shz_xmtrx_load_apply_store_3x3_sh4, "ax", %progbits
+    .globl _shz_xmtrx_load_apply_store_3x3_sh4
     .align 5
 _shz_xmtrx_load_apply_store_3x3_sh4:
     mov    r5, r7

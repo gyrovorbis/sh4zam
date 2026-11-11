@@ -307,6 +307,8 @@ std::pair<uint64_t, uint64_t> benchmark(auto res, const char* name, auto&& funct
     return std::make_pair(uncachedCycles, cached.cycles);
 }
 
+#define bench_fn(f) ([&](auto&&... bench_args_) -> decltype(auto) { return f(std::forward<decltype(bench_args_)>(bench_args_)...); })
+
 #define benchmark(res, f, ...) (benchmark)(res, #f, f __VA_OPT__(,) __VA_ARGS__)
 
 struct benchmark_cmp_result {

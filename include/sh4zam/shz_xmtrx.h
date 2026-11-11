@@ -264,7 +264,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation_z(float z) SHZ_NOEXCEPT;
 /*! Initializes XMTRX to be a 3D X-Y-Z rotation matrix, with the corresponding angles given in radians.
 
     \note
-    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
+    The given angles are represented as Tait-Bryan angles, representing an intrinsic rotation.
 
     \sa shz_xmtrx_init_rotation_zyx(), shz_xmtrx_init_rotation_yxz()
 */
@@ -273,7 +273,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation_xyz(float xAngle, float yAngle, float zA
 /*! Initializes XMTRX to be a 3D Z-Y-X rotation matrix, with the corresponding angles given in radians.
 
     \note
-    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
+    The given angles are represented as Tait-Bryan angles, representing an intrinsic rotation.
 
     \sa shz_xmtrx_init_rotation_xyz(), shz_xmtrx_init_rotation_yxz()
 */
@@ -282,7 +282,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation_zyx(float zAngle, float yAngle, float xA
 /*! Initializes XMTRX to be a 3D Z-X-Y rotation matrix, with the corresponding angles given in radians.
 
     \note
-    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
+    The given angles are represented as Tait-Bryan angles, representing an intrinsic rotation.
 
     \sa shz_xmtrx_init_rotation_zyx(), shz_xmtrx_init_rotation_yxz()
 */
@@ -291,7 +291,7 @@ SHZ_INLINE void shz_xmtrx_init_rotation_zxy(float zAngle, float xAngle, float yA
 /*! Initializes XMTRX to be a 3D Y-X-Z rotation matrix, with the corresponding angles given in radians.
 
     \note
-    The given angles are represented as Tait-Bryan angles, representing an extrinsic rotation.
+    The given angles are represented as Tait-Bryan angles, representing an intrinsic rotation.
 
     \sa shz_xmtrx_init_rotation_yxz(), shz_xmtrx_init_rotation_xyz()
 */

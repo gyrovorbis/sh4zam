@@ -57,8 +57,8 @@ GBL_TEST_CASE(floorf)
         volatile float value = -0.8f;
         GBL_TEST_VERIFY(
             (benchmark_cmp<float>)(
-                "shz::floorf", shz::floorf,
-                "floorf", floorf, value
+                "shz::floorf", bench_fn(shz::floorf),
+                "floorf", bench_fn(floorf), value
             )
         );
     }
@@ -87,8 +87,8 @@ GBL_TEST_CASE(ceilf)
         volatile float value = 99.0f;
         GBL_TEST_VERIFY(
             (benchmark_cmp<float>)(
-                "shz::ceilf", shz::ceilf,
-                "ceilf", ceilf, value
+                "shz::ceilf", bench_fn(shz::ceilf),
+                "ceilf", bench_fn(ceilf), value
             )
         );
     }
@@ -254,7 +254,7 @@ GBL_TEST_CASE(mag_sqr3f)
     GBL_TEST_VERIFY(test({-1.0f,   0.0f, 3.333f }));
     {
         volatile float a = 1.0f, b = 2.0f, c = 3.0f;
-        (benchmark_cmp<float>)("shz::mag_sqr3f", shz::mag_sqr3f,
+        (benchmark_cmp<float>)("shz::mag_sqr3f", bench_fn(shz::mag_sqr3f),
                                "a*a + b*b + c*c",
                                [](volatile float x, volatile float y, volatile float z) {
                                    return (x * x) + (y * y) + (z * z);
@@ -275,7 +275,7 @@ GBL_TEST_CASE(mag_sqr4f)
     GBL_TEST_VERIFY(test({-1.0f,   0.0f, 3.333f, -4.4345f}));
     {
         volatile float a = 1.0f, b = 2.0f, c = 3.0f, d = 4.0f;
-            (benchmark_cmp<float>)("shz::mag_sqr4f", shz::mag_sqr4f,
+            (benchmark_cmp<float>)("shz::mag_sqr4f", bench_fn(shz::mag_sqr4f),
                                    "a*a + b*b + c*c + d*d",
                                    [](float a, float b, float c, float d) {
                                        return (a * a) + (b * b) + (c * c) + (d * d);
@@ -362,7 +362,7 @@ GBL_TEST_CASE(smoothstepf)
         volatile float edge0 = 0.0f;
         volatile float edge1 = 17.0f;
         (benchmark_cmp<float>)(
-            "shz::smoothstepf", shz::smoothstepf,
+            "shz::smoothstepf", bench_fn(shz::smoothstepf),
             "glm_smoothstep", [](float edge0, float edge1, float x) { return glm_smoothstep(edge0, edge1, x); },
             x, edge0, edge1);
     }
@@ -415,7 +415,7 @@ GBL_TEST_CASE(smoothstepf_safe)
         volatile float edge0 = 0.0f;
         volatile float edge1 = 17.0f;
         (benchmark_cmp<float>)(
-            "shz::smoothstepf_safe", shz::smoothstepf_safe,
+            "shz::smoothstepf_safe", bench_fn(shz::smoothstepf_safe),
             "glm_smoothstep", [](float edge0, float edge1, float x) { return glm_smoothstep(edge0, edge1, x); },
             x, edge0, edge1);
     }
@@ -439,11 +439,11 @@ GBL_TEST_SKIP("FUCKED");
     {
         volatile float value = -0.125f;
         GBL_TEST_VERIFY(
-            (benchmark_cmp<float>)("shz::cbrtf", shz::cbrtf,
-                                   "cbrtf", cbrtf, value)
+            (benchmark_cmp<float>)("shz::cbrtf", bench_fn(shz::cbrtf),
+                                   "cbrtf", bench_fn(cbrtf), value)
         );
         GBL_TEST_VERIFY(
-            (benchmark_cmp<float>)("shz::cbrtf", shz::cbrtf,
+            (benchmark_cmp<float>)("shz::cbrtf", bench_fn(shz::cbrtf),
                                    "powf(x, 1.0f/3.0f)", [](float x) { return powf(x, 1.0f / 3.0f); },
                                     value)
         );
@@ -466,8 +466,8 @@ GBL_TEST_CASE(logf)
     GBL_TEST_VERIFY(test(0.000125f));
     GBL_TEST_VERIFY(
         (benchmark_cmp<float>)(
-            "shz::logf", shz::logf,
-            "logf", logf, 9999.0f
+            "shz::logf", bench_fn(shz::logf),
+            "logf", bench_fn(logf), 9999.0f
         )
     );
 GBL_TEST_CASE_END
@@ -490,8 +490,8 @@ GBL_TEST_CASE(log10f)
     GBL_TEST_VERIFY(test(0.000125f));
     GBL_TEST_VERIFY(
         (benchmark_cmp<float>)(
-            "shz::log10f", shz::log10f,
-            "log10f", log10f, 9999.0f
+            "shz::log10f", bench_fn(shz::log10f),
+            "log10f", bench_fn(log10f), 9999.0f
         )
     );
 GBL_TEST_CASE_END
@@ -514,7 +514,7 @@ GBL_TEST_CASE(pow10f)
 
     GBL_TEST_VERIFY(
         (benchmark_cmp<float>)(
-            "shz::pow10f", shz::pow10f,
+            "shz::pow10f", bench_fn(shz::pow10f),
             "pow10f", [](float value) { return powf(10.0f, value); }, 99.0f
         )
     );
@@ -563,8 +563,8 @@ GBL_TEST_CASE(fmodf)
         volatile float num = -5.0f;
         volatile float den = 2.0f;
         GBL_TEST_VERIFY((benchmark_cmp<float>)(
-            "shz::fmodf", shz::fmodf,
-            "fmodf", fmodf, num, den)
+            "shz::fmodf", bench_fn(shz::fmodf),
+            "fmodf", bench_fn(fmodf), num, den)
         );
     }
 GBL_TEST_CASE_END
@@ -615,8 +615,8 @@ GBL_TEST_CASE(remainderf)
         volatile float num = 7.0f;
         volatile float den = 3.0f;
         GBL_TEST_VERIFY((benchmark_cmp<float>)(
-            "shz::remainderf", shz::remainderf,
-            "remainderf", remainderf, num, den)
+            "shz::remainderf", bench_fn(shz::remainderf),
+            "remainderf", bench_fn(remainderf), num, den)
         );
     }
 GBL_TEST_CASE_END

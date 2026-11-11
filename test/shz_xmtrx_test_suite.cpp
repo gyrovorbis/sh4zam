@@ -190,7 +190,7 @@ GBL_TEST_CASE(load_4x4)
 
     benchmark(nullptr, [&]() { shz::xmtrx::load(mat4); });
 #if SHZ_BACKEND == SHZ_SH4
-    benchmark(nullptr, mat_load, (const float(*)[4][4])&mat4);
+    (benchmark)(nullptr, "mat_load", bench_fn(mat_load), (const float(*)[4][4])&mat4);
 #endif
 GBL_TEST_CASE_END
 
@@ -343,7 +343,7 @@ GBL_TEST_CASE(init_identity)
                     0.0f, 0.0f, 0.0f, 1.0f}));
 
         (benchmark_cmp<void>)(
-            "shz::xmtrx::init_identity", shz::xmtrx::init_identity,
+            "shz::xmtrx::init_identity", bench_fn(shz::xmtrx::init_identity),
             "glm_mat4_identity",         [&] {
                 glm_mat4_identity(*const_cast<mat4*>(&transform));
                 (void)transform;
@@ -630,17 +630,6 @@ GBL_TEST_CASE(init_rotation_dir)
                         "glm_rotate_make", [&](float angle, const shz::vec3& dir) {
                             volatile vec3 a = { dir.x, dir.y, dir.z };
                             glm_rotate_make(const_cast<mat4&>(m), angle, const_cast<vec3&>(a));
-                        },
-                        angle, axis
-                    );
-
-                success &=
-                    (benchmark_cmp<void>)(
-                        "shz::xmtrx::init_rotation_dir", [](float angle, const shz::vec3& dir) {
-                            shz::xmtrx::init_rotation_dir(angle, dir);
-                        },
-                        "Old version:", [](float angle, const shz::vec3& axis) {
-                            shz::xmtrx::init_rotation(angle, axis);
                         },
                         angle, axis
                     );
@@ -1602,18 +1591,6 @@ GBL_TEST_CASE(rotate_dir)
                 1.1f, dir.x, dir.y, dir.z
             )
         );
-
-        GBL_TEST_VERIFY(
-            (benchmark_cmp<void>)(
-                "shz::xmtrx::rotate_dir", [](float angle, float x, float y, float z) {
-                    shz::xmtrx::rotate_dir(angle, x, y, z);
-                },
-                "shz::xmtrx::rotate", [](float angle, float x, float y, float z) {
-                    shz::xmtrx::rotate(angle, x, y, z);
-                },
-                1.1f, dir.x, dir.y, dir.z
-            )
-        );
     }
 GBL_TEST_CASE_END
 
@@ -1892,7 +1869,7 @@ GBL_TEST_CASE(translate)
             "shz::xmtrx::translate", [](float x, float y, float z) {
                 shz::xmtrx::translate(x, y, z);
             },
-            "mat_translate", mat_translate,
+            "mat_translate", bench_fn(mat_translate),
             100.0f, 200.0f, 300.0f
         )
     );
@@ -2856,8 +2833,42 @@ GBL_TEST_CASE(invert_rigid)
     memcpy(ref, in.elem, sizeof(ref));
 
     (benchmark_cmp<void>)(
-        "shz::xmtrx::invert_rigid", shz::xmtrx::invert_rigid,
+        "shz::xmtrx::invert_rigid", bench_fn(shz::xmtrx::invert_rigid),
         "glm_inv_tr",               [&] { glm_inv_tr(ref); });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(negate)
+    alignas(32) shz_mat4x4_t in = { .elem = { 2.0f,     -3.0f,  0.0f,     -0.0f,
+                                              5.5f,     -1.5f,  1.0e30f,  -1.0e-30f,
+                                              INFINITY, -INFINITY, 0.25f, 7.0f,
+                                              -1.0f,    4.0f,   -8.0f,    123.456f } };
+    alignas(32) shz_mat4x4_t got;
+    mat4 ref;
+
+    randomize_xmtrx_();
+    shz::xmtrx::load(in);
+    shz::xmtrx::negate();
+    shz::xmtrx::store(&got);
+
+    for(unsigned i = 0; i < 16; ++i) {
+        uint32_t gotBits, inBits;
+        memcpy(&gotBits, &got.elem[i], sizeof(float));
+        memcpy(&inBits,  &in.elem[i],  sizeof(float));
+        GBL_TEST_VERIFY(gotBits == (inBits ^ 0x80000000u));
+    }
+
+    shz::xmtrx::negate();
+    shz::xmtrx::store(&got);
+
+    for(unsigned i = 0; i < 16; ++i)
+        GBL_TEST_VERIFY(!memcmp(&got.elem[i], &in.elem[i], sizeof(float)));
+
+    shz::xmtrx::load(in);
+    memcpy(ref, in.elem, sizeof(ref));
+
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::negate", bench_fn(shz::xmtrx::negate),
+        "glm_mat4_scale",     [&] { glm_mat4_scale(ref, -1.0f); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_3x3)
@@ -3636,6 +3647,7 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_self,
                   trace,
                   invert_rigid,
+                  negate,
                   load_3x3,
                   load_transpose_3x3,
                   store_3x3,

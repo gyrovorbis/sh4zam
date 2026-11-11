@@ -447,19 +447,19 @@ GBL_TEST_CASE(to_angles_benchmark)
 
     GBL_TEST_VERIFY(
         (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_xyz", [](const shz::quat& q) { return q.to_angles_xyz(); },
-                                   "glm_quat_mat4 + glm_euler_angles", glm_to_angles_xyz, q)
+                                   "glm_quat_mat4 + glm_euler_angles", bench_fn(glm_to_angles_xyz), q)
     );
     GBL_TEST_VERIFY(
         (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_zyx", [](const shz::quat& q) { return q.to_angles_zyx(); },
-                                   "glm_quat_mat4 + glm_euler_angles", glm_to_angles_xyz, q)
+                                   "glm_quat_mat4 + glm_euler_angles", bench_fn(glm_to_angles_xyz), q)
     );
     GBL_TEST_VERIFY(
         (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_zxy", [](const shz::quat& q) { return q.to_angles_zxy(); },
-                                   "glm_quat_mat4 + glm_euler_angles", glm_to_angles_xyz, q)
+                                   "glm_quat_mat4 + glm_euler_angles", bench_fn(glm_to_angles_xyz), q)
     );
     GBL_TEST_VERIFY(
         (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_yxz", [](const shz::quat& q) { return q.to_angles_yxz(); },
-                                   "glm_quat_mat4 + glm_euler_angles", glm_to_angles_xyz, q)
+                                   "glm_quat_mat4 + glm_euler_angles", bench_fn(glm_to_angles_xyz), q)
     );
 GBL_TEST_CASE_END
 
@@ -586,7 +586,7 @@ GBL_TEST_CASE(transform_vec3)
                                             return q * v;
                                        },
                                        "Vector3RotateByQuaternion",
-                                       raylibVector3RotateByQuaternion,
+                                       bench_fn(raylibVector3RotateByQuaternion),
                                        shz::quat::from_rotation_xyz(0.0f, 1.0f, 2.0f),
                                        shz::vec3{ gblRandf(), gblRandf(), gblRandf() })
         );
@@ -767,7 +767,7 @@ GBL_TEST_CASE(slerp)
                     "shz::quat::slerp",
                     [](shz::quat a, shz::quat b, float t) { return shz::quat::slerp(a, b, t); },
                     "raylibQuaternionSlerp",
-                    raylibQuaternionSlerp,
+                    bench_fn(raylibQuaternionSlerp),
                     shz::quat::from_axis_angle(shz::vec3{1.0f, 1.0f, 1.0f}.direction(), shz::pi_f / 3.0f),
                     shz::quat::from_rotation_xyz(0.5f, 1.0f, 1.5f),
                     0.35f)

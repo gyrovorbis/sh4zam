@@ -12,13 +12,6 @@
 !             KOS-ports build or add SH4ZAM as a git submodule. See AGENTS.md.
 !!
 
-    .section .text._shz_memset8_sh4_, "ax", %progbits
-.globl _shz_memset8_sh4_
-    .section .text._shz_memcpy128_sh4_, "ax", %progbits
-.globl _shz_memcpy128_sh4_
-    .section .text._shz_memcpy32_sh4_, "ax", %progbits
-.globl _shz_sq_memcpy32_sh4_
-
 !
 ! void* shz_memset8_sh4_(void *dst, uint64_t value, size_t bytes)
 !
@@ -26,6 +19,8 @@
 ! r5-r6 : value (64-bit value)
 ! r7    : bytes (number of bytes to copy (should be evenly divisible by 8))
 !
+    .section .text._shz_memset8_sh4_, "ax", %progbits
+    .globl _shz_memset8_sh4_
     .align 2
 _shz_memset8_sh4_:
     shlr2   r7
@@ -63,7 +58,9 @@ _shz_memset8_sh4_:
 !
 ! r0  : dst   (returns destination pointer)
 !
-.align 5
+    .section .text._shz_memcpy128_sh4_, "ax", %progbits
+    .globl _shz_memcpy128_sh4_
+    .align 5
 _shz_memcpy128_sh4_:
 ! Align stack by 8-bytes for FP double push/pop.
     mov       r15, r0       ! r0 = SP
@@ -192,7 +189,6 @@ _shz_memcpy128_sh4_:
     rts     ! Return dst, through r0.
     fschg   ! Swap back to 4-byte FMOV.S mode.
 
-
 !
 ! void* shz_sq_memcpy32_sh4_(void *dst, const void* src, size_t bytes)
 !
@@ -200,6 +196,9 @@ _shz_memcpy128_sh4_:
 ! r5  : src   (should be 8-byte aligned source address))
 ! r6  : bytes (number of bytes to copy (should be evenly divisible by 32))
 !
+    .section .text._shz_sq_memcpy32_sh4_, "ax", %progbits
+    .globl _shz_sq_memcpy32_sh4_
+    .align 2
 _shz_sq_memcpy32_sh4_:
     pref    @r5         ! Immediately prefetch first cache line
     mov     #-5, r7
