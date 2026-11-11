@@ -1969,6 +1969,231 @@ SHZ_INLINE void shz_xmtrx_rotate_yxz_sh4(float yAngle, float xAngle, float zAngl
       "fpul");
 }
 
+SHZ_INLINE void shz_xmtrx_rotate_zyx_u16_sh4(uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        lds     %[x], fpul
+        fsca    fpul, dr10
+        lds     %[y], fpul
+        fsca    fpul, dr12
+        lds     %[z], fpul
+        fmov    fr12, fr0
+        fsca    fpul, dr2
+        fmul    fr10, fr0
+        fmov    fr2, fr4
+        fmul    fr11, fr4
+        fmov    fr3, fr5
+        fmul    fr11, fr5
+        fmov    fr2, fr8
+        fmul    fr10, fr8
+        fmov    fr3, fr9
+        fmul    fr10, fr9
+        fldi0   fr7
+        fmac    fr0, fr2, fr5
+        fneg    fr4
+        fmac    fr0, fr3, fr4
+        fmov    fr12, fr0
+        fmul    fr11, fr0
+        fmov    fr2, fr1
+        fmul    fr13, fr1
+        fmov    fr13, fr6
+        fmul    fr10, fr6
+        fneg    fr9
+        fmac    fr0, fr3, fr8
+        fmov    fr13, fr10
+        fmac    fr0, fr2, fr9
+        fmov    fr3, fr0
+        fmul    fr11, fr10
+        fmov    fr12, fr2
+        fmul    fr13, fr0
+        fneg    fr2
+        ftrv    xmtrx, fv4
+        fldi0   fr3
+        fschg
+        fldi0   fr11
+        ftrv    xmtrx, fv0
+        fmov    xd12, dr12
+        ftrv    xmtrx, fv8
+        fmov    xd14, dr14
+        fschg
+        frchg
+
+    )"
+    :
+    : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9",
+      "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
+      "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_rotate_xyz_u16_sh4(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        lds     %[x], fpul
+        fsca    fpul, dr10
+        lds     %[y], fpul
+        fsca    fpul, dr12
+        lds     %[z], fpul
+        fsca    fpul, dr14
+        fmov    fr12, fr0
+        fmul    fr10, fr0
+        fmov    fr11, fr1
+        fmul    fr14, fr1
+        fmov    fr11, fr5
+        fmul    fr15, fr5
+        fldi0   fr7
+        fmac    fr0, fr15, fr1
+        fneg    fr0
+        fmov    fr10, fr6
+        fmac    fr0, fr14, fr5
+        fmov    fr12, fr0
+        fmul    fr11, fr0
+        fmov    fr10, fr2
+        fmul    fr15, fr6
+        fmov    fr13, fr4
+        fmul    fr14, fr2
+        fmov    fr12, fr8
+        fmac    fr0, fr14, fr6
+        fneg    fr0
+        fmov    fr10, fr9
+        fmac    fr0, fr15, fr2
+        fmov    fr13, fr0
+        fmul    fr14, fr4
+        fmov    fr11, fr10
+        fmul    fr13, fr9
+        fmul    fr15, fr0
+        fneg    fr4
+        fmul    fr13, fr10
+        fneg    fr9
+        ftrv    xmtrx, fv4
+        fldi0   fr3
+        fschg
+        fldi0   fr11
+        ftrv    xmtrx, fv0
+        fmov    xd12, dr12
+        ftrv    xmtrx, fv8
+        fmov    xd14, dr14
+        fschg
+        frchg
+    )"
+    :
+    : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9",
+      "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
+      "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_rotate_zxy_u16_sh4(uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        lds     %[x], fpul
+        fsca    fpul, dr10
+        lds     %[y], fpul
+        fsca    fpul, dr12
+        lds     %[z], fpul
+        fsca    fpul, dr14
+        fmov    fr14, fr0
+        fmul    fr10, fr0
+        fmov    fr15, fr8
+        fmul    fr12, fr8
+        fmov    fr15, fr3
+        fmul    fr13, fr3
+        fldi0   fr7
+        fmac    fr0, fr13, fr8
+        fneg    fr0
+        fmov    fr14, fr1
+        fmac    fr0, fr12, fr3
+        fmov    fr15, fr0
+        fmul    fr10, fr0
+        fmov    fr14, fr9
+        fmul    fr13, fr1
+        fmov    fr11, fr2
+        fmul    fr12, fr9
+        fmov    fr11, fr4
+        fmac    fr0, fr12, fr1
+        fneg    fr0
+        fmov    fr11, fr5
+        fmac    fr0, fr13, fr9
+        fmov    fr10, fr6
+        fmul    fr12, fr2
+        fmov    fr11, fr10
+        fmul    fr14, fr4
+        fmov    fr3, fr0
+        fmul    fr15, fr5
+        fneg    fr2
+        fmul    fr13, fr10
+        fneg    fr4
+        ftrv    xmtrx, fv4
+        fldi0   fr3
+        fschg
+        fldi0   fr11
+        ftrv    xmtrx, fv0
+        fmov    xd12, dr12
+        ftrv    xmtrx, fv8
+        fmov    xd14, dr14
+        fschg
+        frchg
+    )"
+    :
+    : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9",
+      "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
+      "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_rotate_yxz_u16_sh4(uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        lds     %[x], fpul
+        fsca    fpul, dr10
+        lds     %[y], fpul
+        fsca    fpul, dr12
+        lds     %[z], fpul
+        fsca    fpul, dr14
+        fmov    fr12, fr0
+        fmul    fr10, fr0
+        fmov    fr13, fr3
+        fmul    fr15, fr3
+        fmov    fr13, fr4
+        fmul    fr14, fr4
+        fldi0   fr7
+        fmac    fr0, fr14, fr3
+        fneg    fr4
+        fmov    fr12, fr2
+        fmac    fr0, fr15, fr4
+        fmov    fr13, fr0
+        fmul    fr10, fr0
+        fmov    fr12, fr6
+        fmul    fr15, fr2
+        fmov    fr11, fr1
+        fmul    fr14, fr6
+        fneg    fr2
+        fmac    fr0, fr15, fr6
+        fmov    fr11, fr5
+        fmac    fr0, fr14, fr2
+        fmov    fr11, fr8
+        fmul    fr14, fr1
+        fmov    fr10, fr9
+        fmul    fr15, fr5
+        fmov    fr11, fr10
+        fmul    fr12, fr8
+        fneg    fr9
+        fmul    fr13, fr10
+        fmov    fr3, fr0
+        ftrv    xmtrx, fv4
+        fldi0   fr3
+        fschg
+        fldi0   fr11
+        ftrv    xmtrx, fv0
+        fmov    xd12, dr12
+        ftrv    xmtrx, fv8
+        fmov    xd14, dr14
+        fschg
+        frchg
+    )"
+    :
+    : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9",
+      "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
+      "fpul");
+}
+
 /* Rodrigues' Rotation Formula
 
     s = sin(angle), c = cos(angle), t = 1 - c

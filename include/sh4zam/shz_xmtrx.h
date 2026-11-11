@@ -552,6 +552,25 @@ SHZ_INLINE void shz_xmtrx_rotate_zxy(float zRadians, float xRadians, float yRadi
 //! Multiplies and accumulates XMTRX by 3D rotation matrices about the Y then X then Z axes.
 SHZ_INLINE void shz_xmtrx_rotate_yxz(float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT;
 
+/*! Equivalent to shz_xmtrx_rotate_xyz(), with 16-bit binary angles (65536 per turn, the FSCA unit).
+
+    For games whose orientations are stored as 16-bit angles. Signed 16-bit angles can be passed
+    as they are. The angles go to FSCA as given, where shz_xmtrx_rotate_xyz() scales radians back
+    to this unit and truncates with FTRC, which can land one unit short.
+
+    \sa shz_xmtrx_rotate_xyz(), shz_xmtrx_rotate_x_u16(), shz_quat_from_rotation_xyz_u16()
+*/
+SHZ_INLINE void shz_xmtrx_rotate_xyz_u16(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT;
+
+//! Equivalent to shz_xmtrx_rotate_zyx(), with 16-bit binary angles.
+SHZ_INLINE void shz_xmtrx_rotate_zyx_u16(uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) SHZ_NOEXCEPT;
+
+//! Equivalent to shz_xmtrx_rotate_zxy(), with 16-bit binary angles.
+SHZ_INLINE void shz_xmtrx_rotate_zxy_u16(uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) SHZ_NOEXCEPT;
+
+//! Equivalent to shz_xmtrx_rotate_yxz(), with 16-bit binary angles.
+SHZ_INLINE void shz_xmtrx_rotate_yxz_u16(uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) SHZ_NOEXCEPT;
+
 /*! Multiplies XMTRX by a 3D rotation matrix about an arbitrary axis.
 
     Constructs a 4x4 rotation matrix of \p radians about the axis with the given

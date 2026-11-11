@@ -645,6 +645,26 @@ struct xmtrx {
         shz_xmtrx_rotate_yxz(y, x, z);
     }
 
+    //! C++ wrapper around shz_xmtrx_rotate_xyz_u16().
+    SHZ_FORCE_INLINE static void rotate_xyz_u16(uint16_t x, uint16_t y, uint16_t z) noexcept {
+        shz_xmtrx_rotate_xyz_u16(x, y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_zyx_u16().
+    SHZ_FORCE_INLINE static void rotate_zyx_u16(uint16_t z, uint16_t y, uint16_t x) noexcept {
+        shz_xmtrx_rotate_zyx_u16(z, y, x);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_zxy_u16().
+    SHZ_FORCE_INLINE static void rotate_zxy_u16(uint16_t z, uint16_t x, uint16_t y) noexcept {
+        shz_xmtrx_rotate_zxy_u16(z, x, y);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_yxz_u16().
+    SHZ_FORCE_INLINE static void rotate_yxz_u16(uint16_t y, uint16_t x, uint16_t z) noexcept {
+        shz_xmtrx_rotate_yxz_u16(y, x, z);
+    }
+
     //! C++ wrapper around shz_xmtrx_rotate().
     SHZ_FORCE_INLINE static void rotate(float radians, float x, float y, float z) noexcept {
         shz_xmtrx_rotate(radians, x, y, z);

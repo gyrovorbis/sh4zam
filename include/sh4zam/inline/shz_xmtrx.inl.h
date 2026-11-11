@@ -993,6 +993,46 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_yxz(float yAngle, float xAngle, float zAn
 #endif
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_xyz_u16(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_xyz_u16_sh4(xAngle, yAngle, zAngle);
+#else
+    shz_xmtrx_rotate_x_u16(xAngle);
+    shz_xmtrx_rotate_y_u16(yAngle);
+    shz_xmtrx_rotate_z_u16(zAngle);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_zyx_u16(uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_zyx_u16_sh4(zAngle, yAngle, xAngle);
+#else
+    shz_xmtrx_rotate_z_u16(zAngle);
+    shz_xmtrx_rotate_y_u16(yAngle);
+    shz_xmtrx_rotate_x_u16(xAngle);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_zxy_u16(uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_zxy_u16_sh4(zAngle, xAngle, yAngle);
+#else
+    shz_xmtrx_rotate_z_u16(zAngle);
+    shz_xmtrx_rotate_x_u16(xAngle);
+    shz_xmtrx_rotate_y_u16(yAngle);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_yxz_u16(uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_yxz_u16_sh4(yAngle, xAngle, zAngle);
+#else
+    shz_xmtrx_rotate_y_u16(yAngle);
+    shz_xmtrx_rotate_x_u16(xAngle);
+    shz_xmtrx_rotate_z_u16(zAngle);
+#endif
+}
+
 SHZ_INLINE void shz_xmtrx_rotate(float angle, float x, float y, float z) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_rotate_sh4(angle, x, y, z);
