@@ -448,7 +448,18 @@ SHZ_INLINE shz_quat_t shz_quat_from_angles_xyz(float xangle, float yangle, float
 
 //! @}
 
-#include "inline/shz_quat.inl.h"
+#define SHZ_QUAT_DECLARED_
+
+#include "shz_xmtrx.h"
+#include "shz_matrix.h"
+
+#if defined(SHZ_QUAT_DECLARED_) && defined(SHZ_XMTRX_DECLARED_) && \
+    defined(SHZ_MATRIX_DECLARED_) && !defined(SHZ_LINALG_INL_)
+#   define SHZ_LINALG_INL_
+#   include "inline/shz_quat.inl.h"
+#   include "inline/shz_xmtrx.inl.h"
+#   include "inline/shz_matrix.inl.h"
+#endif
 
 SHZ_DECLS_END
 

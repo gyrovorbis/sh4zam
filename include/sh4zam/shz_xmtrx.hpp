@@ -883,6 +883,18 @@ struct xmtrx {
         return shz_xmtrx_to_quat();
     }
 
+    //! Returns both the angle and axis of rotation through the pointer arguments.
+    SHZ_FORCE_INLINE static void get_rotation(float* radians, shz_vec3_t* axis) noexcept {
+        shz_xmtrx_get_rotation(radians, axis);
+    }
+
+    //! Returns both the angle and axis of rotation as a std::pair.
+    SHZ_FORCE_INLINE static auto get_rotation() noexcept -> std::pair<float, vec3> {
+        std::pair<float, vec3> aa;
+        shz_xmtrx_get_rotation(&std::get<0>(aa), &std::get<1>(aa));
+        return aa;
+    }
+
     //! C++ wrapper around shz_xmtrx_determinant().
     SHZ_FORCE_INLINE static float determinant() noexcept {
         return shz_xmtrx_determinant();

@@ -433,6 +433,153 @@ GBL_TEST_CASE(get_scale)
     );
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(get_rotation)
+    alignas(32) shz_glm_mat4 mat;
+
+    auto reference = [](const shz_glm_mat4& m, float* angle, shz::vec3* axis) {
+        versor q;
+        vec3   a;
+
+        glm_mat4_quat(const_cast<mat4&>(m.glm), q);
+        glm_quat_axis(q, a);
+
+        *angle = glm_quat_angle(q);
+        *axis  = shz::vec3(a[0], a[1], a[2]);
+
+        if(*angle > shz::pi_f) {
+            *angle = shz::pi_f * 2.0f - *angle;
+            *axis  = -*axis;
+        }
+    };
+
+    auto matches = [&](const shz_glm_mat4& m, bool signFree = false) {
+        float     angle, refAngle;
+        shz::vec3 axis,  refAxis;
+
+        m.shz.get_rotation(&angle, &axis);
+        reference(m, &refAngle, &refAxis);
+
+        const float alignment = axis.dot(refAxis);
+
+        return shz_fabsf(angle - refAngle) <= 1.0e-2f &&
+               (signFree? shz_fabsf(alignment) : alignment) >= 0.9999f;
+    };
+
+    // Rotations about each basis axis.
+    {
+        mat.shz.init_rotation_x(0.5f);
+        GBL_TEST_VERIFY(matches(mat));
+
+        mat.shz.init_rotation_y(0.5f);
+        GBL_TEST_VERIFY(matches(mat));
+
+        mat.shz.init_rotation_z(0.5f);
+        GBL_TEST_VERIFY(matches(mat));
+    }
+
+    // Arbitrary axis across the angle range, both directions.
+    for(float angle : { 0.3f, 1.2f, 2.5f, 3.0f, -1.2f, -2.5f }) {
+        mat.shz.init_rotation(angle, shz::vec3(1.0f, 2.0f, 3.0f).direction());
+        GBL_TEST_VERIFY(matches(mat));
+    }
+
+    // Composed rotations with translation, which must be ignored.
+    {
+        mat.shz.init_identity();
+        mat.shz.rotate_x(shz::deg_to_rad(30.0f));
+        mat.shz.rotate_y(shz::deg_to_rad(60.0f));
+        mat.shz.rotate_z(shz::deg_to_rad(-45.0f));
+        mat.shz.add_translation(5.0f, -6.0f, 7.0f);
+        GBL_TEST_VERIFY(matches(mat));
+    }
+
+    // Identity: zero angle with the fallback X axis.
+    {
+        mat.shz.init_identity();
+
+        float     angle;
+        shz::vec3 axis;
+        mat.shz.get_rotation(&angle, &axis);
+
+        GBL_TEST_VERIFY(angle == 0.0f);
+        GBL_TEST_VERIFY(axis == shz::vec3(1.0f, 0.0f, 0.0f));
+    }
+
+    // Half-turns, where the axis is only defined up to sign.
+    {
+        mat.shz.init_rotation_x(shz::pi_f);
+        GBL_TEST_VERIFY(matches(mat, true));
+
+        mat.shz.init_rotation_y(shz::pi_f);
+        GBL_TEST_VERIFY(matches(mat, true));
+
+        mat.shz.init_rotation_z(shz::pi_f);
+        GBL_TEST_VERIFY(matches(mat, true));
+
+        mat.shz.init_rotation(shz::pi_f, shz::vec3(1.0f, 2.0f, 3.0f).direction());
+        GBL_TEST_VERIFY(matches(mat, true));
+
+        mat.shz.init_rotation(shz::pi_f, shz::vec3(-1.0f, 2.0f, -3.0f).direction());
+        GBL_TEST_VERIFY(matches(mat, true));
+    }
+
+    // std::pair overload agrees with the pointer overload.
+    {
+        mat.shz.init_rotation(1.2f, shz::vec3(1.0f, 2.0f, 3.0f).direction());
+
+        float     angle;
+        shz::vec3 axis;
+        mat.shz.get_rotation(&angle, &axis);
+
+        const auto [pairAngle, pairAxis] = mat.shz.get_rotation();
+
+        GBL_TEST_VERIFY(pairAngle == angle);
+        GBL_TEST_VERIFY(pairAxis  == axis);
+    }
+
+    mat.shz.init_rotation(1.2f, shz::vec3(1.0f, 2.0f, 3.0f).direction());
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<float>)("shz::mat4x4::get_rotation",
+                               [](const shz_glm_mat4& m) {
+                                   float     angle;
+                                   shz::vec3 axis;
+                                   m.shz.get_rotation(&angle, &axis);
+                                   return angle + axis.x;
+                               },
+                               "glm_mat4_quat + glm_quat_angle/axis",
+                               [](const shz_glm_mat4& m) {
+                                   versor q;
+                                   vec3   axis;
+                                   glm_mat4_quat(const_cast<mat4&>(m.glm), q);
+                                   glm_quat_axis(q, axis);
+                                   return glm_quat_angle(q) + axis[0];
+                               },
+                               mat)
+    );
+
+    mat.shz.init_rotation(3.1f, shz::vec3(1.0f, 2.0f, 3.0f).direction());
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<float>)("shz::mat4x4::get_rotation [near pi]",
+                               [](const shz_glm_mat4& m) {
+                                   float     angle;
+                                   shz::vec3 axis;
+                                   m.shz.get_rotation(&angle, &axis);
+                                   return angle + axis.x;
+                               },
+                               "glm_mat4_quat + glm_quat_angle/axis [near pi]",
+                               [](const shz_glm_mat4& m) {
+                                   versor q;
+                                   vec3   axis;
+                                   glm_mat4_quat(const_cast<mat4&>(m.glm), q);
+                                   glm_quat_axis(q, axis);
+                                   return glm_quat_angle(q) + axis[0];
+                               },
+                               mat)
+    );
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(init_rotation_dir)
     alignas(32) shz_glm_mat4 mat;
 
@@ -820,6 +967,7 @@ GBL_TEST_REGISTER(copy,
                   scale_reverse,
                   set_scale,
                   get_scale,
+                  get_rotation,
                   init_rotation_dir,
                   rotate,
                   rotate_dir,

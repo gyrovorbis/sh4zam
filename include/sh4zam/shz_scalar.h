@@ -75,9 +75,6 @@ SHZ_INLINE bool shz_equalf_rel(float a, float b) SHZ_NOEXCEPT;
 
     Returns the closest integral value to \p x, rounded down, as a float.
 
-    \warning
-    This routine is only valid for for the range INT32_MIN <= \p x <= INT32_MAX.
-
     \sa ceilf()
 */
 SHZ_INLINE float shz_floorf(float x) SHZ_NOEXCEPT;
@@ -86,10 +83,6 @@ SHZ_INLINE float shz_floorf(float x) SHZ_NOEXCEPT;
 
     Returns the closest integral value to \p x, rounded up, as a float.
 
-    \warning
-    This routine only returns valid values for the input range
-    INT32_MIN <= \p x <= INT32_MAX.
-
     \sa floorf()
 */
 SHZ_INLINE float shz_ceilf(float x) SHZ_NOEXCEPT;
@@ -97,20 +90,12 @@ SHZ_INLINE float shz_ceilf(float x) SHZ_NOEXCEPT;
 /*! Replacement for the <math.h> routine, roundf().
 
     Returns the value of \p x rounded to the nearest integer, as a float.
-
-    \warning
-    This routine only returns valid values for the input range
-    -UINT32_MAX <= \p x <= UINT32_MAX.
 */
 SHZ_INLINE float shz_roundf(float x) SHZ_NOEXCEPT;
 
 /*! Replacement for the <math.h> routine, truncf().
 
     Returns the value of \p with its fractional component discarded.
-
-    \warning
-    This routine only returns valid values for the input range
-    INT32_MIN <= \p x <= INT32_MAX.
 */
 SHZ_INLINE float shz_truncf(float x) SHZ_NOEXCEPT;
 
@@ -118,10 +103,6 @@ SHZ_INLINE float shz_truncf(float x) SHZ_NOEXCEPT;
 
     Returns the floating-point remainder of \p num divided by \p denom,
     rounded to the nearest integer (as a float).
-
-    \warning
-    This routine does not gracefully handle dividing by zero, and it is only
-    valid for the input range INT32_MIN <= \p num / \p denom <= INT32_MAX.
 
     \sa shz_fmodf(), shz_remquof(), shz_truncf().
 */
@@ -310,11 +291,11 @@ SHZ_INLINE float shz_divf(float num, float denom) SHZ_NOEXCEPT;
 
 //! Takes two sets of 3D vectors as 3 floats and calculates their dot product using an approximation.
 SHZ_INLINE float shz_dot6f(float x1, float y1, float z1,
-                                 float x2, float y2, float z2) SHZ_NOEXCEPT;
+                           float x2, float y2, float z2) SHZ_NOEXCEPT;
 
 //! Takes two sets of 4D vectors as 4 floats and calculates their dot product using an approximation.
 SHZ_INLINE float shz_dot8f(float x1, float y1, float z1, float w1,
-                                 float x2, float y2, float z2, float w2) SHZ_NOEXCEPT;
+                           float x2, float y2, float z2, float w2) SHZ_NOEXCEPT;
 
 //! Takes a 3D vector as 3 floats and calculates its squared magnitude using a fast approximation.
 SHZ_INLINE float shz_mag_sqr3f(float x, float y, float z) SHZ_NOEXCEPT;

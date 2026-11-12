@@ -1361,6 +1361,76 @@ GBL_TEST_CASE(get_scale)
     }
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(get_rotation)
+    auto verify = [&] {
+        shz::mat4x4 mat;
+        shz::xmtrx::store(&mat);
+
+        float     expectedAngle, angle;
+        shz::vec3 expectedAxis,  axis;
+        mat.get_rotation(&expectedAngle, &expectedAxis);
+        shz::xmtrx::get_rotation(&angle, &axis);
+
+        const auto [pairAngle, pairAxis] = shz::xmtrx::get_rotation();
+
+        return angle == expectedAngle && axis == expectedAxis &&
+               pairAngle == angle && pairAxis == axis;
+    };
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_identity();
+    GBL_TEST_VERIFY(verify());
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_rotation_x(0.5f);
+    GBL_TEST_VERIFY(verify());
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_rotation(1.2f, shz::vec3(1.0f, 2.0f, 3.0f).direction());
+    GBL_TEST_VERIFY(verify());
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_rotation(-2.5f, shz::vec3(1.0f, 2.0f, 3.0f).direction());
+    shz::xmtrx::add_translation(5.0f, -6.0f, 7.0f);
+    GBL_TEST_VERIFY(verify());
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_rotation(3.1f, shz::vec3(-1.0f, 2.0f, -3.0f).direction());
+    GBL_TEST_VERIFY(verify());
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_rotation(shz::pi_f, shz::vec3(1.0f, 2.0f, 3.0f).direction());
+    GBL_TEST_VERIFY(verify());
+
+    for(float radians : { 1.2f, 3.1f }) {
+        shz::xmtrx::init_rotation(radians, shz::vec3(1.0f, 2.0f, 3.0f).direction());
+
+        shz::mat4x4 mat;
+        shz::xmtrx::store(&mat);
+
+        alignas(32) volatile mat4 glmMat;
+        memcpy(*const_cast<mat4*>(&glmMat), &mat, sizeof(glmMat));
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)(
+                radians < 3.0f? "shz::xmtrx::get_rotation" : "shz::xmtrx::get_rotation [near pi]", [] {
+                    float     angle;
+                    shz::vec3 axis;
+                    shz::xmtrx::get_rotation(&angle, &axis);
+                    return angle + axis.x;
+                },
+                radians < 3.0f? "glm_mat4_quat + glm_quat_angle/axis" : "glm_mat4_quat + glm_quat_angle/axis [near pi]", [&] {
+                    versor q;
+                    vec3   axis;
+                    glm_mat4_quat(*const_cast<mat4*>(&glmMat), q);
+                    glm_quat_axis(q, axis);
+                    return glm_quat_angle(q) + axis[0];
+                }
+            )
+        );
+    }
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(scale_3x3)
     // Apply against identity.
     // Expectation: Diagonal scale cells filled in the 3x3 part.
@@ -3602,6 +3672,7 @@ GBL_TEST_REGISTER(read_write_registers,
                   set_translation,
                   set_scale,
                   get_scale,
+                  get_rotation,
                   scale_3x3,
                   rotate,
                   rotate_dir,

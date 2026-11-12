@@ -523,6 +523,12 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_yxz(float yAngle, float xAngle, fl
 #endif
 }
 
+SHZ_INLINE void shz_xmtrx_init_rotation_quat(shz_quat_t q) SHZ_NOEXCEPT {
+    shz_mat4x4_t mat;
+    shz_mat4x4_init_rotation_quat(&mat, q);
+    shz_xmtrx_load_4x4(&mat);
+}
+
 /* ========== Apply Operations ========== */
 
 SHZ_FORCE_INLINE void shz_xmtrx_apply_4x4(const shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
@@ -1185,6 +1191,35 @@ SHZ_FORCE_INLINE void shz_xmtrx_blend_4x3(const shz_mat4x3_t* matrix, float weig
 #endif
 }
 
+SHZ_INLINE shz_quat_t shz_xmtrx_to_quat(void) SHZ_NOEXCEPT {
+    SHZ_ALIGNAS(32) shz_mat4x4_t xmtrx;
+
+    shz_xmtrx_store_4x4(&xmtrx);
+    return shz_mat4x4_to_quat(&xmtrx);
+}
+
+SHZ_INLINE void shz_xmtrx_get_rotation(float* angle, shz_vec3_t* axis) SHZ_NOEXCEPT {
+    SHZ_ALIGNAS(32) shz_mat4x4_t mat;
+
+    shz_xmtrx_store_4x4(&mat);
+    shz_mat4x4_get_rotation(&mat, angle, axis);
+}
+
+SHZ_INLINE float shz_xmtrx_determinant(void) SHZ_NOEXCEPT {
+    SHZ_ALIGNAS(32) shz_mat4x4_t xmtrx;
+
+    shz_xmtrx_store_4x4(&xmtrx);
+    return shz_mat4x4_determinant(&xmtrx);
+}
+
+SHZ_INLINE void shz_xmtrx_invert(void) SHZ_NOEXCEPT {
+    SHZ_ALIGNAS(32) shz_mat4x4_t mat, inv;
+
+    shz_xmtrx_store_4x4(&mat);
+    shz_mat4x4_inverse(&mat, &inv);
+    shz_xmtrx_load_4x4(&inv);
+}
+
 /* ========== Transformations ========== */
 
 SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4(shz_vec4_t vec) SHZ_NOEXCEPT {
@@ -1233,4 +1268,3 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_perspective(float fov, float aspect, float 
     shz_xmtrx_perspective(fov, aspect, znear);
 }
 
-#include "../shz_matrix.h"

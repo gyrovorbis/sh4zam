@@ -26,7 +26,6 @@
 
 #include "shz_vector.h"
 #include "shz_quat.h"
-#include "shz_xmtrx.h"
 
 /*! \defgroup matrix Matrices
     \brief    In-Memory Matrix Manipulation
@@ -59,6 +58,14 @@
 */
 
 SHZ_DECLS_BEGIN
+
+/*! \cond Forward Declarations */
+SHZ_DECLARE_STRUCT_ALIGNED(shz_mat2x2, shz_mat2x2_t, 8);
+SHZ_DECLARE_STRUCT_ALIGNED(shz_mat4x4, shz_mat4x4_t, 8);
+SHZ_DECLARE_STRUCT        (shz_mat3x3, shz_mat3x3_t);
+SHZ_DECLARE_STRUCT        (shz_mat4x3, shz_mat4x3_t);
+SHZ_DECLARE_STRUCT        (shz_mat3x4, shz_mat3x4_t);
+/*! \endcond */
 
 /*! Structure representing a 4x4 column-major matrix.
 
@@ -309,6 +316,14 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_get_translation(const shz_mat4x4_t* mat) SHZ_NO
              without shearing or reflection.
 */
 SHZ_INLINE shz_vec3_t shz_mat4x4_get_scale(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
+
+/*! Extracts the angle-axis rotational component from the given 4x4 matrix.
+
+    \param  mat         Source 4x4 matrix.
+    \param  radians     Pointer for returning the angle in radians.
+    \param  axis        Pointer for returning the 3D axis of rotation.
+*/
+SHZ_INLINE void shz_mat4x4_get_rotation(const shz_mat4x4_t* mat, float* radians, shz_vec3_t* axis) SHZ_NOEXCEPT;
 
 //! Returns the determinant of the given 4x4 matrix.
 SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT;
@@ -1215,7 +1230,18 @@ SHZ_INLINE void shz_mat3x3_inverse_unscaled(const shz_mat3x3_t* mat, shz_mat3x3_
 
 //! @}
 
-#include "inline/shz_matrix.inl.h"
+#define SHZ_MATRIX_DECLARED_
+
+#include "shz_quat.h"
+#include "shz_xmtrx.h"
+
+#if defined(SHZ_QUAT_DECLARED_) && defined(SHZ_XMTRX_DECLARED_) && \
+    defined(SHZ_MATRIX_DECLARED_) && !defined(SHZ_LINALG_INL_)
+#   define SHZ_LINALG_INL_
+#   include "inline/shz_quat.inl.h"
+#   include "inline/shz_xmtrx.inl.h"
+#   include "inline/shz_matrix.inl.h"
+#endif
 
 SHZ_DECLS_END
 

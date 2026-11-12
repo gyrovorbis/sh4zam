@@ -108,6 +108,16 @@ SHZ_INLINE shz_quat_t shz_quat_from_axis_angle(shz_vec3_t axis, float angle) SHZ
                          half_alpha.sin * axis.z);
 }
 
+SHZ_INLINE shz_quat_t shz_quat_from_look_axis(shz_vec3_t forward, shz_vec3_t up) SHZ_NOEXCEPT {
+    shz_mat4x4_t mat;
+
+    mat.forward = shz_vec3_vec4(shz_vec3_normalize(forward), 0.0f);
+    mat.left    = shz_vec3_vec4(shz_vec3_normalize(shz_vec3_cross(up, mat.forward.xyz)), 0.0f);
+    mat.up      = shz_vec3_vec4(shz_vec3_normalize(shz_vec3_cross(mat.forward.xyz, mat.left.xyz)), 0.0f);
+
+    return shz_mat4x4_to_quat(&mat);
+}
+
 SHZ_INLINE float shz_quat_angle(shz_quat_t q) SHZ_NOEXCEPT {
     return 2.0f * shz_acosf(q.w);
 }
@@ -357,4 +367,3 @@ SHZ_INLINE shz_vec3_t shz_quat_transform_vec3(shz_quat_t q, shz_vec3_t v) SHZ_NO
 
 //! \endcond
 
-#include "../shz_xmtrx.h"

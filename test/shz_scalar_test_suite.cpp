@@ -7,6 +7,7 @@
 #include <print>
 #include <array>
 #include <climits>
+#include <cfloat>
 
 #define GBL_SELF_TYPE shz_scalar_test_suite
 
@@ -53,6 +54,14 @@ GBL_TEST_CASE(floorf)
 
     GBL_TEST_COMPARE(shz::floorf(-3.0f), -3.0f);
 
+    GBL_TEST_CALL(test( 3.0e9f,       3.0e9f));
+    GBL_TEST_CALL(test(-3.0e9f,      -3.0e9f));
+    GBL_TEST_CALL(test( 1.0e20f,      1.0e20f));
+    GBL_TEST_CALL(test(-1.0e20f,     -1.0e20f));
+    GBL_TEST_CALL(test( 8388607.5f,   8388607.0f));
+    GBL_TEST_CALL(test(-8388607.5f,  -8388608.0f));
+    GBL_TEST_CALL(test( 3.4e38f,      3.4e38f));
+
     {
         volatile float value = -0.8f;
         GBL_TEST_VERIFY(
@@ -83,12 +92,95 @@ GBL_TEST_CASE(ceilf)
 
     GBL_TEST_COMPARE(shz::ceilf(-3.0f), -3.0f);
 
+    GBL_TEST_CALL(test( 3.0e9f,       3.0e9f));
+    GBL_TEST_CALL(test(-3.0e9f,      -3.0e9f));
+    GBL_TEST_CALL(test( 1.0e20f,      1.0e20f));
+    GBL_TEST_CALL(test(-1.0e20f,     -1.0e20f));
+    GBL_TEST_CALL(test( 8388607.5f,   8388608.0f));
+    GBL_TEST_CALL(test(-8388607.5f,  -8388607.0f));
+    GBL_TEST_CALL(test(-3.4e38f,     -3.4e38f));
+
     {
         volatile float value = 99.0f;
         GBL_TEST_VERIFY(
             (benchmark_cmp<float>)(
                 "shz::ceilf", bench_fn(shz::ceilf),
                 "ceilf", bench_fn(ceilf), value
+            )
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(truncf)
+    auto test = [&](volatile float value, float expected) {
+        GBL_CTX_BEGIN(pCtx);
+        GBL_TEST_VERIFY(shz::truncf(value) == expected);
+        GBL_CTX_END();
+    };
+
+    GBL_TEST_CALL(test( 1.8f,         1.0f));
+    GBL_TEST_CALL(test(-1.8f,        -1.0f));
+    GBL_TEST_CALL(test( 0.3f,         0.0f));
+    GBL_TEST_CALL(test( 8388607.5f,   8388607.0f));
+    GBL_TEST_CALL(test(-8388607.5f,  -8388607.0f));
+    GBL_TEST_CALL(test( 2147483648.0f, 2147483648.0f));
+    GBL_TEST_CALL(test(-2147483904.0f,-2147483904.0f));
+    GBL_TEST_CALL(test( 3.0e9f,       3.0e9f));
+    GBL_TEST_CALL(test(-1.0e20f,     -1.0e20f));
+    GBL_TEST_CALL(test( 3.4e38f,      3.4e38f));
+
+    {
+        volatile float value = -1234.567f;
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)(
+                "shz::truncf", bench_fn(shz::truncf),
+                "truncf", bench_fn(truncf), value
+            )
+        );
+    }
+    {
+        volatile float value = 3.0e9f;
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)(
+                "shz::truncf (|x| >= 2^23)", bench_fn(shz::truncf),
+                "truncf", bench_fn(truncf), value
+            )
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(roundf)
+    auto test = [&](volatile float value, float expected) {
+        GBL_CTX_BEGIN(pCtx);
+        GBL_TEST_VERIFY(shz::roundf(value) == expected);
+        GBL_CTX_END();
+    };
+
+    GBL_TEST_CALL(test( 1.5f,         2.0f));
+    GBL_TEST_CALL(test(-1.5f,        -2.0f));
+    GBL_TEST_CALL(test( 1.4f,         1.0f));
+    GBL_TEST_CALL(test(-1.4f,        -1.0f));
+    GBL_TEST_CALL(test( 8388607.5f,   8388608.0f));
+    GBL_TEST_CALL(test(-8388607.5f,  -8388608.0f));
+    GBL_TEST_CALL(test( 3.0e9f,       3.0e9f));
+    GBL_TEST_CALL(test(-3.0e9f,      -3.0e9f));
+    GBL_TEST_CALL(test( 1.0e20f,      1.0e20f));
+
+    {
+        volatile float value = -1234.567f;
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)(
+                "shz::roundf", bench_fn(shz::roundf),
+                "roundf", bench_fn(roundf), value
+            )
+        );
+    }
+    {
+        volatile float value = -3.0e9f;
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)(
+                "shz::roundf (|x| >= 2^23)", bench_fn(shz::roundf),
+                "roundf", bench_fn(roundf), value
             )
         );
     }
@@ -450,6 +542,100 @@ GBL_TEST_SKIP("FUCKED");
     }
 GBL_TEST_CASE_END
 
+static volatile float cbrtf_x_;
+
+GBL_TEST_CASE(cbrtf_range)
+    auto test = [&](float value) {
+        cbrtf_x_ = value;
+        const float expected = cbrtf(cbrtf_x_);
+
+        return shz_fabsf(shz::cbrtf(cbrtf_x_) - expected) <= 1.0e-4f * shz_fabsf(expected);
+    };
+
+    GBL_TEST_VERIFY(test( 3.4e38f));
+    GBL_TEST_VERIFY(test(-3.4e38f));
+    GBL_TEST_VERIFY(test( 0x1p126f));
+    GBL_TEST_VERIFY(test( 0x1.fffffep125f));
+    GBL_TEST_VERIFY(test( 1.0e-37f));
+    GBL_TEST_VERIFY(test(-1.0e-37f));
+    GBL_TEST_VERIFY(test( 0x1p-126f));
+    GBL_TEST_VERIFY(test( 0x1p-110f));
+    GBL_TEST_VERIFY(test( 0x1.fffffep-111f));
+    GBL_TEST_VERIFY(shz::cbrtf(volatile_cast(0.0f)) == 0.0f);
+
+    {
+        volatile float value = -0.125f;
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)("shz::cbrtf", bench_fn(shz::cbrtf),
+                                   "cbrtf", bench_fn(cbrtf), value)
+        );
+    }
+    {
+        volatile float value = 3.4e38f;
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)("shz::cbrtf (|x| >= 2^126)", bench_fn(shz::cbrtf),
+                                   "cbrtf", bench_fn(cbrtf), value)
+        );
+    }
+    {
+        volatile float value = 1.0e-37f;
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)("shz::cbrtf (|x| < 2^-110)", bench_fn(shz::cbrtf),
+                                   "cbrtf", bench_fn(cbrtf), value)
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(hypotf)
+    auto test = [&](float x, float y, float expected) {
+        return shz_fabsf(shz::hypotf(volatile_cast(x), volatile_cast(y)) - expected) <= 1.0e-4f * expected;
+    };
+
+    GBL_TEST_VERIFY(test( 3.0f,     4.0f,    5.0f));
+    GBL_TEST_VERIFY(test(-5.0f,    12.0f,    13.0f));
+    GBL_TEST_VERIFY(test( 3.0e19f,  4.0e19f, 5.0e19f));
+    GBL_TEST_VERIFY(test(-3.0e30f,  1.0f,    3.0e30f));
+    GBL_TEST_VERIFY(test( 2.4e38f, -2.4e38f, 3.3941125e38f));
+
+    {
+        volatile float x = 3.0f;
+        volatile float y = 4.0f;
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)("shz::hypotf", bench_fn(shz::hypotf),
+                                   "hypotf", bench_fn(hypotf), x, y)
+        );
+    }
+    {
+        volatile float x = 3.0e19f;
+        volatile float y = 4.0e19f;
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<float>)("shz::hypotf (|x| + |y| > 2^62)", bench_fn(shz::hypotf),
+                                   "hypotf", bench_fn(hypotf), x, y)
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(wrapf)
+    auto test = [&](volatile float value, float min, float max, float expected) {
+        GBL_CTX_BEGIN(pCtx);
+        GBL_TEST_VERIFY(shz::equalf(shz::wrapf(value, min, max), expected));
+        GBL_TEST_VERIFY(min > max || shz::equalf(shz::wrapf_fsrra(value, min, max), expected));
+        GBL_CTX_END();
+    };
+
+    GBL_TEST_CALL(test( 370.0f,    0.0f, 360.0f,  10.0f));
+    GBL_TEST_CALL(test( -10.0f,    0.0f, 360.0f, 350.0f));
+    GBL_TEST_CALL(test( 720.0f,    0.0f, 360.0f,   0.0f));
+    GBL_TEST_CALL(test(   5.0f,  -10.0f,  10.0f,   5.0f));
+    GBL_TEST_CALL(test(  25.0f,  -10.0f,  10.0f,   5.0f));
+    GBL_TEST_CALL(test( -25.0f,  -10.0f,  10.0f,  -5.0f));
+    GBL_TEST_CALL(test( 370.0f,  360.0f,   0.0f,  10.0f));
+    GBL_TEST_CALL(test( -10.0f,  360.0f,   0.0f, 350.0f));
+    GBL_TEST_CALL(test( 1.0e12f,   0.0f, 360.0f, 144.0f));
+    GBL_TEST_CALL(test(-1.0e12f,   0.0f, 360.0f, 216.0f));
+    GBL_TEST_CALL(test( 3.0e9f,    0.0f,   7.0f,   4.0f));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(logf)
     auto test = [&](volatile float value) {
         float shz_res, c_res;
@@ -512,6 +698,13 @@ GBL_TEST_CASE(pow10f)
     GBL_TEST_VERIFY(test(27.45345f));
     GBL_TEST_VERIFY(test(0.125f));
 
+    GBL_TEST_VERIFY(shz::pow10f(volatile_cast(39.0f))  > 1.0e38f);
+    GBL_TEST_VERIFY(shz::pow10f(volatile_cast(39.0f)) <= FLT_MAX);
+    GBL_TEST_VERIFY(shz::expf(volatile_cast(100.0f))   > 1.0e38f);
+    GBL_TEST_VERIFY(shz::expf(volatile_cast(100.0f))  <= FLT_MAX);
+    GBL_TEST_VERIFY(shz::pow2f(volatile_cast(1000.0f)) > 1.0e38f);
+    GBL_TEST_VERIFY(shz::pow2f(volatile_cast(1000.0f)) <= FLT_MAX);
+
     GBL_TEST_VERIFY(
         (benchmark_cmp<float>)(
             "shz::pow10f", bench_fn(shz::pow10f),
@@ -559,11 +752,32 @@ GBL_TEST_CASE(fmodf)
     GBL_TEST_CALL(test( 8.0f,  3.0f,  2.0f));
     GBL_TEST_CALL(test(-8.0f,  3.0f, -2.0f));
 
+    // Quotients beyond the int32 range and beyond 2^23
+    GBL_TEST_CALL(test( 1.0e10f,  3.0f,  1.0f));
+    GBL_TEST_CALL(test(-1.0e10f,  3.0f, -1.0f));
+    GBL_TEST_CALL(test( 3.0e9f,   7.0f,  4.0f));
+    GBL_TEST_CALL(test(-3.0e9f,  -7.0f, -4.0f));
+    GBL_TEST_CALL(test( 1.0e30f,  0.7f,  0.476821f));
+    GBL_TEST_CALL(test( 3.4e38f,  1.0e-10f, fmodf(3.4e38f, 1.0e-10f)));
+
+    // Quotients just around the 4096 fast-path limit
+    GBL_TEST_CALL(test( 4095.5f,  1.0f,  0.5f));
+    GBL_TEST_CALL(test( 4096.5f,  1.0f,  0.5f));
+    GBL_TEST_CALL(test(-12289.25f, 3.0f, -1.25f));
+
     {
         volatile float num = -5.0f;
         volatile float den = 2.0f;
         GBL_TEST_VERIFY((benchmark_cmp<float>)(
             "shz::fmodf", bench_fn(shz::fmodf),
+            "fmodf", bench_fn(fmodf), num, den)
+        );
+    }
+    {
+        volatile float num = 1.0e10f;
+        volatile float den = 3.0f;
+        GBL_TEST_VERIFY((benchmark_cmp<float>)(
+            "shz::fmodf (|q| >= 4096)", bench_fn(shz::fmodf),
             "fmodf", bench_fn(fmodf), num, den)
         );
     }
@@ -611,11 +825,38 @@ GBL_TEST_CASE(remainderf)
     GBL_TEST_VERIFY(shz_fabsf(shz::remainderf(volatile_cast( 10.0f), volatile_cast(3.0f))) <= 1.5f);
     GBL_TEST_VERIFY(shz_fabsf(shz::remainderf(volatile_cast(-10.0f), volatile_cast(3.0f))) <= 1.5f);
 
+    // Halfway cases round the quotient to even
+    GBL_TEST_VERIFY(shz::remainderf(volatile_cast( 2.5f), volatile_cast(1.0f)) ==  0.5f);
+    GBL_TEST_VERIFY(shz::remainderf(volatile_cast( 3.5f), volatile_cast(1.0f)) == -0.5f);
+    GBL_TEST_VERIFY(shz::remainderf(volatile_cast(-2.5f), volatile_cast(1.0f)) == -0.5f);
+    GBL_TEST_VERIFY(shz::remainderf(volatile_cast( 9.0f), volatile_cast(6.0f)) == -3.0f);
+
+    // Quotients beyond the int32 range and beyond 2^23
+    GBL_TEST_CALL(test( 1.0e10f,  3.0f,  1.0f));
+    GBL_TEST_CALL(test( 1.0e10f, -3.0f,  1.0f));
+    GBL_TEST_CALL(test( 3.0e9f,   7.0f,  -3.0f));
+    GBL_TEST_CALL(test(-1.0e30f,  0.7f,  -remainderf(1.0e30f, 0.7f)));
+
+    {
+        float quot;
+        const float rem = shz::remquof(volatile_cast(1.0e10f), volatile_cast(3.0f), &quot);
+        GBL_TEST_VERIFY(rem == 1.0f);
+        GBL_TEST_VERIFY(shz_fabsf(quot - 3333333333.0f) <= 1.0e-5f * 3333333333.0f);
+    }
+
     {
         volatile float num = 7.0f;
         volatile float den = 3.0f;
         GBL_TEST_VERIFY((benchmark_cmp<float>)(
             "shz::remainderf", bench_fn(shz::remainderf),
+            "remainderf", bench_fn(remainderf), num, den)
+        );
+    }
+    {
+        volatile float num = 1.0e10f;
+        volatile float den = 3.0f;
+        GBL_TEST_VERIFY((benchmark_cmp<float>)(
+            "shz::remainderf (|q| >= 4096)", bench_fn(shz::remainderf),
             "remainderf", bench_fn(remainderf), num, den)
         );
     }
@@ -673,6 +914,8 @@ GBL_TEST_REGISTER(min,
                   norm,
                   floorf,
                   ceilf,
+                  truncf,
+                  roundf,
                   fmacf,
                   lerpf,
                   barycentric_lerpf,
@@ -688,6 +931,9 @@ GBL_TEST_REGISTER(min,
                   smoothstepf,
                   smoothstepf_safe,
                   cbrtf,
+                  cbrtf_range,
+                  hypotf,
+                  wrapf,
                   logf,
                   log10f,
                   pow10f,

@@ -114,6 +114,9 @@ SHZ_FORCE_INLINE float shz_truncf(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
         return __builtin_truncf(x);
 #endif
+    if(shz_fabsf(x) >= 8388608.0f)
+        return x;
+
     return (float)(int32_t)x;
 }
 
@@ -126,6 +129,18 @@ SHZ_FORCE_INLINE float shz_hypotf(float x, float y) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x) && __builtin_constant_p(y))
         return __builtin_hypotf(x, y);
 #endif
+    if(SHZ_UNLIKELY(shz_fmaxf(shz_fabsf(x), shz_fabsf(y)) > 0x1p62f)) {
+        volatile float scaled_x = x * 0x1p-66f;
+        volatile float scaled_y = y * 0x1p-66f;
+        volatile float root;
+
+        x    = scaled_x;
+        y    = scaled_y;
+        root = shz_sqrtf((x * x) + (y * y));
+
+        return root * 0x1p66f;
+    }
+
     return shz_sqrtf((x * x) + (y * y));
 }
 
@@ -139,14 +154,7 @@ SHZ_FORCE_INLINE float shz_cbrt_newton1(float x, float z) SHZ_NOEXCEPT {
     return z - (num * rden * rden);
 }
 
-SHZ_FORCE_INLINE float shz_cbrtf(float x) SHZ_NOEXCEPT {
-#ifdef SHZ_GNUC
-    if(__builtin_constant_p(x))
-        return __builtin_cbrtf(x);
-#endif
-    if(x == 0.0f)
-        return 0.0f;
-
+SHZ_FORCE_INLINE float shz_cbrt_newton2(float x) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     float z = shz_cbrt_magic_sh4(x);
 #else
@@ -159,12 +167,108 @@ SHZ_FORCE_INLINE float shz_cbrtf(float x) SHZ_NOEXCEPT {
     return z;
 }
 
+SHZ_FORCE_INLINE float shz_cbrtf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
+    if(__builtin_constant_p(x))
+        return __builtin_cbrtf(x);
+#endif
+    if(SHZ_UNLIKELY(shz_fabsf(x) >= 0x1p126f))
+        return shz_cbrt_newton2(x * 0x1p-123f) * 0x1p41f;
+
+    if(SHZ_UNLIKELY(shz_fabsf(x) < 0x1p-110f)) {
+        if(x == 0.0f)
+            return 0.0f;
+
+        return shz_cbrt_newton2(x * 0x1p123f) * 0x1p-41f;
+    }
+
+    return shz_cbrt_newton2(x);
+}
+
+SHZ_COLD
+SHZ_FORCE_INLINE float shz_fmodf_reduce_slow(float num, float denom) SHZ_NOEXCEPT {
+    union {
+        float    f;
+        uint32_t u;
+    } split = { denom };
+
+    float    step, step_hi, step_lo;
+    float    scale  = 1.0f;
+    unsigned chunks = 0;
+
+    if(num >= 0x1p127f) {
+        num     *= 0.5f;
+        split.f *= 0.5f;
+        scale    = 2.0f;
+    }
+
+    denom    = split.f;
+    split.u &= 0xfffff000u;
+
+    step    = denom;
+    step_hi = split.f;
+    step_lo = denom - split.f;
+
+    while(step <= num * (1.0f / 16777216.0f)) {
+        step    *= 16777216.0f;
+        step_hi *= 16777216.0f;
+        step_lo *= 16777216.0f;
+        chunks  += 2;
+    }
+
+    if(step <= num * (1.0f / 4096.0f)) {
+        step    *= 4096.0f;
+        step_hi *= 4096.0f;
+        step_lo *= 4096.0f;
+        ++chunks;
+    }
+
+    for(;;) {
+        const float    quot = (float)(int32_t)(num / step + 0.00390625f);
+        volatile float part = num - quot * step_hi;
+
+        num = part - quot * step_lo;
+
+        if(num < 0.0f)
+            num += step;
+
+        if(!chunks--)
+            return num * scale;
+
+        step    *= 1.0f / 4096.0f;
+        step_hi *= 1.0f / 4096.0f;
+        step_lo *= 1.0f / 4096.0f;
+    }
+}
+
+SHZ_FORCE_INLINE float shz_fmodf_reduce(float num, float denom) SHZ_NOEXCEPT {
+    if(SHZ_UNLIKELY(num * (1.0f / 4096.0f) >= denom))
+        return shz_fmodf_reduce_slow(num, denom);
+
+    num -= (float)(int32_t)shz_divf_fsrra(num, denom) * denom;
+
+    if(num < 0.0f)
+        num += denom;
+    else if(num >= denom)
+        num -= denom;
+
+    return num;
+}
+
 SHZ_FORCE_INLINE float shz_remainderf(float num, float denom) SHZ_NOEXCEPT {
 #ifdef SHZ_GNUC
     if(__builtin_constant_p(num) && __builtin_constant_p(denom))
         return __builtin_remainderf(num, denom);
 #endif
-    return num - shz_roundf(shz_divf_fsrra(num, denom)) * shz_fabsf(denom);
+    const float abs_num   = shz_fabsf(num);
+    const float abs_denom = shz_fabsf(denom);
+    const float half      = abs_denom * 0.5f;
+    float       result    = shz_fmodf_reduce(abs_num, abs_denom);
+
+    if(result > half || (result == half && shz_fmodf_reduce(abs_num * 0.5f, abs_denom) >= half))
+        result -= abs_denom;
+
+    return (num < 0.0f)? -result : result;
 }
 
 SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT {
@@ -172,15 +276,9 @@ SHZ_FORCE_INLINE float shz_fmodf(float num, float denom) SHZ_NOEXCEPT {
     if(__builtin_constant_p(num) && __builtin_constant_p(denom))
         return __builtin_fmodf(num, denom);
 #endif
-    const float abs_denom = shz_fabsf(denom);
-    float       result    = num - shz_truncf(shz_divf_fsrra(num, denom)) * abs_denom;
+    const float result = shz_fmodf_reduce(shz_fabsf(num), shz_fabsf(denom));
 
-    if(result >= abs_denom)
-        result -= abs_denom;
-    else if(result <= -abs_denom)
-        result += abs_denom;
-
-    return result;
+    return (num < 0.0f)? -result : result;
 }
 
 SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEXCEPT {
@@ -194,9 +292,11 @@ SHZ_FORCE_INLINE float shz_remquof(float num, float denom, float* quot) SHZ_NOEX
         return remainder;
     }
 #endif
-    *quot = shz_roundf(shz_divf(num, denom));
+    const float remainder = shz_remainderf(num, denom);
 
-    return num - *quot * denom;
+    *quot = shz_roundf(shz_divf(num - remainder, denom));
+
+    return remainder;
 }
 
 SHZ_FORCE_INLINE float shz_clampf(float value, float min, float max) SHZ_NOEXCEPT {
@@ -229,15 +329,26 @@ SHZ_FORCE_INLINE float shz_remapf_fsrra(float value, float inputStart, float inp
 }
 
 SHZ_FORCE_INLINE float shz_wrapf(float value, float min, float max) SHZ_NOEXCEPT {
-    float diff = max - min;
+    const float diff     = max - min;
+    const float offset   = value - min;
+    const float abs_diff = shz_fabsf(diff);
+    float       result   = shz_fmodf_reduce(shz_fabsf(offset), abs_diff);
 
-    return value - (diff * shz_floorf(shz_divf(value - min, diff)));
+    if((offset < 0.0f) != (diff < 0.0f) && result != 0.0f)
+        result = abs_diff - result;
+
+    return (diff < 0.0f)? min - result : min + result;
 }
 
 SHZ_FORCE_INLINE float shz_wrapf_fsrra(float value, float min, float max) SHZ_NOEXCEPT {
-    float diff = max - min;
+    const float diff   = max - min;
+    const float offset = value - min;
+    float       result = shz_fmodf_reduce(shz_fabsf(offset), diff);
 
-    return value - (diff * shz_floorf(shz_divf_fsrra(value - min, diff)));
+    if(offset < 0.0f && result != 0.0f)
+        result = diff - result;
+
+    return min + result;
 }
 
 /* Only here in case we ever find a platform where the compiler is so dumb
@@ -466,7 +577,7 @@ SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT {
         return __builtin_powf(2.0f, p);
 #endif
     // Underflow of exponential is common practice in numerical routines, so handle it here.
-    const float clipp = p < -126.0f ? -126.0f : p;
+    const float clipp = shz_clampf(p, -126.0f, 128.0f);
 
     const union {
         uint32_t i;

@@ -255,6 +255,18 @@ namespace shz {
             return shz_mat4x4_get_scale(this);
         }
 
+        //! Returns both the angle and axis of rotation through the pointer arguments.
+        SHZ_FORCE_INLINE void get_rotation(float* radians, shz_vec3_t* axis) const noexcept {
+            shz_mat4x4_get_rotation(this, radians, axis);
+        }
+
+        //! Returns both the angle and axis of rotation as a std::pair.
+        SHZ_FORCE_INLINE auto get_rotation() const noexcept -> std::pair<float, vec3> {
+            std::pair<float, vec3> aa;
+            shz_mat4x4_get_rotation(this, &std::get<0>(aa), &std::get<1>(aa));
+            return aa;
+        }
+
         //! @}
 
         /*! \name  Setting

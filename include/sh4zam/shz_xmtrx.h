@@ -7,8 +7,7 @@
  *  a secondary back-bank of 16 single-precision floating-point registers.
  *
  *  \todo
- *      - shz_xmtrx_invert() (within XMTRX)
- *      - shz_xmtrx_angles()
+ *      - shz_xmtrx_get_rotation_xyz/zyx/yxz/etc()
  *      - shz_xmtrx_init_rotation_quat() (within XMTRX)
  *
  *  \author 2025, 2026 Falco Girgis
@@ -26,7 +25,6 @@
 #define SHZ_XMTRX_H
 
 #include "shz_vector.h"
-#include "shz_quat.h"
 
 /*! \defgroup xmtrx XMTRX
     \brief    API for managing the SH4's "active matrix."
@@ -63,6 +61,8 @@ SHZ_DECLARE_STRUCT        (shz_mat3x3, shz_mat3x3_t);
 SHZ_DECLARE_STRUCT        (shz_mat4x3, shz_mat4x3_t);
 SHZ_DECLARE_STRUCT        (shz_mat3x4, shz_mat3x4_t);
 /*! \endcond */
+
+#include "shz_quat.h"
 
 //! Registers comprising XMTRX, in the FPU back-bank.
 typedef enum shz_xmtrx_reg {
@@ -822,6 +822,15 @@ SHZ_INLINE void shz_xmtrx_abs(void) SHZ_NOEXCEPT;
 //! Constructs a quaternion from the 3D rotation matrix within XMTRX.
 SHZ_INLINE shz_quat_t shz_xmtrx_to_quat(void) SHZ_NOEXCEPT;
 
+/*! Extracts the angle-axis rotational component from XMTRX.
+
+    \param  radians     Pointer for returning the angle in radians.
+    \param  axis        Pointer for returning the 3D axis of rotation.
+
+    \sa shz_mat4x4_get_rotation()
+*/
+SHZ_INLINE void shz_xmtrx_get_rotation(float* radians, shz_vec3_t* axis) SHZ_NOEXCEPT;
+
 //! Returns the determinant of XMTRX.
 SHZ_INLINE float shz_xmtrx_determinant(void) SHZ_NOEXCEPT;
 
@@ -1134,7 +1143,18 @@ SHZ_INLINE void shz_xmtrx_blend(const shz_mat4x4_t* matrix, float weight) SHZ_NO
 
 //! @}
 
-#include "inline/shz_xmtrx.inl.h"
+#define SHZ_XMTRX_DECLARED_
+
+#include "shz_quat.h"
+#include "shz_matrix.h"
+
+#if defined(SHZ_QUAT_DECLARED_) && defined(SHZ_XMTRX_DECLARED_) && \
+    defined(SHZ_MATRIX_DECLARED_) && !defined(SHZ_LINALG_INL_)
+#   define SHZ_LINALG_INL_
+#   include "inline/shz_quat.inl.h"
+#   include "inline/shz_xmtrx.inl.h"
+#   include "inline/shz_matrix.inl.h"
+#endif
 
 SHZ_DECLS_END
 
