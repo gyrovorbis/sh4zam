@@ -208,3 +208,4 @@ Special thanks to the following individuals who have either directly or indirect
 - LobotomyDC
 - Haikuno
 - Brendan "Cypress" Lawson
+- Kyle Mayer

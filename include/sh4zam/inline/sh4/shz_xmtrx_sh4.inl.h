@@ -2016,7 +2016,6 @@ SHZ_INLINE void shz_xmtrx_rotate_zyx_u16_sh4(uint16_t zAngle, uint16_t yAngle, u
         fmov    xd14, dr14
         fschg
         frchg
-
     )"
     :
     : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)

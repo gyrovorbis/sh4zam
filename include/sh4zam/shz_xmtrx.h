@@ -15,6 +15,7 @@
  *  \author 2025 Twada
  *  \author 2026 TapamN
  *  \author 2026 John Brooks
+ *  \author 2026 Kyle Mayer
  *
  *  \copyright MIT License
  *
