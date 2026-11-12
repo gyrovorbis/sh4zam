@@ -532,6 +532,34 @@ static bool check_xmtrx_rotation_(const char* order, bool init, F&& fn) {
     return true;
 }
 
+// A rotation by 16-bit binary angles, 0x4000 per quarter turn, against the radian rotation of each angle.
+static bool check_xmtrx_rotation_u16_(void (*u16)(uint16_t), void (*radians)(float)) {
+    const uint16_t angles[] = { 0x0000, 0x2000, 0x4000, 0x8000, 0xc000, 0x04d2, 0xfedc, 0xffff };
+
+    for(uint16_t angle : angles) {
+        shz::mat4x4 expected, actual;
+
+        shz::xmtrx::init_identity();
+        shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+        radians((int16_t)angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+        shz::xmtrx::store(&expected);
+
+        shz::xmtrx::init_identity();
+        shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+        u16(angle);
+        shz::xmtrx::store(&actual);
+
+        if(!(actual == expected))
+            return false;
+    }
+    return true;
+}
+
+// Radians in FSCA's 16-bit units, scaled and truncated as the radian routines' FTRC does.
+static uint16_t fsca_angle_(float radians) {
+    return static_cast<uint16_t>(static_cast<int32_t>(radians * SHZ_FSCA_RAD_FACTOR));
+}
+
 template<typename F>
 static bool bench_xmtrx_rotation_(const char* shzName, const char* glmName, const char* order, bool init, F&& fn) {
     static shz_glm_mat4 glmMat;
@@ -3586,6 +3614,36 @@ GBL_TEST_CASE_END
 
 
 
+GBL_TEST_CASE(rotate_x_u16)
+    GBL_TEST_VERIFY(check_xmtrx_rotation_u16_(shz::xmtrx::rotate_x, shz::xmtrx::rotate_x));
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::rotate_x(uint16_t)", [](uint16_t angle) { shz::xmtrx::rotate_x(angle); },
+        "shz::xmtrx::rotate_x(float)", [](uint16_t angle) {
+            shz::xmtrx::rotate_x(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+        },
+        static_cast<uint16_t>(0x2000));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_y_u16)
+    GBL_TEST_VERIFY(check_xmtrx_rotation_u16_(shz::xmtrx::rotate_y, shz::xmtrx::rotate_y));
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::rotate_y(uint16_t)", [](uint16_t angle) { shz::xmtrx::rotate_y(angle); },
+        "shz::xmtrx::rotate_y(float)", [](uint16_t angle) {
+            shz::xmtrx::rotate_y(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+        },
+        static_cast<uint16_t>(0x2000));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_z_u16)
+    GBL_TEST_VERIFY(check_xmtrx_rotation_u16_(shz::xmtrx::rotate_z, shz::xmtrx::rotate_z));
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::rotate_z(uint16_t)", [](uint16_t angle) { shz::xmtrx::rotate_z(angle); },
+        "shz::xmtrx::rotate_z(float)", [](uint16_t angle) {
+            shz::xmtrx::rotate_z(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+        },
+        static_cast<uint16_t>(0x2000));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(rotate_xyz)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_xyz(a0, a1, a2);
@@ -3616,6 +3674,62 @@ GBL_TEST_CASE(rotate_yxz)
     }));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::rotate_yxz", "glm_rotate_y/x/z", "yxz", false,
                                           [](float a0, float a1, float a2) { shz::xmtrx::rotate_yxz(a0, a1, a2); }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_xyz_u16)
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_xyz(fsca_angle_(a0), fsca_angle_(a1), fsca_angle_(a2));
+    }));
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::rotate_xyz(uint16_t)", [](uint16_t x, uint16_t y, uint16_t z) { shz::xmtrx::rotate_xyz(x, y, z); },
+        "rotate_x + rotate_y + rotate_z (uint16_t)", [](uint16_t x, uint16_t y, uint16_t z) {
+            shz::xmtrx::rotate_x(x);
+            shz::xmtrx::rotate_y(y);
+            shz::xmtrx::rotate_z(z);
+        },
+        fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_zyx_u16)
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zyx", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_zyx(fsca_angle_(a0), fsca_angle_(a1), fsca_angle_(a2));
+    }));
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::rotate_zyx(uint16_t)", [](uint16_t z, uint16_t y, uint16_t x) { shz::xmtrx::rotate_zyx(z, y, x); },
+        "rotate_z + rotate_y + rotate_x (uint16_t)", [](uint16_t z, uint16_t y, uint16_t x) {
+            shz::xmtrx::rotate_z(z);
+            shz::xmtrx::rotate_y(y);
+            shz::xmtrx::rotate_x(x);
+        },
+        fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_zxy_u16)
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zxy", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_zxy(fsca_angle_(a0), fsca_angle_(a1), fsca_angle_(a2));
+    }));
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::rotate_zxy(uint16_t)", [](uint16_t z, uint16_t x, uint16_t y) { shz::xmtrx::rotate_zxy(z, x, y); },
+        "rotate_z + rotate_x + rotate_y (uint16_t)", [](uint16_t z, uint16_t x, uint16_t y) {
+            shz::xmtrx::rotate_z(z);
+            shz::xmtrx::rotate_x(x);
+            shz::xmtrx::rotate_y(y);
+        },
+        fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_yxz_u16)
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("yxz", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_yxz(fsca_angle_(a0), fsca_angle_(a1), fsca_angle_(a2));
+    }));
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::rotate_yxz(uint16_t)", [](uint16_t y, uint16_t x, uint16_t z) { shz::xmtrx::rotate_yxz(y, x, z); },
+        "rotate_y + rotate_x + rotate_z (uint16_t)", [](uint16_t y, uint16_t x, uint16_t z) {
+            shz::xmtrx::rotate_y(y);
+            shz::xmtrx::rotate_x(x);
+            shz::xmtrx::rotate_z(z);
+        },
+        fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f));
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(read_write_registers,
@@ -3693,10 +3807,17 @@ GBL_TEST_REGISTER(read_write_registers,
                   rotate_x,
                   rotate_y,
                   rotate_z,
+                  rotate_x_u16,
+                  rotate_y_u16,
+                  rotate_z_u16,
                   rotate_xyz,
                   rotate_zyx,
                   rotate_zxy,
                   rotate_yxz,
+                  rotate_xyz_u16,
+                  rotate_zyx_u16,
+                  rotate_zxy_u16,
+                  rotate_yxz_u16,
                   ortho,
                   frustum,
                   perspective,

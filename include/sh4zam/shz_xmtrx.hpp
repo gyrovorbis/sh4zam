@@ -610,6 +610,21 @@ struct xmtrx {
         shz_xmtrx_rotate_z(radians);
     }
 
+    //! C++ wrapper around shz_xmtrx_rotate_x_u16().
+    SHZ_FORCE_INLINE static void rotate_x(uint16_t radians16) noexcept {
+        shz_xmtrx_rotate_x_u16(radians16);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_y_u16().
+    SHZ_FORCE_INLINE static void rotate_y(uint16_t radians16) noexcept {
+        shz_xmtrx_rotate_y_u16(radians16);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_z_u16().
+    SHZ_FORCE_INLINE static void rotate_z(uint16_t radians16) noexcept {
+        shz_xmtrx_rotate_z_u16(radians16);
+    }
+
     //! C++ wrapper around shz_xmtrx_rotate_xyz().
     SHZ_FORCE_INLINE static void rotate_xyz(float x, float y, float z) noexcept {
         shz_xmtrx_rotate_xyz(x, y, z);
@@ -628,6 +643,26 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_rotate_yxz().
     SHZ_FORCE_INLINE static void rotate_yxz(float y, float x, float z) noexcept {
         shz_xmtrx_rotate_yxz(y, x, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_xyz_u16().
+    SHZ_FORCE_INLINE static void rotate_xyz(uint16_t x, uint16_t y, uint16_t z) noexcept {
+        shz_xmtrx_rotate_xyz_u16(x, y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_zyx_u16().
+    SHZ_FORCE_INLINE static void rotate_zyx(uint16_t z, uint16_t y, uint16_t x) noexcept {
+        shz_xmtrx_rotate_zyx_u16(z, y, x);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_zxy_u16().
+    SHZ_FORCE_INLINE static void rotate_zxy(uint16_t z, uint16_t x, uint16_t y) noexcept {
+        shz_xmtrx_rotate_zxy_u16(z, x, y);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_yxz_u16().
+    SHZ_FORCE_INLINE static void rotate_yxz(uint16_t y, uint16_t x, uint16_t z) noexcept {
+        shz_xmtrx_rotate_yxz_u16(y, x, z);
     }
 
     //! C++ wrapper around shz_xmtrx_rotate().
