@@ -449,7 +449,20 @@ GBL_TEST_CASE(init_rotation_x)
                     0.0f, cosf(shz::pi_f), -sinf(shz::pi_f), 0.0f,
                     0.0f, sinf(shz::pi_f), cosf(shz::pi_f), 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f}));
-    (benchmark)(nullptr, "shz::xmtrx::init_rotation_x", [&] { shz::xmtrx::init_rotation_x(shz::pi_f); });
+    {
+        volatile float angle = 0.6f;
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::init_rotation_x", [](const volatile float* r) {
+                shz::xmtrx::init_rotation_x(*r);
+            },
+            "glm_mat4_identity + glm_rotate_x", [](const volatile float* r) {
+                static volatile mat4 m;
+                glm_mat4_identity(*const_cast<mat4*>(&m));
+                glm_rotate_x(*const_cast<mat4*>(&m), *r, *const_cast<mat4*>(&m));
+            },
+            &angle));
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_rotation_y)
@@ -460,7 +473,20 @@ GBL_TEST_CASE(init_rotation_y)
                     0.0f, 1.0f, 0.0f, 0.0f,
                     -sinf(shz::pi_f), 0.0f, cosf(shz::pi_f), 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f}));
-    (benchmark)(nullptr, "shz::xmtrx::init_rotation_y", [&] { shz::xmtrx::init_rotation_y(shz::pi_f); });
+    {
+        volatile float angle = 0.6f;
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::init_rotation_y", [](const volatile float* r) {
+                shz::xmtrx::init_rotation_y(*r);
+            },
+            "glm_mat4_identity + glm_rotate_y", [](const volatile float* r) {
+                static volatile mat4 m;
+                glm_mat4_identity(*const_cast<mat4*>(&m));
+                glm_rotate_y(*const_cast<mat4*>(&m), *r, *const_cast<mat4*>(&m));
+            },
+            &angle));
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_rotation_z)
@@ -471,7 +497,20 @@ GBL_TEST_CASE(init_rotation_z)
                     sinf(shz::pi_f), cosf(shz::pi_f), 0.0f, 0.0f,
                     0.0f, 0.0f, 1.0f, 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f }));
-    (benchmark)(nullptr, "shz::xmtrx::init_rotation_z", [&] { shz::xmtrx::init_rotation_z(shz::pi_f); });
+    {
+        volatile float angle = 0.6f;
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::init_rotation_z", [](const volatile float* r) {
+                shz::xmtrx::init_rotation_z(*r);
+            },
+            "glm_mat4_identity + glm_rotate_z", [](const volatile float* r) {
+                static volatile mat4 m;
+                glm_mat4_identity(*const_cast<mat4*>(&m));
+                glm_rotate_z(*const_cast<mat4*>(&m), *r, *const_cast<mat4*>(&m));
+            },
+            &angle));
+    }
 GBL_TEST_CASE_END
 
 static void glm_rotate_ordered_(mat4 m, const char* order, float a0, float a1, float a2) {
@@ -1692,6 +1731,57 @@ GBL_TEST_CASE(rotate_dir)
     }
 GBL_TEST_CASE_END
 
+static void xmtrx_init_rotation_quat_c_(const shz::quat& q) {
+    shz_mat4x4_t mat;
+    shz_mat4x4_init_rotation_quat(&mat, q);
+    shz_xmtrx_load_4x4(&mat);
+}
+
+GBL_TEST_CASE(init_rotation_quat)
+    const shz::quat quats[] = {
+        { 1.0f, 0.0f, 0.0f, 0.0f },
+        { 0.5f, 0.5f, 0.5f, 0.5f },
+        { 0.7071068f, 0.0f, 0.0f, 0.7071068f },
+        shz::quat::from_rotation_xyz(0.4f, -0.8f, 1.2f),
+        shz::quat::from_rotation_xyz(-2.9f, 0.7f, -0.4f),
+        shz::quat::from_rotation_xyz(1.1f, 1.3f, -2.2f),
+    };
+
+    for(const auto& q : quats) {
+        shz::mat4x4  res, expected;
+        shz_glm_mat4 ref;
+        versor       v = { q.x, q.y, q.z, q.w };
+
+        randomize_xmtrx_();
+        shz::xmtrx::init_rotation_quat(q);
+        shz::xmtrx::store(&res);
+
+        randomize_xmtrx_();
+        xmtrx_init_rotation_quat_c_(q);
+        shz::xmtrx::store(&expected);
+
+        glm_quat_mat4(v, ref.glm);
+
+        GBL_TEST_VERIFY(rotation_matches_glm_(res, expected.elem2D));
+        GBL_TEST_VERIFY(compare_glm(res, ref.glm));
+    }
+
+    {
+        const auto q = shz::quat::from_rotation_xyz(gblRandUniform(-shz::pi_f, shz::pi_f),
+                                                    gblRandUniform(-shz::pi_f, shz::pi_f),
+                                                    gblRandUniform(-shz::pi_f, shz::pi_f));
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)("shz::xmtrx::init_rotation_quat",
+                                              [](const shz::quat& q) { shz::xmtrx::init_rotation_quat(q); },
+                                              "glm_quat_mat4",
+                                              [](const shz::quat& q) {
+                                                  static volatile mat4 m;
+                                                  volatile versor v = { q.x, q.y, q.z, q.w };
+                                                  glm_quat_mat4(*const_cast<versor*>(&v), *const_cast<mat4*>(&m));
+                                              }, q));
+    }
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(rotate_quat)
     shz::xmtrx::init_identity();
     shz::xmtrx::rotate_quat({ 0.5f, 0.5f, 0.5f, 0.5f });
@@ -1711,10 +1801,22 @@ GBL_TEST_CASE(rotate_quat)
                                     0.0f, 0.0f, 1.0f, 0.0f,
                                     0.0f, 0.0f, 0.0f, 1.0f }));
 
-    (benchmark)(nullptr, "shz::xmtrx::rotate_quat",
-                [](shz::quat q) {
-                    shz::xmtrx::rotate_quat(q);
-                }, shz::quat{ 1.0f, 2.0f, 3.0f, 4.0f });
+    {
+        const auto q = shz::quat::from_rotation_xyz(gblRandUniform(-shz::pi_f, shz::pi_f),
+                                                    gblRandUniform(-shz::pi_f, shz::pi_f),
+                                                    gblRandUniform(-shz::pi_f, shz::pi_f));
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::rotate_quat", [](const shz::quat& q) {
+                shz::xmtrx::rotate_quat(q);
+            },
+            "glm_quat_rotate", [](const shz::quat& q) {
+                static volatile mat4 m;
+                volatile versor v = { q.x, q.y, q.z, q.w };
+                glm_quat_rotate(*const_cast<mat4*>(&m), *const_cast<versor*>(&v), *const_cast<mat4*>(&m));
+            },
+            q));
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(permute_wxyz)
@@ -3622,6 +3724,20 @@ GBL_TEST_CASE(rotate_x_u16)
             shz::xmtrx::rotate_x(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
         },
         static_cast<uint16_t>(0x2000));
+    {
+        volatile uint16_t angle16 = 0x2000;
+        volatile float    angle   = 0x2000 * (1.0f / SHZ_FSCA_RAD_FACTOR);
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::rotate_x(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
+                shz::xmtrx::rotate_x(static_cast<uint16_t>(*a));
+            },
+            "glm_rotate_x", [](const volatile uint16_t*, const volatile float* r) {
+                static volatile mat4 m;
+                glm_rotate_x(*const_cast<mat4*>(&m), *r, *const_cast<mat4*>(&m));
+            },
+            &angle16, &angle));
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_y_u16)
@@ -3632,6 +3748,20 @@ GBL_TEST_CASE(rotate_y_u16)
             shz::xmtrx::rotate_y(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
         },
         static_cast<uint16_t>(0x2000));
+    {
+        volatile uint16_t angle16 = 0x2000;
+        volatile float    angle   = 0x2000 * (1.0f / SHZ_FSCA_RAD_FACTOR);
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::rotate_y(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
+                shz::xmtrx::rotate_y(static_cast<uint16_t>(*a));
+            },
+            "glm_rotate_y", [](const volatile uint16_t*, const volatile float* r) {
+                static volatile mat4 m;
+                glm_rotate_y(*const_cast<mat4*>(&m), *r, *const_cast<mat4*>(&m));
+            },
+            &angle16, &angle));
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_z_u16)
@@ -3642,6 +3772,20 @@ GBL_TEST_CASE(rotate_z_u16)
             shz::xmtrx::rotate_z(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
         },
         static_cast<uint16_t>(0x2000));
+    {
+        volatile uint16_t angle16 = 0x2000;
+        volatile float    angle   = 0x2000 * (1.0f / SHZ_FSCA_RAD_FACTOR);
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::rotate_z(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
+                shz::xmtrx::rotate_z(static_cast<uint16_t>(*a));
+            },
+            "glm_rotate_z", [](const volatile uint16_t*, const volatile float* r) {
+                static volatile mat4 m;
+                glm_rotate_z(*const_cast<mat4*>(&m), *r, *const_cast<mat4*>(&m));
+            },
+            &angle16, &angle));
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_xyz)
@@ -3688,6 +3832,20 @@ GBL_TEST_CASE(rotate_xyz_u16)
             shz::xmtrx::rotate_z(z);
         },
         fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f));
+    {
+        volatile uint16_t angles16[3] = { fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f) };
+        volatile float    angles[3]   = { 0.3f, -1.2f, 2.5f };
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::rotate_xyz(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
+                shz::xmtrx::rotate_xyz(static_cast<uint16_t>(a[0]), static_cast<uint16_t>(a[1]), static_cast<uint16_t>(a[2]));
+            },
+            "glm_rotate_x/y/z", [](const volatile uint16_t*, const volatile float* r) {
+                static volatile mat4 m;
+                glm_rotate_ordered_(*const_cast<mat4*>(&m), "xyz", r[0], r[1], r[2]);
+            },
+            angles16, angles));
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_zyx_u16)
@@ -3702,6 +3860,20 @@ GBL_TEST_CASE(rotate_zyx_u16)
             shz::xmtrx::rotate_x(x);
         },
         fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f));
+    {
+        volatile uint16_t angles16[3] = { fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f) };
+        volatile float    angles[3]   = { 0.3f, -1.2f, 2.5f };
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::rotate_zyx(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
+                shz::xmtrx::rotate_zyx(static_cast<uint16_t>(a[0]), static_cast<uint16_t>(a[1]), static_cast<uint16_t>(a[2]));
+            },
+            "glm_rotate_z/y/x", [](const volatile uint16_t*, const volatile float* r) {
+                static volatile mat4 m;
+                glm_rotate_ordered_(*const_cast<mat4*>(&m), "zyx", r[0], r[1], r[2]);
+            },
+            angles16, angles));
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_zxy_u16)
@@ -3716,6 +3888,20 @@ GBL_TEST_CASE(rotate_zxy_u16)
             shz::xmtrx::rotate_y(y);
         },
         fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f));
+    {
+        volatile uint16_t angles16[3] = { fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f) };
+        volatile float    angles[3]   = { 0.3f, -1.2f, 2.5f };
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::rotate_zxy(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
+                shz::xmtrx::rotate_zxy(static_cast<uint16_t>(a[0]), static_cast<uint16_t>(a[1]), static_cast<uint16_t>(a[2]));
+            },
+            "glm_rotate_z/x/y", [](const volatile uint16_t*, const volatile float* r) {
+                static volatile mat4 m;
+                glm_rotate_ordered_(*const_cast<mat4*>(&m), "zxy", r[0], r[1], r[2]);
+            },
+            angles16, angles));
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_yxz_u16)
@@ -3730,6 +3916,20 @@ GBL_TEST_CASE(rotate_yxz_u16)
             shz::xmtrx::rotate_z(z);
         },
         fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f));
+    {
+        volatile uint16_t angles16[3] = { fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f) };
+        volatile float    angles[3]   = { 0.3f, -1.2f, 2.5f };
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::rotate_yxz(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
+                shz::xmtrx::rotate_yxz(static_cast<uint16_t>(a[0]), static_cast<uint16_t>(a[1]), static_cast<uint16_t>(a[2]));
+            },
+            "glm_rotate_y/x/z", [](const volatile uint16_t*, const volatile float* r) {
+                static volatile mat4 m;
+                glm_rotate_ordered_(*const_cast<mat4*>(&m), "yxz", r[0], r[1], r[2]);
+            },
+            angles16, angles));
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(read_write_registers,
@@ -3790,6 +3990,7 @@ GBL_TEST_REGISTER(read_write_registers,
                   scale_3x3,
                   rotate,
                   rotate_dir,
+                  init_rotation_quat,
                   rotate_quat,
                   permute_wxyz,
                   permute_yzwx,

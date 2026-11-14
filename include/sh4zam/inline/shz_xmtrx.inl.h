@@ -524,9 +524,13 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_yxz(float yAngle, float xAngle, fl
 }
 
 SHZ_INLINE void shz_xmtrx_init_rotation_quat(shz_quat_t q) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_init_rotation_quat_sh4(q);
+#else
     shz_mat4x4_t mat;
     shz_mat4x4_init_rotation_quat(&mat, q);
     shz_xmtrx_load_4x4(&mat);
+#endif
 }
 
 /* ========== Apply Operations ========== */

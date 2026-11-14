@@ -3195,6 +3195,70 @@ SHZ_INLINE void shz_xmtrx_rotate_sh4(float angle, float x, float y, float z) SHZ
     shz_xmtrx_rotate_dir_sh4(angle, dir.x, dir.y, dir.z);
 }
 
+SHZ_INLINE void shz_xmtrx_init_rotation_quat_sh4(shz_quat_t q) SHZ_NOEXCEPT {
+    register float x asm("fr12") = q.x;
+    register float y asm("fr13") = q.y;
+    register float z asm("fr14") = q.z;
+    register float w asm("fr15") = q.w;
+
+    asm volatile(R"(
+        fschg
+        fmov    dr12, xd12
+        frchg
+        fmov    xd14, dr14
+        fschg
+        fmov    fr13, fr7
+        fadd    fr13, fr7
+        fmov    fr14, fr11
+        fadd    fr14, fr11
+        fmov    fr12, fr3
+        fadd    fr12, fr3
+        fmov    fr12, fr1
+        fmul    fr7, fr1
+        fmov    fr12, fr2
+        fmul    fr11, fr2
+        fmov    fr13, fr6
+        fmul    fr11, fr6
+        fmov    fr12, fr0
+        fldi1   fr5
+        fneg    fr0
+        fmov    fr5, fr10
+        fmac    fr0, fr3, fr5
+        fmov    fr1, fr4
+        fmac    fr0, fr3, fr10
+        fmov    fr13, fr0
+        fldi1   fr12
+        fneg    fr0
+        fmov    fr2, fr8
+        fmac    fr0, fr7, fr10
+        fmov    fr6, fr9
+        fmac    fr0, fr7, fr12
+        fmov    fr14, fr0
+        fneg    fr0
+        fmac    fr0, fr11, fr5
+        fldi0   fr14
+        fmac    fr0, fr11, fr12
+        fmov    fr15, fr0
+        fmac    fr0, fr11, fr1
+        fmac    fr0, fr7, fr8
+        fldi0   fr13
+        fmac    fr0, fr3, fr6
+        fneg    fr0
+        fmac    fr0, fr11, fr4
+        fldi0   fr11
+        fmac    fr0, fr7, fr2
+        fldi0   fr7
+        fmac    fr0, fr3, fr9
+        fmov    fr12, fr0
+        fldi0   fr3
+        fldi0   fr12
+        fldi1   fr15
+        frchg
+    )"
+    :
+    : [x] "f" (x), [y] "f" (y), [z] "f" (z), [w] "f" (w));
+}
+
 SHZ_INLINE void shz_xmtrx_rotate_quat_sh4(shz_quat_t q) SHZ_NOEXCEPT {
     register float x asm("fr12") = q.x;
     register float y asm("fr13") = q.y;
@@ -3202,85 +3266,61 @@ SHZ_INLINE void shz_xmtrx_rotate_quat_sh4(shz_quat_t q) SHZ_NOEXCEPT {
     register float w asm("fr15") = q.w;
 
     asm volatile(R"(
-        fldi1   fr3
-        fadd    fr3, fr3            /* fr3  = 2 */
-        fmov    fr3, fr11           /* fr11 = 2 */
-
-        /* Column 2 */
-        fmov    fr12, fr8           /* fr8 = X*Z */
-        fmul    fr14, fr8
-        fmov    fr13, fr9           /* fr9 = Y*Z */
-        fmul    fr14, fr9
-        fmov    fr12, fr7           /* Tmp = X*X */
-        fmul    fr12, fr7
-        fmov    fr15, fr0
-        fmac    fr0, fr13, fr8      /* fr8 = X*Z+W*Y */
-        fneg    fr0
-        fmac    fr0, fr12, fr9      /* fr9 = Y*Z-W*X */
-        fmov    fr13, fr0
-        fmac    fr0, fr13, fr7      /* Tmp = X*X+Y*Y */
-        fldi1   fr10
-        fmul    fr3, fr8            /* fr8 = 2*(X*Z+W*Y) */
-        fneg    fr11
-        fmul    fr3, fr9            /* fr9 = 2*(Y*Z-W*X) */
-        fmov    fr11, fr0           /* fr10 = 1 + -2*(X*X+Y*Y) */
-        fmac    fr0, fr7, fr10
-
-        /* Column 1 */
-        fmov    fr13, fr6           /* fr6 = Y*Z */
-        fmul    fr14, fr6
-        fmov    fr12, fr4           /* fr4 = X*Y */
-        fmul    fr13, fr4
-        fmov    fr12, fr7           /* Tmp = X*X */
-        fmul    fr12, fr7
-        fmov    fr15, fr0
-        fmac    fr0, fr12, fr6      /* fr6 = Y*Z+W*X */
-        fneg    fr0
-        fmac    fr0, fr14, fr4      /* fr4 = X*Y-W*Z */
-        fmov    fr14, fr0           /* Tmp = X*X+Z*Z */
-        fmac    fr0, fr14, fr7
-        fmul    fr3, fr6            /* fr6 = 2*(Y*Z+W*X) */
+        fmov    fr13, fr7
+        fadd    fr13, fr7
+        fmov    fr14, fr11
+        fadd    fr14, fr11
+        fmov    fr12, fr3
+        fadd    fr12, fr3
+        fmov    fr12, fr1
+        fmul    fr7, fr1
+        fmov    fr12, fr2
+        fmul    fr11, fr2
+        fmov    fr13, fr6
+        fmul    fr11, fr6
+        fmov    fr12, fr0
         fldi1   fr5
-        fmul    fr3, fr4            /* fr4 = 2*(X*Y-W*Z) */
-        fmov    fr11, fr0           /* fr5 = 1 + -2*(X*X+Z*Z) */
-        fmac    fr0, fr7, fr5
-        fldi0   fr11
-
-        /* Column 0 */
-        fmov    fr13, fr7           /* Tmp = Y*Y */
-        fmul    fr13, fr7
-        fmov    fr12, fr1           /* fr1 = X*Y */
-        fmul    fr13, fr1
-        fmov    fr12, fr2           /* fr2 = X*Z */
-        fmul    fr14, fr2
-        fmov    fr14, fr0           /* Tmp = Y*Y+Z*Z */
-        fmac    fr0, fr14, fr7
-        fmov    fr15, fr0
-        fmac    fr0, fr14, fr1      /* fr1 = X*Y+W*Z */
         fneg    fr0
-        fmac    fr0, fr13, fr2      /* fr2 = X*Z-W*Y */
+        fmov    fr5, fr10
+        fmac    fr0, fr3, fr5
+        fmov    fr1, fr4
+        fmac    fr0, fr3, fr10
+        fmov    fr13, fr0
+        fldi1   fr12
+        fneg    fr0
+        fmov    fr2, fr8
+        fmac    fr0, fr7, fr10
+        fmov    fr6, fr9
+        fmac    fr0, fr7, fr12
+        fmov    fr14, fr0
+        fneg    fr0
+        fmac    fr0, fr11, fr5
+        fmac    fr0, fr11, fr12
+        fmov    fr15, fr0
+        fmac    fr0, fr11, fr1
+        fmac    fr0, fr7, fr8
+        fmac    fr0, fr3, fr6
+        fneg    fr0
+        fmac    fr0, fr11, fr4
         fldi0   fr11
-        fmul    fr3, fr7            /* Tmp = 2*(Y*Y+Z*Z) */
-        fmul    fr3, fr1            /* fr1 = 2*(X*Y+W*Z) */
-        fldi1   fr0                 /* fr0 = 1 */
-        fmul    fr3, fr2            /* fr2 = 2*(X*Z-W*Y) */
-        fsub    fr7, fr0            /* fr0 = 1 - 2*(Y*Y+Z*Z) */
-        fldi0   fr3
+        fmac    fr0, fr7, fr2
         fldi0   fr7
-
+        fmac    fr0, fr3, fr9
+        fmov    fr12, fr0
         fschg
-        ftrv    xmtrx, fv8
-        fmov    xd12, dr12
-        fmov    xd14, dr14
+        fldi0   fr3
         ftrv    xmtrx, fv4
+        fmov    xd12, dr12
         ftrv    xmtrx, fv0
+        fmov    xd14, dr14
+        ftrv    xmtrx, fv8
         fschg
         frchg
     )"
     : [x] "+f" (x), [y] "+f" (y), [z] "+f" (z), [w] "+f" (w)
     :
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
-      "fr8", "fr9", "fr10", "fr11");
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5",
+      "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
 SHZ_INLINE void shz_xmtrx_transpose_sh4(void) SHZ_NOEXCEPT {
