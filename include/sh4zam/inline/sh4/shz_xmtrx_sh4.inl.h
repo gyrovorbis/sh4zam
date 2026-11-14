@@ -4544,20 +4544,19 @@ SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_sh4(shz_vec4_t vec) SHZ_NOE
     return shz_vec4_init(rx, ry, rz, rw);
 }
 
-/* FTRV forms row dot products. To multiply by XMTRX's transpose, copy its
-   columns into the front bank and dot them with FV0. Columns 0 and 1 use FV4
-   and FV8. Preserve column 0's result in FR9 before replacing FR6:FR7 while
-   loading column 2 into FV4. The 4D routine also preserves column 2's result
-   in FR8 before reusing FV4 for column 3. FIPR doesn't depend on FPSCR.SZ,
-   so the first two run between the paired moves.
+/* FTRV computes row dot products. To multiply by XMTRX's transpose,
+   copy its columns into the front bank and dot them with FV0.
+   Columns 0 and 1 use FV4 and FV8. Preserve column 0's result in
+   FR9 before reusing FV4 for column 2. The 4D routine also preserves
+   column 2's result in FR8 before reusing FV4 for column 3.
+   FIPR is independent of FPSCR.SZ, avoiding two extra FSCHGs.
 
-   The 3D routine dots whole columns with a W of 0, so a non-finite entry in
-   XMTRX's fourth row can make its result NaN, where the software backend
-   leaves those entries out.
+   The 3D routine uses a W of 0, so non-finite fourth-row entries
+   may produce NaN, unlike the software backend, which omits them.
 
-   This asm does not use the callee-saved registers FR12-FR15. Requires
-   FPSCR.PR = FPSCR.SZ = 0 on entry. PR is unchanged and SZ is restored
-   before returning. XMTRX is unchanged. */
+   FR12-FR15 are untouched. Requires FPSCR.PR = FPSCR.SZ = 0 on
+   entry; PR remains unchanged and SZ is restored. XMTRX is
+   never modified. */
 SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_vec3_transpose_sh4(shz_vec3_t vec) SHZ_NOEXCEPT {
     register float vx asm("fr0") = vec.x;
     register float vy asm("fr1") = vec.y;

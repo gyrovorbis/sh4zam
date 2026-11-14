@@ -817,9 +817,9 @@ SHZ_INLINE shz_vec4_t shz_xmtrx_transform_vec4_transpose(shz_vec4_t vec) SHZ_NOE
 
 /*! Multiplies \p vec by the transpose of XMTRX's upper-left 3x3 matrix.
 
-    The input W component is treated as 0, and the fourth result
-    component is discarded. No homogeneous division is performed.
-    XMTRX is not modified.
+    Equivalent to multiplying (vec.x, vec.y, vec.z, 0) by XMTRX's
+    transpose and returning the first three components.
+    No homogeneous division is performed. XMTRX is not modified.
 
     \note
     When the upper-left 3x3 matrix is orthogonal, this applies its

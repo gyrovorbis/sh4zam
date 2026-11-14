@@ -3726,8 +3726,7 @@ static void load_asymmetric_xmtrx_(shz_mat4x4_t* mat) {
     shz_xmtrx_store_4x4(mat);
 }
 
-// Whether XMTRX holds mat's words exactly, compared as bit patterns, so that
-// a zero whose sign flipped, or a NaN left as it was, is told correctly.
+// Compare XMTRX bit-for-bit, including signed zeros and NaN payloads.
 static bool same_xmtrx_(const shz_mat4x4_t* mat) {
     shz_mat4x4_t now;
     shz_xmtrx_store_4x4(&now);
@@ -3737,16 +3736,16 @@ static bool same_xmtrx_(const shz_mat4x4_t* mat) {
     return true;
 }
 
-// Whether actual is finite and within 0.001 of expected. GBL_TEST_ERROR alone
-// passes a NaN, since every comparison with one is false.
+// Require finite output within 0.001 of expected. GBL_TEST_ERROR alone
+// accepts NaN because its error comparison does not reject it.
 static bool near_(float actual, float expected) {
     if((std::bit_cast<uint32_t>(actual) & 0x7f800000u) == 0x7f800000u)
         return false;
     return std::fabs(actual - expected) <= 0.001f;
 }
 
-// The matrix whose rows are 1 to 4, 5 to 8, 9 to 12 and 13 to 16, so that
-// each result below is a small integer a float holds exactly.
+// Rows contain 1-4, 5-8, 9-12, and 13-16, giving small,
+// exactly representable expected results.
 static void load_counting_xmtrx_(shz_mat4x4_t* mat) {
     for(unsigned c = 0; c < 4; ++c)
         for(unsigned r = 0; r < 4; ++r)

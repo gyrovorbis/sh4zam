@@ -1206,7 +1206,7 @@ SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_sw(shz_vec4_t vec) SHZ_NOEX
     return shz_xmtrx_ftrv_(vec);
 }
 
-/* result = transpose(state) * vec: each component is one column of the state dotted with vec */
+/* Each result component is the dot product of vec with a column of XMTRX. */
 SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_transpose_sw(shz_vec4_t vec) SHZ_NOEXCEPT {
     const shz_vec4_t* SHZ_RESTRICT c = shz_xmtrx_state_()->col;
     return shz_vec4_init(
