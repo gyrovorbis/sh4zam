@@ -1339,7 +1339,7 @@ SHZ_INLINE void shz_xmtrx_init_upper_triangular_sh4(float col1, shz_vec2_t col2,
         frchg
     )"
     :
-    : [c2] "r" (&col2), [c3] "r" (&col3), [c4] "r" (&col4),
+    : [c2] "u" (&col2), [c3] "u" (&col3), [c4] "u" (&col4),
       [c1] "f" (col1), "m" (col2), "m" (col3), "m" (col4)
     : "fpul");
 }
@@ -1370,7 +1370,7 @@ SHZ_INLINE void shz_xmtrx_init_lower_triangular_sh4(shz_vec4_t col1, shz_vec3_t 
         frchg
     )"
     :
-    : [c1] "r" (&col1), [c2] "r" (&col2), [c3] "r" (&col3),
+    : [c1] "u" (&col1), [c2] "u" (&col2), [c3] "u" (&col3),
       [c4] "f" (col4), "m" (col1), "m" (col2), "m" (col3)
     : "fpul");
 }
@@ -3435,7 +3435,7 @@ SHZ_INLINE void shz_xmtrx_lookat_sh4(shz_vec3_t eye,
         frchg
     )"
     :
-    : [p] "r"(&eye), [t] "r"(&center), [u] "r"(&up),
+    : [p] "u"(&eye), [t] "u"(&center), [u] "u"(&up),
       "m" (eye), "m" (center), "m" (up)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
@@ -3477,7 +3477,7 @@ SHZ_INLINE void shz_xmtrx_ortho_sh4(float left, float right, float bottom, float
         frchg
     )"
     :
-    : [s] "r" (&scale), [t] "r" (&trans),
+    : [s] "u" (&scale), [t] "u" (&trans),
           "m"  (scale),     "m" (trans)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
