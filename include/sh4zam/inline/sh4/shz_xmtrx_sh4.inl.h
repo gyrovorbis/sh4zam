@@ -4544,19 +4544,6 @@ SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_sh4(shz_vec4_t vec) SHZ_NOE
     return shz_vec4_init(rx, ry, rz, rw);
 }
 
-/* FTRV computes row dot products. To multiply by XMTRX's transpose,
-   copy its columns into the front bank and dot them with FV0.
-   Columns 0 and 1 use FV4 and FV8. Preserve column 0's result in
-   FR9 before reusing FV4 for column 2. The 4D routine also preserves
-   column 2's result in FR8 before reusing FV4 for column 3.
-   FIPR is independent of FPSCR.SZ, avoiding two extra FSCHGs.
-
-   The 3D routine uses a W of 0, so non-finite fourth-row entries
-   may produce NaN, unlike the software backend, which omits them.
-
-   FR12-FR15 are untouched. Requires FPSCR.PR = FPSCR.SZ = 0 on
-   entry; PR remains unchanged and SZ is restored. XMTRX is
-   never modified. */
 SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_vec3_transpose_sh4(shz_vec3_t vec) SHZ_NOEXCEPT {
     register float vx asm("fr0") = vec.x;
     register float vy asm("fr1") = vec.y;
@@ -4572,10 +4559,10 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_vec3_transpose_sh4(shz_vec3_t ve
         fmov    xd0, dr4
         fmov    xd2, dr6
         fmov    xd4, dr8
-        fmov    xd6, dr10
         fipr    fv0, fv4
-        fipr    fv0, fv8
+        fmov    xd6, dr10
         fmov    xd8, dr4
+        fipr    fv0, fv8
         fmov    dr6, dr8
         fmov    xd10, dr6
         fschg
@@ -4604,19 +4591,18 @@ SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_transpose_sh4(shz_vec4_t ve
         fmov    xd0, dr4
         fmov    xd2, dr6
         fmov    xd4, dr8
-        fmov    xd6, dr10
         fipr    fv0, fv4
-        fipr    fv0, fv8
+        fmov    xd6, dr10
         fmov    xd8, dr4
+        fipr    fv0, fv8
         fmov    dr6, dr8
         fmov    xd10, dr6
-        fschg
         fipr    fv0, fv4
-        fmov    fr7, fr8
-        fschg
         fmov    xd12, dr4
+        flds    fr7, fpul
         fmov    xd14, dr6
         fschg
+        fsts    fpul, fr8
         fipr    fv0, fv4
     )"
     : "=f" (rx), "=f" (ry), "=f" (rz), "=f" (rw)
