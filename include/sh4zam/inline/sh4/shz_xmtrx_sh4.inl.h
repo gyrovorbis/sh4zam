@@ -4544,6 +4544,74 @@ SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_sh4(shz_vec4_t vec) SHZ_NOE
     return shz_vec4_init(rx, ry, rz, rw);
 }
 
+SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_vec3_transpose_sh4(shz_vec3_t vec) SHZ_NOEXCEPT {
+    register float vx asm("fr0") = vec.x;
+    register float vy asm("fr1") = vec.y;
+    register float vz asm("fr2") = vec.z;
+    register float vw asm("fr3") = 0.0f;
+
+    register float rx asm("fr9");
+    register float ry asm("fr11");
+    register float rz asm("fr7");
+
+    asm volatile(R"(
+        fschg
+        fmov    xd0, dr4
+        fmov    xd2, dr6
+        fmov    xd4, dr8
+        fipr    fv0, fv4
+        fmov    xd6, dr10
+        fmov    xd8, dr4
+        fipr    fv0, fv8
+        fmov    dr6, dr8
+        fmov    xd10, dr6
+        fschg
+        fipr    fv0, fv4
+    )"
+    : "=f" (rx), "=f" (ry), "=f" (rz)
+    : "f" (vx), "f" (vy), "f" (vz), "f" (vw)
+    : "fr4", "fr5", "fr6", "fr8", "fr10");
+
+    return shz_vec3_init(rx, ry, rz);
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_transpose_sh4(shz_vec4_t vec) SHZ_NOEXCEPT {
+    register float vx asm("fr0") = vec.x;
+    register float vy asm("fr1") = vec.y;
+    register float vz asm("fr2") = vec.z;
+    register float vw asm("fr3") = vec.w;
+
+    register float rx asm("fr9");
+    register float ry asm("fr11");
+    register float rz asm("fr8");
+    register float rw asm("fr7");
+
+    asm volatile(R"(
+        fschg
+        fmov    xd0, dr4
+        fmov    xd2, dr6
+        fmov    xd4, dr8
+        fipr    fv0, fv4
+        fmov    xd6, dr10
+        fmov    xd8, dr4
+        fipr    fv0, fv8
+        fmov    dr6, dr8
+        fmov    xd10, dr6
+        fipr    fv0, fv4
+        fmov    xd12, dr4
+        flds    fr7, fpul
+        fmov    xd14, dr6
+        fschg
+        fsts    fpul, fr8
+        fipr    fv0, fv4
+    )"
+    : "=f" (rx), "=f" (ry), "=f" (rz), "=f" (rw)
+    : "f" (vx), "f" (vy), "f" (vz), "f" (vw)
+    : "fr4", "fr5", "fr6", "fr10");
+
+    return shz_vec4_init(rx, ry, rz, rw);
+}
+
 #endif
 
 //! @}

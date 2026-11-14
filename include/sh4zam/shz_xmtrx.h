@@ -796,6 +796,41 @@ SHZ_INLINE shz_vec2_t shz_xmtrx_transform_point2(shz_vec2_t pt) SHZ_NOEXCEPT;
 //! Returns the 3D point that is the result of transforming \p pt by XMTRX.
 SHZ_INLINE shz_vec3_t shz_xmtrx_transform_point3(shz_vec3_t pt) SHZ_NOEXCEPT;
 
+/*! Multiplies \p vec by the transpose of XMTRX.
+
+    Each output component is the dot product of \p vec with the
+    corresponding column of XMTRX. All four output components are
+    returned. XMTRX is not modified.
+
+    \note
+    When XMTRX is orthogonal, its transpose is also its inverse.
+
+    \note
+    To process a batch using shz_xmtrx_transform_vec4(), transpose
+    XMTRX before the batch. Transpose it again afterward if the
+    original matrix is still needed.
+
+    \sa shz_xmtrx_transform_vec4(), shz_xmtrx_transform_vec3_transpose(),
+        shz_xmtrx_transpose(), shz_mat4x4_transform_vec4_transpose()
+*/
+SHZ_INLINE shz_vec4_t shz_xmtrx_transform_vec4_transpose(shz_vec4_t vec) SHZ_NOEXCEPT;
+
+/*! Multiplies \p vec by the transpose of XMTRX's upper-left 3x3 matrix.
+
+    Equivalent to multiplying (vec.x, vec.y, vec.z, 0) by XMTRX's
+    transpose and returning the first three components.
+    No homogeneous division is performed. XMTRX is not modified.
+
+    \note
+    When the upper-left 3x3 matrix is orthogonal, this applies its
+    inverse. For example, with a model-to-world rotation in XMTRX,
+    it converts a world-space direction to model space.
+
+    \sa shz_xmtrx_transform_vec3(), shz_xmtrx_transform_vec4_transpose(),
+        shz_mat4x4_transform_vec3_transpose()
+*/
+SHZ_INLINE shz_vec3_t shz_xmtrx_transform_vec3_transpose(shz_vec3_t vec) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Setters
