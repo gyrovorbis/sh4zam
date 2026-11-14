@@ -533,7 +533,7 @@ SHZ_INLINE void shz_memcpy2_8_sh4(      void* SHZ_RESTRICT dst,
         mov.w   r0, @-%[d]
     )"
     : [s] "+&r" (src), "=m" (*(uint8_t (*)[16])dst)
-    : [d] "r" (dst), "m" (*(const uint8_t (*)[16])src)
+    : [d] "u" (dst), "m" (*(const uint8_t (*)[16])src)
     : "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7");
 }
 
@@ -605,7 +605,7 @@ SHZ_INLINE void shz_memset2_16_sh4(void* dst, uint16_t value) SHZ_NOEXCEPT {
         mov.w   %2, @-%1
     )"
     : "=m" (*(uint8_t (*)[32])dst)
-    : "r" (dst), "r" (value));
+    : "u" (dst), "r" (value));
 }
 
 SHZ_INLINE void shz_memcpy4_16_sh4(      void* SHZ_RESTRICT dst,
@@ -648,7 +648,7 @@ SHZ_INLINE void shz_memcpy4_16_sh4(      void* SHZ_RESTRICT dst,
         add     #-64, %[s]
     )"
     : "=m" (*(uint8_t (*)[64])dst)
-    : [s] "r" (src), [d] "r" (dst), "m" (*(const uint8_t (*)[64])src)
+    : [s] "u" (src), [d] "r" (dst), "m" (*(const uint8_t (*)[64])src)
     : "r0", "r1", "r2", "r3");
 }
 

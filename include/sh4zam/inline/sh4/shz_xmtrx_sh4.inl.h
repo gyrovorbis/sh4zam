@@ -1120,7 +1120,7 @@ SHZ_INLINE void shz_xmtrx_store_transpose_3x4_sh4(shz_mat3x4_t* mat) SHZ_NOEXCEP
         frchg
     )"
     : "=m" (*mat)
-    : [mat] "r" (mat), [scr] "r" (scr));
+    : [mat] "u" (mat), [scr] "r" (scr));
 }
 
 SHZ_INLINE void shz_xmtrx_store_3x3_sh4(shz_mat3x3_t* matrix) SHZ_NOEXCEPT {

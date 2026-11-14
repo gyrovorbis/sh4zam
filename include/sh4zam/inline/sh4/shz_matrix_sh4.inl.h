@@ -104,7 +104,7 @@ SHZ_FORCE_INLINE shz_vec4_t shz_mat4x4_transform_vec4_sh4(const shz_mat4x4_t* ma
         fipr      fv4, fv8
     )"
     : "=&f" (ox), "=&f" (oy), "=&f" (oz), "=&f" (ow)
-    : "m" (*mat), [m] "r" (mat), "f" (vx), "f" (vy), "f" (vz), "f" (vw)
+    : "m" (*mat), [m] "u" (mat), "f" (vx), "f" (vy), "f" (vz), "f" (vw)
     : "fr0", "fr1", "fr2", "fr8", "fr9", "fr10");
 
     return shz_vec4_init(ox, oy, oz, ow);
