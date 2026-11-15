@@ -4607,7 +4607,7 @@ SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_transpose_sh4(shz_vec4_t ve
     )"
     : "=f" (rx), "=f" (ry), "=f" (rz), "=f" (rw)
     : "f" (vx), "f" (vy), "f" (vz), "f" (vw)
-    : "fr4", "fr5", "fr6", "fr10");
+    : "fr4", "fr5", "fr6", "fr10", "fpul");
 
     return shz_vec4_init(rx, ry, rz, rw);
 }
