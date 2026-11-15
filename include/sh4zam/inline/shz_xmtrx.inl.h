@@ -1330,6 +1330,14 @@ SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_vec3_transpose(shz_vec3_t vec) S
 #endif
 }
 
+SHZ_FORCE_INLINE shz_vec2_t shz_xmtrx_transform_point2_transpose(shz_vec2_t pt) SHZ_NOEXCEPT {
+    return shz_xmtrx_transform_vec4_transpose(shz_vec2_vec4(pt, 0.0f, 1.0f)).xy;
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_point3_transpose(shz_vec3_t pt) SHZ_NOEXCEPT {
+    return shz_xmtrx_transform_vec4_transpose(shz_vec3_vec4(pt, 1.0f)).xyz;
+}
+
 /* ========== Init Compositions ========== */
 
 SHZ_FORCE_INLINE void shz_xmtrx_init_lookat(shz_vec3_t eye, shz_vec3_t center, shz_vec3_t up) SHZ_NOEXCEPT {

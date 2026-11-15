@@ -3872,6 +3872,14 @@ GBL_TEST_CASE(transform_transpose_exact)
     const shz_vec4_t out4w = shz_xmtrx_transform_vec4_transpose(shz_vec4_init(2.0f, -3.0f, 5.0f, 0.0f));
     const shz_vec4_t cpp4  = shz::xmtrx::transform_transpose(shz::vec4(2.0f, -3.0f, 5.0f, -7.0f));
     const shz_vec3_t cpp3  = shz::xmtrx::transform_transpose(shz::vec3(2.0f, -3.0f, 5.0f));
+    const shz_vec3_t pt3   = shz_xmtrx_transform_point3_transpose(shz_vec3_init(2.0f, -3.0f, 5.0f));
+    const shz_vec2_t pt2   = shz_xmtrx_transform_point2_transpose(shz_vec2_init(2.0f, 3.0f));
+    const shz_vec3_t cppp3 = shz::xmtrx::transform_point_transpose(shz::vec3(2.0f, -3.0f, 5.0f));
+    const shz_vec2_t cppp2 = shz::xmtrx::transform_point_transpose(shz::vec2(2.0f, 3.0f));
+    const shz_vec3_t mat3  = shz_mat4x4_transform_point3_transpose(&mat, shz_vec3_init(2.0f, -3.0f, 5.0f));
+    const shz_vec2_t mat2  = shz_mat4x4_transform_point2_transpose(&mat, shz_vec2_init(2.0f, 3.0f));
+    const float wantp3[3]  = {  45.0f,  50.0f,  55.0f };
+    const float wantp2[2]  = {  30.0f,  36.0f };
 
     for(unsigned c = 0; c < 4; ++c) {
         GBL_TEST_VERIFY(near_(out4.e[c], want4[c]));
@@ -3903,6 +3911,17 @@ GBL_TEST_CASE(transform_transpose_exact)
         GBL_TEST_VERIFY(near_(cpp4.e[c], want4[c]));
     for(unsigned c = 0; c < 3; ++c)
         GBL_TEST_VERIFY(near_(cpp3.e[c], want3[c]));
+
+    for(unsigned c = 0; c < 3; ++c) {
+        GBL_TEST_VERIFY(near_(pt3.e[c], wantp3[c]));
+        GBL_TEST_VERIFY(near_(cppp3.e[c], wantp3[c]));
+        GBL_TEST_VERIFY(near_(mat3.e[c], wantp3[c]));
+    }
+    for(unsigned c = 0; c < 2; ++c) {
+        GBL_TEST_VERIFY(near_(pt2.e[c], wantp2[c]));
+        GBL_TEST_VERIFY(near_(cppp2.e[c], wantp2[c]));
+        GBL_TEST_VERIFY(near_(mat2.e[c], wantp2[c]));
+    }
 
     GBL_TEST_VERIFY(same_xmtrx_(&mat));
 GBL_TEST_CASE_END
