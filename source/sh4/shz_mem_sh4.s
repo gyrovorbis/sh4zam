@@ -69,33 +69,35 @@ _shz_memcpy128_sh4_:
     xor       #0x0f, r0     ! r0 = 8-byte aligned stack.
     mov       #-7, r2
     pref      @r0           ! Prefetch new stack address.
-    mov       r0, r1        ! r1 = 8-byte aligned stack.
+    mov       r15, r1       ! Preserve caller's SP.
+    mov       r0, r15       ! Align SP for the FPU saves.
     fschg                   ! Swap to FMOV.D mode.
     bf.s      2f            ! Exit if nothing to copy.
     mov       r4, r0        ! Return dst through r0.
 
 ! Push FPU regs to stack as we set up for the main loop.
+! Pushing through SP keeps an interrupt's frame below the saved registers.
     add       r6, r5        ! src += bytes
-    fmov.d    dr12, @-r1
+    fmov.d    dr12, @-r15
     xor       r3, r3        ! r3 = 0
-    fmov.d    dr14, @-r1
+    fmov.d    dr14, @-r15
     add       #64, r3       ! r3 = 64
-    fmov.d    xd0, @-r1
+    fmov.d    xd0, @-r15
     add       r3, r3        ! r3 = 128
-    fmov.d    xd2, @-r1
+    fmov.d    xd2, @-r15
     sub       r3, r5        ! src -= 128
-    fmov.d    xd4, @-r1
+    fmov.d    xd4, @-r15
     add       r6, r4        ! dst += bytes
-    fmov.d    xd6, @-r1
+    fmov.d    xd6, @-r15
     mov       r5, r7        ! r7 is src prefetcher.
-    fmov.d    xd8, @-r1
+    fmov.d    xd8, @-r15
     pref      @r5           ! Prefetch first cache line of src.
     add       #32, r7
-    fmov.d    xd10, @-r1
+    fmov.d    xd10, @-r15
     shld      r2, r6        ! count = bytes / 128
-    fmov.d    xd12, @-r1
+    fmov.d    xd12, @-r15
     mov       r4, r2        ! r2 is dst preallocator.
-    fmov.d    xd14, @-r1
+    fmov.d    xd14, @-r15
     add       r3, r3        ! r3 = 256 (src decrementer)
     add       #-32, r2      ! Decrement preallocator to previous cache line.
     pref      @r7           ! Prefetch second cache line of src.
@@ -173,19 +175,20 @@ _shz_memcpy128_sh4_:
     add       #32, r7
 
 ! Pop FPU registers from stack.
-    fmov.d    @r1+, xd14
-    fmov.d    @r1+, xd12
-    fmov.d    @r1+, xd10
-    fmov.d    @r1+, xd8
-    fmov.d    @r1+, xd6
-    fmov.d    @r1+, xd4
-    fmov.d    @r1+, xd2
-    fmov.d    @r1+, xd0
-    fmov.d    @r1+, dr14
-    fmov.d    @r1+, dr12
+    fmov.d    @r15+, xd14
+    fmov.d    @r15+, xd12
+    fmov.d    @r15+, xd10
+    fmov.d    @r15+, xd8
+    fmov.d    @r15+, xd6
+    fmov.d    @r15+, xd4
+    fmov.d    @r15+, xd2
+    fmov.d    @r15+, xd0
+    fmov.d    @r15+, dr14
+    fmov.d    @r15+, dr12
 
 ! Exit this bitch.
 2:
+    mov     r1, r15 ! Restore SP.
     rts     ! Return dst, through r0.
     fschg   ! Swap back to 4-byte FMOV.S mode.
 
