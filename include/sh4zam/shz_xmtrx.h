@@ -796,45 +796,92 @@ SHZ_INLINE shz_vec2_t shz_xmtrx_transform_point2(shz_vec2_t pt) SHZ_NOEXCEPT;
 //! Returns the 3D point that is the result of transforming \p pt by XMTRX.
 SHZ_INLINE shz_vec3_t shz_xmtrx_transform_point3(shz_vec3_t pt) SHZ_NOEXCEPT;
 
-/*! Multiplies \p vec by the transpose of XMTRX.
+/*! Transforms a 4D vector by the transpose of XMTRX.
 
-    Each output component is the dot product of \p vec with the
-    corresponding column of XMTRX. All four output components are
-    returned. XMTRX is not modified.
-
-    \note
-    When XMTRX is orthogonal, its transpose is also its inverse.
+    This routine is an efficient way to do a one-off multiplicaiton of \p vec
+    by the transpose of the 4x4 matrix held within XMTRX.
 
     \note
-    To process a batch using shz_xmtrx_transform_vec4(), transpose
-    XMTRX before the batch. Transpose it again afterward if the
-    original matrix is still needed.
+    For transforming multiple 4D vectors by XMTRX's transpose, it's more
+    efficient to perform batch processing like so:
+
+        shz_xmtrx_transpose()
+        for(i in vectors)
+            out[i] = shz_xmtrx_transform_vec4(in[i]);
+        shz_xmtrx_transpose();
+
+    \param  vec     Input 4D vector to transform.
+    \returns        \p vec multiplied by XMTRX.
 
     \sa shz_xmtrx_transform_vec4(), shz_xmtrx_transform_vec3_transpose(),
         shz_xmtrx_transpose(), shz_mat4x4_transform_vec4_transpose()
 */
 SHZ_INLINE shz_vec4_t shz_xmtrx_transform_vec4_transpose(shz_vec4_t vec) SHZ_NOEXCEPT;
 
-/*! Multiplies \p vec by the transpose of XMTRX's upper-left 3x3 matrix.
+/*! Transforms a 3D vector by the transpose of XMTRX.
 
-    Equivalent to multiplying (vec.x, vec.y, vec.z, 0) by XMTRX's
-    transpose and returning the first three components.
-    No homogeneous division is performed. XMTRX is not modified.
+    This routine is an efficient way to do a one-off multiplicaiton of \p vec
+    by the transpose of the 4x4 matrix held within XMTRX.
 
     \note
-    When the upper-left 3x3 matrix is orthogonal, this applies its
-    inverse. For example, with a model-to-world rotation in XMTRX,
-    it converts a world-space direction to model space.
+    For transforming multiple 3D vectors by XMTRX's transpose, it's more
+    efficient to perform batch processing like so:
+
+        shz_xmtrx_transpose()
+        for(i in vectors)
+            out[i] = shz_xmtrx_transform_vec3(in[i]);
+        shz_xmtrx_transpose();
+
+    \param  vec     Input 3D vector to transform.
+    \returns        \p vec multiplied by XMTRX.
 
     \sa shz_xmtrx_transform_vec3(), shz_xmtrx_transform_vec4_transpose(),
-        shz_mat4x4_transform_vec3_transpose()
+        shz_xmtrx_transpose(), shz_mat4x4_transform_vec3_transpose()
 */
 SHZ_INLINE shz_vec3_t shz_xmtrx_transform_vec3_transpose(shz_vec3_t vec) SHZ_NOEXCEPT;
 
-//! Returns the 2D point that is the result of transforming \p pt by the transpose of XMTRX.
+/*! Transforms a 2D point by the transpose of XMTRX.
+
+    This routine is an efficient way to do a one-off multiplicaiton of \p pt
+    by the transpose of the 4x4 submatrix held within XMTRX.
+
+    \note
+    For transforming multiple 2D points by XMTRX's transpose, it's more
+    efficient to perform batch processing like so:
+
+        shz_xmtrx_transpose()
+        for(i in points)
+            out[i] = shz_xmtrx_transform_point2(in[i]);
+        shz_xmtrx_transpose();
+
+    \param  pt     Input 2D point to transform.
+    \returns       \p pt multiplied by XMTRX.
+
+    \sa shz_xmtrx_transform_point2(), shz_xmtrx_transform_point3_transpose(),
+        shz_xmtrx_transpose(), shz_mat4x4_transform_point2_transpose()
+*/
 SHZ_INLINE shz_vec2_t shz_xmtrx_transform_point2_transpose(shz_vec2_t pt) SHZ_NOEXCEPT;
 
-//! Returns the 3D point that is the result of transforming \p pt by the transpose of XMTRX.
+/*! Transforms a 3D point by the transpose of XMTRX.
+
+    This routine is an efficient way to do a one-off multiplicaiton of \p pt
+    by the transpose of the 4x4 submatrix held within XMTRX.
+
+    \note
+    For transforming multiple 3D points by XMTRX's transpose, it's more
+    efficient to perform batch processing like so:
+
+        shz_xmtrx_transpose()
+        for(i in points)
+            out[i] = shz_xmtrx_transform_point3(in[i]);
+        shz_xmtrx_transpose();
+
+    \param  pt     Input 3D point to transform.
+    \returns       \p pt multiplied by XMTRX.
+
+    \sa shz_xmtrx_transform_point3(), shz_xmtrx_transform_point2_transpose(),
+        shz_xmtrx_transpose(), shz_mat4x4_transform_point3_transpose()
+*/
 SHZ_INLINE shz_vec3_t shz_xmtrx_transform_point3_transpose(shz_vec3_t pt) SHZ_NOEXCEPT;
 
 //! @}

@@ -46,6 +46,15 @@ static void randomize_xmtrx_() {
        shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandf());
 }
 
+static void load_asymmetric_xmtrx_() {
+    shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 2.0f, 3.0f);
+    shz::xmtrx::scale_3x3(2.0f, 3.0f, 4.0f);
+    shz::xmtrx::add_translation(10.0f, 20.0f, 30.0f);
+    shz::xmtrx::write(shz::xmtrx::reg::XF3,  0.25f);
+    shz::xmtrx::write(shz::xmtrx::reg::XF7, -0.5f);
+    shz::xmtrx::write(shz::xmtrx::reg::XF11, 0.75f);
+}
+
 static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, double epsilon=0.01) {
     mat = transpose(mat);
     GBL_CTX_BEGIN(pSelf);
@@ -3641,8 +3650,8 @@ GBL_TEST_CASE(transform_vec4)
         shz_glm_vec4 axis = { .shz = {1.0f, 2.0f, 3.0f, 4.0f} };
 
         (benchmark_cmp<shz::vec4>)(
-            "shz::xmtrx::transform", [](shz_glm_vec4 axis) { return shz::xmtrx::transform(axis.shz); },
-            "glm_mat4_mulv",         [&](shz_glm_vec4 axis) {
+            "shz::xmtrx::transform", [](const shz_glm_vec4& axis) { return shz::xmtrx::transform(axis.shz); },
+            "glm_mat4_mulv",         [&](const shz_glm_vec4& axis) {
                 shz_glm_vec4 dst;
                 glm_mat4_mulv(*const_cast<mat4*>(&xmtrx), axis.glm, dst.glm);
                 return dst.shz;
@@ -3714,239 +3723,155 @@ GBL_TEST_CASE(transform_point2)
 
 GBL_TEST_CASE_END
 
-// XMTRX set to a matrix with no symmetry, so that a transform by the wrong
-// side of it, or by the wrong column, gives another answer.
-static void load_asymmetric_xmtrx_(shz_mat4x4_t* mat) {
-    shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 2.0f, 3.0f);
-    shz::xmtrx::scale_3x3(2.0f, 3.0f, 4.0f);
-    shz::xmtrx::add_translation(10.0f, 20.0f, 30.0f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF3,  0.25f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF7, -0.5f);
-    shz::xmtrx::write(shz::xmtrx::reg::XF11, 0.75f);
-    shz_xmtrx_store_4x4(mat);
-}
-
-// Compare XMTRX bit-for-bit, including signed zeros and NaN payloads.
-static bool same_xmtrx_(const shz_mat4x4_t* mat) {
-    shz_mat4x4_t now;
-    shz_xmtrx_store_4x4(&now);
-    for(unsigned e = 0; e < 16; ++e)
-        if(std::bit_cast<uint32_t>(now.elem[e]) != std::bit_cast<uint32_t>(mat->elem[e]))
-            return false;
-    return true;
-}
-
-// Require finite output within 0.001 of expected. GBL_TEST_ERROR alone
-// accepts NaN because its error comparison does not reject it.
-static bool near_(float actual, float expected) {
-    if((std::bit_cast<uint32_t>(actual) & 0x7f800000u) == 0x7f800000u)
-        return false;
-    return std::fabs(actual - expected) <= 0.001f;
-}
-
-// Rows contain 1-4, 5-8, 9-12, and 13-16, giving small,
-// exactly representable expected results.
-static void load_counting_xmtrx_(shz_mat4x4_t* mat) {
-    for(unsigned c = 0; c < 4; ++c)
-        for(unsigned r = 0; r < 4; ++r)
-            mat->elem2D[c][r] = static_cast<float>(r * 4 + c + 1);
-    shz_xmtrx_load_4x4(mat);
-}
-
 GBL_TEST_CASE(transform_vec4_transpose)
-    shz_mat4x4_t mat;
-    load_asymmetric_xmtrx_(&mat);
+    shz::mat4x4 xmtrx_before, xmtrx_after;
 
-    const shz_vec4_t v     = shz_vec4_init(5.0f, 6.0f, 7.0f, 8.0f);
-    const shz_vec4_t out   = shz_xmtrx_transform_vec4_transpose(v);
-    const bool       kept  = same_xmtrx_(&mat);
-    const shz_vec4_t plain = shz_xmtrx_transform_vec4(v);
+    load_asymmetric_xmtrx_();
 
-    shz_xmtrx_transpose();
-    const shz_vec4_t composed = shz_xmtrx_transform_vec4(v);
-    shz_xmtrx_transpose();
-    const bool       restored = same_xmtrx_(&mat);
-    const shz_vec4_t one_off  = shz_mat4x4_transform_vec4_transpose(&mat, v);
+    shz::xmtrx::store(&xmtrx_before);
+    const shz::vec4 v   = { 5.0f, 6.0f, 7.0f, 8.0f };
+    const shz::vec4 out = shz::xmtrx::transform_transpose(v);
+    shz::xmtrx::store(&xmtrx_after);
 
     // XMTRX is left exactly as it was.
-    GBL_TEST_VERIFY(kept);
-    GBL_TEST_VERIFY(restored);
-
-    // It is not the plain transform.
-    GBL_TEST_VERIFY(!shz_vec4_equal(out, plain));
+    GBL_TEST_VERIFY(xmtrx_before == xmtrx_after);
 
     for(unsigned c = 0; c < 4; ++c) {
-        // Each component is one column of XMTRX dotted with the vector...
-        const float dot = mat.col[c].x * v.x + mat.col[c].y * v.y +
-                          mat.col[c].z * v.z + mat.col[c].w * v.w;
-        GBL_TEST_VERIFY(near_(out.e[c], dot));
-        // ...the same as transposing XMTRX around the plain transform...
-        GBL_TEST_VERIFY(near_(out.e[c], composed.e[c]));
-        // ...and as the one-off routine for a matrix in memory.
-        GBL_TEST_VERIFY(near_(out.e[c], one_off.e[c]));
+        // Each component is one column of XMTRX dotted with the vector.
+        const float dot = xmtrx_before.col(c).x * v.x +
+                          xmtrx_before.col(c).y * v.y +
+                          xmtrx_before.col(c).z * v.z +
+                          xmtrx_before.col(c).w * v.w;
+
+        GBL_TEST_VERIFY(shz_equalf(out[c], dot));
     }
 
-    {
-        GBL_TEST_VERIFY(
-            (benchmark_cmp<shz::vec4>)(
-                "shz_xmtrx_transform_vec4_transpose", [](shz::vec4 vec) -> shz::vec4 {
-                    return shz_xmtrx_transform_vec4_transpose(vec);
-                },
-                "transpose, transform_vec4, transpose", [](shz::vec4 vec) -> shz::vec4 {
-                    shz_xmtrx_transpose();
-                    const shz_vec4_t res = shz_xmtrx_transform_vec4(vec);
-                    shz_xmtrx_transpose();
-                    return res;
-                },
-                shz::vec4(v)
-            )
-        );
-    }
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec4>)(
+            "shz_xmtrx_transform_vec4_transpose", [](const shz::vec4& vec) {
+                return shz::xmtrx::transform_transpose(vec);
+            },
+            "transpose + transform + transpose", [](const shz::vec4& vec) {
+                shz::xmtrx::transpose();
+                shz::vec4 res = shz::xmtrx::transform(vec);
+                shz::xmtrx::transpose();
+                return res;
+            },
+            v
+        )
+    );
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(transform_vec3_transpose)
-    shz_mat4x4_t mat;
-    load_asymmetric_xmtrx_(&mat);
+   shz::mat4x4 xmtrx_before, xmtrx_after;
 
-    const shz_vec3_t v     = shz_vec3_init(5.0f, 6.0f, 7.0f);
-    const shz_vec3_t out   = shz_xmtrx_transform_vec3_transpose(v);
-    const bool       kept  = same_xmtrx_(&mat);
-    const shz_vec3_t plain = shz_xmtrx_transform_vec3(v);
-    const shz_vec4_t wide  = shz_xmtrx_transform_vec4_transpose(shz_vec3_vec4(v, 0.0f));
+    load_asymmetric_xmtrx_();
 
-    shz_xmtrx_transpose();
-    const shz_vec3_t composed = shz_xmtrx_transform_vec3(v);
-    shz_xmtrx_transpose();
-    const bool       restored = same_xmtrx_(&mat);
-    const shz_vec3_t one_off  = shz_mat4x4_transform_vec3_transpose(&mat, v);
+    shz::xmtrx::store(&xmtrx_before);
+    const shz::vec3 v   = { 5.0f, 6.0f, 7.0f };
+    const shz::vec3 out = shz::xmtrx::transform_transpose(v);
+    shz::xmtrx::store(&xmtrx_after);
 
     // XMTRX is left exactly as it was.
-    GBL_TEST_VERIFY(kept);
-    GBL_TEST_VERIFY(restored);
-
-    // It is not the plain transform.
-    GBL_TEST_VERIFY(!shz_vec3_equal(out, plain));
+    GBL_TEST_VERIFY(xmtrx_before == xmtrx_after);
 
     for(unsigned c = 0; c < 3; ++c) {
-        // Each component is one of the first three columns dotted with the
-        // vector, whose W is taken as 0...
-        const float dot = mat.col[c].x * v.x + mat.col[c].y * v.y +
-                          mat.col[c].z * v.z;
-        GBL_TEST_VERIFY(near_(out.e[c], dot));
-        // ...the same as the 4D routine with a W of 0...
-        GBL_TEST_VERIFY(near_(out.e[c], wide.e[c]));
-        // ...as transposing XMTRX around the plain transform...
-        GBL_TEST_VERIFY(near_(out.e[c], composed.e[c]));
-        // ...and as the one-off routine for a matrix in memory.
-        GBL_TEST_VERIFY(near_(out.e[c], one_off.e[c]));
+        // Each component is one of the first three columns dotted with the vector.
+        const float dot = xmtrx_before.col(c).x * v.x +
+                          xmtrx_before.col(c).y * v.y +
+                          xmtrx_before.col(c).z * v.z;
+
+        GBL_TEST_VERIFY(shz_equalf(out[c], dot));
     }
 
-    {
-        GBL_TEST_VERIFY(
-            (benchmark_cmp<shz::vec3>)(
-                "shz_xmtrx_transform_vec3_transpose", [](shz::vec3 vec) -> shz::vec3 {
-                    return shz_xmtrx_transform_vec3_transpose(vec);
-                },
-                "transpose, transform_vec3, transpose", [](shz::vec3 vec) -> shz::vec3 {
-                    shz_xmtrx_transpose();
-                    const shz_vec3_t res = shz_xmtrx_transform_vec3(vec);
-                    shz_xmtrx_transpose();
-                    return res;
-                },
-                shz::vec3(v)
-            )
-        );
-    }
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec3>)(
+            "shz_xmtrx_transform_vec3_transpose", [](const shz::vec3& vec) {
+                return shz::xmtrx::transform_transpose(vec);
+            },
+            "transpose + transform + transpose", [](const shz::vec3& vec) {
+                shz::xmtrx::transpose();
+                shz::vec3 res = shz::xmtrx::transform(vec);
+                shz::xmtrx::transpose();
+                return res;
+            },
+            v
+        )
+    );
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(transform_transpose_exact)
-    shz_mat4x4_t mat;
-    load_counting_xmtrx_(&mat);
+GBL_TEST_CASE(transform_point3_transpose)
+    shz::mat4x4 xmtrx_before, xmtrx_after;
 
-    const float want4[4]  = { -59.0f, -62.0f, -65.0f, -68.0f };
-    const float want3[3]  = {  32.0f,  36.0f,  40.0f };
-    const float want4w[4] = {  32.0f,  36.0f,  40.0f,  44.0f };
+    load_asymmetric_xmtrx_();
 
-    const shz_vec4_t out4  = shz_xmtrx_transform_vec4_transpose(shz_vec4_init(2.0f, -3.0f, 5.0f, -7.0f));
-    const shz_vec3_t out3  = shz_xmtrx_transform_vec3_transpose(shz_vec3_init(2.0f, -3.0f, 5.0f));
-    const shz_vec4_t out4w = shz_xmtrx_transform_vec4_transpose(shz_vec4_init(2.0f, -3.0f, 5.0f, 0.0f));
-    const shz_vec4_t cpp4  = shz::xmtrx::transform_transpose(shz::vec4(2.0f, -3.0f, 5.0f, -7.0f));
-    const shz_vec3_t cpp3  = shz::xmtrx::transform_transpose(shz::vec3(2.0f, -3.0f, 5.0f));
-    const shz_vec3_t pt3   = shz_xmtrx_transform_point3_transpose(shz_vec3_init(2.0f, -3.0f, 5.0f));
-    const shz_vec2_t pt2   = shz_xmtrx_transform_point2_transpose(shz_vec2_init(2.0f, 3.0f));
-    const shz_vec3_t cppp3 = shz::xmtrx::transform_point_transpose(shz::vec3(2.0f, -3.0f, 5.0f));
-    const shz_vec2_t cppp2 = shz::xmtrx::transform_point_transpose(shz::vec2(2.0f, 3.0f));
-    const shz_vec3_t mat3  = shz_mat4x4_transform_point3_transpose(&mat, shz_vec3_init(2.0f, -3.0f, 5.0f));
-    const shz_vec2_t mat2  = shz_mat4x4_transform_point2_transpose(&mat, shz_vec2_init(2.0f, 3.0f));
-    const float wantp3[3]  = {  45.0f,  50.0f,  55.0f };
-    const float wantp2[2]  = {  30.0f,  36.0f };
+    shz::xmtrx::store(&xmtrx_before);
+    const shz::vec3 p   = { 5.0f, 6.0f, 7.0f };
+    const shz::vec3 out = shz::xmtrx::transform_point_transpose(p);
+    shz::xmtrx::store(&xmtrx_after);
 
-    for(unsigned c = 0; c < 4; ++c) {
-        GBL_TEST_VERIFY(near_(out4.e[c], want4[c]));
-        GBL_TEST_VERIFY(near_(out4w.e[c], want4w[c]));
-    }
-    for(unsigned c = 0; c < 3; ++c)
-        GBL_TEST_VERIFY(near_(out3.e[c], want3[c]));
-
-    // Basis vector j picks the matrix's row j: component c of the result is
-    // column c's entry j. The four for vec4 reach all sixteen entries, the
-    // three for vec3 the upper-left nine.
-    for(unsigned j = 0; j < 4; ++j) {
-        shz_vec4_t basis = shz_vec4_init(0.0f, 0.0f, 0.0f, 0.0f);
-        basis.e[j] = 1.0f;
-        const shz_vec4_t row = shz_xmtrx_transform_vec4_transpose(basis);
-        for(unsigned c = 0; c < 4; ++c)
-            GBL_TEST_VERIFY(near_(row.e[c], mat.elem2D[c][j]));
-    }
-    for(unsigned j = 0; j < 3; ++j) {
-        shz_vec3_t basis = shz_vec3_init(0.0f, 0.0f, 0.0f);
-        basis.e[j] = 1.0f;
-        const shz_vec3_t row = shz_xmtrx_transform_vec3_transpose(basis);
-        for(unsigned c = 0; c < 3; ++c)
-            GBL_TEST_VERIFY(near_(row.e[c], mat.elem2D[c][j]));
-    }
-
-    // The C++ overloads give the same results.
-    for(unsigned c = 0; c < 4; ++c)
-        GBL_TEST_VERIFY(near_(cpp4.e[c], want4[c]));
-    for(unsigned c = 0; c < 3; ++c)
-        GBL_TEST_VERIFY(near_(cpp3.e[c], want3[c]));
+    GBL_TEST_VERIFY(xmtrx_before == xmtrx_after);
 
     for(unsigned c = 0; c < 3; ++c) {
-        GBL_TEST_VERIFY(near_(pt3.e[c], wantp3[c]));
-        GBL_TEST_VERIFY(near_(cppp3.e[c], wantp3[c]));
-        GBL_TEST_VERIFY(near_(mat3.e[c], wantp3[c]));
+        const float dot = xmtrx_before.col(c).x * p.x +
+                          xmtrx_before.col(c).y * p.y +
+                          xmtrx_before.col(c).z * p.z +
+                          xmtrx_before.col(c).w;
+
+        GBL_TEST_VERIFY(shz_equalf(out[c], dot));
     }
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec3>)(
+            "shz_xmtrx_transform_point3_transpose", [](const shz::vec3& pt) {
+                return shz::xmtrx::transform_point_transpose(pt);
+            },
+            "transpose + transform_point + transpose", [](const shz::vec3& pt) {
+                shz::xmtrx::transpose();
+                shz::vec3 res = shz::xmtrx::transform_point(pt);
+                shz::xmtrx::transpose();
+                return res;
+            },
+            p
+        )
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(transform_point2_transpose)
+    shz::mat4x4 xmtrx_before, xmtrx_after;
+
+    load_asymmetric_xmtrx_();
+
+    shz::xmtrx::store(&xmtrx_before);
+    const shz::vec2 p   = { 5.0f, 6.0f };
+    const shz::vec2 out = shz::xmtrx::transform_point_transpose(p);
+    shz::xmtrx::store(&xmtrx_after);
+
+    GBL_TEST_VERIFY(xmtrx_before == xmtrx_after);
+
     for(unsigned c = 0; c < 2; ++c) {
-        GBL_TEST_VERIFY(near_(pt2.e[c], wantp2[c]));
-        GBL_TEST_VERIFY(near_(cppp2.e[c], wantp2[c]));
-        GBL_TEST_VERIFY(near_(mat2.e[c], wantp2[c]));
+        const float dot = xmtrx_before.col(c).x * p.x +
+                          xmtrx_before.col(c).y * p.y +
+                          xmtrx_before.col(c).w;
+
+        GBL_TEST_VERIFY(shz_equalf(out[c], dot));
     }
 
-    GBL_TEST_VERIFY(same_xmtrx_(&mat));
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec2>)(
+            "shz_xmtrx_transform_point2_transpose", [](const shz::vec2& pt) {
+                return shz::xmtrx::transform_point_transpose(pt);
+            },
+            "transpose + transform_point + transpose", [](const shz::vec2& pt) {
+                shz::xmtrx::transpose();
+                shz::vec2 res = shz::xmtrx::transform_point(pt);
+                shz::xmtrx::transpose();
+                return res;
+            },
+            p
+        )
+    );
 GBL_TEST_CASE_END
-
-GBL_TEST_CASE(transform_transpose_keeps_xmtrx)
-    // Zeros of both signs among the entries, which a comparison of floats
-    // would not tell apart.
-    shz_mat4x4_t mat;
-    for(unsigned e = 0; e < 16; ++e)
-        mat.elem[e] = (e % 3 == 0) ? ((e & 1) ? -0.0f : 0.0f) : static_cast<float>(e) - 7.5f;
-    shz_xmtrx_load_4x4(&mat);
-
-    volatile float sink;
-    sink = shz_xmtrx_transform_vec4_transpose(shz_vec4_init(1.0f, -2.0f, 3.0f, -4.0f)).x;
-    GBL_TEST_VERIFY(same_xmtrx_(&mat));
-    sink = shz_xmtrx_transform_vec3_transpose(shz_vec3_init(1.0f, -2.0f, 3.0f)).x;
-    GBL_TEST_VERIFY(same_xmtrx_(&mat));
-    sink = shz::xmtrx::transform_transpose(shz::vec4(1.0f, -2.0f, 3.0f, -4.0f)).x;
-    GBL_TEST_VERIFY(same_xmtrx_(&mat));
-    sink = shz::xmtrx::transform_transpose(shz::vec3(1.0f, -2.0f, 3.0f)).x;
-    GBL_TEST_VERIFY(same_xmtrx_(&mat));
-    (void)sink;
-GBL_TEST_CASE_END
-
-
 
 GBL_TEST_CASE(rotate_x_u16)
     GBL_TEST_VERIFY(check_xmtrx_rotation_u16_(shz::xmtrx::rotate_x, shz::xmtrx::rotate_x));
@@ -4290,5 +4215,5 @@ GBL_TEST_REGISTER(read_write_registers,
                   transform_point2,
                   transform_vec4_transpose,
                   transform_vec3_transpose,
-                  transform_transpose_exact,
-                  transform_transpose_keeps_xmtrx)
+                  transform_point3_transpose,
+                  transform_point2_transpose)
