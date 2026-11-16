@@ -46,6 +46,15 @@ static void randomize_xmtrx_() {
        shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandf());
 }
 
+static void load_asymmetric_xmtrx_() {
+    shz::xmtrx::init_rotation(shz::deg_to_rad(42.0f), 1.0f, 2.0f, 3.0f);
+    shz::xmtrx::scale_3x3(2.0f, 3.0f, 4.0f);
+    shz::xmtrx::add_translation(10.0f, 20.0f, 30.0f);
+    shz::xmtrx::write(shz::xmtrx::reg::XF3,  0.25f);
+    shz::xmtrx::write(shz::xmtrx::reg::XF7, -0.5f);
+    shz::xmtrx::write(shz::xmtrx::reg::XF11, 0.75f);
+}
+
 static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, double epsilon=0.01) {
     mat = transpose(mat);
     GBL_CTX_BEGIN(pSelf);
@@ -3641,8 +3650,8 @@ GBL_TEST_CASE(transform_vec4)
         shz_glm_vec4 axis = { .shz = {1.0f, 2.0f, 3.0f, 4.0f} };
 
         (benchmark_cmp<shz::vec4>)(
-            "shz::xmtrx::transform", [](shz_glm_vec4 axis) { return shz::xmtrx::transform(axis.shz); },
-            "glm_mat4_mulv",         [&](shz_glm_vec4 axis) {
+            "shz::xmtrx::transform", [](const shz_glm_vec4& axis) { return shz::xmtrx::transform(axis.shz); },
+            "glm_mat4_mulv",         [&](const shz_glm_vec4& axis) {
                 shz_glm_vec4 dst;
                 glm_mat4_mulv(*const_cast<mat4*>(&xmtrx), axis.glm, dst.glm);
                 return dst.shz;
@@ -3714,7 +3723,155 @@ GBL_TEST_CASE(transform_point2)
 
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(transform_vec4_transpose)
+    shz::mat4x4 xmtrx_before, xmtrx_after;
 
+    load_asymmetric_xmtrx_();
+
+    shz::xmtrx::store(&xmtrx_before);
+    const shz::vec4 v   = { 5.0f, 6.0f, 7.0f, 8.0f };
+    const shz::vec4 out = shz::xmtrx::transform_transpose(v);
+    shz::xmtrx::store(&xmtrx_after);
+
+    // XMTRX is left exactly as it was.
+    GBL_TEST_VERIFY(xmtrx_before == xmtrx_after);
+
+    for(unsigned c = 0; c < 4; ++c) {
+        // Each component is one column of XMTRX dotted with the vector.
+        const float dot = xmtrx_before.col(c).x * v.x +
+                          xmtrx_before.col(c).y * v.y +
+                          xmtrx_before.col(c).z * v.z +
+                          xmtrx_before.col(c).w * v.w;
+
+        GBL_TEST_VERIFY(shz_equalf(out[c], dot));
+    }
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec4>)(
+            "shz_xmtrx_transform_vec4_transpose", [](const shz::vec4& vec) {
+                return shz::xmtrx::transform_transpose(vec);
+            },
+            "transpose + transform + transpose", [](const shz::vec4& vec) {
+                shz::xmtrx::transpose();
+                shz::vec4 res = shz::xmtrx::transform(vec);
+                shz::xmtrx::transpose();
+                return res;
+            },
+            v
+        )
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(transform_vec3_transpose)
+   shz::mat4x4 xmtrx_before, xmtrx_after;
+
+    load_asymmetric_xmtrx_();
+
+    shz::xmtrx::store(&xmtrx_before);
+    const shz::vec3 v   = { 5.0f, 6.0f, 7.0f };
+    const shz::vec3 out = shz::xmtrx::transform_transpose(v);
+    shz::xmtrx::store(&xmtrx_after);
+
+    // XMTRX is left exactly as it was.
+    GBL_TEST_VERIFY(xmtrx_before == xmtrx_after);
+
+    for(unsigned c = 0; c < 3; ++c) {
+        // Each component is one of the first three columns dotted with the vector.
+        const float dot = xmtrx_before.col(c).x * v.x +
+                          xmtrx_before.col(c).y * v.y +
+                          xmtrx_before.col(c).z * v.z;
+
+        GBL_TEST_VERIFY(shz_equalf(out[c], dot));
+    }
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec3>)(
+            "shz_xmtrx_transform_vec3_transpose", [](const shz::vec3& vec) {
+                return shz::xmtrx::transform_transpose(vec);
+            },
+            "transpose + transform + transpose", [](const shz::vec3& vec) {
+                shz::xmtrx::transpose();
+                shz::vec3 res = shz::xmtrx::transform(vec);
+                shz::xmtrx::transpose();
+                return res;
+            },
+            v
+        )
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(transform_point3_transpose)
+    shz::mat4x4 xmtrx_before, xmtrx_after;
+
+    load_asymmetric_xmtrx_();
+
+    shz::xmtrx::store(&xmtrx_before);
+    const shz::vec3 p   = { 5.0f, 6.0f, 7.0f };
+    const shz::vec3 out = shz::xmtrx::transform_point_transpose(p);
+    shz::xmtrx::store(&xmtrx_after);
+
+    GBL_TEST_VERIFY(xmtrx_before == xmtrx_after);
+
+    for(unsigned c = 0; c < 3; ++c) {
+        const float dot = xmtrx_before.col(c).x * p.x +
+                          xmtrx_before.col(c).y * p.y +
+                          xmtrx_before.col(c).z * p.z +
+                          xmtrx_before.col(c).w;
+
+        GBL_TEST_VERIFY(shz_equalf(out[c], dot));
+    }
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec3>)(
+            "shz_xmtrx_transform_point3_transpose", [](const shz::vec3& pt) {
+                return shz::xmtrx::transform_point_transpose(pt);
+            },
+            "transpose + transform_point + transpose", [](const shz::vec3& pt) {
+                shz::xmtrx::transpose();
+                shz::vec3 res = shz::xmtrx::transform_point(pt);
+                shz::xmtrx::transpose();
+                return res;
+            },
+            p
+        )
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(transform_point2_transpose)
+    shz::mat4x4 xmtrx_before, xmtrx_after;
+
+    load_asymmetric_xmtrx_();
+
+    shz::xmtrx::store(&xmtrx_before);
+    const shz::vec2 p   = { 5.0f, 6.0f };
+    const shz::vec2 out = shz::xmtrx::transform_point_transpose(p);
+    shz::xmtrx::store(&xmtrx_after);
+
+    GBL_TEST_VERIFY(xmtrx_before == xmtrx_after);
+
+    for(unsigned c = 0; c < 2; ++c) {
+        const float dot = xmtrx_before.col(c).x * p.x +
+                          xmtrx_before.col(c).y * p.y +
+                          xmtrx_before.col(c).w;
+
+        GBL_TEST_VERIFY(shz_equalf(out[c], dot));
+    }
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec2>)(
+            "shz_xmtrx_transform_point2_transpose", [](const shz::vec2& pt) {
+                return shz::xmtrx::transform_point_transpose(pt);
+            },
+            "transpose + transform_point + transpose", [](const shz::vec2& pt) {
+                shz::xmtrx::transpose();
+                shz::vec2 res = shz::xmtrx::transform_point(pt);
+                shz::xmtrx::transpose();
+                return res;
+            },
+            p
+        )
+    );
+GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_x_u16)
     GBL_TEST_VERIFY(check_xmtrx_rotation_u16_(shz::xmtrx::rotate_x, shz::xmtrx::rotate_x));
@@ -4055,4 +4212,8 @@ GBL_TEST_REGISTER(read_write_registers,
                   transform_vec3,
                   transform_vec2,
                   transform_point3,
-                  transform_point2)
+                  transform_point2,
+                  transform_vec4_transpose,
+                  transform_vec3_transpose,
+                  transform_point3_transpose,
+                  transform_point2_transpose)

@@ -823,6 +823,16 @@ struct xmtrx {
         return shz_xmtrx_transform_vec2(in);
     }
 
+    //! C++ wrapper around shz_xmtrx_transform_vec4_transpose().
+    SHZ_FORCE_INLINE static vec4 transform_transpose(const vec4& in) noexcept {
+        return shz_xmtrx_transform_vec4_transpose(in);
+    }
+
+    //! C++ wrapper around shz_xmtrx_transform_vec3_transpose().
+    SHZ_FORCE_INLINE static vec3 transform_transpose(const vec3& in) noexcept {
+        return shz_xmtrx_transform_vec3_transpose(in);
+    }
+
     //! C++ wrapper around shz_xmtrx_transform_point3().
     SHZ_FORCE_INLINE static vec3 transform_point(const vec3& pt) noexcept {
         return shz_xmtrx_transform_point3(pt);
@@ -831,6 +841,16 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_transform_point2().
     SHZ_FORCE_INLINE static vec2 transform_point(const vec2& pt) noexcept {
         return shz_xmtrx_transform_point2(pt);
+    }
+
+    //! C++ wrapper around shz_xmtrx_transform_point3_transpose().
+    SHZ_FORCE_INLINE static vec3 transform_point_transpose(const vec3& pt) noexcept {
+        return shz_xmtrx_transform_point3_transpose(pt);
+    }
+
+    //! C++ wrapper around shz_xmtrx_transform_point2_transpose().
+    SHZ_FORCE_INLINE static vec2 transform_point_transpose(const vec2& pt) noexcept {
+        return shz_xmtrx_transform_point2_transpose(pt);
     }
 
 //! @}

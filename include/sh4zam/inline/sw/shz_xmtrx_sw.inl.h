@@ -1206,6 +1206,27 @@ SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_sw(shz_vec4_t vec) SHZ_NOEX
     return shz_xmtrx_ftrv_(vec);
 }
 
+/* Each result component is the dot product of vec with a column of XMTRX. */
+SHZ_FORCE_INLINE shz_vec4_t shz_xmtrx_transform_vec4_transpose_sw(shz_vec4_t vec) SHZ_NOEXCEPT {
+    const shz_vec4_t* SHZ_RESTRICT c = shz_xmtrx_state_()->col;
+    return shz_vec4_init(
+        c[0].x * vec.x + c[0].y * vec.y + c[0].z * vec.z + c[0].w * vec.w,
+        c[1].x * vec.x + c[1].y * vec.y + c[1].z * vec.z + c[1].w * vec.w,
+        c[2].x * vec.x + c[2].y * vec.y + c[2].z * vec.z + c[2].w * vec.w,
+        c[3].x * vec.x + c[3].y * vec.y + c[3].z * vec.z + c[3].w * vec.w
+    );
+}
+
+/* Multiply by the transpose of the upper-left 3x3 block. */
+SHZ_FORCE_INLINE shz_vec3_t shz_xmtrx_transform_vec3_transpose_sw(shz_vec3_t vec) SHZ_NOEXCEPT {
+    const shz_vec4_t* SHZ_RESTRICT c = shz_xmtrx_state_()->col;
+    return shz_vec3_init(
+        c[0].x * vec.x + c[0].y * vec.y + c[0].z * vec.z,
+        c[1].x * vec.x + c[1].y * vec.y + c[1].z * vec.z,
+        c[2].x * vec.x + c[2].y * vec.y + c[2].z * vec.z
+    );
+}
+
 /* Clean up cast helper macros */
 #undef SHZ_XMTRX_COLS_
 #undef SHZ_XMTRX_ELEMS_
