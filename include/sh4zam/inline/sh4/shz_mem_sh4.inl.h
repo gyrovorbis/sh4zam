@@ -34,88 +34,6 @@ SHZ_FORCE_INLINE void shz_dcache_alloc_line_sh4(void* src) SHZ_NOEXCEPT {
      : "r" (src));
 }
 
-SHZ_FORCE_INLINE void shz_memcpy32_store_sh4_(uint64_t* SHZ_RESTRICT* dst) SHZ_NOEXCEPT {
-    asm(R"(
-        add       #32, %[dst]
-        fmov.d    dr10, @-%[dst]
-        fmov.d    dr8,  @-%[dst]
-        fmov.d    dr6,  @-%[dst]
-        fmov.d    dr4,  @-%[dst]
-    )"
-    : "=m" (*(uint8_t (*)[32])*dst)
-    : [dst] "r" (*dst));
-}
-
-SHZ_FORCE_INLINE void shz_memcpy32_load_sh4_(const uint64_t* SHZ_RESTRICT* src) SHZ_NOEXCEPT {
-    asm(R"(
-        fmov.d    @%[src]+, dr4
-        fmov.d    @%[src]+, dr6
-        fmov.d    @%[src]+, dr8
-        fmov.d    @%[src]+, dr10
-    )"
-    : [src] "+r" (*src), "+m" (*src)
-    : "m" (*(const uint8_t (*)[32])*src)
-    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
-}
-
-SHZ_FORCE_INLINE void shz_memcpy64_load_sh4_(const uint64_t* SHZ_RESTRICT* src) SHZ_NOEXCEPT {
-    asm(R"(
-        fmov.d    @%[src]+, dr0
-        fmov.d    @%[src]+, dr2
-        fmov.d    @%[src]+, dr4
-        fmov.d    @%[src]+, dr6
-        fmov.d    @%[src]+, dr8
-        fmov.d    @%[src]+, dr10
-        fmov.d    @%[src]+, dr12
-        fmov.d    @%[src]+, dr14
-    )"
-    : [src] "+&r" (*src), "+m" (*src)
-    : "m" (*(const uint8_t (*)[64])*src)
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
-      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
-}
-
-SHZ_FORCE_INLINE void shz_memcpy64_store_sh4_(uint64_t* SHZ_RESTRICT* dst) SHZ_NOEXCEPT {
-    asm(R"(
-        add       #32, %[dst]
-        movca.l   r0, @%[dst]
-        add       #32, %[dst]
-
-        fmov.d    dr14, @-%[dst]
-        fmov.d    dr12, @-%[dst]
-        fmov.d    dr10, @-%[dst]
-        fmov.d    dr8,  @-%[dst]
-
-        add       #-32, %[dst]
-        movca.l   r0, @%[dst]
-        add       #32, %[dst]
-
-        fmov.d    dr6,  @-%[dst]
-        fmov.d    dr4,  @-%[dst]
-        fmov.d    dr2,  @-%[dst]
-        fmov.d    dr0,  @-%[dst]
-    )"
-    : [dst] "+r" (*dst),
-      "=m" (*(uint8_t (*)[64])*dst));
-}
-
-SHZ_FORCE_INLINE void shz_memcpy64_store_no_movca_sh4_(uint64_t* SHZ_RESTRICT dst) SHZ_NOEXCEPT {
-    asm(R"(
-        pref      @%[dst]
-        add       #64, %[dst]
-        fmov.d    dr14, @-%[dst]
-        fmov.d    dr12, @-%[dst]
-        fmov.d    dr10, @-%[dst]
-        fmov.d    dr8,  @-%[dst]
-        fmov.d    dr6,  @-%[dst]
-        fmov.d    dr4,  @-%[dst]
-        fmov.d    dr2,  @-%[dst]
-        fmov.d    dr0,  @-%[dst]
-    )"
-    : "=m" (*(uint8_t (*)[64])dst)
-    : [dst] "r" (dst));
-}
-
 // Based on routine from GLdc from MoopTheHedgehog.
 SHZ_FORCE_INLINE void shz_memcpy1_sh4_(      void* SHZ_RESTRICT dst,
                                        const void* SHZ_RESTRICT src,
@@ -280,19 +198,49 @@ SHZ_INLINE void* shz_memcpy8_sh4(      void* SHZ_RESTRICT dst,
 
     assert(!(bytes % 8) && !((uintptr_t)dst & 7) && !((uintptr_t)src & 7));
 
-    SHZ_FSCHG();
-
     bytes >>= 3;
     size_t blocks = bytes >> 3;
 
     if(blocks) {
-        do {
-            SHZ_PREFETCH(s + 4);
-            shz_memcpy64_load_sh4_(&s);
-            shz_memcpy64_store_no_movca_sh4_(d);
-            SHZ_PREFETCH(s);
-            d += 8;
-        } while(SHZ_LIKELY(--blocks));
+        uintptr_t ahead;
+
+        // 64 bytes per iteration. dst may only be 8-byte aligned, so no MOVCA.L here.
+        asm(R"(
+            fschg
+        1:
+            mov       %[s], %[p]
+            add       #32, %[p]
+            pref      @%[p]
+            pref      @%[d]
+            fmov.d    @%[s]+, dr0
+            fmov.d    @%[s]+, dr2
+            fmov.d    @%[s]+, dr4
+            fmov.d    @%[s]+, dr6
+            fmov.d    @%[s]+, dr8
+            fmov.d    @%[s]+, dr10
+            fmov.d    @%[s]+, dr12
+            fmov.d    @%[s]+, dr14
+            add       #64, %[d]
+            fmov.d    dr14, @-%[d]
+            fmov.d    dr12, @-%[d]
+            fmov.d    dr10, @-%[d]
+            fmov.d    dr8,  @-%[d]
+            fmov.d    dr6,  @-%[d]
+            fmov.d    dr4,  @-%[d]
+            fmov.d    dr2,  @-%[d]
+            fmov.d    dr0,  @-%[d]
+            pref      @%[s]
+            dt        %[n]
+            bf.s      1b
+            add       #64, %[d]
+            fschg
+        )"
+        : [s] "+r" (s), [d] "+r" (d), [n] "+r" (blocks), [p] "=&r" (ahead),
+          "=m" (*((uint8_t (*)[])d))
+        : "m" (*((const uint8_t (*)[])s))
+        : "t", "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+               "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+
         bytes &= 0x7;
     }
 
@@ -300,19 +248,19 @@ SHZ_INLINE void* shz_memcpy8_sh4(      void* SHZ_RESTRICT dst,
        uint32_t diff = (uintptr_t)d - (((uintptr_t)s) + 8);
 
         asm(R"(
+                fschg
             .align 2
             0:
                 dt       %[cnt]
                 fmov.d   @%[in]+, dr4
                 bf.s     0b
                 fmov.d   dr4, @(%[offset], %[in])
+                fschg
         )"
         : [in] "+&r" (s), [cnt] "+&r" (bytes), "=m" (*((uint8_t (*)[])d))
         : [offset] "z" (diff), "m" (*((const uint8_t (*)[])s))
         : "t", "fr4", "fr5");
     }
-
-    SHZ_FSCHG();
 
     return dst;
 }
@@ -340,15 +288,30 @@ SHZ_FORCE_INLINE void* shz_memcpy32_sh4(      void* SHZ_RESTRICT dst,
     if(SHZ_LIKELY(rem)) {
         const shz_alias_uint64_t* p = s;
 
-        SHZ_FSCHG();
-        do {
-            SHZ_PREFETCH(p += 4);
-            shz_memcpy32_load_sh4_(&s);
-            shz_dcache_alloc_line(d);
-            shz_memcpy32_store_sh4_(&d);
-            d += 4;
-        } while(--rem);
-        SHZ_FSCHG();
+        asm(R"(
+            fschg
+        1:
+            add       #32, %[p]
+            pref      @%[p]
+            fmov.d    @%[s]+, dr4
+            fmov.d    @%[s]+, dr6
+            fmov.d    @%[s]+, dr8
+            fmov.d    @%[s]+, dr10
+            movca.l   r0, @%[d]
+            add       #32, %[d]
+            fmov.d    dr10, @-%[d]
+            fmov.d    dr8,  @-%[d]
+            fmov.d    dr6,  @-%[d]
+            fmov.d    dr4,  @-%[d]
+            dt        %[n]
+            bf.s      1b
+            add       #32, %[d]
+            fschg
+        )"
+        : [s] "+r" (s), [d] "+r" (d), [p] "+r" (p), [n] "+r" (rem),
+          "=m" (*((uint8_t (*)[])d))
+        : "m" (*((const uint8_t (*)[])s))
+        : "t", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
     }
 
     if((cnt >>= 2))
@@ -375,9 +338,8 @@ SHZ_INLINE void* shz_sq_memcpy32_xmtrx_sh4(      void* SHZ_RESTRICT dst,
     bytes >>= 5;
 
     if(bytes) {
-        SHZ_FSCHG();
-
         asm volatile(R"(
+            fschg
         1:
             fmov.d @%[src]+, xd0
             fmov.d @%[src]+, xd2
@@ -393,12 +355,11 @@ SHZ_INLINE void* shz_sq_memcpy32_xmtrx_sh4(      void* SHZ_RESTRICT dst,
             pref   @%[dst]          ! Fire off store queue
             bf.s   1b
             add    #32, %[dst]
+            fschg
         )"
         : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" (*(uint8_t (*)[])dst)
         : "m" (*(const uint8_t (*)[])src)
         : "t");
-
-        SHZ_FSCHG();
     }
 
     return ret;
@@ -422,14 +383,54 @@ SHZ_FORCE_INLINE void* shz_memcpy64_sh4(      void* SHZ_RESTRICT dst,
         s += copied / sizeof(uint64_t);
     }
 
-    while(SHZ_LIKELY(cnt--)) {
-        SHZ_FSCHG();
-        SHZ_PREFETCH(s + 4);
-        shz_memcpy64_load_sh4_(&s);
-        shz_memcpy64_store_sh4_(&d);
-        SHZ_PREFETCH(s);
-        d += 8;
-        SHZ_FSCHG();
+    if(SHZ_LIKELY(cnt)) {
+        uintptr_t ahead;
+
+        // 64 bytes per iteration, allocating both destination cache lines with MOVCA.L.
+        asm(R"(
+            fschg
+        1:
+            mov       %[s], %[p]
+            add       #32, %[p]
+            pref      @%[p]
+            fmov.d    @%[s]+, dr0
+            fmov.d    @%[s]+, dr2
+            fmov.d    @%[s]+, dr4
+            fmov.d    @%[s]+, dr6
+            fmov.d    @%[s]+, dr8
+            fmov.d    @%[s]+, dr10
+            fmov.d    @%[s]+, dr12
+            fmov.d    @%[s]+, dr14
+
+            add       #32, %[d]
+            movca.l   r0, @%[d]
+            add       #32, %[d]
+
+            fmov.d    dr14, @-%[d]
+            fmov.d    dr12, @-%[d]
+            fmov.d    dr10, @-%[d]
+            fmov.d    dr8,  @-%[d]
+
+            add       #-32, %[d]
+            movca.l   r0, @%[d]
+            add       #32, %[d]
+
+            fmov.d    dr6,  @-%[d]
+            fmov.d    dr4,  @-%[d]
+            fmov.d    dr2,  @-%[d]
+            fmov.d    dr0,  @-%[d]
+
+            pref      @%[s]
+            dt        %[n]
+            bf.s      1b
+            add       #64, %[d]
+            fschg
+        )"
+        : [s] "+r" (s), [d] "+r" (d), [n] "+r" (cnt), [p] "=&r" (ahead),
+          "=m" (*((uint8_t (*)[])d))
+        : "m" (*((const uint8_t (*)[])s))
+        : "t", "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+               "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
     }
 
     return dst;
@@ -661,13 +662,24 @@ SHZ_INLINE void shz_memcpy32_1_sh4(      void* SHZ_RESTRICT dst,
 
     SHZ_PREFETCH(s);
 
-    SHZ_FSCHG();
-
-    shz_memcpy32_load_sh4_(&s);
-    shz_dcache_alloc_line(d);
-    shz_memcpy32_store_sh4_(&d);
-
-    SHZ_FSCHG();
+    asm(R"(
+        fschg
+        fmov.d    @%[s]+, dr4
+        fmov.d    @%[s]+, dr6
+        fmov.d    @%[s]+, dr8
+        fmov.d    @%[s]+, dr10
+        movca.l   r0, @%[d]
+        add       #32, %[d]
+        fmov.d    dr10, @-%[d]
+        fmov.d    dr8,  @-%[d]
+        fmov.d    dr6,  @-%[d]
+        fmov.d    dr4,  @-%[d]
+        fschg
+    )"
+    : [s] "+r" (s), [d] "+r" (d),
+      "=m" (*(uint8_t (*)[32])dst)
+    : "m" (*(const uint8_t (*)[32])src)
+    : "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11");
 }
 
 SHZ_INLINE void shz_memswap32_1_sh4(void* SHZ_RESTRICT p1,
@@ -678,9 +690,9 @@ SHZ_INLINE void shz_memswap32_1_sh4(void* SHZ_RESTRICT p1,
     assert(!((uintptr_t)p1 & 7) && !((uintptr_t)p2 & 7));
 
     SHZ_PREFETCH(b);
-    SHZ_FSCHG();
 
     asm(R"(
+        fschg
         fmov.d  @%[a]+, dr0
         fmov.d  @%[a]+, dr2
         fmov.d  @%[a]+, dr4
@@ -700,13 +712,12 @@ SHZ_INLINE void shz_memswap32_1_sh4(void* SHZ_RESTRICT p1,
         fmov.d  dr4, @-%[b]
         fmov.d  dr2, @-%[b]
         fmov.d  dr0, @-%[b]
+        fschg
     )"
     : "+m" (*(uint8_t (*)[32])a), "+m" (*(uint8_t (*)[32])b)
     : [a] "r" (a), [b] "r" (b)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
       "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
-
-    SHZ_FSCHG();
 }
 
 SHZ_INLINE void shz_memswap32_1_xmtrx_sh4(void* SHZ_RESTRICT p1,
@@ -717,9 +728,9 @@ SHZ_INLINE void shz_memswap32_1_xmtrx_sh4(void* SHZ_RESTRICT p1,
     assert(!((uintptr_t)p1 & 7) && !((uintptr_t)p2 & 7));
 
     SHZ_PREFETCH(b);
-    SHZ_FSCHG();
 
     asm volatile(R"(
+        fschg
         fmov.d  @%[a]+, xd0
         fmov.d  @%[a]+, xd2
         fmov.d  @%[a]+, xd4
@@ -739,11 +750,10 @@ SHZ_INLINE void shz_memswap32_1_xmtrx_sh4(void* SHZ_RESTRICT p1,
         fmov.d  xd4, @-%[b]
         fmov.d  xd2, @-%[b]
         fmov.d  xd0, @-%[b]
+        fschg
     )"
     : "+m" (*(uint8_t (*)[32])a), "+m" (*(uint8_t (*)[32])b)
     : [a] "r" (a), [b] "r" (b));
-
-    SHZ_FSCHG();
 }
 
 SHZ_INLINE void* shz_sq_memcpy32_1_sh4(      void* SHZ_RESTRICT dst,
@@ -753,9 +763,8 @@ SHZ_INLINE void* shz_sq_memcpy32_1_sh4(      void* SHZ_RESTRICT dst,
 
     assert(!((uintptr_t)s & 7) && !((uintptr_t)d & 7));
 
-    SHZ_FSCHG();
-
     asm volatile(R"(
+        fschg
         fmov.d @%[src]+, dr0
         fmov.d @%[src]+, dr2
         fmov.d @%[src]+, dr4
@@ -766,13 +775,12 @@ SHZ_INLINE void* shz_sq_memcpy32_1_sh4(      void* SHZ_RESTRICT dst,
         fmov.d dr2, @-%[dst]
         fmov.d dr0, @-%[dst]
         pref   @%[dst]          ! Fire off store queue
+        fschg
     )"
     : [src] "+r" (s), [dst] "+r" (d),
       "=m" (*(uint8_t (*)[32])d)
     : "m" (*(const uint8_t (*)[32])s)
     : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7");
-
-    SHZ_FSCHG();
 
     return dst;
 }
@@ -784,9 +792,8 @@ SHZ_INLINE void* shz_sq_memcpy32_1_xmtrx_sh4(      void* SHZ_RESTRICT dst,
 
     assert(!((uintptr_t)s & 7) && !((uintptr_t)d & 7));
 
-    SHZ_FSCHG();
-
     asm volatile(R"(
+        fschg
         fmov.d @%[src]+, xd0
         fmov.d @%[src]+, xd2
         fmov.d @%[src]+, xd4
@@ -797,12 +804,11 @@ SHZ_INLINE void* shz_sq_memcpy32_1_xmtrx_sh4(      void* SHZ_RESTRICT dst,
         fmov.d xd2, @-%[dst]
         fmov.d xd0, @-%[dst]
         pref   @%[dst]          ! Fire off store queue
+        fschg
     )"
     : [src] "+r" (s), [dst] "+r" (d),
       "=m" (*(uint8_t (*)[32])d)
     : "m" (*(const uint8_t (*)[32])s));
-
-    SHZ_FSCHG();
 
     return dst;
 }
