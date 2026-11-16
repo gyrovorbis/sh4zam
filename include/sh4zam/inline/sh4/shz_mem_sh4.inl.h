@@ -24,14 +24,6 @@
 #define SHZ_FSCHG()         asm volatile("fschg")
 #define SHZ_PREFETCH_(ptr)  asm volatile("pref @%0" : : "r" (ptr))
 
-/* FPSCR.SZ RULE: every routine in this file that uses 64-bit FMOV.D toggles FPSCR.SZ with
-   FSCHG *inside the same asm statement* as the moves, and toggles it back before that
-   statement ends. SZ must never be left set across a statement boundary: the compiler does
-   not know about it, and anything it emits in between (a callee-saved FR12-FR15 push placed
-   there by shrink-wrapping, a float spill or reload) would silently become a 64-bit move.
-   The same goes for the data itself: it must not sit in FP registers between statements.
-   So do not use SHZ_FSCHG() to open an SZ window around other statements in new code. */
-
 extern void* shz_memcpy128_sh4_  (void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
 extern void* shz_sq_memcpy32_sh4_(void* SHZ_RESTRICT dst, const void* SHZ_RESTRICT src, size_t bytes) SHZ_NOEXCEPT;
 
