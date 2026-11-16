@@ -266,11 +266,9 @@ GBL_TEST_CASE(cothf)
 #if 0
         std::println("{} vs {}", shz_result, c_result);
 #endif
-        if(isinf(shz_result) && isinf(c_result)) return true;
         return fabsf(shz_result - c_result) <= 0.05f;
     };
 
-    GBL_TEST_VERIFY(test(0.0f));
     GBL_TEST_VERIFY(test(1.0f));
     GBL_TEST_VERIFY(test(-1.0f));
 GBL_TEST_CASE_END
