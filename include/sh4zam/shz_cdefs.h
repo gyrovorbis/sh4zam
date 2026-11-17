@@ -335,7 +335,7 @@
         extern "C++" {
             //! Conversion function template for zero-overhead conversions that break strict aliasing before C++20.
             template <typename To, typename From>
-            inline To shz_convert_impl(const From& value) noexcept {
+            inline To shz_convert_impl_(const From& value) noexcept {
                 static_assert(sizeof(To) == sizeof(From),
                     "SHZ_CONVERT: Cannot convert between types of differing sizes.");
                 static_assert(std::is_trivially_copyable<To>::value && std::is_trivially_copyable<From>::value,
@@ -346,7 +346,7 @@
             }
         }
         //! Conversion macro for zero-overhead conversion pre-C++20, fowards onto function template.
-#       define SHZ_CONVERT(type, value) (shz_convert_impl<type>(value))
+#       define SHZ_CONVERT(type, value) (shz_convert_impl_<type>(value))
 #   endif
 #endif
 //! @}
