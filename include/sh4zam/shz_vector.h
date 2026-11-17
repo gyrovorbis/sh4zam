@@ -51,6 +51,9 @@ typedef struct shz_vec2 {
 //! Alternate typedef for the shz_vec2 struct for those who hate POSIX-style.
 typedef shz_vec2_t shz_vec2;
 
+//! Structure which may safely alias arbitrary memory as a shz_vec2_t.
+SHZ_DEFINE_ALIASING_STRUCT(shz_aliasing_vec2_t, shz_vec2_t);
+
 /*! 3D Vector type
  *
  *  Structure for holding coordinates of a 3-dimensional vector.
@@ -75,6 +78,9 @@ typedef struct shz_vec3 {
 
 //! Alternate typedef for the shz_vec3 struct for those who hate POSIX-style.
 typedef shz_vec3_t shz_vec3;
+
+//! Structure which may safely alias arbitrary memory as a shz_vec3_t.
+SHZ_DEFINE_ALIASING_STRUCT(shz_aliasing_vec3_t, shz_vec3_t);
 
 /*! 4D Vector type
  *
@@ -103,9 +109,11 @@ typedef struct shz_vec4 {
     };
 } shz_vec4_t;
 
-
 //! Alternate typedef for the shz_vec4 struct for those who hate POSIX-style.
 typedef shz_vec4_t shz_vec4;
+
+//! Structure which may safely alias arbitrary memory as a shz_vec4_t.
+SHZ_DEFINE_ALIASING_STRUCT(shz_aliasing_vec4_t, shz_vec4_t);
 
 /*! \name  Initializers
     \brief Component-based initialization routines.
@@ -944,13 +952,22 @@ SHZ_DECLS_END
 */
 
 //! Dereferences the given pointer to a sequence of 2 floats as a shz_vec2_t.
-#define shz_vec2_deref(ptr) (*((SHZ_ALIASING shz_vec2_t*)(ptr)))
+#define shz_vec2_deref(ptr) ((*((shz_aliasing_vec2_t*)(ptr))).value)
 
 //! Dereferences the given pointer to a sequence of 3 floats as a shz_vec3_t.
-#define shz_vec3_deref(ptr) (*((SHZ_ALIASING shz_vec3_t*)(ptr)))
+#define shz_vec3_deref(ptr) ((*((shz_aliasing_vec3_t*)(ptr))).value)
 
 //! Dereferences the given pointer to a sequence of 4 floats as a shz_vec4_t.
-#define shz_vec4_deref(ptr) (*((SHZ_ALIASING shz_vec4_t*)(ptr)))
+#define shz_vec4_deref(ptr) ((*((shz_aliasing_vec4_t*)(ptr))).value)
+
+//! Returns the address of the given pointer to a sequence of 2 floats as a shz_vec2_t.
+#define shz_vec2_cast(ptr) (&shz_vec2_deref(ptr))
+
+//! Returns the address of the given pointer to a sequence of 3 floats as a shz_vec3_t.
+#define shz_vec3_cast(ptr) (&shz_vec3_deref(ptr))
+
+//! Returns the address of the given pointer to a sequence of 4 floats as a shz_vec4_t.
+#define shz_vec4_cast(ptr) (&shz_vec4_deref(ptr))
 
 //! Converts the given \p value or expression to the equivalent 2D SH4ZAM vector value.
 #define shz_vec2_from(value) SHZ_CONVERT(shz_vec2_t, value)

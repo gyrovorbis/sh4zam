@@ -142,6 +142,9 @@
 #define SHZ_DECLARE_STRUCT(n, t)            struct n; typedef struct n t
 //! Macro which forward declares a manually aligned struct and its typedef.
 #define SHZ_DECLARE_STRUCT_ALIGNED(n, t, a) struct SHZ_ALIGNAS(a) n; typedef struct n t
+//! Macro for defining a struct which may safely alias memory as the given type.
+#define SHZ_DEFINE_ALIASING_STRUCT(alias, type) \
+    typedef struct SHZ_ALIASING alias { type value; } alias
 //! @}
 
 //! \cond
@@ -275,21 +278,35 @@
 #   define SHZ_INLINE                   inline static
     //! Dummy define provided for C++ compatibility
 #   define SHZ_NOEXCEPT
-    //! Temporary struct initialization statement to use within C.
-#   if defined(SHZ_MSVC)
+
+#   ifdef SHZ_MSVC
+        //! Temporary struct initialization statement to use within C for MSVC.
 #       define SHZ_INIT(type, ...)      ((type){ __VA_ARGS__ })
+        //! Zero-overhead value-conversion macro for shitty MSVC which emits warnings, despite this being perfectly valid.
+#       define SHZ_CONVERT(type, value) \
+            __pragma(warning(push)) \
+            __pragma(warning(disable : 4116)) \
+            (((struct { \
+                union { \
+                    typeof(value) from; \
+                    type to; \
+                }; \
+                static_assert(sizeof(type) == sizeof(value), "SHZ_CONVERT: Cannot convert between types of differing sizes."); \
+            }){ (value) }).to) \
+            __pragma(warning(pop))
 #   else
+        //! Temporary struct initialization statement to use within C.
 #       define SHZ_INIT(type, ...)      ({ type r = { __VA_ARGS__ }; r; })
+        //! Zero-overhead value-conversion macro for NON SHITTY C compilers.
+#       define SHZ_CONVERT(type, value) \
+            (((struct { \
+                union { \
+                    typeof(value) from; \
+                    type to; \
+                }; \
+                static_assert(sizeof(type) == sizeof(value), "SHZ_CONVERT: Cannot convert between types of differing sizes."); \
+            }){ (value) }).to)
 #   endif
-    //! Conversion macro for zero-overhead conversions, taking the given \p value to a value of the given \p type.
-#   define SHZ_CONVERT(type, value) \
-        (((struct { \
-            union { \
-                typeof(value) from; \
-                type to; \
-            }; \
-            static_assert(sizeof(type) == sizeof(value), "SHZ_CONVERT: Cannot convert between types of differing sizes."); \
-        }){ (value) }).to)
 #else
     //! Forces functions declared after this directive to use C linkage.
 #   define SHZ_DECLS_BEGIN              extern "C" {
@@ -299,35 +316,38 @@
 #   define SHZ_INLINE                   inline
     //! Tells the compiler that the function does not throw exceptions
 #   define SHZ_NOEXCEPT                 noexcept
-    //! Temporary struct initialization statement to use within C++.
+
 #   if defined(SHZ_MSVC)
+        //! Temporary struct initialization statement to use within C++ for MSVC, without statement expression macros.
 #       define SHZ_INIT(type, ...)      (type{ __VA_ARGS__ })
 #   else
+        //! Temporary struct initialization statement to use within C++ for non-shitty compilers.
 #       define SHZ_INIT(type, ...)      ({ type r = { __VA_ARGS__ }; r; })
 #   endif
-    //! Conversion macro for zero-overhead conversions that handles pointers/references \p from and \p type.
-#   define SHZ_CONVERT(type, from)  shz_convert_<type>(from)
-#   include <type_traits>
-extern "C++" {
-    template<typename To, typename V>
-    SHZ_FORCE_INLINE To shz_convert_(V&& value) noexcept {
-        using TNR = std::remove_reference_t<To>;
-        using VNR = std::remove_reference_t<V>;
-        if constexpr (std::is_pointer_v<To>) {
-            if constexpr (std::is_pointer_v<VNR>) {
-                return reinterpret_cast<To>(value);
-            } else {
-                return reinterpret_cast<To>(&value);
+
+#   if (__cplusplus >= 202002L || (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L))
+#       include <bit>
+        //! Conversion macro for zero-overhead conversions that break strict aliasing in C++20.
+#       define SHZ_CONVERT(type, value) (std::bit_cast<type>(value))
+#   else
+#       include <cstring>
+#       include <type_traits>
+        extern "C++" {
+            //! Conversion function template for zero-overhead conversions that break strict aliasing before C++20.
+            template <typename To, typename From>
+            inline To shz_convert_impl(const From& value) noexcept {
+                static_assert(sizeof(To) == sizeof(From),
+                    "SHZ_CONVERT: Cannot convert between types of differing sizes.");
+                static_assert(std::is_trivially_copyable<To>::value && std::is_trivially_copyable<From>::value,
+                    "SHZ_CONVERT: Both types must be trivially copyable.");
+                To dst;
+                std::memcpy(&dst, &value, sizeof(To));
+                return dst;
             }
-        } else if constexpr (std::is_reference_v<To>) {
-            static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes when converting to a reference type.");
-            return reinterpret_cast<To>(value);
-        } else {
-            static_assert(sizeof(VNR) == sizeof(TNR), "SHZ_CONVERT: Cannot convert between types of differing sizes.");
-            return reinterpret_cast<To&>(value);
         }
-    }
-}
+        //! Conversion macro for zero-overhead conversion pre-C++20, fowards onto function template.
+#       define SHZ_CONVERT(type, value) (shz_convert_impl<type>(value))
+#   endif
 #endif
 //! @}
 //! \endcond
