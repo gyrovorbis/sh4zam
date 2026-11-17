@@ -655,6 +655,10 @@ SHZ_INLINE shz_vec3_t shz_vec3_perp(shz_vec3_t vec) SHZ_NOEXCEPT {
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_reject(shz_vec3_t v1, shz_vec3_t v2) SHZ_NOEXCEPT {
     float v1dv2 = shz_vec3_dot(v1, v2);
     float v2dv2 = shz_vec3_magnitude_sqr(v2);
+
+    if(SHZ_UNLIKELY(v2dv2 == 0.0f))
+        return v1;
+
     float   mag = shz_divf_fsrra(v1dv2, v2dv2);
 
     return shz_vec3_sub(v1, shz_vec3_scale(v2, mag));

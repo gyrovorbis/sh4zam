@@ -92,19 +92,19 @@ namespace shz {
     */
 
     //! C++ wrapper around shz_sincosu16().
-    constexpr auto sincosu16   = shz_sincosu16;
+    SHZ_FORCE_INLINE shz_sincos_t sincosu16(uint16_t radians16) noexcept { return shz_sincosu16(radians16); }
     //! C++ wrapper around shz_sincosf().
-    constexpr auto sincosf     = shz_sincosf;
+    SHZ_FORCE_INLINE shz_sincos_t sincosf(float radians) noexcept { return shz_sincosf(radians); }
     //! C++ wrapper around shz_sincosf_deg().
-    constexpr auto sincosf_deg = shz_sincosf_deg;
+    SHZ_FORCE_INLINE shz_sincos_t sincosf_deg(float degrees) noexcept { return shz_sincosf_deg(degrees); }
     //! C++ wrapper around shz_sincos_tanf().
-    constexpr auto sincos_tanf = shz_sincos_tanf;
+    SHZ_FORCE_INLINE float sincos_tanf(const shz_sincos_t& sincos) noexcept { return shz_sincos_tanf(sincos); }
     //! C++ wrapper around shz_sincos_secf().
-    constexpr auto sincos_secf = shz_sincos_secf;
+    SHZ_FORCE_INLINE float sincos_secf(const shz_sincos_t& sincos) noexcept { return shz_sincos_secf(sincos); }
     //! C++ wrapper around shz_sincos_cscf().
-    constexpr auto sincos_cscf = shz_sincos_cscf;
+    SHZ_FORCE_INLINE float sincos_cscf(const shz_sincos_t& sincos) noexcept { return shz_sincos_cscf(sincos); }
     //! C++ wrapper around shz_sincos_cotf().
-    constexpr auto sincos_cotf = shz_sincos_cotf;
+    SHZ_FORCE_INLINE float sincos_cotf(const shz_sincos_t& sincos) noexcept { return shz_sincos_cotf(sincos); }
 
     //! @}
 
@@ -114,29 +114,29 @@ namespace shz {
     */
 
     //! C++ wrapper around shz_sinf().
-    constexpr auto sinf     = shz_sinf;
+    SHZ_FORCE_INLINE float sinf(float radians) noexcept { return shz_sinf(radians); }
     //! C++ wrapper around shz_sinf_deg().
-    constexpr auto sinf_deg = shz_sinf_deg;
+    SHZ_FORCE_INLINE float sinf_deg(float degrees) noexcept { return shz_sinf_deg(degrees); }
     //! C++ wrapper around shz_cosf().
-    constexpr auto cosf     = shz_cosf;
+    SHZ_FORCE_INLINE float cosf(float radians) noexcept { return shz_cosf(radians); }
     //! C++ wrapper around shz_cosf_deg().
-    constexpr auto cosf_deg = shz_cosf_deg;
+    SHZ_FORCE_INLINE float cosf_deg(float degrees) noexcept { return shz_cosf_deg(degrees); }
     //! C++ wrapper around shz_tanf().
-    constexpr auto tanf     = shz_tanf;
+    SHZ_FORCE_INLINE float tanf(float radians) noexcept { return shz_tanf(radians); }
     //! C++ wrapper around shz_tanf_deg().
-    constexpr auto tanf_deg = shz_tanf_deg;
+    SHZ_FORCE_INLINE float tanf_deg(float degrees) noexcept { return shz_tanf_deg(degrees); }
     //! C++ wrapper around shz_secf().
-    constexpr auto secf     = shz_secf;
+    SHZ_FORCE_INLINE float secf(float radians) noexcept { return shz_secf(radians); }
     //! C++ wrapper around shz_secf_deg().
-    constexpr auto secf_deg = shz_secf_deg;
+    SHZ_FORCE_INLINE float secf_deg(float degrees) noexcept { return shz_secf_deg(degrees); }
     //! C++ wrapper around shz_cscf().
-    constexpr auto cscf     = shz_cscf;
+    SHZ_FORCE_INLINE float cscf(float radians) noexcept { return shz_cscf(radians); }
     //! C++ wrapper around shz_cscf_deg().
-    constexpr auto cscf_deg = shz_cscf_deg;
+    SHZ_FORCE_INLINE float cscf_deg(float degrees) noexcept { return shz_cscf_deg(degrees); }
     //! C++ wrapper around shz_cotf().
-    constexpr auto cotf     = shz_cotf;
+    SHZ_FORCE_INLINE float cotf(float radians) noexcept { return shz_cotf(radians); }
     //! C++ wrapper around shz_cotf_deg().
-    constexpr auto cotf_deg = shz_cotf_deg;
+    SHZ_FORCE_INLINE float cotf_deg(float degrees) noexcept { return shz_cotf_deg(degrees); }
 
     //! @}
 
@@ -146,23 +146,23 @@ namespace shz {
     */
 
     //! C++ wrapper around shz_atanf_unit().
-    constexpr auto atanf_unit = shz_atanf_unit;
+    SHZ_FORCE_INLINE float atanf_unit(float x) noexcept { return shz_atanf_unit(x); }
     //! C++ wrapper around shz_atanf_q1().
-    constexpr auto atanf_q1   = shz_atanf_q1;
+    SHZ_FORCE_INLINE float atanf_q1(float x) noexcept { return shz_atanf_q1(x); }
     //! C++ wrapper around shz_atanf().
-    constexpr auto atanf      = shz_atanf;
+    SHZ_FORCE_INLINE float atanf(float x) noexcept { return shz_atanf(x); }
     //! C++ wrapper around shz_atan2f().
-    constexpr auto atan2f     = shz_atan2f;
+    SHZ_FORCE_INLINE float atan2f(float y, float x) noexcept { return shz_atan2f(y, x); }
     //! C++ wrapper around shz_asinf().
-    constexpr auto asinf      = shz_asinf;
+    SHZ_FORCE_INLINE float asinf(float x) noexcept { return shz_asinf(x); }
     //! C++ wrapper around shz_acosf().
-    constexpr auto acosf      = shz_acosf;
+    SHZ_FORCE_INLINE float acosf(float x) noexcept { return shz_acosf(x); }
     //! C++ wrapper around shz_asecf().
-    constexpr auto asecf      = shz_asecf;
+    SHZ_FORCE_INLINE float asecf(float x) noexcept { return shz_asecf(x); }
     //! C++ wrapper around shz_acscf().
-    constexpr auto acscf      = shz_acscf;
+    SHZ_FORCE_INLINE float acscf(float x) noexcept { return shz_acscf(x); }
     //! C++ wrapper around shz_acotf().
-    constexpr auto acotf      = shz_acotf;
+    SHZ_FORCE_INLINE float acotf(float x) noexcept { return shz_acotf(x); }
 
     //! @}
 
