@@ -2303,6 +2303,15 @@ GBL_TEST_CASE(rotate_x)
 
     GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
 
+    // Radians in a double take the rotation of the float they convert to.
+    shz::mat4x4 shzRotDouble;
+    shz::xmtrx::init_identity();
+    shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+    shz::xmtrx::rotate_x(static_cast<double>(rotation_factor));
+    shz::xmtrx::store(&shzRotDouble);
+
+    GBL_TEST_VERIFY(shzRotDouble == shzRotRes);
+
     GBL_TEST_VERIFY(
         (benchmark_cmp<void>)(
             "shz::xmtrx::rotate_x", [](float angle) {
@@ -2340,6 +2349,15 @@ GBL_TEST_CASE(rotate_y)
 
     GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
 
+    // Radians in a double take the rotation of the float they convert to.
+    shz::mat4x4 shzRotDouble;
+    shz::xmtrx::init_identity();
+    shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+    shz::xmtrx::rotate_y(static_cast<double>(rotation_factor));
+    shz::xmtrx::store(&shzRotDouble);
+
+    GBL_TEST_VERIFY(shzRotDouble == shzRotRes);
+
     GBL_TEST_VERIFY(
         (benchmark_cmp<void>)(
             "shz::xmtrx::rotate_y", [](float angle) {
@@ -2376,6 +2394,15 @@ GBL_TEST_CASE(rotate_z)
     glm_rotate_z(glmRotRes, rotation_factor, glmRotRes);
 
     GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
+
+    // Radians in a double take the rotation of the float they convert to.
+    shz::mat4x4 shzRotDouble;
+    shz::xmtrx::init_identity();
+    shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+    shz::xmtrx::rotate_z(static_cast<double>(rotation_factor));
+    shz::xmtrx::store(&shzRotDouble);
+
+    GBL_TEST_VERIFY(shzRotDouble == shzRotRes);
 
     GBL_TEST_VERIFY(
         (benchmark_cmp<void>)(
@@ -3949,6 +3976,10 @@ GBL_TEST_CASE(rotate_xyz)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_xyz(a0, a1, a2);
     }));
+    // Radians in doubles take the rotation of the floats they convert to.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_xyz(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::rotate_xyz", "glm_rotate_x/y/z", "xyz", false,
                                           [](float a0, float a1, float a2) { shz::xmtrx::rotate_xyz(a0, a1, a2); }));
 GBL_TEST_CASE_END
@@ -3956,6 +3987,10 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(rotate_zyx)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("zyx", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_zyx(a0, a1, a2);
+    }));
+    // Radians in doubles take the rotation of the floats they convert to.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zyx", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_zyx(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
     }));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::rotate_zyx", "glm_rotate_z/y/x", "zyx", false,
                                           [](float a0, float a1, float a2) { shz::xmtrx::rotate_zyx(a0, a1, a2); }));
@@ -3965,6 +4000,10 @@ GBL_TEST_CASE(rotate_zxy)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("zxy", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_zxy(a0, a1, a2);
     }));
+    // Radians in doubles take the rotation of the floats they convert to.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zxy", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_zxy(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::rotate_zxy", "glm_rotate_z/x/y", "zxy", false,
                                           [](float a0, float a1, float a2) { shz::xmtrx::rotate_zxy(a0, a1, a2); }));
 GBL_TEST_CASE_END
@@ -3972,6 +4011,10 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(rotate_yxz)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("yxz", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_yxz(a0, a1, a2);
+    }));
+    // Radians in doubles take the rotation of the floats they convert to.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("yxz", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_yxz(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
     }));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::rotate_yxz", "glm_rotate_y/x/z", "yxz", false,
                                           [](float a0, float a1, float a2) { shz::xmtrx::rotate_yxz(a0, a1, a2); }));
