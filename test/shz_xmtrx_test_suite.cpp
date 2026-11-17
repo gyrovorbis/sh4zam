@@ -654,6 +654,196 @@ GBL_TEST_CASE(init_rotation_yxz)
                                           [](float a0, float a1, float a2) { shz::xmtrx::init_rotation_yxz(a0, a1, a2); }));
 GBL_TEST_CASE_END
 
+static float u16_radians_(uint16_t angle) {
+    return (int16_t)angle * (1.0f / SHZ_FSCA_RAD_FACTOR);
+}
+
+template<typename U, typename R>
+static bool check_xmtrx_init_rotation_u16_(U&& u16, R&& radians) {
+    const uint16_t angles[] = { 0x0000, 0x2000, 0x4000, 0x8000, 0xc000, 0x04d2, 0xfedc, 0xffff };
+    constexpr unsigned count = sizeof(angles) / sizeof(angles[0]);
+
+    for(unsigned i = 0; i < count; ++i) {
+        const uint16_t a0 = angles[i];
+        const uint16_t a1 = angles[(i + 3) % count];
+        const uint16_t a2 = angles[(i + 5) % count];
+        shz::mat4x4 expected, actual;
+
+        randomize_xmtrx_();
+        radians(u16_radians_(a0), u16_radians_(a1), u16_radians_(a2));
+        shz::xmtrx::store(&expected);
+
+        randomize_xmtrx_();
+        u16(a0, a1, a2);
+        shz::xmtrx::store(&actual);
+
+        if(!(actual == expected))
+            return false;
+    }
+    return true;
+}
+
+GBL_TEST_CASE(init_rotation_x_u16)
+    GBL_TEST_VERIFY(check_xmtrx_init_rotation_u16_(
+        [](uint16_t a, uint16_t, uint16_t) { shz::xmtrx::init_rotation_x(a); },
+        [](float a, float, float) { shz::xmtrx::init_rotation_x(a); }));
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::init_rotation_x(uint16_t)", [](uint16_t angle) { shz::xmtrx::init_rotation_x(angle); },
+        "shz::xmtrx::init_rotation_x(float)", [](uint16_t angle) {
+            shz::xmtrx::init_rotation_x(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+        },
+        static_cast<uint16_t>(0x2000));
+    {
+        volatile uint16_t angle16 = 0x2000;
+        volatile float    angle   = 0x2000 * (1.0f / SHZ_FSCA_RAD_FACTOR);
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::init_rotation_x(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
+                shz::xmtrx::init_rotation_x(static_cast<uint16_t>(*a));
+            },
+            "glm_mat4_identity + glm_rotate_x", [](const volatile uint16_t*, const volatile float* r) {
+                static volatile mat4 m;
+                glm_mat4_identity(*const_cast<mat4*>(&m));
+                glm_rotate_x(*const_cast<mat4*>(&m), *r, *const_cast<mat4*>(&m));
+            },
+            &angle16, &angle));
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_rotation_y_u16)
+    GBL_TEST_VERIFY(check_xmtrx_init_rotation_u16_(
+        [](uint16_t a, uint16_t, uint16_t) { shz::xmtrx::init_rotation_y(a); },
+        [](float a, float, float) { shz::xmtrx::init_rotation_y(a); }));
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::init_rotation_y(uint16_t)", [](uint16_t angle) { shz::xmtrx::init_rotation_y(angle); },
+        "shz::xmtrx::init_rotation_y(float)", [](uint16_t angle) {
+            shz::xmtrx::init_rotation_y(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+        },
+        static_cast<uint16_t>(0x2000));
+    {
+        volatile uint16_t angle16 = 0x2000;
+        volatile float    angle   = 0x2000 * (1.0f / SHZ_FSCA_RAD_FACTOR);
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::init_rotation_y(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
+                shz::xmtrx::init_rotation_y(static_cast<uint16_t>(*a));
+            },
+            "glm_mat4_identity + glm_rotate_y", [](const volatile uint16_t*, const volatile float* r) {
+                static volatile mat4 m;
+                glm_mat4_identity(*const_cast<mat4*>(&m));
+                glm_rotate_y(*const_cast<mat4*>(&m), *r, *const_cast<mat4*>(&m));
+            },
+            &angle16, &angle));
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_rotation_z_u16)
+    GBL_TEST_VERIFY(check_xmtrx_init_rotation_u16_(
+        [](uint16_t a, uint16_t, uint16_t) { shz::xmtrx::init_rotation_z(a); },
+        [](float a, float, float) { shz::xmtrx::init_rotation_z(a); }));
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::init_rotation_z(uint16_t)", [](uint16_t angle) { shz::xmtrx::init_rotation_z(angle); },
+        "shz::xmtrx::init_rotation_z(float)", [](uint16_t angle) {
+            shz::xmtrx::init_rotation_z(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+        },
+        static_cast<uint16_t>(0x2000));
+    {
+        volatile uint16_t angle16 = 0x2000;
+        volatile float    angle   = 0x2000 * (1.0f / SHZ_FSCA_RAD_FACTOR);
+
+        GBL_TEST_VERIFY((benchmark_cmp<void>)(
+            "shz::xmtrx::init_rotation_z(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
+                shz::xmtrx::init_rotation_z(static_cast<uint16_t>(*a));
+            },
+            "glm_mat4_identity + glm_rotate_z", [](const volatile uint16_t*, const volatile float* r) {
+                static volatile mat4 m;
+                glm_mat4_identity(*const_cast<mat4*>(&m));
+                glm_rotate_z(*const_cast<mat4*>(&m), *r, *const_cast<mat4*>(&m));
+            },
+            &angle16, &angle));
+    }
+GBL_TEST_CASE_END
+
+template<typename U, typename R, typename S>
+static bool test_xmtrx_init_rotation_u16_(const char* order, const char* shzName, const char* splitName, const char* glmName,
+                                         U&& u16, R&& radians, S&& split) {
+    if(!check_xmtrx_init_rotation_u16_(u16, radians))
+        return false;
+
+    if(!check_xmtrx_rotation_(order, true, [&u16](float a0, float a1, float a2) {
+        u16(fsca_angle_(a0), fsca_angle_(a1), fsca_angle_(a2));
+    }))
+        return false;
+
+    (benchmark_cmp<void>)(shzName, u16, splitName, split,
+                          fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f));
+
+    static shz_glm_mat4 glmMat;
+    return (benchmark_cmp<void>)(
+        shzName, u16,
+        glmName, [order](uint16_t a0, uint16_t a1, uint16_t a2) {
+            glm_mat4_identity(glmMat.glm);
+            glm_rotate_ordered_(glmMat.glm, order, u16_radians_(a0), u16_radians_(a1), u16_radians_(a2));
+        },
+        fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f));
+}
+
+GBL_TEST_CASE(init_rotation_xyz_u16)
+    GBL_TEST_VERIFY(test_xmtrx_init_rotation_u16_("xyz",
+        "shz::xmtrx::init_rotation_xyz(uint16_t)",
+        "init_rotation_x + rotate_y + rotate_z (uint16_t)",
+        "glm_mat4_identity + glm_rotate_x/y/z",
+        [](uint16_t x, uint16_t y, uint16_t z) { shz::xmtrx::init_rotation_xyz(x, y, z); },
+        [](float x, float y, float z) { shz::xmtrx::init_rotation_xyz(x, y, z); },
+        [](uint16_t x, uint16_t y, uint16_t z) {
+            shz::xmtrx::init_rotation_x(x);
+            shz::xmtrx::rotate_y(y);
+            shz::xmtrx::rotate_z(z);
+        }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_rotation_zyx_u16)
+    GBL_TEST_VERIFY(test_xmtrx_init_rotation_u16_("zyx",
+        "shz::xmtrx::init_rotation_zyx(uint16_t)",
+        "init_rotation_z + rotate_y + rotate_x (uint16_t)",
+        "glm_mat4_identity + glm_rotate_z/y/x",
+        [](uint16_t z, uint16_t y, uint16_t x) { shz::xmtrx::init_rotation_zyx(z, y, x); },
+        [](float z, float y, float x) { shz::xmtrx::init_rotation_zyx(z, y, x); },
+        [](uint16_t z, uint16_t y, uint16_t x) {
+            shz::xmtrx::init_rotation_z(z);
+            shz::xmtrx::rotate_y(y);
+            shz::xmtrx::rotate_x(x);
+        }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_rotation_zxy_u16)
+    GBL_TEST_VERIFY(test_xmtrx_init_rotation_u16_("zxy",
+        "shz::xmtrx::init_rotation_zxy(uint16_t)",
+        "init_rotation_z + rotate_x + rotate_y (uint16_t)",
+        "glm_mat4_identity + glm_rotate_z/x/y",
+        [](uint16_t z, uint16_t x, uint16_t y) { shz::xmtrx::init_rotation_zxy(z, x, y); },
+        [](float z, float x, float y) { shz::xmtrx::init_rotation_zxy(z, x, y); },
+        [](uint16_t z, uint16_t x, uint16_t y) {
+            shz::xmtrx::init_rotation_z(z);
+            shz::xmtrx::rotate_x(x);
+            shz::xmtrx::rotate_y(y);
+        }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_rotation_yxz_u16)
+    GBL_TEST_VERIFY(test_xmtrx_init_rotation_u16_("yxz",
+        "shz::xmtrx::init_rotation_yxz(uint16_t)",
+        "init_rotation_y + rotate_x + rotate_z (uint16_t)",
+        "glm_mat4_identity + glm_rotate_y/x/z",
+        [](uint16_t y, uint16_t x, uint16_t z) { shz::xmtrx::init_rotation_yxz(y, x, z); },
+        [](float y, float x, float z) { shz::xmtrx::init_rotation_yxz(y, x, z); },
+        [](uint16_t y, uint16_t x, uint16_t z) {
+            shz::xmtrx::init_rotation_y(y);
+            shz::xmtrx::rotate_x(x);
+            shz::xmtrx::rotate_z(z);
+        }));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(init_rotation)
 
 GBL_TEST_CASE_END
@@ -4119,6 +4309,13 @@ GBL_TEST_REGISTER(read_write_registers,
                   init_rotation_zyx,
                   init_rotation_zxy,
                   init_rotation_yxz,
+                  init_rotation_x_u16,
+                  init_rotation_y_u16,
+                  init_rotation_z_u16,
+                  init_rotation_xyz_u16,
+                  init_rotation_zyx_u16,
+                  init_rotation_zxy_u16,
+                  init_rotation_yxz_u16,
                   init_rotation,
                   init_rotation_dir,
                   init_diagonal,

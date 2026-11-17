@@ -946,6 +946,106 @@ GBL_TEST_CASE(rotate_yxz)
                                            [](shz::mat4x4& m, float a0, float a1, float a2) { m.rotate_yxz(a0, a1, a2); }));
 GBL_TEST_CASE_END
 
+static float u16_radians_(uint16_t angle) {
+    return (int16_t)angle * (1.0f / SHZ_FSCA_RAD_FACTOR);
+}
+
+static uint16_t fsca_angle_(float radians) {
+    return static_cast<uint16_t>(static_cast<int32_t>(radians * SHZ_FSCA_RAD_FACTOR));
+}
+
+template<typename U, typename R>
+static bool check_mat4x4_rotation_u16_(U&& u16, R&& radians) {
+    static constexpr uint16_t angles[] = { 0x0000, 0x2000, 0x4000, 0x8000, 0xc000, 0x04d2, 0xfedc, 0xffff };
+    static constexpr float start[16] = { 2.0f,  0.5f, -1.0f, 0.0f,
+                                         0.25f, 3.0f,  0.75f, 0.0f,
+                                        -1.5f,  1.0f,  1.25f, 0.0f,
+                                         7.0f,  8.0f,  9.0f,  1.0f };
+    constexpr unsigned count = sizeof(angles) / sizeof(angles[0]);
+
+    for(unsigned i = 0; i < count; ++i) {
+        const uint16_t a0 = angles[i];
+        const uint16_t a1 = angles[(i + 3) % count];
+        const uint16_t a2 = angles[(i + 5) % count];
+        shz_glm_mat4 expected, actual;
+
+        memcpy(expected.glm, start, sizeof(start));
+        memcpy(actual.glm, start, sizeof(start));
+
+        radians(expected.shz, u16_radians_(a0), u16_radians_(a1), u16_radians_(a2));
+        u16(actual.shz, a0, a1, a2);
+
+        if(!(actual.shz == expected.shz))
+            return false;
+    }
+    return true;
+}
+
+static void glm_rotate_axis_(mat4 m, char axis, float angle) {
+    switch(axis) {
+    case 'x': glm_rotate_x(m, angle, m); break;
+    case 'y': glm_rotate_y(m, angle, m); break;
+    case 'z': glm_rotate_z(m, angle, m); break;
+    }
+}
+
+template<typename F>
+static bool bench_mat4x4_rotation_u16_(const char* shzName, const char* glmName, const char* order, bool init, F&& fn) {
+    static shz_glm_mat4 shzMat, glmMat;
+    glm_mat4_identity(shzMat.glm);
+    glm_mat4_identity(glmMat.glm);
+    return (benchmark_cmp<void>)(
+        shzName, [&fn](uint16_t a0, uint16_t a1, uint16_t a2, float, float, float) { fn(shzMat.shz, a0, a1, a2); },
+        glmName, [order, init](uint16_t, uint16_t, uint16_t, float r0, float r1, float r2) {
+            if(init)
+                glm_mat4_identity(glmMat.glm);
+            if(order[1])
+                glm_rotate_ordered_(glmMat.glm, order, r0, r1, r2);
+            else
+                glm_rotate_axis_(glmMat.glm, order[0], r0);
+        },
+        fsca_angle_(0.3f), fsca_angle_(-1.2f), fsca_angle_(2.5f),
+        u16_radians_(fsca_angle_(0.3f)), u16_radians_(fsca_angle_(-1.2f)), u16_radians_(fsca_angle_(2.5f)));
+}
+
+#define SHZ_MAT4X4_ROTATION_U16_CASE_1(name, axis, glmName, init)                                                    \
+    GBL_TEST_CASE(name##_u16)                                                                                         \
+        GBL_TEST_VERIFY(check_mat4x4_rotation_u16_(                                                                  \
+            [](shz::mat4x4& m, uint16_t a, uint16_t, uint16_t) { m.name(a); },                                       \
+            [](shz::mat4x4& m, float a, float, float) { m.name(a); }));                                              \
+        GBL_TEST_VERIFY(bench_mat4x4_rotation_u16_("shz::mat4x4::" #name "(uint16_t)", glmName, axis, init,          \
+            [](shz::mat4x4& m, uint16_t a, uint16_t, uint16_t) { m.name(a); }));                                     \
+    GBL_TEST_CASE_END
+
+#define SHZ_MAT4X4_ROTATION_U16_CASE_3(name, order, glmName, init)                                                   \
+    GBL_TEST_CASE(name##_u16)                                                                                         \
+        GBL_TEST_VERIFY(check_mat4x4_rotation_u16_(                                                                  \
+            [](shz::mat4x4& m, uint16_t a0, uint16_t a1, uint16_t a2) { m.name(a0, a1, a2); },                       \
+            [](shz::mat4x4& m, float a0, float a1, float a2) { m.name(a0, a1, a2); }));                              \
+        if(!(init)) {                                                                                                 \
+            GBL_TEST_VERIFY(check_mat4x4_rotation_(order, [](shz::mat4x4& m, float a0, float a1, float a2) {         \
+                m.name(fsca_angle_(a0), fsca_angle_(a1), fsca_angle_(a2));                                            \
+            }));                                                                                                      \
+        }                                                                                                             \
+        GBL_TEST_VERIFY(bench_mat4x4_rotation_u16_("shz::mat4x4::" #name "(uint16_t)", glmName, order, init,         \
+            [](shz::mat4x4& m, uint16_t a0, uint16_t a1, uint16_t a2) { m.name(a0, a1, a2); }));                     \
+    GBL_TEST_CASE_END
+
+SHZ_MAT4X4_ROTATION_U16_CASE_1(init_rotation_x,   "x",   "glm_mat4_identity + glm_rotate_x",     true)
+SHZ_MAT4X4_ROTATION_U16_CASE_1(init_rotation_y,   "y",   "glm_mat4_identity + glm_rotate_y",     true)
+SHZ_MAT4X4_ROTATION_U16_CASE_1(init_rotation_z,   "z",   "glm_mat4_identity + glm_rotate_z",     true)
+SHZ_MAT4X4_ROTATION_U16_CASE_3(init_rotation_xyz, "xyz", "glm_mat4_identity + glm_rotate_x/y/z", true)
+SHZ_MAT4X4_ROTATION_U16_CASE_3(init_rotation_zyx, "zyx", "glm_mat4_identity + glm_rotate_z/y/x", true)
+SHZ_MAT4X4_ROTATION_U16_CASE_3(init_rotation_zxy, "zxy", "glm_mat4_identity + glm_rotate_z/x/y", true)
+SHZ_MAT4X4_ROTATION_U16_CASE_3(init_rotation_yxz, "yxz", "glm_mat4_identity + glm_rotate_y/x/z", true)
+SHZ_MAT4X4_ROTATION_U16_CASE_1(rotate_x,          "x",   "glm_rotate_x",                         false)
+SHZ_MAT4X4_ROTATION_U16_CASE_1(rotate_y,          "y",   "glm_rotate_y",                         false)
+SHZ_MAT4X4_ROTATION_U16_CASE_1(rotate_z,          "z",   "glm_rotate_z",                         false)
+SHZ_MAT4X4_ROTATION_U16_CASE_3(rotate_xyz,        "xyz", "glm_rotate_x/y/z",                     false)
+SHZ_MAT4X4_ROTATION_U16_CASE_3(rotate_zyx,        "zyx", "glm_rotate_z/y/x",                     false)
+SHZ_MAT4X4_ROTATION_U16_CASE_3(rotate_zxy,        "zxy", "glm_rotate_z/x/y",                     false)
+SHZ_MAT4X4_ROTATION_U16_CASE_3(rotate_yxz,        "yxz", "glm_rotate_y/x/z",                     false)
+
 GBL_TEST_CASE(permute_wzyx)
     alignas(32) std::array<uint8_t, sizeof(shz_glm_mat4) + alignof(shz_glm_mat4)> buffer;
     auto& mat = *reinterpret_cast<shz_glm_mat4*>(buffer.data() + alignof(shz_glm_mat4));
@@ -975,6 +1075,20 @@ GBL_TEST_REGISTER(copy,
                   rotate_zyx,
                   rotate_zxy,
                   rotate_yxz,
+                  init_rotation_x_u16,
+                  init_rotation_y_u16,
+                  init_rotation_z_u16,
+                  init_rotation_xyz_u16,
+                  init_rotation_zyx_u16,
+                  init_rotation_zxy_u16,
+                  init_rotation_yxz_u16,
+                  rotate_x_u16,
+                  rotate_y_u16,
+                  rotate_z_u16,
+                  rotate_xyz_u16,
+                  rotate_zyx_u16,
+                  rotate_zxy_u16,
+                  rotate_yxz_u16,
                   permute_wzyx,
                   blend,
                   to_quat)

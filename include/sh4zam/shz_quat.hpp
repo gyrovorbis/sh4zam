@@ -92,22 +92,22 @@ namespace shz {
         }
 
         //! C++ convenience wrapper for shz_quat_from_rotation_xyz_u16().
-        SHZ_FORCE_INLINE static quat from_rotation_xyz_u16(uint16_t x, uint16_t y, uint16_t z) noexcept {
+        SHZ_FORCE_INLINE static quat from_rotation_xyz(uint16_t x, uint16_t y, uint16_t z) noexcept {
             return shz_quat_from_rotation_xyz_u16(x, y, z);
         }
 
         //! C++ convenience wrapper for shz_quat_from_rotation_zyx_u16().
-        SHZ_FORCE_INLINE static quat from_rotation_zyx_u16(uint16_t z, uint16_t y, uint16_t x) noexcept {
+        SHZ_FORCE_INLINE static quat from_rotation_zyx(uint16_t z, uint16_t y, uint16_t x) noexcept {
             return shz_quat_from_rotation_zyx_u16(z, y, x);
         }
 
         //! C++ convenience wrapper for shz_quat_from_rotation_zxy_u16().
-        SHZ_FORCE_INLINE static quat from_rotation_zxy_u16(uint16_t z, uint16_t x, uint16_t y) noexcept {
+        SHZ_FORCE_INLINE static quat from_rotation_zxy(uint16_t z, uint16_t x, uint16_t y) noexcept {
             return shz_quat_from_rotation_zxy_u16(z, x, y);
         }
 
         //! C++ convenience wrapper for shz_quat_from_rotation_yxz_u16().
-        SHZ_FORCE_INLINE static quat from_rotation_yxz_u16(uint16_t y, uint16_t x, uint16_t z) noexcept {
+        SHZ_FORCE_INLINE static quat from_rotation_yxz(uint16_t y, uint16_t x, uint16_t z) noexcept {
             return shz_quat_from_rotation_yxz_u16(y, x, z);
         }
 
@@ -487,6 +487,30 @@ namespace shz {
         SHZ_DEPRECATED("Redundant. Use from_rotation_xyz().")
         SHZ_FORCE_INLINE static quat from_angles_xyz(float x, float y, float z) noexcept {
             return shz_quat_from_rotation_xyz(x, y, z);
+        }
+
+        //! Deprecated C++ wrapper around shz_quat_from_rotation_xyz_u16(). Use the uint16_t overload of from_rotation_xyz().
+        SHZ_DEPRECATED("Use the uint16_t overload of shz::quat::from_rotation_xyz().")
+        SHZ_FORCE_INLINE static quat from_rotation_xyz_u16(uint16_t x, uint16_t y, uint16_t z) noexcept {
+            return shz_quat_from_rotation_xyz_u16(x, y, z);
+        }
+
+        //! Deprecated C++ wrapper around shz_quat_from_rotation_zyx_u16(). Use the uint16_t overload of from_rotation_zyx().
+        SHZ_DEPRECATED("Use the uint16_t overload of shz::quat::from_rotation_zyx().")
+        SHZ_FORCE_INLINE static quat from_rotation_zyx_u16(uint16_t z, uint16_t y, uint16_t x) noexcept {
+            return shz_quat_from_rotation_zyx_u16(z, y, x);
+        }
+
+        //! Deprecated C++ wrapper around shz_quat_from_rotation_zxy_u16(). Use the uint16_t overload of from_rotation_zxy().
+        SHZ_DEPRECATED("Use the uint16_t overload of shz::quat::from_rotation_zxy().")
+        SHZ_FORCE_INLINE static quat from_rotation_zxy_u16(uint16_t z, uint16_t x, uint16_t y) noexcept {
+            return shz_quat_from_rotation_zxy_u16(z, x, y);
+        }
+
+        //! Deprecated C++ wrapper around shz_quat_from_rotation_yxz_u16(). Use the uint16_t overload of from_rotation_yxz().
+        SHZ_DEPRECATED("Use the uint16_t overload of shz::quat::from_rotation_yxz().")
+        SHZ_FORCE_INLINE static quat from_rotation_yxz_u16(uint16_t y, uint16_t x, uint16_t z) noexcept {
+            return shz_quat_from_rotation_yxz_u16(y, x, z);
         }
 
         //! @}

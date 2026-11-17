@@ -298,6 +298,41 @@ SHZ_INLINE void shz_xmtrx_init_rotation_zxy(float zAngle, float xAngle, float yA
 */
 SHZ_INLINE void shz_xmtrx_init_rotation_yxz(float yAngle, float xAngle, float zAngle) SHZ_NOEXCEPT;
 
+/*! Equivalent to shz_xmtrx_init_rotation_x(), with a 16-bit binary angle (65536 per turn, the FSCA unit).
+
+    For games whose orientations are stored as 16-bit angles, such as N64 titles. Signed 16-bit
+    angles can be passed as they are. The angle goes to FSCA as given, where shz_xmtrx_init_rotation_x()
+    scales radians back to this unit and truncates with FTRC, which can land one unit short.
+
+    \sa shz_xmtrx_init_rotation_x(), shz_xmtrx_rotate_x_u16(), shz_sincosu16()
+*/
+SHZ_INLINE void shz_xmtrx_init_rotation_x_u16(uint16_t radians16) SHZ_NOEXCEPT;
+
+//! Equivalent to shz_xmtrx_init_rotation_y(), with a 16-bit binary angle.
+SHZ_INLINE void shz_xmtrx_init_rotation_y_u16(uint16_t radians16) SHZ_NOEXCEPT;
+
+//! Equivalent to shz_xmtrx_init_rotation_z(), with a 16-bit binary angle.
+SHZ_INLINE void shz_xmtrx_init_rotation_z_u16(uint16_t radians16) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_xmtrx_init_rotation_xyz(), with 16-bit binary angles (65536 per turn, the FSCA unit).
+
+    For games whose orientations are stored as 16-bit angles. Signed 16-bit angles can be passed
+    as they are. The angles go to FSCA as given, where shz_xmtrx_init_rotation_xyz() scales radians
+    back to this unit and truncates with FTRC, which can land one unit short.
+
+    \sa shz_xmtrx_init_rotation_xyz(), shz_xmtrx_rotate_xyz_u16(), shz_quat_from_rotation_xyz_u16()
+*/
+SHZ_INLINE void shz_xmtrx_init_rotation_xyz_u16(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT;
+
+//! Equivalent to shz_xmtrx_init_rotation_zyx(), with 16-bit binary angles.
+SHZ_INLINE void shz_xmtrx_init_rotation_zyx_u16(uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) SHZ_NOEXCEPT;
+
+//! Equivalent to shz_xmtrx_init_rotation_zxy(), with 16-bit binary angles.
+SHZ_INLINE void shz_xmtrx_init_rotation_zxy_u16(uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) SHZ_NOEXCEPT;
+
+//! Equivalent to shz_xmtrx_init_rotation_yxz(), with 16-bit binary angles.
+SHZ_INLINE void shz_xmtrx_init_rotation_yxz_u16(uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) SHZ_NOEXCEPT;
+
 /*! Initializes XMTRX to a 3D rotation matrix of \p angle radians about the vector with the given components.
 
     \note This routine works similarly to glRotatef() applied to an identitiy matrix. The given

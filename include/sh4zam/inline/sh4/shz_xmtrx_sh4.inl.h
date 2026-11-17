@@ -1728,6 +1728,325 @@ SHZ_INLINE void shz_xmtrx_init_rotation_yxz_sh4(float yAngle, float xAngle, floa
     : "fpul");
 }
 
+SHZ_INLINE void shz_xmtrx_init_rotation_x_u16_sh4(uint16_t x) SHZ_NOEXCEPT {
+    uintptr_t zero;
+
+    asm volatile(R"(
+        lds     %[x], fpul
+        frchg
+        mov     #0, %[z]
+        fldi1   fr15
+        fsca    fpul, dr0
+        lds     %[z], fpul
+        float   fpul, fr2
+        fldi0   fr3
+        float   fpul, fr4
+        fmov    fr1, fr5
+        float   fpul, fr7
+        fmov    fr0, fr6
+        float   fpul, fr8
+        fmov    fr0, fr9
+        float   fpul, fr11
+        fneg    fr9
+        float   fpul, fr12
+        fmov    fr1, fr10
+        float   fpul, fr13
+        fldi0   fr14
+        float   fpul, fr1
+        fldi1   fr0
+        frchg
+    )"
+    : [z] "=r" (zero)
+    : [x] "r" (x)
+    : "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_init_rotation_y_u16_sh4(uint16_t y) SHZ_NOEXCEPT {
+    uintptr_t zero;
+
+    asm volatile(R"(
+        lds     %[y], fpul
+        frchg
+        mov     #0, %[z]
+        fldi1   fr5
+        fsca    fpul, dr8
+        lds     %[z], fpul
+        fldi0   fr1
+        float   fpul, fr3
+        fmov    fr8, fr2
+        float   fpul, fr4
+        fmov    fr9, fr0
+        float   fpul, fr6
+        fmov    fr9, fr10
+        float   fpul, fr7
+        fneg    fr2
+        float   fpul, fr9
+        fldi0   fr11
+        fschg
+        fmov    dr6, dr12
+        frchg
+        fmov    xd4, xd14
+        fschg
+    )"
+    : [z] "=r" (zero)
+    : [y] "r" (y)
+    : "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_init_rotation_z_u16_sh4(uint16_t z) SHZ_NOEXCEPT {
+    uintptr_t zero;
+
+    asm volatile(R"(
+        lds     %[z], fpul
+        frchg
+        fldi1   fr15
+        mov     #0, %[f]
+        fldi1   fr10
+        fsca    fpul, dr4
+        lds     %[f], fpul
+        float   fpul, fr2
+        fldi0   fr3
+        float   fpul, fr11
+        fmov    fr4, fr1
+        float   fpul, fr14
+        fmov    fr5, fr0
+        fschg
+        fmov    dr2, dr6
+        fmov    dr2, dr8
+        fmov    dr2, dr12
+        fschg
+        fneg    fr4
+        frchg
+    )"
+    : [f] "=r" (zero)
+    : [z] "r" (z)
+    : "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_init_rotation_zyx_u16_sh4(uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) SHZ_NOEXCEPT {
+    uintptr_t zero;
+
+    asm volatile(R"(
+        frchg
+        lds     %[x], fpul
+        fsca    fpul, dr10
+        lds     %[y], fpul
+        fsca    fpul, dr12
+        lds     %[z], fpul
+        fmov    fr12, fr0
+        fsca    fpul, dr2
+        mov     #0, %[f]
+        fmul    fr10,fr0
+        fmov    fr2,fr4
+        fmul    fr11,fr4
+        fmov    fr3,fr5
+        fmul    fr11,fr5
+        fmov    fr2,fr8
+        fmul    fr10,fr8
+        fmov    fr3,fr9
+        fmul    fr10,fr9
+        fldi1   fr15
+        fmac    fr0,fr2,fr5
+        fneg    fr4
+        fmac    fr0,fr3,fr4
+        fmov    fr12,fr0
+        fmul    fr11,fr0
+        fmov    fr2,fr1
+        fmov    fr13,fr6
+        fmul    fr13,fr1
+        fldi0   fr14
+        fmul    fr10,fr6
+        fneg    fr9
+        fmac    fr0,fr3,fr8
+        fmov    fr13,fr10
+        fmac    fr0,fr2,fr9
+        fmov    fr3,fr0
+        lds     %[f], fpul
+        fmov    fr12,fr2
+        fmul    fr11,fr10
+        fldi0   fr7
+        fmul    fr13,fr0
+        fneg    fr2
+        float   fpul, fr3
+        fldi0   fr11
+        float   fpul, fr12
+        fldi0   fr13
+        frchg
+    )"
+    : [f] "=r" (zero)
+    : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)
+    : "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_init_rotation_xyz_u16_sh4(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+    uintptr_t zero;
+
+    asm volatile(R"(
+        frchg
+        lds     %[x], fpul
+        fsca    fpul, dr10
+        lds     %[y], fpul
+        fsca    fpul, dr12
+        lds     %[z], fpul
+        fsca    fpul, dr14
+        mov     #0, %[f]
+        fmov    fr12, fr0
+        fmul    fr10, fr0
+        fmov    fr11, fr1
+        fmul    fr14, fr1
+        fmov    fr11, fr5
+        fmul    fr15, fr5
+        lds     %[f], fpul
+        fmac    fr0, fr15, fr1
+        fneg    fr0
+        fmov    fr10, fr6
+        fmac    fr0, fr14, fr5
+        fmov    fr12, fr0
+        fmul    fr11, fr0
+        fmov    fr10, fr2
+        fmul    fr15, fr6
+        fmov    fr13, fr4
+        fmul    fr14, fr2
+        fmov    fr12, fr8
+        fmac    fr0, fr14, fr6
+        fneg    fr0
+        fmov    fr10, fr9
+        fmac    fr0, fr15, fr2
+        fmov    fr13, fr0
+        fmul    fr14, fr4
+        fmov    fr11, fr10
+        fmul    fr13, fr9
+        fldi0   fr3
+        fmul    fr15, fr0
+        fneg    fr4
+        fmul    fr13, fr10
+        fneg    fr9
+        float   fpul, fr7
+        fldi0   fr11
+        float   fpul, fr12
+        fldi0   fr13
+        float   fpul, fr14
+        fldi1   fr15
+        frchg
+    )"
+    : [f] "=r" (zero)
+    : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)
+    : "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_init_rotation_zxy_u16_sh4(uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) SHZ_NOEXCEPT {
+    uintptr_t zero;
+
+    asm volatile(R"(
+        frchg
+        lds     %[x], fpul
+        fsca    fpul, dr10
+        lds     %[y], fpul
+        fsca    fpul, dr12
+        lds     %[z], fpul
+        fsca    fpul, dr14
+        mov     #0, %[f]
+        fmov    fr14, fr0
+        fmul    fr10, fr0
+        fmov    fr15, fr8
+        fmul    fr12, fr8
+        fmov    fr15, fr3
+        fmul    fr13, fr3
+        lds     %[f], fpul
+        fmac    fr0, fr13, fr8
+        fneg    fr0
+        fmov    fr14, fr1
+        fmac    fr0, fr12, fr3
+        fmov    fr15, fr0
+        fmul    fr10, fr0
+        fmov    fr14, fr9
+        fmul    fr13, fr1
+        fmov    fr11, fr2
+        fmul    fr12, fr9
+        fmov    fr11, fr4
+        fmac    fr0, fr12, fr1
+        fneg    fr0
+        fmov    fr11, fr5
+        fmac    fr0, fr13, fr9
+        fmov    fr10, fr6
+        fmul    fr12, fr2
+        fmov    fr11, fr10
+        fmul    fr14, fr4
+        fmov    fr3, fr0
+        fmul    fr15, fr5
+        fneg    fr2
+        fmul    fr13, fr10
+        fneg    fr4
+        float   fpul, fr3
+        fldi0   fr7
+        float   fpul, fr11
+        fldi0   fr12
+        float   fpul, fr13
+        fldi0   fr14
+        fldi1   fr15
+        frchg
+    )"
+    : [f] "=r" (zero)
+    : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)
+    : "fpul");
+}
+
+SHZ_INLINE void shz_xmtrx_init_rotation_yxz_u16_sh4(uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+    uintptr_t zero;
+
+    asm volatile(R"(
+        frchg
+        lds     %[x], fpul
+        fsca    fpul, dr10
+        lds     %[y], fpul
+        fsca    fpul, dr12
+        lds     %[z], fpul
+        fsca    fpul, dr14
+        mov     #0, %[f]
+        fmov    fr12, fr0
+        fmul    fr10, fr0
+        fmov    fr13, fr3
+        fmul    fr15, fr3
+        fmov    fr13, fr4
+        fmul    fr14, fr4
+        lds     %[f], fpul
+        fmac    fr0, fr14, fr3
+        fneg    fr4
+        fmov    fr12, fr2
+        fmac    fr0, fr15, fr4
+        fmov    fr13, fr0
+        fmul    fr10, fr0
+        fmov    fr12, fr6
+        fmul    fr15, fr2
+        fmov    fr11, fr1
+        fmul    fr14, fr6
+        fneg    fr2
+        fmac    fr0, fr15, fr6
+        fmov    fr11, fr5
+        fmac    fr0, fr14, fr2
+        fmov    fr11, fr8
+        fmul    fr14, fr1
+        fmov    fr10, fr9
+        fmul    fr15, fr5
+        fmov    fr11, fr10
+        fmul    fr12, fr8
+        fneg    fr9
+        fmul    fr13, fr10
+        fmov    fr3, fr0
+        float   fpul, fr3
+        fldi0   fr7
+        float   fpul, fr11
+        fldi0   fr12
+        float   fpul, fr13
+        fldi0   fr14
+        fldi1   fr15
+        frchg
+    )"
+    : [f] "=r" (zero)
+    : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)
+    : "fpul");
+}
+
 SHZ_INLINE void shz_xmtrx_rotate_zyx_sh4(float zAngle, float yAngle, float xAngle) SHZ_NOEXCEPT {
     register float x asm("fr5") = xAngle * SHZ_FSCA_RAD_FACTOR;
     register float y asm("fr4") = yAngle * SHZ_FSCA_RAD_FACTOR;
@@ -2188,8 +2507,8 @@ SHZ_INLINE void shz_xmtrx_rotate_yxz_u16_sh4(uint16_t yAngle, uint16_t xAngle, u
     )"
     :
     : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9",
-      "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
       "fpul");
 }
 

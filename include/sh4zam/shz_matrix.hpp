@@ -149,6 +149,34 @@ namespace shz {
             shz_mat4x4_init_rotation_yxz(this, yAngle, xAngle, zAngle);
         }
 
+        SHZ_FORCE_INLINE void init_rotation_x(uint16_t angle) noexcept {
+            shz_mat4x4_init_rotation_x_u16(this, angle);
+        }
+
+        SHZ_FORCE_INLINE void init_rotation_y(uint16_t angle) noexcept {
+            shz_mat4x4_init_rotation_y_u16(this, angle);
+        }
+
+        SHZ_FORCE_INLINE void init_rotation_z(uint16_t angle) noexcept {
+            shz_mat4x4_init_rotation_z_u16(this, angle);
+        }
+
+        SHZ_FORCE_INLINE void init_rotation_xyz(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) noexcept {
+            shz_mat4x4_init_rotation_xyz_u16(this, xAngle, yAngle, zAngle);
+        }
+
+        SHZ_FORCE_INLINE void init_rotation_zyx(uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) noexcept {
+            shz_mat4x4_init_rotation_zyx_u16(this, zAngle, yAngle, xAngle);
+        }
+
+        SHZ_FORCE_INLINE void init_rotation_zxy(uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) noexcept {
+            shz_mat4x4_init_rotation_zxy_u16(this, zAngle, xAngle, yAngle);
+        }
+
+        SHZ_FORCE_INLINE void init_rotation_yxz(uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) noexcept {
+            shz_mat4x4_init_rotation_yxz_u16(this, yAngle, xAngle, zAngle);
+        }
+
         SHZ_FORCE_INLINE void init_rotation(float angle, float x, float y, float z) noexcept {
             shz_mat4x4_init_rotation(this, angle, x, y, z);
         }
@@ -446,6 +474,34 @@ namespace shz {
 
         SHZ_FORCE_INLINE void rotate_yxz(float yRadians, float xRadians, float zRadians) noexcept {
             shz_mat4x4_rotate_yxz(this, yRadians, xRadians, zRadians);
+        }
+
+        SHZ_FORCE_INLINE void rotate_x(uint16_t radians16) noexcept {
+            shz_mat4x4_rotate_x_u16(this, radians16);
+        }
+
+        SHZ_FORCE_INLINE void rotate_y(uint16_t radians16) noexcept {
+            shz_mat4x4_rotate_y_u16(this, radians16);
+        }
+
+        SHZ_FORCE_INLINE void rotate_z(uint16_t radians16) noexcept {
+            shz_mat4x4_rotate_z_u16(this, radians16);
+        }
+
+        SHZ_FORCE_INLINE void rotate_xyz(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) noexcept {
+            shz_mat4x4_rotate_xyz_u16(this, xAngle, yAngle, zAngle);
+        }
+
+        SHZ_FORCE_INLINE void rotate_zyx(uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) noexcept {
+            shz_mat4x4_rotate_zyx_u16(this, zAngle, yAngle, xAngle);
+        }
+
+        SHZ_FORCE_INLINE void rotate_zxy(uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) noexcept {
+            shz_mat4x4_rotate_zxy_u16(this, zAngle, xAngle, yAngle);
+        }
+
+        SHZ_FORCE_INLINE void rotate_yxz(uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) noexcept {
+            shz_mat4x4_rotate_yxz_u16(this, yAngle, xAngle, zAngle);
         }
 
         SHZ_FORCE_INLINE void rotate(float radians, float xAxis, float yAxis, float zAxis) noexcept {

@@ -93,16 +93,16 @@ namespace {
     };
 
     const euler_order euler_orders[] = {
-        { "xyz", shz_mat4x4_init_rotation_xyz, shz::quat::from_rotation_xyz, shz::quat::from_rotation_xyz_u16,
+        { "xyz", shz_mat4x4_init_rotation_xyz, shz::quat::from_rotation_xyz, shz::quat::from_rotation_xyz,
           [](const shz::quat& q) { return q.to_angles_xyz(); },
           { { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } } },
-        { "zyx", shz_mat4x4_init_rotation_zyx, shz::quat::from_rotation_zyx, shz::quat::from_rotation_zyx_u16,
+        { "zyx", shz_mat4x4_init_rotation_zyx, shz::quat::from_rotation_zyx, shz::quat::from_rotation_zyx,
           [](const shz::quat& q) { return q.to_angles_zyx(); },
           { { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } } },
-        { "zxy", shz_mat4x4_init_rotation_zxy, shz::quat::from_rotation_zxy, shz::quat::from_rotation_zxy_u16,
+        { "zxy", shz_mat4x4_init_rotation_zxy, shz::quat::from_rotation_zxy, shz::quat::from_rotation_zxy,
           [](const shz::quat& q) { return q.to_angles_zxy(); },
           { { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } } },
-        { "yxz", shz_mat4x4_init_rotation_yxz, shz::quat::from_rotation_yxz, shz::quat::from_rotation_yxz_u16,
+        { "yxz", shz_mat4x4_init_rotation_yxz, shz::quat::from_rotation_yxz, shz::quat::from_rotation_yxz,
           [](const shz::quat& q) { return q.to_angles_yxz(); },
           { { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } } },
     };
@@ -289,7 +289,7 @@ GBL_TEST_CASE(from_rotation_u16)
     }
 
     // Signed angles are accepted as they are: -0x4000 is a quarter turn the other way.
-    GBL_TEST_VERIFY(shz::quat::from_rotation_yxz_u16(0, static_cast<uint16_t>(int16_t{-0x4000}), 0) ==
+    GBL_TEST_VERIFY(shz::quat::from_rotation_yxz(uint16_t{0}, static_cast<uint16_t>(int16_t{-0x4000}), uint16_t{0}) ==
                     shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, -shz::pi_f_2));
 GBL_TEST_CASE_END
 
@@ -401,29 +401,29 @@ GBL_TEST_CASE(from_rotation_benchmark)
                                    [](float x, float y, float z) { return glm_quat_(yxz, x, y, z); },
                                    0.4f, -0.8f, 1.2f)
     );
-    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_xyz_u16",
-                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_xyz_u16(x, y, z); },
+    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_xyz(uint16_t)",
+                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_xyz(x, y, z); },
                                    "glm_euler_xyz_quat",
                                    [](uint16_t x, uint16_t y, uint16_t z) {
                                        return glm_quat_(xyz, x * u16_radians, y * u16_radians, z * u16_radians);
                                    },
                                    uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
-    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zyx_u16",
-                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_zyx_u16(z, y, x); },
+    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zyx(uint16_t)",
+                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_zyx(z, y, x); },
                                    "glm_euler_zyx_quat",
                                    [](uint16_t x, uint16_t y, uint16_t z) {
                                        return glm_quat_(zyx, x * u16_radians, y * u16_radians, z * u16_radians);
                                    },
                                    uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
-    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zxy_u16",
-                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_zxy_u16(z, x, y); },
+    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zxy(uint16_t)",
+                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_zxy(z, x, y); },
                                    "glm_euler_zxy_quat",
                                    [](uint16_t x, uint16_t y, uint16_t z) {
                                        return glm_quat_(zxy, x * u16_radians, y * u16_radians, z * u16_radians);
                                    },
                                    uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
-    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_yxz_u16",
-                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_yxz_u16(y, x, z); },
+    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_yxz(uint16_t)",
+                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_yxz(y, x, z); },
                                    "glm_euler_yxz_quat",
                                    [](uint16_t x, uint16_t y, uint16_t z) {
                                        return glm_quat_(yxz, x * u16_radians, y * u16_radians, z * u16_radians);

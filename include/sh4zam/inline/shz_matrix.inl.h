@@ -92,6 +92,41 @@ SHZ_INLINE void shz_mat4x4_init_rotation_yxz(shz_mat4x4_t* mat, float yAngle, fl
     shz_xmtrx_store_4x4(mat);
 }
 
+SHZ_INLINE void shz_mat4x4_init_rotation_x_u16(shz_mat4x4_t* mat, uint16_t xAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_x_u16(xAngle);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_rotation_y_u16(shz_mat4x4_t* mat, uint16_t yAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_y_u16(yAngle);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_rotation_z_u16(shz_mat4x4_t* mat, uint16_t zAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_z_u16(zAngle);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_rotation_xyz_u16(shz_mat4x4_t* mat, uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_xyz_u16(xAngle, yAngle, zAngle);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_rotation_zyx_u16(shz_mat4x4_t* mat, uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_zyx_u16(zAngle, yAngle, xAngle);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_rotation_zxy_u16(shz_mat4x4_t* mat, uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_zxy_u16(zAngle, xAngle, yAngle);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_rotation_yxz_u16(shz_mat4x4_t* mat, uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_yxz_u16(yAngle, xAngle, zAngle);
+    shz_xmtrx_store_4x4(mat);
+}
+
 SHZ_INLINE void shz_mat4x4_init_rotation(shz_mat4x4_t* mat, float angle, float x, float y, float z) SHZ_NOEXCEPT {
     shz_xmtrx_init_rotation(angle, x, y, z);
     shz_xmtrx_store_4x4(mat);
@@ -456,6 +491,48 @@ SHZ_FORCE_INLINE void shz_mat4x4_rotate_zxy(shz_mat4x4_t* mat, float zRadians, f
 SHZ_FORCE_INLINE void shz_mat4x4_rotate_yxz(shz_mat4x4_t* mat, float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(mat);
     shz_xmtrx_rotate_yxz(yRadians, xRadians, zRadians);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_rotate_x_u16(shz_mat4x4_t* mat, uint16_t radians16) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_x_u16(radians16);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_rotate_y_u16(shz_mat4x4_t* mat, uint16_t radians16) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_y_u16(radians16);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_rotate_z_u16(shz_mat4x4_t* mat, uint16_t radians16) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_z_u16(radians16);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_FORCE_INLINE void shz_mat4x4_rotate_xyz_u16(shz_mat4x4_t* mat, uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_xyz_u16(xAngle, yAngle, zAngle);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_FORCE_INLINE void shz_mat4x4_rotate_zyx_u16(shz_mat4x4_t* mat, uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_zyx_u16(zAngle, yAngle, xAngle);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_FORCE_INLINE void shz_mat4x4_rotate_zxy_u16(shz_mat4x4_t* mat, uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_zxy_u16(zAngle, xAngle, yAngle);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_FORCE_INLINE void shz_mat4x4_rotate_yxz_u16(shz_mat4x4_t* mat, uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_yxz_u16(yAngle, xAngle, zAngle);
     shz_xmtrx_store_4x4(mat);
 }
 
