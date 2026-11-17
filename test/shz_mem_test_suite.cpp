@@ -36,7 +36,7 @@ bool sq_fast_cpy_bench(auto&& pFn) {
     static MemcpyBuffer<Bytes, SrcAlign, Pad> src;
     static MemcpyBuffer<Bytes, DstAlign, Pad> dst;
 
-    return (benchmark_cmp<void*>)(
+    return (benchmark_cmp<void*, false, benchmark_tolerance{ .pctCached = 0.12f, .clearCached = 0.12f }>)(
         "pFn", bench_fn(pFn),
         "sq_fast_cpy", [](void* d, const void* s, size_t n) {
             dcache_inval_range((uintptr_t)d, n);

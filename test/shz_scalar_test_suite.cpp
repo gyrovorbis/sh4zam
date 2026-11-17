@@ -8,6 +8,7 @@
 #include <array>
 #include <climits>
 #include <cfloat>
+#include <cmath>
 
 #define GBL_SELF_TYPE shz_scalar_test_suite
 
@@ -514,44 +515,16 @@ GBL_TEST_CASE(smoothstepf_safe)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(cbrtf)
+    auto test = [&](float value) {
+        const float expected = cbrtf(volatile_cast(value));
 
-    auto test = [&](volatile float value) {
-        float c_res = shz::cbrtf(value);
-        float cbrt_res = cbrtf(value);
-#if 0
-        std::println("{} vs {} vs {}", pow_res, cbrt_res, c_res);
-#endif
-        return gblFloatEquals(cbrt_res, c_res, 0.0001f);
+        return shz_fabsf(shz::cbrtf(volatile_cast(value)) - expected) <= 1.0e-4f * shz_fabsf(expected);
     };
-GBL_TEST_SKIP("FUCKED");
-    GBL_TEST_VERIFY(test(27.0f));
-    GBL_TEST_VERIFY(test(1.0f));
+
+    GBL_TEST_VERIFY(test( 27.0f));
+    GBL_TEST_VERIFY(test( 1.0f));
     GBL_TEST_VERIFY(test(-27.0f));
     GBL_TEST_VERIFY(test(-0.125f));
-    {
-        volatile float value = -0.125f;
-        GBL_TEST_VERIFY(
-            (benchmark_cmp<float>)("shz::cbrtf", bench_fn(shz::cbrtf),
-                                   "cbrtf", bench_fn(cbrtf), value)
-        );
-        GBL_TEST_VERIFY(
-            (benchmark_cmp<float>)("shz::cbrtf", bench_fn(shz::cbrtf),
-                                   "powf(x, 1.0f/3.0f)", [](float x) { return powf(x, 1.0f / 3.0f); },
-                                    value)
-        );
-    }
-GBL_TEST_CASE_END
-
-static volatile float cbrtf_x_;
-
-GBL_TEST_CASE(cbrtf_range)
-    auto test = [&](float value) {
-        cbrtf_x_ = value;
-        const float expected = cbrtf(cbrtf_x_);
-
-        return shz_fabsf(shz::cbrtf(cbrtf_x_) - expected) <= 1.0e-4f * shz_fabsf(expected);
-    };
-
     GBL_TEST_VERIFY(test( 3.4e38f));
     GBL_TEST_VERIFY(test(-3.4e38f));
     GBL_TEST_VERIFY(test( 0x1p126f));
@@ -711,6 +684,61 @@ GBL_TEST_CASE(pow10f)
             "pow10f", [](float value) { return powf(10.0f, value); }, 99.0f
         )
     );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(expm1f)
+    for(float x : { 0.001f, -0.05f, 0.0999f, 0.1f, 0.5f, 1.0f, -1.0f, 3.0f, -3.0f })
+        GBL_TEST_ERROR(shz::expm1f(volatile_cast(x)), std::expm1(static_cast<double>(x)), 0.2f, GBL_TEST_ERROR_FUZZY);
+
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::expm1f (|x| < 0.1)", bench_fn(shz::expm1f), "expm1f", bench_fn(expm1f), 0.05f));
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::expm1f", bench_fn(shz::expm1f), "expm1f", bench_fn(expm1f), 0.5f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(log1pf)
+    for(float x : { 1e-6f, 1e-3f, -1e-3f, 0.1f, 0.5f, -0.5f, 3.0f, 9.0f })
+        GBL_TEST_ERROR(shz::log1pf(volatile_cast(x)), std::log1p(static_cast<double>(x)), 0.2f, GBL_TEST_ERROR_FUZZY);
+
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::log1pf", bench_fn(shz::log1pf), "log1pf", bench_fn(log1pf), 0.5f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(logbf)
+    for(float x : { 1.0f, 2.0f, 3.0f, 0.125f, 0.75f, 1000.0f, -5.0f, 1.95f, 3.9f, 0.981f, 0.49f })
+        GBL_TEST_VERIFY(shz::logbf(volatile_cast(x)) == logbf(x));
+
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::logbf", bench_fn(shz::logbf), "logbf", bench_fn(logbf), 3.0f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(ldexpf)
+    for(int e : { 0, 1, 2, 10, -3, -20 })
+        GBL_TEST_ERROR(shz::ldexpf(volatile_cast(1.75f), volatile_cast(static_cast<float>(e))), ldexpf(1.75f, e), 0.05f, GBL_TEST_ERROR_FUZZY);
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<float>)(
+            "shz::ldexpf", bench_fn(shz::ldexpf),
+            "ldexpf", [](float x, float e) { return ldexpf(x, static_cast<int>(e)); },
+            1.75f, 10.0f
+        )
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(scalbnf)
+    for(int e : { 0, 1, 2, 10, -3, -20 })
+        GBL_TEST_ERROR(shz::scalbnf(volatile_cast(1.75f), volatile_cast(static_cast<float>(e))), scalbnf(1.75f, e), 0.05f, GBL_TEST_ERROR_FUZZY);
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<float>)(
+            "shz::scalbnf", bench_fn(shz::scalbnf),
+            "scalbnf", [](float x, float e) { return scalbnf(x, static_cast<int>(e)); },
+            1.75f, 10.0f
+        )
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(erff)
+    for(float x : { 0.0f, 0.01f, -0.01f, 0.25f, 0.5f, 1.0f, 2.0f, 3.0f, -0.5f, -1.0f, -3.0f })
+        GBL_TEST_ERROR(shz::erff(volatile_cast(x)), std::erf(static_cast<double>(x)), 0.05f, GBL_TEST_ERROR_FUZZY);
+
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::erff", bench_fn(shz::erff), "erff", bench_fn(erff), 0.5f));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(fmodf)
@@ -931,12 +959,17 @@ GBL_TEST_REGISTER(min,
                   smoothstepf,
                   smoothstepf_safe,
                   cbrtf,
-                  cbrtf_range,
                   hypotf,
                   wrapf,
                   logf,
                   log10f,
                   pow10f,
                   powif,
+                  expm1f,
+                  log1pf,
+                  logbf,
+                  ldexpf,
+                  scalbnf,
+                  erff,
                   fmodf,
                   remainderf)

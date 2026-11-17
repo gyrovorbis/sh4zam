@@ -206,6 +206,16 @@ namespace shz {
     SHZ_FORCE_INLINE float acothf(float x) noexcept { return shz_acothf(x); }
 
     //! @}
+
+    /*! \name  Gamma
+        \brief Fast approximations for the gamma function.
+        @{
+    */
+    //! C++ wrapper around shz_lgammaf().
+    SHZ_FORCE_INLINE float lgammaf(float x) noexcept { return shz_lgammaf(x); }
+    //! C++ wrapper around shz_tgammaf().
+    SHZ_FORCE_INLINE float tgammaf(float x) noexcept { return shz_tgammaf(x); }
+    //! @}
 }
 
 #endif

@@ -351,4 +351,67 @@ SHZ_FORCE_INLINE float shz_acothf(float x) SHZ_NOEXCEPT {
     return 0.5f * shz_logf(shz_divf(x + 1.0f, x - 1.0f));
 }
 
+SHZ_FORCE_INLINE float shz_lgammaf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
+    if(__builtin_constant_p(x))
+        return __builtin_lgammaf(x);
+#endif
+    float neg_offset = 0.0f;
+    bool is_neg = (x < 0.0f);
+
+    if(is_neg) {
+        const float LN_PI = 1.14472989f;
+
+        float sin_val = shz_fabsf(shz_sinf(SHZ_F_PI * x));
+        /* Do we even need to protect against this degenerate case?
+        if (sin_val == 0.0f) {
+            return INFINITY;
+        }
+        */
+        neg_offset = LN_PI - shz_logf(sin_val);
+        x = 1.0f - x; // x is now guaranteed > 1.0f
+    }
+
+    // Argument shift (runs at most 5 times if x was reflected, 6 times if x >= 0)
+    float prod = 1.0f;
+    while(x < 6.0f) {
+        prod *= x;
+        x += 1.0f;
+    }
+
+    // Stirling's Approximation
+    const float HALF_LN_2PI = 0.91893853f;
+    const float c1 =  1.0f / 12.0f;
+    const float c2 = -1.0f / 360.0f;
+    const float c3 =  1.0f / 1260.0f;
+
+    float inv_x  = shz_invf_fsrra(x);
+    float inv_x2 = inv_x * inv_x;
+    float inv_x3 = inv_x * inv_x2;
+    float inv_x5 = inv_x3 * inv_x2;
+    float series = shz_dot8f(inv_x, inv_x3, inv_x5, 0.0f, c1, c2, c3, 0.0f);
+
+    float pos_res = (x - 0.5f) * shz_logf(x) - x + HALF_LN_2PI + series - shz_logf(prod);
+
+    // Return either pos_res or (neg_offset - pos_res) without recursion
+    return is_neg ? (neg_offset - pos_res) : pos_res;
+}
+
+SHZ_FORCE_INLINE float shz_tgammaf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
+    if(__builtin_constant_p(x))
+        return __builtin_tgammaf(x);
+#endif
+    // For positive x, Gamma(x) is always positive
+    if(x >= 0.0f) {
+        return shz_expf(shz_lgammaf(x));
+    }
+
+    // For negative x, sign alternates on every integer interval:
+    // (-1, 0) -> negative, (-2, -1) -> positive, (-3, -2) -> negative, etc.
+    int n = (int)shz_floorf(x);
+    float sign = (n & 0x1) ? -1.0f : 1.0f;
+    return sign * shz_expf(shz_lgammaf(x));
+}
+
  //! \endcond

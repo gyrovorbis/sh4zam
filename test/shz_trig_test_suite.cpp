@@ -382,6 +382,22 @@ GBL_TEST_CASE(acothf)
 GBL_TEST_CASE_END
 
 
+GBL_TEST_CASE(lgammaf)
+    for(float x : { 0.5f, 1.0f, 2.0f, 3.5f, 6.0f, 10.0f, 20.0f, -0.5f, -1.5f, -2.5f })
+        GBL_TEST_ERROR(shz::lgammaf(volatile_cast(x)), std::lgamma(static_cast<double>(x)), 0.2f, GBL_TEST_ERROR_FUZZY);
+
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::lgammaf", bench_fn(shz::lgammaf), "lgammaf", bench_fn(lgammaf), 3.5f));
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::lgammaf (x < 0)", bench_fn(shz::lgammaf), "lgammaf", bench_fn(lgammaf), -2.5f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(tgammaf)
+    for(float x : { 0.5f, 1.0f, 2.0f, 3.5f, 5.0f, -0.5f, -1.5f, -2.5f })
+        GBL_TEST_ERROR(shz::tgammaf(volatile_cast(x)), std::tgamma(static_cast<double>(x)), 0.2f, GBL_TEST_ERROR_FUZZY);
+
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::tgammaf", bench_fn(shz::tgammaf), "tgammaf", bench_fn(tgammaf), 3.5f));
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::tgammaf (x < 0)", bench_fn(shz::tgammaf), "tgammaf", bench_fn(tgammaf), -2.5f));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(benches)
     volatile float result;
 
@@ -418,4 +434,6 @@ GBL_TEST_REGISTER(sincos_from_radians,
                   acschf,
                   asechf,
                   acothf,
+                  lgammaf,
+                  tgammaf,
                   benches)

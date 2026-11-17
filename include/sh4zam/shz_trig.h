@@ -220,6 +220,23 @@ SHZ_INLINE float shz_acothf(float x) SHZ_NOEXCEPT;
 
 //! @}
 
+/*! \name  Gamma
+    \brief Fast approximations for the gamma function.
+    @{
+*/
+
+//! Fast approximation for C's lgammaf().
+SHZ_INLINE float shz_lgammaf(float x) SHZ_NOEXCEPT;
+
+/*! Fast approximation for C's tgammaf().
+
+    \note Relative error stays within about 20% for \p x below about 7.8, and grows with \p x
+    beyond that, since it amplifies the absolute error of shz_lgammaf().
+*/
+SHZ_INLINE float shz_tgammaf(float x) SHZ_NOEXCEPT;
+
+//! @}
+
 #include "inline/shz_trig.inl.h"
 
 SHZ_DECLS_END

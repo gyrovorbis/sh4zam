@@ -175,6 +175,18 @@ namespace shz {
     constexpr auto log10f = shz_log10f;
     // C++ alias for shz_expf()
     constexpr auto expf   = shz_expf;
+    //! C++ wrapper for shz_expm1f().
+    SHZ_FORCE_INLINE float expm1f(float x) noexcept { return shz_expm1f(x); }
+    //! C++ wrapper for shz_log1pf().
+    SHZ_FORCE_INLINE float log1pf(float x) noexcept { return shz_log1pf(x); }
+    //! C++ wrapper for shz_logbf().
+    SHZ_FORCE_INLINE float logbf(float x) noexcept { return shz_logbf(x); }
+    //! C++ wrapper for shz_ldexpf().
+    SHZ_FORCE_INLINE float ldexpf(float x, float exp) noexcept { return shz_ldexpf(x, exp); }
+    //! C++ wrapper for shz_scalbnf().
+    SHZ_FORCE_INLINE float scalbnf(float x, float exp) noexcept { return shz_scalbnf(x, exp); }
+    //! C++ wrapper for shz_erff().
+    SHZ_FORCE_INLINE float erff(float x) noexcept { return shz_erff(x); }
     //! @}
 }
 

@@ -347,6 +347,24 @@ SHZ_INLINE float shz_log10f(float x) SHZ_NOEXCEPT;
 //! Fast approximation for C's expf().
 SHZ_INLINE float shz_expf(float p) SHZ_NOEXCEPT;
 
+//! Fast approximation for C's expm1f().
+SHZ_INLINE float shz_expm1f(float x) SHZ_NOEXCEPT;
+
+//! Fast approximation for C's log1pf().
+SHZ_INLINE float shz_log1pf(float x) SHZ_NOEXCEPT;
+
+//! Fast approximation for C's logbf().
+SHZ_INLINE float shz_logbf(float x) SHZ_NOEXCEPT;
+
+//! Fast approximation for C's ldexpf(), taking a floating-point exponent.
+SHZ_INLINE float shz_ldexpf(float x, float exp) SHZ_NOEXCEPT;
+
+//! Fast approximation for C's scalbnf(), taking a floating-point exponent.
+SHZ_INLINE float shz_scalbnf(float x, float exp) SHZ_NOEXCEPT;
+
+//! Fast approximation for C's erff().
+SHZ_INLINE float shz_erff(float x) SHZ_NOEXCEPT;
+
 //! @}
 
 #include "inline/shz_scalar.inl.h"

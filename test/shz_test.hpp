@@ -323,7 +323,17 @@ struct benchmark_cmp_result {
 
 inline benchmark_cmp_result benchmark_cmp_last{};
 
-template<typename R, bool Quiet = false, typename ShzFn, typename RefFn, typename... Args>
+struct benchmark_tolerance {
+    float    pctCached     = 0.05f;
+    float    clearCached   = 0.08f;
+    uint64_t absCached     = 10;
+    float    pctUncached   = 0.05f;
+    float    clearUncached = 0.20f;
+    uint64_t absUncached   = 24;
+};
+
+template<typename R, bool Quiet = false, benchmark_tolerance Tol = benchmark_tolerance{},
+         typename ShzFn, typename RefFn, typename... Args>
 SHZ_NO_INLINE
 bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
                    const char* refName, RefFn&& refFn,
@@ -433,12 +443,12 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
     // cycles it amounts to (get_scale's cached 76-vs-69, 7 cycles but 10%,
     // is a GAINZ; set_scale's uncached 152-vs-132, 15%, stays under the
     // wider UNCACHED margin and remains noise).
-    constexpr float    BENCHMARK_TOLERANCE_PCT_CACHED   = 0.05f;
-    constexpr float    BENCHMARK_CLEAR_PCT_CACHED       = 0.08f;
-    constexpr uint64_t BENCHMARK_TOLERANCE_ABS_CACHED   = 10;
-    constexpr float    BENCHMARK_TOLERANCE_PCT_UNCACHED = 0.05f;
-    constexpr float    BENCHMARK_CLEAR_PCT_UNCACHED     = 0.20f;
-    constexpr uint64_t BENCHMARK_TOLERANCE_ABS_UNCACHED = 24;
+    constexpr float    BENCHMARK_TOLERANCE_PCT_CACHED   = Tol.pctCached;
+    constexpr float    BENCHMARK_CLEAR_PCT_CACHED       = Tol.clearCached;
+    constexpr uint64_t BENCHMARK_TOLERANCE_ABS_CACHED   = Tol.absCached;
+    constexpr float    BENCHMARK_TOLERANCE_PCT_UNCACHED = Tol.pctUncached;
+    constexpr float    BENCHMARK_CLEAR_PCT_UNCACHED     = Tol.clearUncached;
+    constexpr uint64_t BENCHMARK_TOLERANCE_ABS_UNCACHED = Tol.absUncached;
 
     shz_benchmark_result gainz;
 

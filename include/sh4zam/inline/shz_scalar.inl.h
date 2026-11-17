@@ -19,6 +19,7 @@
  *             KOS-ports build or add SH4ZAM as a git submodule. See AGENTS.md.
  */
 #include <assert.h>
+#include <float.h>
 #include <math.h>
 
 #if SHZ_BACKEND == SHZ_SH4
@@ -147,11 +148,8 @@ SHZ_FORCE_INLINE float shz_hypotf(float x, float y) SHZ_NOEXCEPT {
 // https://www.musicdsp.org/en/latest/Other/206-fast-cube-root-square-root-and-reciprocal-for-x86-sse-cpus.html#id2
 // cuberoot_sse_16bits( float x ) -> fast_cbrt_2step(float x)
 SHZ_FORCE_INLINE float shz_cbrt_newton1(float x, float z) SHZ_NOEXCEPT {
-    float z2 = z * z;
-    float z3 = z2 * z;
-    float num = z3 - x;
-    float rden = shz_inv_sqrtf_fsrra(3.0f * z2);
-    return z - (num * rden * rden);
+    float r = shz_inv_sqrtf_fsrra(3.0f * z * z);
+    return ((2.0f / 3.0f) * z) + (x * r * r);
 }
 
 SHZ_FORCE_INLINE float shz_cbrt_newton2(float x) SHZ_NOEXCEPT {
@@ -172,15 +170,8 @@ SHZ_FORCE_INLINE float shz_cbrtf(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
         return __builtin_cbrtf(x);
 #endif
-    if(SHZ_UNLIKELY(shz_fabsf(x) >= 0x1p126f))
-        return shz_cbrt_newton2(x * 0x1p-123f) * 0x1p41f;
-
-    if(SHZ_UNLIKELY(shz_fabsf(x) < 0x1p-110f)) {
-        if(x == 0.0f)
-            return 0.0f;
-
-        return shz_cbrt_newton2(x * 0x1p123f) * 0x1p-41f;
-    }
+    if(SHZ_UNLIKELY(x == 0.0f))
+        return 0.0f;
 
     return shz_cbrt_newton2(x);
 }
@@ -624,6 +615,83 @@ SHZ_FORCE_INLINE float shz_expf(float p) SHZ_NOEXCEPT {
         return __builtin_expf(p);
 #endif
     return shz_pow2f(1.442695040f * p);
+}
+
+SHZ_FORCE_INLINE float shz_expm1f(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
+    if(__builtin_constant_p(x))
+        return __builtin_expm1f(x);
+#endif
+    // For small |x|, e^x - 1 ≈ x + x^2/2 + x^3/6 + x^4/24
+    // Cutoff ~0.1f keeps error below single-precision float epsilon (~1e-7)
+    if(shz_fabsf(x) < 0.1f) {
+        float x2 = x * x;
+        // Horner's method for speed and FMA (Fused Multiply-Add) optimization
+        return x + x2 * (0.5f + x * (0.16666667f + x * 0.041666668f));
+    }
+
+    return shz_expf(x) - 1.0f;
+}
+
+SHZ_FORCE_INLINE float shz_log1pf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
+    if(__builtin_constant_p(x))
+        return __builtin_log1pf(x);
+#endif
+    float u = 1.0f + x;
+
+    if(u == 1.0f) {
+        return x; // x is so small that 1 + x == 1, so ln(1 + x) == x
+    }
+
+    // Corrects for the exact bits lost during 1.0f + x
+    return shz_logf(u) * shz_divf(x, u - 1.0f);
+}
+
+SHZ_FORCE_INLINE float shz_logbf(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
+    if(__builtin_constant_p(x))
+        return __builtin_logbf(x);
+#endif
+    const union {
+        float    f;
+        uint32_t i;
+    } v = { x };
+
+    return (float)((int32_t)((v.i >> 23) & 0xff) - 127);
+}
+
+SHZ_FORCE_INLINE float shz_ldexpf(float x, float exp) SHZ_NOEXCEPT {
+    return x * shz_pow2f(exp);
+}
+
+SHZ_FORCE_INLINE float shz_scalbnf(float x, float exp) SHZ_NOEXCEPT {
+    return x * shz_powf(FLT_RADIX, exp);
+}
+
+SHZ_FORCE_INLINE float shz_erff(float x) SHZ_NOEXCEPT {
+#ifdef SHZ_GNUC
+    if(__builtin_constant_p(x))
+        return __builtin_erff(x);
+#endif
+    float abs_x = shz_fabsf(x);
+
+    // Constants from Abramowitz and Stegun (7.1.25)
+    const float a1 =  0.3480242f;
+    const float a2 = -0.0958798f;
+    const float a3 =  0.7478556f;
+    const float p  =  0.47047f;
+
+    // Compute powers of t directly for 4D dot product
+    float t  = shz_invf_fsrra(1.0f + p * abs_x);
+    float t2 = t * t;
+    float t3 = t2 * t;
+
+    // Evaluates a1*t + a2*t^2 + a3*t^3 + 0.0f*0.0f
+    float poly = shz_dot6f(t, t2, t3, a1, a2, a3);
+
+    float y = 1.0f - poly * shz_expf(-abs_x * abs_x);
+    return shz_copysignf(y, x);
 }
 
 SHZ_FORCE_INLINE float shz_randf(int* seed) SHZ_NOEXCEPT {
