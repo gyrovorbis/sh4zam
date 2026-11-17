@@ -4,6 +4,7 @@
 #include "sh4zam/shz_matrix.hpp"
 
 #include <gimbal/gimbal_algorithms.h>
+#include <bit>
 #include <print>
 
 #include <cglm/clipspace/ortho_rh_no.h>
@@ -199,7 +200,8 @@ GBL_TEST_CASE(load_4x4)
 
     benchmark(nullptr, [&]() { shz::xmtrx::load(mat4); });
 #if SHZ_BACKEND == SHZ_SH4
-    (benchmark)(nullptr, "mat_load", bench_fn(mat_load), (const float(*)[4][4])&mat4);
+    (benchmark)(nullptr, "mat_load", bench_fn(mat_load),
+                reinterpret_cast<const float (*)[4][4]>(&mat4));
 #endif
 GBL_TEST_CASE_END
 
@@ -295,7 +297,7 @@ GBL_TEST_CASE(store_4x4)
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
     benchmark(nullptr, [&]{ shz::xmtrx::store(&mat); });
 #if SHZ_BACKEND == SHZ_SH4
-    benchmark(nullptr, [&]{ mat_store((float (*)[4][4])&mat); });
+    benchmark(nullptr, [&]{ mat_store(reinterpret_cast<float (*)[4][4]>(&mat)); });
 #endif
  GBL_TEST_CASE_END
 
@@ -589,7 +591,7 @@ static bool check_xmtrx_rotation_u16_(void (*u16)(uint16_t), void (*radians)(flo
 
         shz::xmtrx::init_identity();
         shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
-        radians((int16_t)angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+        radians(static_cast<int16_t>(angle) * (1.0f / SHZ_FSCA_RAD_FACTOR));
         shz::xmtrx::store(&expected);
 
         shz::xmtrx::init_identity();
@@ -2493,7 +2495,10 @@ GBL_TEST_CASE(lookat)
         shz::xmtrx::lookat(eye, center, up);
         shz::xmtrx::store(&shzMat);
 
-        glm_lookat_rh(*(vec3*)&eye, *(vec3*)&center, *(vec3*)&up, *(mat4*)&cglmMat);
+        glm_lookat_rh(*reinterpret_cast<vec3*>(&eye),
+                      *reinterpret_cast<vec3*>(&center),
+                      *reinterpret_cast<vec3*>(&up),
+                      *reinterpret_cast<mat4*>(&cglmMat));
 
         for(unsigned i = 0; i < 4; ++i) {
             for(unsigned j = 0; j < 4; ++j) {
@@ -3060,9 +3065,8 @@ GBL_TEST_CASE(negate)
     shz::xmtrx::store(&got);
 
     for(unsigned i = 0; i < 16; ++i) {
-        uint32_t gotBits, inBits;
-        memcpy(&gotBits, &got.elem[i], sizeof(float));
-        memcpy(&inBits,  &in.elem[i],  sizeof(float));
+        const uint32_t gotBits = std::bit_cast<uint32_t>(got.elem[i]);
+        const uint32_t inBits  = std::bit_cast<uint32_t>(in.elem[i]);
         GBL_TEST_VERIFY(gotBits == (inBits ^ 0x80000000u));
     }
 

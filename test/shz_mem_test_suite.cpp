@@ -39,7 +39,7 @@ bool sq_fast_cpy_bench(auto&& pFn) {
     return (benchmark_cmp<void*, false, benchmark_tolerance{ .pctCached = 0.12f, .clearCached = 0.12f }>)(
         "pFn", bench_fn(pFn),
         "sq_fast_cpy", [](void* d, const void* s, size_t n) {
-            dcache_inval_range((uintptr_t)d, n);
+            dcache_inval_range(reinterpret_cast<uintptr_t>(d), n);
             void* ret = sq_fast_cpy(sq_lock(d), s, n >> 5);
             sq_unlock();
             return ret;
@@ -139,7 +139,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(memcpy_sq_32)
     auto sq_memcpy = [](void* dst, const void* src, size_t bytes) {
 #if SHZ_BACKEND == SHZ_SH4
-        dcache_inval_range((uintptr_t)dst, bytes);
+        dcache_inval_range(reinterpret_cast<uintptr_t>(dst), bytes);
         auto* d = sq_lock(dst);
 #else
         auto* d = dst;
@@ -161,7 +161,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(memcpy_sq_32_xmtrx)
     auto sq_memcpy = [](void* dst, const void* src, size_t bytes) {
 #if SHZ_BACKEND == SHZ_SH4
-        dcache_inval_range((uintptr_t)dst, bytes);
+        dcache_inval_range(reinterpret_cast<uintptr_t>(dst), bytes);
         auto* d = sq_lock(dst);
 #else
         auto* d = dst;
@@ -217,7 +217,7 @@ bool memcpy_profile_(unsigned soff, unsigned doff) {
             [](void* d, const void* s, size_t c) { return shz::memcpy(d, s, c); },
             "memcpy",
             [](void* d, const void* s, size_t c) { return ::memcpy(d, s, c); },
-            (void*)(dstbuf + PAD_ + doff), (const void*)(srcbuf + PAD_ + soff), (size_t)n);
+            dstbuf + PAD_ + doff, srcbuf + PAD_ + soff, static_cast<size_t>(n));
 
         results[n] = benchmark_cmp_last;
         ++verdicts[results[n].gainz];
@@ -260,7 +260,7 @@ GBL_TEST_CASE(memcpy_alignment_sweep)
     alignas(32) static uint8_t refbuf[512];
 
     for(unsigned i = 0; i < sizeof(srcbuf); ++i)
-        srcbuf[i] = (uint8_t)(i * 7u + 3u);
+        srcbuf[i] = static_cast<uint8_t>(i * 7u + 3u);
 
     unsigned failCount = 0;
 
@@ -308,7 +308,7 @@ GBL_TEST_CASE(memcpy_alignment_sweep_full)
     };
 
     for(unsigned i = 0; i < sizeof(srcbuf); ++i)
-        srcbuf[i] = (uint8_t)(i * 31u + 17u);
+        srcbuf[i] = static_cast<uint8_t>(i * 31u + 17u);
 
     unsigned failCount = 0;
 

@@ -899,7 +899,7 @@ GBL_TEST_CASE(powif)
             for(float x : { 0.5f, 1.5f, -1.25f, 2.0f, 0.9f }) {
                 powif_x_ = x; powif_n_ = n;
                 const float res = shz::powif(powif_x_, powif_n_);
-                const float ref = powf(x, (float)n);
+                const float ref = powf(x, static_cast<float>(n));
                 GBL_TEST_VERIFY(shz::fabsf(res - ref) <= 1e-4f * shz::fmaxf(1.0f, shz::fabsf(ref)));
             }
 
@@ -931,7 +931,7 @@ GBL_TEST_CASE(powif)
 
     (benchmark_cmp<float>)(
         "shz::powif", [](float, int) { return shz::powif(powif_x_, powif_n_); },
-        "shz::powf", [](float, int) { return shz::powf(powif_x_, (float)powif_n_); },
+        "shz::powf", [](float, int) { return shz::powf(powif_x_, static_cast<float>(powif_n_)); },
         0.0f, 0
     );
 GBL_TEST_CASE_END

@@ -36,8 +36,8 @@ namespace {
         else if (cosHalfTheta > 0.95f) result = shz_quat_nlerp(q1, q2, amount);
         else
         {
-            float halfTheta = (float) acos(cosHalfTheta);
-            float sinHalfTheta = (float) sqrt(1.0f - cosHalfTheta*cosHalfTheta);
+            float halfTheta = static_cast<float>(acos(cosHalfTheta));
+            float sinHalfTheta = static_cast<float>(sqrt(1.0f - cosHalfTheta*cosHalfTheta));
 
             if (fabs(sinHalfTheta) < 0.001f)
             {
@@ -77,7 +77,8 @@ namespace {
 
     // Converts a 16-bit binary angle (65536 per turn) to radians, in [-PI, PI).
     float u16_to_radians(uint16_t angle) {
-        return (float)(int16_t)angle * (2.0f * shz::pi_f / 65536.0f);
+        return static_cast<float>(static_cast<int16_t>(angle)) *
+               (2.0f * shz::pi_f / 65536.0f);
     }
 
     /* Each Euler order, with the matching matrix initializer and the axes of the

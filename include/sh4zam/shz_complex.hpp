@@ -70,8 +70,7 @@ namespace shz {
 #ifdef SHZ_CPP23
         //! Overloaded subscript operator -- allows for indexing complex numbers like a 2-element array.
         SHZ_FORCE_INLINE auto& operator[](this auto&& self, size_t index) noexcept {
-            using Elem = std::conditional_t<std::is_const_v<std::remove_reference_t<decltype(self)>>, const float, float>;
-            return reinterpret_cast<Elem*>(&self)[index];
+            return index == 0 ? self.real : self.imag;
         }
 
         //! Returns an iterator to the beginning of the vector -- For STL support.
@@ -81,7 +80,7 @@ namespace shz {
 
         //! Returns an iterator to the end of the vector -- For STL support.
         SHZ_FORCE_INLINE auto end(this auto&& self) noexcept {
-            return &self[2];
+            return &self.imag + 1;
         }
 
         //! Overloaded space-ship operator, for generic lexicographical comparison of vectors.
