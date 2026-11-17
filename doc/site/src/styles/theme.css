@@ -263,6 +263,17 @@ nav.sidebar .group-label .large {
 .shz-install p {
 	margin-bottom: 0.25rem;
 }
+.shz-video {
+	max-width: 48rem;
+	margin-inline: auto;
+}
+.shz-video iframe {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	height: auto;
+	border: 0;
+}
 dl.shz-apis {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
