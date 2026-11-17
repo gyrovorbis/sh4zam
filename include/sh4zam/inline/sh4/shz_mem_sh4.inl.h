@@ -204,23 +204,24 @@ SHZ_INLINE void* shz_memcpy8_sh4(      void* SHZ_RESTRICT dst,
     if(blocks) {
         uintptr_t ahead;
 
-        // 64 bytes per iteration. dst may only be 8-byte aligned, so no MOVCA.L here.
         asm(R"(
-            fschg
-        1:
             mov       %[s], %[p]
+            fschg
             add       #32, %[p]
+        1:
             pref      @%[p]
-            pref      @%[d]
             fmov.d    @%[s]+, dr0
+            pref      @%[d]
             fmov.d    @%[s]+, dr2
             fmov.d    @%[s]+, dr4
             fmov.d    @%[s]+, dr6
+            add       #32, %[d]
             fmov.d    @%[s]+, dr8
+            pref      @%[d]
             fmov.d    @%[s]+, dr10
             fmov.d    @%[s]+, dr12
+            add       #32, %[d]
             fmov.d    @%[s]+, dr14
-            add       #64, %[d]
             fmov.d    dr14, @-%[d]
             fmov.d    dr12, @-%[d]
             fmov.d    dr10, @-%[d]
@@ -228,9 +229,10 @@ SHZ_INLINE void* shz_memcpy8_sh4(      void* SHZ_RESTRICT dst,
             fmov.d    dr6,  @-%[d]
             fmov.d    dr4,  @-%[d]
             fmov.d    dr2,  @-%[d]
-            fmov.d    dr0,  @-%[d]
-            pref      @%[s]
             dt        %[n]
+            fmov.d    dr0,  @-%[d]
+            add       #64, %[p]
+            pref      @%[s]
             bf.s      1b
             add       #64, %[d]
             fschg
@@ -249,7 +251,6 @@ SHZ_INLINE void* shz_memcpy8_sh4(      void* SHZ_RESTRICT dst,
 
         asm(R"(
                 fschg
-            .align 2
             0:
                 dt       %[cnt]
                 fmov.d   @%[in]+, dr4
@@ -278,7 +279,7 @@ SHZ_FORCE_INLINE void* shz_memcpy32_sh4(      void* SHZ_RESTRICT dst,
           shz_alias_uint64_t* d = (      shz_alias_uint64_t*)dst;
     const shz_alias_uint64_t* s = (const shz_alias_uint64_t*)src;
 
-    SHZ_PREFETCH(src);
+    SHZ_PREFETCH(s);
 
     assert(!(bytes % 32) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
 
@@ -290,10 +291,12 @@ SHZ_FORCE_INLINE void* shz_memcpy32_sh4(      void* SHZ_RESTRICT dst,
 
         asm(R"(
             fschg
-        1:
             add       #32, %[p]
-            pref      @%[p]
+        1:
             fmov.d    @%[s]+, dr4
+            dt        %[n]
+            pref      @%[p]
+            add       #32, %[p]
             fmov.d    @%[s]+, dr6
             fmov.d    @%[s]+, dr8
             fmov.d    @%[s]+, dr10
@@ -303,7 +306,6 @@ SHZ_FORCE_INLINE void* shz_memcpy32_sh4(      void* SHZ_RESTRICT dst,
             fmov.d    dr8,  @-%[d]
             fmov.d    dr6,  @-%[d]
             fmov.d    dr4,  @-%[d]
-            dt        %[n]
             bf.s      1b
             add       #32, %[d]
             fschg
@@ -328,9 +330,9 @@ SHZ_FORCE_INLINE void* shz_sq_memcpy32_sh4(      void* SHZ_RESTRICT dst,
     return shz_sq_memcpy32_sh4_(dst, src, bytes);
 }
 
-SHZ_INLINE void* shz_sq_memcpy32_xmtrx_sh4(      void* SHZ_RESTRICT dst,
-                                           const void* SHZ_RESTRICT src,
-                                           size_t                   bytes) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE void* shz_sq_memcpy32_xmtrx_sh4(      void* SHZ_RESTRICT dst,
+                                                 const void* SHZ_RESTRICT src,
+                                                 size_t                   bytes) SHZ_NOEXCEPT {
     void* ret = dst;
 
     assert(!(bytes % 32) && !((uintptr_t)dst & 7) && !((uintptr_t)src & 7));
@@ -338,26 +340,33 @@ SHZ_INLINE void* shz_sq_memcpy32_xmtrx_sh4(      void* SHZ_RESTRICT dst,
     bytes >>= 5;
 
     if(bytes) {
+        uintptr_t pref;
+
         asm volatile(R"(
+            pref    @%[src]
+            add     #-32, %[dst]
+            mov     %[src], %[pref]
             fschg
+            add     #32, %[pref]
         1:
-            fmov.d @%[src]+, xd0
-            fmov.d @%[src]+, xd2
-            fmov.d @%[src]+, xd4
-            fmov.d @%[src]+, xd6
-            pref   @%[src]          ! Prefetch 32 bytes for next loop
-            add    #32, %[dst]
-            dt     %[blks]          ! while(n--)
-            fmov.d xd6, @-%[dst]
-            fmov.d xd4, @-%[dst]
-            fmov.d xd2, @-%[dst]
-            fmov.d xd0, @-%[dst]
-            pref   @%[dst]          ! Fire off store queue
-            bf.s   1b
-            add    #32, %[dst]
+            fmov.d  @%[src]+, xd0
+            add     #64, %[dst]
+            pref    @%[pref]
+            add     #32, %[pref]
+            fmov.d  @%[src]+, xd2
+            dt      %[blks]          ! while(n--)
+            fmov.d  @%[src]+, xd4
+            fmov.d  @%[src]+, xd6
+            fmov.d  xd6, @-%[dst]
+            fmov.d  xd4, @-%[dst]
+            fmov.d  xd2, @-%[dst]
+            fmov.d  xd0, @-%[dst]
+            bf.s    1b
+            pref    @%[dst]          ! Fire off store queue
             fschg
         )"
-        : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes), "=m" (*(uint8_t (*)[])dst)
+        : [dst] "+r" (dst), [src] "+&r" (src), [blks] "+r" (bytes),
+          "=m" (*(uint8_t (*)[])dst), [pref] "=r" (pref)
         : "m" (*(const uint8_t (*)[])src)
         : "t");
     }
@@ -368,72 +377,10 @@ SHZ_INLINE void* shz_sq_memcpy32_xmtrx_sh4(      void* SHZ_RESTRICT dst,
 SHZ_FORCE_INLINE void* shz_memcpy64_sh4(      void* SHZ_RESTRICT dst,
                                         const void* SHZ_RESTRICT src,
                                              size_t              bytes) SHZ_NOEXCEPT {
-    const shz_alias_uint64_t* s = (const shz_alias_uint64_t*)src;
-          shz_alias_uint64_t* d = (      shz_alias_uint64_t*)dst;
 
-    assert(!(bytes % 64) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
+    assert(!(bytes & 63) && !((uintptr_t)dst & 31) && !((uintptr_t)src & 7));
 
-    size_t cnt = (bytes >> 6);
-
-    if(SHZ_LIKELY(cnt >= 4)) {
-        size_t copied = bytes / 128 * 128;
-        shz_memcpy128_sh4_(d, s, copied);
-        cnt -= copied / 64;
-        d += copied / sizeof(uint64_t);
-        s += copied / sizeof(uint64_t);
-    }
-
-    if(SHZ_LIKELY(cnt)) {
-        uintptr_t ahead;
-
-        // 64 bytes per iteration, allocating both destination cache lines with MOVCA.L.
-        asm(R"(
-            fschg
-        1:
-            mov       %[s], %[p]
-            add       #32, %[p]
-            pref      @%[p]
-            fmov.d    @%[s]+, dr0
-            fmov.d    @%[s]+, dr2
-            fmov.d    @%[s]+, dr4
-            fmov.d    @%[s]+, dr6
-            fmov.d    @%[s]+, dr8
-            fmov.d    @%[s]+, dr10
-            fmov.d    @%[s]+, dr12
-            fmov.d    @%[s]+, dr14
-
-            add       #32, %[d]
-            movca.l   r0, @%[d]
-            add       #32, %[d]
-
-            fmov.d    dr14, @-%[d]
-            fmov.d    dr12, @-%[d]
-            fmov.d    dr10, @-%[d]
-            fmov.d    dr8,  @-%[d]
-
-            add       #-32, %[d]
-            movca.l   r0, @%[d]
-            add       #32, %[d]
-
-            fmov.d    dr6,  @-%[d]
-            fmov.d    dr4,  @-%[d]
-            fmov.d    dr2,  @-%[d]
-            fmov.d    dr0,  @-%[d]
-
-            pref      @%[s]
-            dt        %[n]
-            bf.s      1b
-            add       #64, %[d]
-            fschg
-        )"
-        : [s] "+r" (s), [d] "+r" (d), [n] "+r" (cnt), [p] "=&r" (ahead),
-          "=m" (*((uint8_t (*)[])d))
-        : "m" (*((const uint8_t (*)[])s))
-        : "t", "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
-               "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
-    }
-
-    return dst;
+    return shz_memcpy32_sh4(dst, src, bytes);
 }
 
 SHZ_FORCE_INLINE void* shz_memcpy128_sh4(      void* SHZ_RESTRICT dst,

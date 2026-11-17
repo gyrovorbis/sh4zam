@@ -30,6 +30,24 @@ bool memcpy_bench(auto&& pFn) {
     return (benchmark_cmp<void*>)("pFn", bench_fn(pFn), "memcpy", bench_fn(memcpy), dst.buffer.data(), src.buffer.data(), Bytes);
 }
 
+#if SHZ_BACKEND == SHZ_SH4
+template<size_t Bytes, size_t SrcAlign, size_t DstAlign, size_t Pad>
+bool sq_fast_cpy_bench(auto&& pFn) {
+    static MemcpyBuffer<Bytes, SrcAlign, Pad> src;
+    static MemcpyBuffer<Bytes, DstAlign, Pad> dst;
+
+    return (benchmark_cmp<void*>)(
+        "pFn", bench_fn(pFn),
+        "sq_fast_cpy", [](void* d, const void* s, size_t n) {
+            dcache_inval_range((uintptr_t)d, n);
+            void* ret = sq_fast_cpy(sq_lock(d), s, n >> 5);
+            sq_unlock();
+            return ret;
+        },
+        dst.buffer.data(), src.buffer.data(), Bytes);
+}
+#endif
+
 template<size_t Bytes, size_t SrcAlign, size_t DstAlign, size_t Pad>
 bool memcpy_verify(auto&& pFn) {
     static MemcpyBuffer<Bytes, SrcAlign, Pad> src;
@@ -135,6 +153,31 @@ GBL_TEST_CASE(memcpy_sq_32)
 
     GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 8, 32, PADDING>)(sq_memcpy));
     GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 8, 32, PADDING>)(sq_memcpy));
+#if SHZ_BACKEND == SHZ_SH4
+    GBL_TEST_VERIFY((sq_fast_cpy_bench<BUFFER_SIZE, 8, 32, PADDING>)(sq_memcpy));
+#endif
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(memcpy_sq_32_xmtrx)
+    auto sq_memcpy = [](void* dst, const void* src, size_t bytes) {
+#if SHZ_BACKEND == SHZ_SH4
+        dcache_inval_range((uintptr_t)dst, bytes);
+        auto* d = sq_lock(dst);
+#else
+        auto* d = dst;
+#endif
+        auto* ret = shz::sq_memcpy32_xmtrx(d, src, bytes);
+#if SHZ_BACKEND == SHZ_SH4
+        sq_unlock();
+#endif
+        return ret;
+    };
+
+    GBL_TEST_VERIFY((memcpy_verify<BUFFER_SIZE, 8, 32, PADDING>)(sq_memcpy));
+    GBL_TEST_VERIFY((memcpy_bench <BUFFER_SIZE, 8, 32, PADDING>)(sq_memcpy));
+#if SHZ_BACKEND == SHZ_SH4
+    GBL_TEST_VERIFY((sq_fast_cpy_bench<BUFFER_SIZE, 8, 32, PADDING>)(sq_memcpy));
+#endif
 GBL_TEST_CASE_END
 
 bool memcpy_profile_(unsigned soff, unsigned doff) {
@@ -309,6 +352,7 @@ GBL_TEST_REGISTER(memcpy1,
                   memcpy,
                   memcpy_fast,
                   memcpy_sq_32,
+                  memcpy_sq_32_xmtrx,
                   memcpy_profile,
                   memcpy_alignment_sweep,
                   memcpy_alignment_sweep_full)

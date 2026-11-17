@@ -70,8 +70,8 @@ _shz_memcpy128_sh4_:
     mov       #-7, r2
     pref      @r0           ! Prefetch new stack address.
     mov       r15, r1       ! Preserve caller's SP.
-    mov       r0, r15       ! Align SP for the FPU saves.
     fschg                   ! Swap to FMOV.D mode.
+    mov       r0, r15       ! Align SP for the FPU saves.
     bf.s      2f            ! Exit if nothing to copy.
     mov       r4, r0        ! Return dst through r0.
 
@@ -212,17 +212,19 @@ _shz_sq_memcpy32_sh4_:
     mov     r4, r0
     bt.s    1f          ! if(bytes == 0) goto end
     add     #-32, r4
+    add     #32, r7
+
+    .align 2
 0:
     ! Load current 32 byte chunk
     fmov.d  @r5+, dr0
     dt      r6
-    fmov.d  @r5+, dr2
-    add     #32, r7
-    fmov.d  @r5+, dr4
-    add     #64, r4
-    fmov.d  @r5+, dr6
-
     pref    @r7         ! Prefetch next 32 byte chunk
+    add     #32, r7
+    fmov.d  @r5+, dr2
+    add     #64, r4
+    fmov.d  @r5+, dr4
+    fmov.d  @r5+, dr6
 
     ! Write current chunk into SQs
     fmov.d  dr6, @-r4
