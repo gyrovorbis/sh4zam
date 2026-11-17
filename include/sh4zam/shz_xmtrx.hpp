@@ -20,7 +20,6 @@
 #define SHZ_XMTRX_HPP
 
 #include <array>
-#include <type_traits>
 
 #include "shz_xmtrx.h"
 #include "shz_vector.hpp"
@@ -297,6 +296,24 @@ struct xmtrx {
         shz_xmtrx_init_rotation_z(z);
     }
 
+    //! C++ wrapper around shz_xmtrx_init_rotation_x().
+    template<typename T, typename = enable_if_radians<T>>
+    SHZ_FORCE_INLINE static void init_rotation_x(T x) noexcept {
+        shz_xmtrx_init_rotation_x(static_cast<float>(x));
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_rotation_y().
+    template<typename T, typename = enable_if_radians<T>>
+    SHZ_FORCE_INLINE static void init_rotation_y(T y) noexcept {
+        shz_xmtrx_init_rotation_y(static_cast<float>(y));
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_rotation_z().
+    template<typename T, typename = enable_if_radians<T>>
+    SHZ_FORCE_INLINE static void init_rotation_z(T z) noexcept {
+        shz_xmtrx_init_rotation_z(static_cast<float>(z));
+    }
+
     //! C++ wrapper around shz_xmtrx_init_rotation_xyz().
     SHZ_FORCE_INLINE static void init_rotation_xyz(float x, float y, float z) noexcept {
         shz_xmtrx_init_rotation_xyz(x, y, z);
@@ -315,6 +332,30 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_init_rotation_yxz().
     SHZ_FORCE_INLINE static void init_rotation_yxz(float y, float x, float z) noexcept {
         shz_xmtrx_init_rotation_yxz(y, x, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_rotation_xyz().
+    template<typename X, typename Y, typename Z, typename = enable_if_radians<X, Y, Z>>
+    SHZ_FORCE_INLINE static void init_rotation_xyz(X x, Y y, Z z) noexcept {
+        shz_xmtrx_init_rotation_xyz(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z));
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_rotation_zyx().
+    template<typename Z, typename Y, typename X, typename = enable_if_radians<Z, Y, X>>
+    SHZ_FORCE_INLINE static void init_rotation_zyx(Z z, Y y, X x) noexcept {
+        shz_xmtrx_init_rotation_zyx(static_cast<float>(z), static_cast<float>(y), static_cast<float>(x));
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_rotation_zxy().
+    template<typename Z, typename X, typename Y, typename = enable_if_radians<Z, X, Y>>
+    SHZ_FORCE_INLINE static void init_rotation_zxy(Z z, X x, Y y) noexcept {
+        shz_xmtrx_init_rotation_zxy(static_cast<float>(z), static_cast<float>(x), static_cast<float>(y));
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_rotation_yxz().
+    template<typename Y, typename X, typename Z, typename = enable_if_radians<Y, X, Z>>
+    SHZ_FORCE_INLINE static void init_rotation_yxz(Y y, X x, Z z) noexcept {
+        shz_xmtrx_init_rotation_yxz(static_cast<float>(y), static_cast<float>(x), static_cast<float>(z));
     }
 
     //! C++ wrapper around shz_xmtrx_init_rotation().
@@ -595,13 +636,6 @@ struct xmtrx {
     SHZ_FORCE_INLINE static void scale(vec3 v) noexcept {
         scale(v.x, v.y, v.z);
     }
-
-    // Preserve uint16_t angle overloads when accepting floating-point radians.
-    template<typename... Ts>
-    using enable_if_radians = std::enable_if_t<
-        (std::is_arithmetic_v<Ts> && ...) &&
-        (std::is_floating_point_v<Ts> || ...) &&
-        !(std::is_same_v<Ts, uint16_t> || ...)>;
 
     //! C++ wrapper around shz_xmtrx_rotate_x().
     SHZ_FORCE_INLINE static void rotate_x(float radians) noexcept {

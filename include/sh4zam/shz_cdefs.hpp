@@ -13,6 +13,8 @@
 #ifndef SHZ_CDEFS_HPP
 #define SHZ_CDEFS_HPP
 
+#include <type_traits>
+
 #include "shz_cdefs.h"
 
 #if (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L) || (defined(__cplusplus) && __cplusplus >= 202002L)
@@ -49,6 +51,27 @@ namespace shz {
     using alias_uint64_t = shz_alias_uint64_t;
     //! double type whose value may be aliased as another type.
     using alias_double_t = shz_alias_double_t;
+
+    //! @}
+
+    /*! \name  Overload Constraints
+     *  \brief Aliases which enable a function template for only some argument types.
+     *  @{
+     */
+
+    /*! Enables a function template for arguments that are radians.
+
+        A routine overloaded on `float` radians and on a `uint16_t` angle is ambiguous for a
+        `double`, which converts to either. A template beside the `float` overload, constrained
+        by this, takes it as radians. \p Ts are radians where each is arithmetic, at least one
+        is floating-point and none is a `uint16_t`, so that a call with a 16-bit angle keeps
+        the overload it had.
+    */
+    template<typename... Ts>
+    using enable_if_radians = std::enable_if_t<
+        (std::is_arithmetic_v<Ts> && ...) &&
+        (std::is_floating_point_v<Ts> || ...) &&
+        !(std::is_same_v<Ts, uint16_t> || ...)>;
 
     //! @}
 }
