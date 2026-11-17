@@ -666,7 +666,11 @@ SHZ_FORCE_INLINE float shz_ldexpf(float x, float exp) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_scalbnf(float x, float exp) SHZ_NOEXCEPT {
+#if FLT_RADIX == 2
+    return shz_ldexpf(x, exp);
+#else
     return x * shz_powf(FLT_RADIX, exp);
+#endif
 }
 
 SHZ_FORCE_INLINE float shz_erff(float x) SHZ_NOEXCEPT {
