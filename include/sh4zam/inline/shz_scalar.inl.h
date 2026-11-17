@@ -21,6 +21,7 @@
 #include <assert.h>
 #include <float.h>
 #include <math.h>
+#include <string.h>
 
 #if SHZ_BACKEND == SHZ_SH4
 #   include "sh4/shz_scalar_sh4.inl.h"
@@ -149,6 +150,7 @@ SHZ_FORCE_INLINE float shz_hypotf(float x, float y) SHZ_NOEXCEPT {
 // cuberoot_sse_16bits( float x ) -> fast_cbrt_2step(float x)
 SHZ_FORCE_INLINE float shz_cbrt_newton1(float x, float z) SHZ_NOEXCEPT {
     float r = shz_inv_sqrtf_fsrra(3.0f * z * z);
+
     return ((2.0f / 3.0f) * z) + (x * r * r);
 }
 
@@ -158,7 +160,6 @@ SHZ_FORCE_INLINE float shz_cbrt_newton2(float x) SHZ_NOEXCEPT {
 #else
     float z = shz_cbrt_magic_sw(x);
 #endif
-
     z = shz_cbrt_newton1(x, z);
     z = shz_cbrt_newton1(x, z);
 
@@ -178,27 +179,24 @@ SHZ_FORCE_INLINE float shz_cbrtf(float x) SHZ_NOEXCEPT {
 
 SHZ_COLD
 SHZ_FORCE_INLINE float shz_fmodf_reduce_slow(float num, float denom) SHZ_NOEXCEPT {
-    union {
-        float    f;
-        uint32_t u;
-    } split = { denom };
+    uint32_t u;
 
     float    step, step_hi, step_lo;
     float    scale  = 1.0f;
     unsigned chunks = 0;
 
     if(num >= 0x1p127f) {
-        num     *= 0.5f;
-        split.f *= 0.5f;
-        scale    = 2.0f;
+        num   *= 0.5f;
+        denom *= 0.5f;
+        scale  = 2.0f;
     }
 
-    denom    = split.f;
-    split.u &= 0xfffff000u;
+    memcpy(&u, &denom, 4);
+    u &= 0xfffff000u;
 
     step    = denom;
-    step_hi = split.f;
-    step_lo = denom - split.f;
+    memcpy(&step_hi, &u, 4);
+    step_lo = denom - step_hi;
 
     while(step <= num * (1.0f / 16777216.0f)) {
         step    *= 16777216.0f;
@@ -251,6 +249,7 @@ SHZ_FORCE_INLINE float shz_remainderf(float num, float denom) SHZ_NOEXCEPT {
     if(__builtin_constant_p(num) && __builtin_constant_p(denom))
         return __builtin_remainderf(num, denom);
 #endif
+
     const float abs_num   = shz_fabsf(num);
     const float abs_denom = shz_fabsf(denom);
     const float half      = abs_denom * 0.5f;
@@ -535,12 +534,11 @@ SHZ_FORCE_INLINE float shz_log2f(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
         return __builtin_log2f(x);
 #endif
-    const union {
-        float    f;
-        uint32_t i;
-    } vx = { x };
+    uint32_t u;
 
-    const float y = (float)(int32_t)vx.i * 1.1920928955078125e-7f;
+    memcpy(&u, &x, 4);
+
+    const float y = (float)(int32_t)u * 1.1920928955078125e-7f;
 
     return y - 126.94269504f;
 }
@@ -568,16 +566,13 @@ SHZ_FORCE_INLINE float shz_pow2f(float p) SHZ_NOEXCEPT {
         return __builtin_powf(2.0f, p);
 #endif
     // Underflow of exponential is common practice in numerical routines, so handle it here.
-    const float clipp = shz_clampf(p, -126.0f, 128.0f);
+    const float    clipp = shz_clampf(p, -126.0f, 128.0f);
+    const uint32_t u     = (uint32_t)(int32_t)((1 << 23) * (clipp + 126.94269504f));
+    float          f;
 
-    const union {
-        uint32_t i;
-        float    f;
-    } v = {
-        (uint32_t)(int32_t)((1 << 23) * (clipp + 126.94269504f))
-    };
+    memcpy(&f, &u, 4);
 
-    return v.f;
+    return f;
 }
 
 SHZ_FORCE_INLINE float shz_pow10f(float p) SHZ_NOEXCEPT {
@@ -640,9 +635,8 @@ SHZ_FORCE_INLINE float shz_log1pf(float x) SHZ_NOEXCEPT {
 #endif
     float u = 1.0f + x;
 
-    if(u == 1.0f) {
+    if(u == 1.0f)
         return x; // x is so small that 1 + x == 1, so ln(1 + x) == x
-    }
 
     // Corrects for the exact bits lost during 1.0f + x
     return shz_logf(u) * shz_divf(x, u - 1.0f);
@@ -653,12 +647,11 @@ SHZ_FORCE_INLINE float shz_logbf(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
         return __builtin_logbf(x);
 #endif
-    const union {
-        float    f;
-        uint32_t i;
-    } v = { x };
+    uint32_t u;
 
-    return (float)((int32_t)((v.i >> 23) & 0xff) - 127);
+    memcpy(&u, &x, 4);
+
+    return (float)((int32_t)((u >> 23) & 0xff) - 127);
 }
 
 SHZ_FORCE_INLINE float shz_ldexpf(float x, float exp) SHZ_NOEXCEPT {
@@ -699,15 +692,14 @@ SHZ_FORCE_INLINE float shz_erff(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_randf(int* seed) SHZ_NOEXCEPT {
-    union {
-        float    f32;
-        unsigned u32;
-    } res;
+    uint32_t u;
+    float    f;
 
     *seed = 0x00269ec3 + (*seed) * 0x000343fd;
-    res.u32 = ((((unsigned) * seed) >> 9) | 0x3f800000);
+    u = ((((uint32_t) * seed) >> 9) | 0x3f800000);
+    memcpy(&f, &u, 4);
 
-    return res.f32 - 1.0f;
+    return f - 1.0f;
 }
 
 SHZ_FORCE_INLINE float shz_randf_range(int* seed, float min, float max) SHZ_NOEXCEPT {
@@ -719,9 +711,12 @@ SHZ_FORCE_INLINE float shz_fractf(float x) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_signf(float x) SHZ_NOEXCEPT {
-    if(x > 0.0f) return 1.0f;
-    else if(x < 0.0f) return -1.0f;
-    else return 0.0f;
+    if(x > 0.0f)
+        return 1.0f;
+    else if(x < 0.0f)
+        return -1.0f;
+    else
+        return 0.0f;
 }
 
 SHZ_FORCE_INLINE float shz_saturatef(float x) SHZ_NOEXCEPT {
@@ -733,15 +728,17 @@ SHZ_FORCE_INLINE float shz_stepf(float x, float edge) SHZ_NOEXCEPT {
 }
 
 SHZ_FORCE_INLINE float shz_smoothstepf(float x, float edge0, float edge1) SHZ_NOEXCEPT {
-    if(x >= edge1) return 1.0f;
-    else if(x <= edge0) return 0.0f;
+    if(x >= edge1)
+        return 1.0f;
+    else if(x <= edge0)
+        return 0.0f;
 
-    float diff = edge1 - edge0;
-
+    float diff     = edge1 - edge0;
     float inv_diff = shz_inv_sqrtf_fsrra(diff);
+    float t        = (x - edge0) * inv_diff;
 
-    float t = (x - edge0) * inv_diff;
     t *= inv_diff;
+
     return t * t * shz_fmaf(t, -2.0f, 3.0f);
 }
 
@@ -750,7 +747,8 @@ SHZ_FORCE_INLINE float shz_smoothstepf_safe(float x, float edge0, float edge1) S
         return shz_stepf(x, edge0);
 
     float t = shz_divf((x - edge0), (edge1 - edge0));
-    t = shz_clampf(t, 0.0f, 1.0f);
+          t = shz_clampf(t, 0.0f, 1.0f);
+
     return t * t * shz_fmaf(t, -2.0f, 3.0f);
 }
 
