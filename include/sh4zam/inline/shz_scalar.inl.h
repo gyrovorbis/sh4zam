@@ -29,20 +29,14 @@
 #   include "sw/shz_scalar_sw.inl.h"
 #endif
 
+// Plain comparisons, not __builtin_fminf() and __builtin_fmaxf(): without -ffinite-math-only
+// GCC makes each of those a call to libm. Both return b where either argument is a NaN.
 SHZ_FORCE_INLINE float shz_fminf(float a, float b) SHZ_NOEXCEPT {
-#ifdef SHZ_GNUC
-    return __builtin_fminf(a, b);
-#else
-    return fminf(a, b);
-#endif
+    return (a < b)? a : b;
 }
 
 SHZ_FORCE_INLINE float shz_fmaxf(float a, float b) SHZ_NOEXCEPT {
-#ifdef SHZ_GNUC
-    return __builtin_fmaxf(a, b);
-#else
-    return fmaxf(a, b);
-#endif
+    return (a > b)? a : b;
 }
 
 SHZ_FORCE_INLINE bool shz_equalf(float a, float b) SHZ_NOEXCEPT {
