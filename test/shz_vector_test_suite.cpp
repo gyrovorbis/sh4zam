@@ -1180,6 +1180,308 @@ GBL_TEST_CASE(vec3Triple)
                            shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
 GBL_TEST_CASE_END
 
+template<unsigned N, typename V>
+static bool verify_reject_(const V& a, const V& b) {
+    double ab = 0.0, bb = 0.0, aa = 0.0;
+    for(unsigned i = 0; i < N; ++i) {
+        ab += static_cast<double>(a[i]) * b[i];
+        bb += static_cast<double>(b[i]) * b[i];
+        aa += static_cast<double>(a[i]) * a[i];
+    }
+
+    const V      r   = a.reject(b);
+    const double tol = 2e-3 * std::fmax(1.0, std::sqrt(aa));
+    double       rb  = 0.0;
+
+    for(unsigned i = 0; i < N; ++i) {
+        if(std::fabs(r[i] - (a[i] - b[i] * (ab / bb))) > tol)
+            return false;
+        rb += static_cast<double>(r[i]) * b[i];
+    }
+
+    return std::fabs(rb) <= tol * std::sqrt(bb);
+}
+
+template<unsigned N, typename V>
+static bool test_reject_() {
+    auto rand_vec = [] {
+        V v;
+        for(unsigned i = 0; i < N; ++i)
+            v[i] = gblRandUniform(-100.0f, 100.0f);
+        return v;
+    };
+
+    V a, b, zero;
+    for(unsigned i = 0; i < N; ++i) {
+        a[i]    = static_cast<float>(i + 2) * (i & 1 ? -1.5f : 3.0f);
+        b[i]    = static_cast<float>(N - i);
+        zero[i] = 0.0f;
+    }
+
+    if(!(a.reject_safe(zero) == a))
+        return false;
+
+    if(!(a.reject_safe(b) == a.reject(b)) || !(b.reject_safe(a) == b.reject(a)))
+        return false;
+
+    if(!(b.reject(b * 3.0f) == zero))
+        return false;
+
+    if(!verify_reject_<N>(a, b) || !verify_reject_<N>(b, a))
+        return false;
+
+    for(unsigned i = 0; i < 32; ++i) {
+        const V r1 = rand_vec(), r2 = rand_vec();
+
+        if(!verify_reject_<N>(r1, r2) || !(r1.reject_safe(r2) == r1.reject(r2)))
+            return false;
+    }
+
+    return true;
+}
+
+GBL_TEST_CASE(vec2Reject)
+    GBL_TEST_VERIFY((test_reject_<2, shz::vec2>()));
+    GBL_TEST_VERIFY(shz::vec2(3.0f, 4.0f).reject(shz::vec2(1.0f, 0.0f)) == shz::vec2(0.0f, 4.0f));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::reject",
+                               [](const shz::vec2& a, const shz::vec2& b) {
+                                   return a.reject(b);
+                               },
+                               "glm_vec2_dot + glm_vec2_scale + glm_vec2_sub",
+                               [](const shz::vec2& a, const shz::vec2& b) {
+                                   shz::vec2 proj, r;
+                                   float* pa = const_cast<float*>(&a[0]);
+                                   float* pb = const_cast<float*>(&b[0]);
+                                   glm_vec2_scale(pb, glm_vec2_dot(pa, pb) / glm_vec2_dot(pb, pb), &proj[0]);
+                                   glm_vec2_sub(pa, &proj[0], &r[0]);
+                                   return r;
+                               },
+                               shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                               shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Reject)
+    GBL_TEST_VERIFY((test_reject_<3, shz::vec3>()));
+    GBL_TEST_VERIFY(shz::vec3(3.0f, 4.0f, 5.0f).reject(shz::vec3(0.0f, 0.0f, 2.0f)) == shz::vec3(3.0f, 4.0f, 0.0f));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::reject",
+                               [](const shz::vec3& a, const shz::vec3& b) {
+                                   return a.reject(b);
+                               },
+                               "glm_vec3_proj + glm_vec3_sub",
+                               [](const shz::vec3& a, const shz::vec3& b) {
+                                   shz::vec3 proj, r;
+                                   glm_vec3_proj(const_cast<float*>(&a[0]), const_cast<float*>(&b[0]), &proj[0]);
+                                   glm_vec3_sub(const_cast<float*>(&a[0]), &proj[0], &r[0]);
+                                   return r;
+                               },
+                               shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                               shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4Reject)
+    GBL_TEST_VERIFY((test_reject_<4, shz::vec4>()));
+    GBL_TEST_VERIFY(shz::vec4(3.0f, 4.0f, 5.0f, 6.0f).reject(shz::vec4(0.0f, 0.0f, 0.0f, 2.0f)) == shz::vec4(3.0f, 4.0f, 5.0f, 0.0f));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::reject",
+                               [](const shz::vec4& a, const shz::vec4& b) {
+                                   return a.reject(b);
+                               },
+                               "glm_vec4_dot + glm_vec4_scale + glm_vec4_sub",
+                               [](const shz::vec4& a, const shz::vec4& b) {
+                                   shz::vec4 proj, r;
+                                   float* pa = const_cast<float*>(&a[0]);
+                                   float* pb = const_cast<float*>(&b[0]);
+                                   glm_vec4_scale(pb, glm_vec4_dot(pa, pb) / glm_vec4_dot(pb, pb), &proj[0]);
+                                   glm_vec4_sub(pa, &proj[0], &r[0]);
+                                   return r;
+                               },
+                               shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                               shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+template<unsigned N, typename V>
+static bool verify_bisector_(const V& a, const V& b) {
+    double aa = 0.0, bb = 0.0;
+    for(unsigned i = 0; i < N; ++i) {
+        aa += static_cast<double>(a[i]) * a[i];
+        bb += static_cast<double>(b[i]) * b[i];
+    }
+
+    const double la = std::sqrt(aa), lb = std::sqrt(bb);
+    const double tol = 2e-3 * std::fmax(1.0, la);
+    const V      bis = a.bisector(b);
+    const V      hlf = a.half_angle(b);
+    double       ref[N], rr = 0.0, ba = 0.0, bbis = 0.0, hh = 0.0;
+
+    for(unsigned i = 0; i < N; ++i) {
+        ref[i] = a[i] + b[i] * (la / lb);
+        rr    += ref[i] * ref[i];
+        if(std::fabs(bis[i] - ref[i]) > tol)
+            return false;
+    }
+
+    const double lr = std::sqrt(rr);
+    if(lr < 1e-2 * la)
+        return true;
+
+    for(unsigned i = 0; i < N; ++i) {
+        ba   += static_cast<double>(bis[i]) * a[i];
+        bbis += static_cast<double>(bis[i]) * b[i];
+        hh   += static_cast<double>(hlf[i]) * hlf[i];
+        if(std::fabs(hlf[i] - ref[i] / lr) > 2e-3)
+            return false;
+    }
+
+    if(std::fabs(ba / (la * lr) - bbis / (lb * lr)) > 2e-3)
+        return false;
+
+    return std::fabs(std::sqrt(hh) - 1.0) <= 2e-3;
+}
+
+template<unsigned N, typename V>
+static bool test_bisector_() {
+    auto rand_vec = [] {
+        V v;
+        for(unsigned i = 0; i < N; ++i)
+            v[i] = gblRandUniform(-100.0f, 100.0f);
+        return v;
+    };
+
+    V a, b;
+    for(unsigned i = 0; i < N; ++i) {
+        a[i] = static_cast<float>(i + 2) * (i & 1 ? -1.5f : 3.0f);
+        b[i] = static_cast<float>(N - i);
+    }
+
+    if(!(a.bisector(a * 4.0f) == a * 2.0f))
+        return false;
+
+    if(!verify_bisector_<N>(a, b) || !verify_bisector_<N>(b, a))
+        return false;
+
+    for(unsigned i = 0; i < 32; ++i)
+        if(!verify_bisector_<N>(rand_vec(), rand_vec()))
+            return false;
+
+    return true;
+}
+
+GBL_TEST_CASE(vec2Bisector)
+    GBL_TEST_VERIFY((test_bisector_<2, shz::vec2>()));
+    GBL_TEST_VERIFY(shz::vec2(1.0f, 0.0f).bisector(shz::vec2(0.0f, 2.0f)) == shz::vec2(1.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec2(1.0f, 0.0f).half_angle(shz::vec2(0.0f, 2.0f)) == shz::vec2(shz::sqrtf(0.5f), shz::sqrtf(0.5f)));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::bisector",
+                               [](const shz::vec2& a, const shz::vec2& b) {
+                                   return a.bisector(b);
+                               },
+                               "glm_vec2_norm + glm_vec2_scale + glm_vec2_add",
+                               [](const shz::vec2& a, const shz::vec2& b) {
+                                   shz::vec2 scaled, r;
+                                   float* pa = const_cast<float*>(&a[0]);
+                                   float* pb = const_cast<float*>(&b[0]);
+                                   glm_vec2_scale(pb, glm_vec2_norm(pa) / glm_vec2_norm(pb), &scaled[0]);
+                                   glm_vec2_add(pa, &scaled[0], &r[0]);
+                                   return r;
+                               },
+                               shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                               shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::half_angle",
+                               [](const shz::vec2& a, const shz::vec2& b) {
+                                   return a.half_angle(b);
+                               },
+                               "glm_vec2_normalize_to + glm_vec2_add + glm_vec2_normalize",
+                               [](const shz::vec2& a, const shz::vec2& b) {
+                                   shz::vec2 na, nb, r;
+                                   glm_vec2_normalize_to(const_cast<float*>(&a[0]), &na[0]);
+                                   glm_vec2_normalize_to(const_cast<float*>(&b[0]), &nb[0]);
+                                   glm_vec2_add(&na[0], &nb[0], &r[0]);
+                                   glm_vec2_normalize(&r[0]);
+                                   return r;
+                               },
+                               shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                               shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Bisector)
+    GBL_TEST_VERIFY((test_bisector_<3, shz::vec3>()));
+    GBL_TEST_VERIFY(shz::vec3(2.0f, 0.0f, 0.0f).bisector(shz::vec3(0.0f, 0.0f, 5.0f)) == shz::vec3(2.0f, 0.0f, 2.0f));
+    GBL_TEST_VERIFY(shz::vec3(2.0f, 0.0f, 0.0f).half_angle(shz::vec3(0.0f, 0.0f, 5.0f)) == shz::vec3(shz::sqrtf(0.5f), 0.0f, shz::sqrtf(0.5f)));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::bisector",
+                               [](const shz::vec3& a, const shz::vec3& b) {
+                                   return a.bisector(b);
+                               },
+                               "glm_vec3_norm + glm_vec3_scale + glm_vec3_add",
+                               [](const shz::vec3& a, const shz::vec3& b) {
+                                   shz::vec3 scaled, r;
+                                   float* pa = const_cast<float*>(&a[0]);
+                                   float* pb = const_cast<float*>(&b[0]);
+                                   glm_vec3_scale(pb, glm_vec3_norm(pa) / glm_vec3_norm(pb), &scaled[0]);
+                                   glm_vec3_add(pa, &scaled[0], &r[0]);
+                                   return r;
+                               },
+                               shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                               shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::half_angle",
+                               [](const shz::vec3& a, const shz::vec3& b) {
+                                   return a.half_angle(b);
+                               },
+                               "glm_vec3_normalize_to + glm_vec3_add + glm_vec3_normalize",
+                               [](const shz::vec3& a, const shz::vec3& b) {
+                                   shz::vec3 na, nb, r;
+                                   glm_vec3_normalize_to(const_cast<float*>(&a[0]), &na[0]);
+                                   glm_vec3_normalize_to(const_cast<float*>(&b[0]), &nb[0]);
+                                   glm_vec3_add(&na[0], &nb[0], &r[0]);
+                                   glm_vec3_normalize(&r[0]);
+                                   return r;
+                               },
+                               shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                               shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4Bisector)
+    GBL_TEST_VERIFY((test_bisector_<4, shz::vec4>()));
+    GBL_TEST_VERIFY(shz::vec4(0.0f, 3.0f, 0.0f, 0.0f).bisector(shz::vec4(0.0f, 0.0f, 0.0f, 6.0f)) == shz::vec4(0.0f, 3.0f, 0.0f, 3.0f));
+    GBL_TEST_VERIFY(shz::vec4(0.0f, 3.0f, 0.0f, 0.0f).half_angle(shz::vec4(0.0f, 0.0f, 0.0f, 6.0f)) == shz::vec4(0.0f, shz::sqrtf(0.5f), 0.0f, shz::sqrtf(0.5f)));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::bisector",
+                               [](const shz::vec4& a, const shz::vec4& b) {
+                                   return a.bisector(b);
+                               },
+                               "glm_vec4_norm + glm_vec4_scale + glm_vec4_add",
+                               [](const shz::vec4& a, const shz::vec4& b) {
+                                   shz::vec4 scaled, r;
+                                   float* pa = const_cast<float*>(&a[0]);
+                                   float* pb = const_cast<float*>(&b[0]);
+                                   glm_vec4_scale(pb, glm_vec4_norm(pa) / glm_vec4_norm(pb), &scaled[0]);
+                                   glm_vec4_add(pa, &scaled[0], &r[0]);
+                                   return r;
+                               },
+                               shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                               shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::half_angle",
+                               [](const shz::vec4& a, const shz::vec4& b) {
+                                   return a.half_angle(b);
+                               },
+                               "glm_vec4_normalize_to + glm_vec4_add + glm_vec4_normalize",
+                               [](const shz::vec4& a, const shz::vec4& b) {
+                                   shz::vec4 na, nb, r;
+                                   glm_vec4_normalize_to(const_cast<float*>(&a[0]), &na[0]);
+                                   glm_vec4_normalize_to(const_cast<float*>(&b[0]), &nb[0]);
+                                   glm_vec4_add(&na[0], &nb[0], &r[0]);
+                                   glm_vec4_normalize(&r[0]);
+                                   return r;
+                               },
+                               shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                               shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(vec2Construct,
                   vec2Set,
                   vec2Lerp,
@@ -1213,6 +1515,12 @@ GBL_TEST_REGISTER(vec2Construct,
                   vec3RotateZ,
                   vec3Orthonormalize,
                   vec3Triple,
+                  vec2Reject,
+                  vec3Reject,
+                  vec4Reject,
+                  vec2Bisector,
+                  vec3Bisector,
+                  vec4Bisector,
                   vec3Barycenter,
                   vec2Move,
                   vec3Move,

@@ -247,6 +247,37 @@ GBL_TEST_CASE(inv_sqrtf)
    GBL_TEST_VERIFY(test((volatile float)-33333.33f));
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(sqrtf)
+    GBL_TEST_VERIFY(shz::sqrtf(volatile_cast(0.0f)) == 0.0f);
+    GBL_TEST_VERIFY(shz::sqrtf(volatile_cast(1.0f)) == 1.0f);
+    GBL_TEST_VERIFY(shz::sqrtf(volatile_cast(4.0f)) == 2.0f);
+
+    for(float value : { 1e-6f, 0.01f, 0.5f, 2.0f, 3.0f, 1234.5f, 333333.33f, 1e30f })
+        GBL_TEST_ERROR(shz::sqrtf(volatile_cast(value)), ::sqrtf(value), 0.001, GBL_TEST_ERROR_FUZZY);
+
+    (benchmark_cmp<float>)("shz::sqrtf",
+                           [](float x) { return shz::sqrtf(x); },
+                           "sqrtf",
+                           [](float x) { return ::sqrtf(x); },
+                           1234.5f);
+
+    (benchmark_cmp<float>)("shz::sqrtf",
+                           [](float x) { return shz::sqrtf(x); },
+                           "shz::sqrtf_fsrra",
+                           [](float x) { return shz::sqrtf_fsrra(x); },
+                           1234.5f);
+
+    (benchmark_cmp<float>)("shz::sqrtf x4",
+                           [](float a, float b, float c, float d) {
+                               return (shz::sqrtf(a) + shz::sqrtf(b)) + (shz::sqrtf(c) + shz::sqrtf(d));
+                           },
+                           "shz::sqrtf_fsrra x4",
+                           [](float a, float b, float c, float d) {
+                               return (shz::sqrtf_fsrra(a) + shz::sqrtf_fsrra(b)) + (shz::sqrtf_fsrra(c) + shz::sqrtf_fsrra(d));
+                           },
+                           1234.5f, 2.0f, 333.3f, 77.7f);
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(invf_fsrra)
     auto test = [&](float value) {
         return gblFloatEquals(shz::invf_fsrra(value),
@@ -948,6 +979,7 @@ GBL_TEST_REGISTER(min,
                   lerpf,
                   barycentric_lerpf,
                   inv_sqrtf,
+                  sqrtf,
                   invf_fsrra,
                   divf_fsrra,
                   invf,

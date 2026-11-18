@@ -652,7 +652,31 @@ SHZ_INLINE shz_vec3_t shz_vec3_perp(shz_vec3_t vec) SHZ_NOEXCEPT {
     return shz_vec3_cross(vec, cardinal_axis);
 }
 
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_reject(shz_vec2_t v1, shz_vec2_t v2) SHZ_NOEXCEPT {
+    float mag = shz_divf_fsrra(shz_vec2_dot(v1, v2), shz_vec2_magnitude_sqr(v2));
+
+    return shz_vec2_sub(v1, shz_vec2_scale(v2, mag));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_reject_safe(shz_vec2_t v1, shz_vec2_t v2) SHZ_NOEXCEPT {
+    float v1dv2 = shz_vec2_dot(v1, v2);
+    float v2dv2 = shz_vec2_magnitude_sqr(v2);
+
+    if(SHZ_UNLIKELY(v2dv2 == 0.0f))
+        return v1;
+
+    float   mag = shz_divf_fsrra(v1dv2, v2dv2);
+
+    return shz_vec2_sub(v1, shz_vec2_scale(v2, mag));
+}
+
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_reject(shz_vec3_t v1, shz_vec3_t v2) SHZ_NOEXCEPT {
+    float mag = shz_divf_fsrra(shz_vec3_dot(v1, v2), shz_vec3_magnitude_sqr(v2));
+
+    return shz_vec3_sub(v1, shz_vec3_scale(v2, mag));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_reject_safe(shz_vec3_t v1, shz_vec3_t v2) SHZ_NOEXCEPT {
     float v1dv2 = shz_vec3_dot(v1, v2);
     float v2dv2 = shz_vec3_magnitude_sqr(v2);
 
@@ -662,6 +686,24 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_reject(shz_vec3_t v1, shz_vec3_t v2) SHZ_NO
     float   mag = shz_divf_fsrra(v1dv2, v2dv2);
 
     return shz_vec3_sub(v1, shz_vec3_scale(v2, mag));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_reject(shz_vec4_t v1, shz_vec4_t v2) SHZ_NOEXCEPT {
+    float mag = shz_divf_fsrra(shz_vec4_dot(v1, v2), shz_vec4_magnitude_sqr(v2));
+
+    return shz_vec4_sub(v1, shz_vec4_scale(v2, mag));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_reject_safe(shz_vec4_t v1, shz_vec4_t v2) SHZ_NOEXCEPT {
+    float v1dv2 = shz_vec4_dot(v1, v2);
+    float v2dv2 = shz_vec4_magnitude_sqr(v2);
+
+    if(SHZ_UNLIKELY(v2dv2 == 0.0f))
+        return v1;
+
+    float   mag = shz_divf_fsrra(v1dv2, v2dv2);
+
+    return shz_vec4_sub(v1, shz_vec4_scale(v2, mag));
 }
 
 SHZ_INLINE void shz_vec3_orthonormalize(shz_vec3_t   in1, shz_vec3_t   in2,
@@ -963,6 +1005,45 @@ SHZ_INLINE shz_vec4_t shz_vec4_sqrtf(shz_vec4_t vec) SHZ_NOEXCEPT {
 #else
     return shz_vec3_vec4(shz_vec3_sqrtf(vec.xyz), shz_sqrtf(vec.w));
 #endif
+}
+
+SHZ_INLINE shz_vec2_t shz_vec2_bisector(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT {
+    float aa = shz_vec2_magnitude_sqr(a);
+    float bb = shz_vec2_magnitude_sqr(b);
+
+    float b_scale = aa * shz_inv_sqrtf_fsrra(aa * bb);
+
+    return shz_vec2_add(a, shz_vec2_scale(b, b_scale));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_half_angle(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT {
+    return shz_vec2_normalize(shz_vec2_bisector(a, b));
+}
+
+SHZ_INLINE shz_vec3_t shz_vec3_bisector(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT {
+    float aa = shz_vec3_magnitude_sqr(a);
+    float bb = shz_vec3_magnitude_sqr(b);
+
+    float b_scale = aa * shz_inv_sqrtf_fsrra(aa * bb);
+
+    return shz_vec3_add(a, shz_vec3_scale(b, b_scale));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_half_angle(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT {
+    return shz_vec3_normalize(shz_vec3_bisector(a, b));
+}
+
+SHZ_INLINE shz_vec4_t shz_vec4_bisector(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT {
+    float aa = shz_vec4_magnitude_sqr(a);
+    float bb = shz_vec4_magnitude_sqr(b);
+
+    float b_scale = aa * shz_inv_sqrtf_fsrra(aa * bb);
+
+    return shz_vec4_add(a, shz_vec4_scale(b, b_scale));
+}
+
+SHZ_FORCE_INLINE shz_vec4_t shz_vec4_half_angle(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT {
+    return shz_vec4_normalize(shz_vec4_bisector(a, b));
 }
 
  //! \endcond

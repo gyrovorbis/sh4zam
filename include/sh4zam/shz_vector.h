@@ -815,8 +815,54 @@ SHZ_INLINE shz_vec3_t shz_vec3_project_safe(shz_vec3_t vec, shz_vec3_t onto) SHZ
 */
 SHZ_INLINE shz_vec4_t shz_vec4_project_safe(shz_vec4_t vec, shz_vec4_t onto) SHZ_NOEXCEPT;
 
+//! Returns the rejection of the given 2D vector, \p vec, onto another 2D vector, \p onto.
+SHZ_INLINE shz_vec2_t shz_vec2_reject(shz_vec2_t vec, shz_vec2_t onto) SHZ_NOEXCEPT;
+
 //! Returns the rejection of the given vector, \p vec, onto another vector, \p onto.
 SHZ_INLINE shz_vec3_t shz_vec3_reject(shz_vec3_t vec, shz_vec3_t onto) SHZ_NOEXCEPT;
+
+//! Returns the rejection of the given 4D vector, \p vec, onto another 4D vector, \p onto.
+SHZ_INLINE shz_vec4_t shz_vec4_reject(shz_vec4_t vec, shz_vec4_t onto) SHZ_NOEXCEPT;
+
+/*! Returns the rejection of the given 2D vector, \p vec, onto another 2D vector, \p onto.
+
+    \note
+    This routine safely returns \p vec unchanged when \p onto has a magnitude of 0.0f.
+*/
+SHZ_INLINE shz_vec2_t shz_vec2_reject_safe(shz_vec2_t vec, shz_vec2_t onto) SHZ_NOEXCEPT;
+
+/*! Returns the rejection of the given 3D vector, \p vec, onto another 3D vector, \p onto.
+
+    \note
+    This routine safely returns \p vec unchanged when \p onto has a magnitude of 0.0f.
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_reject_safe(shz_vec3_t vec, shz_vec3_t onto) SHZ_NOEXCEPT;
+
+/*! Returns the rejection of the given 4D vector, \p vec, onto another 4D vector, \p onto.
+
+    \note
+    This routine safely returns \p vec unchanged when \p onto has a magnitude of 0.0f.
+*/
+SHZ_INLINE shz_vec4_t shz_vec4_reject_safe(shz_vec4_t vec, shz_vec4_t onto) SHZ_NOEXCEPT;
+
+//! Returns the non-normalized vector pointing down the middle of the angle formed by the given 2D vectors.
+SHZ_INLINE shz_vec2_t shz_vec2_bisector(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT;
+
+//! Returns the non-normalized vector pointing down the middle of the angle formed by the given 3D vectors.
+SHZ_INLINE shz_vec3_t shz_vec3_bisector(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT;
+
+//! Returns the non-normalized vector pointing down the middle of the angle formed by the given 4D vectors.
+SHZ_INLINE shz_vec4_t shz_vec4_bisector(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT;
+
+//! Returns the 2D unit vector pointing halfway between the two vectors. Used for lighting.
+SHZ_INLINE shz_vec2_t shz_vec2_half_angle(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT;
+
+//! Returns the 3D unit vector pointing halfway between the two vectors. Used for lighting.
+SHZ_INLINE shz_vec3_t shz_vec3_half_angle(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT;
+
+//! Returns the 4D unit vector pointing halfway between the two vectors. Used for lighting.
+SHZ_INLINE shz_vec4_t shz_vec4_half_angle(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT;
+
 
 //! @}
 
@@ -1219,6 +1265,34 @@ SHZ_DECLS_END
                  shz_vec3_t: shz_vec3_project_safe, \
                  shz_vec4_t: shz_vec4_project_safe)(vec1, vec2)
 
+    //! C type-generic vector rejection.
+#   define shz_vec_reject(vec1, vec2) \
+        _Generic((vec1), \
+                 shz_vec2_t: shz_vec2_reject, \
+                 shz_vec3_t: shz_vec3_reject, \
+                 shz_vec4_t: shz_vec4_reject)(vec1, vec2)
+
+    //! C type-generic safe vector rejection.
+#   define shz_vec_reject_safe(vec1, vec2) \
+        _Generic((vec1), \
+                 shz_vec2_t: shz_vec2_reject_safe, \
+                 shz_vec3_t: shz_vec3_reject_safe, \
+                 shz_vec4_t: shz_vec4_reject_safe)(vec1, vec2)
+
+    //! C type-generic angle bisector.
+#   define shz_vec_bisector(vec1, vec2) \
+        _Generic((vec1), \
+                 shz_vec2_t: shz_vec2_bisector, \
+                 shz_vec3_t: shz_vec3_bisector, \
+                 shz_vec4_t: shz_vec4_bisector)(vec1, vec2)
+
+    //! C type-generic half-angle unit vector.
+#   define shz_vec_half_angle(vec1, vec2) \
+        _Generic((vec1), \
+                 shz_vec2_t: shz_vec2_half_angle, \
+                 shz_vec3_t: shz_vec3_half_angle, \
+                 shz_vec4_t: shz_vec4_half_angle)(vec1, vec2)
+
     //! C type-generic angle-from-vector extraction.
 #   define shz_vec_angles(vec) \
         _Generic((vec), \
@@ -1510,6 +1584,26 @@ SHZ_DECLS_END
     SHZ_INLINE shz_vec2_t shz_vec_project_safe(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_project_safe(vec1, vec2); }
     SHZ_INLINE shz_vec3_t shz_vec_project_safe(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_project_safe(vec1, vec2); }
     SHZ_INLINE shz_vec4_t shz_vec_project_safe(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_project_safe(vec1, vec2); }
+
+    //! C++ type-generic rejection of the first vector onto the second.
+    SHZ_INLINE shz_vec2_t shz_vec_reject(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_reject(vec1, vec2); }
+    SHZ_INLINE shz_vec3_t shz_vec_reject(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_reject(vec1, vec2); }
+    SHZ_INLINE shz_vec4_t shz_vec_reject(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_reject(vec1, vec2); }
+
+    //! C++ type-generic safe rejection, avoiding division-by-zero.
+    SHZ_INLINE shz_vec2_t shz_vec_reject_safe(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_reject_safe(vec1, vec2); }
+    SHZ_INLINE shz_vec3_t shz_vec_reject_safe(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_reject_safe(vec1, vec2); }
+    SHZ_INLINE shz_vec4_t shz_vec_reject_safe(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_reject_safe(vec1, vec2); }
+
+    //! C++ type-generic angle bisector.
+    SHZ_INLINE shz_vec2_t shz_vec_bisector(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_bisector(vec1, vec2); }
+    SHZ_INLINE shz_vec3_t shz_vec_bisector(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_bisector(vec1, vec2); }
+    SHZ_INLINE shz_vec4_t shz_vec_bisector(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_bisector(vec1, vec2); }
+
+    //! C++ type-generic half-angle unit vector.
+    SHZ_INLINE shz_vec2_t shz_vec_half_angle(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_half_angle(vec1, vec2); }
+    SHZ_INLINE shz_vec3_t shz_vec_half_angle(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_half_angle(vec1, vec2); }
+    SHZ_INLINE shz_vec4_t shz_vec_half_angle(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_half_angle(vec1, vec2); }
 
     //! C++ type-generic angles from the +X axis (2D returns float, 3D returns vec2).
     SHZ_INLINE float      shz_vec_angles(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_angle(vec); }

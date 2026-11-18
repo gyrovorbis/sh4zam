@@ -386,6 +386,26 @@ struct vecN: C {
         return shz_vec_project_safe(*static_cast<const CppType*>(this), onto);
     }
 
+    //! Returns the vector created from rejecting the given vector onto another, the component orthogonal to it.
+    SHZ_FORCE_INLINE CppType reject(const CppType& onto) const noexcept {
+        return shz_vec_reject(*static_cast<const CppType*>(this), onto);
+    }
+
+    //! Returns the vector created from rejecting the given vector onto another, safely protecting against division-by-zero.
+    SHZ_FORCE_INLINE CppType reject_safe(const CppType& onto) const noexcept {
+        return shz_vec_reject_safe(*static_cast<const CppType*>(this), onto);
+    }
+
+    //! Returns the non-normalized vector pointing down the middle of the angle formed by this vector and another.
+    SHZ_FORCE_INLINE CppType bisector(const CppType& other) const noexcept {
+        return shz_vec_bisector(*static_cast<const CppType*>(this), other);
+    }
+
+    //! Returns the unit vector pointing halfway between this vector and another.
+    SHZ_FORCE_INLINE CppType half_angle(const CppType& other) const noexcept {
+        return shz_vec_half_angle(*static_cast<const CppType*>(this), other);
+    }
+
     //! Returns the angle between the given vector and another, in radians.
     SHZ_FORCE_INLINE float angle_between(const CppType& other) const noexcept {
         return shz_vec_angle_between(*static_cast<const CppType*>(this), other);
@@ -622,11 +642,6 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
     //! Returns a 3D vector which is perpendicular to this vector.
     SHZ_FORCE_INLINE vec3 perp() const noexcept {
         return shz_vec3_perp(*this);
-    }
-
-    //! Returns the 3D reject vector of the given vector and another.
-    SHZ_FORCE_INLINE vec3 reject(const vec3& onto) const noexcept {
-        return shz_vec3_reject(*this, onto);
     }
 
     //! Computes the barycentric coordinates `<u, v, w>` for the given 3D vector, within the plane of the triangle formed by the given vertices, \p a, \p b, and \p c.

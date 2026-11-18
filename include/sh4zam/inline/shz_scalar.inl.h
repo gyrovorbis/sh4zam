@@ -433,7 +433,12 @@ SHZ_FORCE_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
         return __builtin_sqrtf(x);
 #endif
+
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_sqrtf_sh4(x);
+#else
     return (x == 0.0f)? 0.0f : shz_sqrtf_fsrra(x);
+#endif
 }
 
 SHZ_FORCE_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT {

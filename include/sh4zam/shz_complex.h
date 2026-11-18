@@ -48,8 +48,13 @@ SHZ_DECLS_BEGIN
 
 //! Represents a floating-point complex number real/imaginary pair.
 typedef struct shz_complex {
-    float real;     //!< The real portion of the complex number.
-    float imag;     //!< The imaginary portion of the complex number.
+    union {
+        float e[2];     //!< <Real, Imaginary> components as an array.
+        struct {
+            float real; //!< The real portion of the complex number.
+            float imag; //!< The imaginary portion of the complex number.
+        };
+    };
 } shz_complex_t;
 
 //! shz_complex_t alias for those who don't like POSIX-style.

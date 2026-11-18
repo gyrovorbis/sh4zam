@@ -80,6 +80,12 @@ SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra_sh4(float x) SHZ_NOEXCEPT {
     return x;
 }
 
+SHZ_FORCE_INLINE float shz_sqrtf_sh4(float x) SHZ_NOEXCEPT {
+    asm("fsqrt %0" : "+f" (x));
+
+    return x;
+}
+
 #if 1
 SHZ_FORCE_INLINE float shz_cbrt_magic_sh4(float x) SHZ_NOEXCEPT {
     uint32_t eax = *(shz_alias_uint32_t *)&x; // mov eax, x (as bits)
