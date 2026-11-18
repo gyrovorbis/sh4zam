@@ -51,7 +51,7 @@ namespace shz {
 
         //! Value constructor, sets the imaginary component to `0` if none is supplied.
         SHZ_FORCE_INLINE complex(float re, float im = 0.0f) noexcept:
-            shz_complex_t({ re, im }) {}
+            shz_complex_t(shz_cinitf(re, im)) {}
 
         //! Converting constructor for initializing from the C base type.
         SHZ_FORCE_INLINE complex(const shz_complex_t& cplx) noexcept:
@@ -90,8 +90,8 @@ namespace shz {
 
         //! Generic overloaded operator for assigning a generic "this" type to volatile reference to base C type.
         template<typename T>
-        SHZ_FORCE_INLINE auto&& operator=(this T&& self, volatile shz_complex_t other) noexcept {
-            const_cast<std::remove_cvref_t<T>&>(self) = complex(const_cast<shz_complex_t&>(other));
+        SHZ_FORCE_INLINE auto&& operator=(this T&& self, shz_complex_t other) noexcept {
+            const_cast<std::remove_cvref_t<T>&>(self) = complex(other);
             return std::forward<T>(self);
         }
 #endif

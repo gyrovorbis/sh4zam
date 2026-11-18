@@ -112,7 +112,8 @@ struct vecN: C {
 #ifdef SHZ_CPP23
     //! Overloaded subscript operator -- allows for indexing vectors like an array.
     SHZ_FORCE_INLINE auto& operator[](this auto&& self, size_t index) noexcept {
-        return self.e[index];
+        using Elem = std::conditional_t<std::is_const_v<std::remove_reference_t<decltype(self)>>, const float, float>;
+        return reinterpret_cast<Elem*>(&self.e)[index];
     }
 
     //! Returns an iterator to the beginning of the vector -- For STL support.
@@ -132,8 +133,8 @@ struct vecN: C {
 
     //! Generic overloaded operator for assigning a generic "this" type to volatile reference to base C type.
     template<typename T>
-    SHZ_FORCE_INLINE auto&& operator=(this T&& self, volatile CType other) noexcept {
-        const_cast<std::remove_cvref_t<T>&>(self) = CppType(const_cast<CType&>(other));
+    SHZ_FORCE_INLINE auto&& operator=(this T&& self, CType other) noexcept {
+        const_cast<std::remove_cvref_t<T>&>(self) = CppType(other);
         return std::forward<T>(self);
     }
 #endif

@@ -37,7 +37,8 @@ GBL_TEST_CASE(norm)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(floorf)
-    auto test = [&](volatile float value, float expected) {
+    auto test = [&](float value_, float expected) {
+        volatile float value = value_;
         GBL_CTX_BEGIN(pCtx);
         GBL_TEST_VERIFY(shz::floorf(value) == expected);
         GBL_CTX_END();
@@ -75,7 +76,8 @@ GBL_TEST_CASE(floorf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(ceilf)
-    auto test = [&](volatile float value, float expected) {
+    auto test = [&](float value_, float expected) {
+        volatile float value = value_;
         GBL_CTX_BEGIN(pCtx);
         GBL_TEST_VERIFY(shz::ceilf(value) == expected);
         GBL_CTX_END();
@@ -113,7 +115,8 @@ GBL_TEST_CASE(ceilf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(truncf)
-    auto test = [&](volatile float value, float expected) {
+    auto test = [&](float value_, float expected) {
+        volatile float value = value_;
         GBL_CTX_BEGIN(pCtx);
         GBL_TEST_VERIFY(shz::truncf(value) == expected);
         GBL_CTX_END();
@@ -151,7 +154,8 @@ GBL_TEST_CASE(truncf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(roundf)
-    auto test = [&](volatile float value, float expected) {
+    auto test = [&](float value_, float expected) {
+        volatile float value = value_;
         GBL_CTX_BEGIN(pCtx);
         GBL_TEST_VERIFY(shz::roundf(value) == expected);
         GBL_CTX_END();
@@ -380,7 +384,10 @@ GBL_TEST_CASE(mag_sqr3f)
         volatile float a = 1.0f, b = 2.0f, c = 3.0f;
         (benchmark_cmp<float>)("shz::mag_sqr3f", bench_fn(shz::mag_sqr3f),
                                "a*a + b*b + c*c",
-                               [](volatile float x, volatile float y, volatile float z) {
+                               [](float x_, float y_, float z_) {
+                                   volatile float x = x_;
+                                   volatile float y = y_;
+                                   volatile float z = z_;
                                    return (x * x) + (y * y) + (z * z);
                                }, a, b, c
         );
@@ -620,7 +627,8 @@ GBL_TEST_CASE(hypotf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(wrapf)
-    auto test = [&](volatile float value, float min, float max, float expected) {
+    auto test = [&](float value_, float min, float max, float expected) {
+        volatile float value = value_;
         GBL_CTX_BEGIN(pCtx);
         GBL_TEST_VERIFY(shz::equalf(shz::wrapf(value, min, max), expected));
         GBL_TEST_VERIFY(min > max || shz::equalf(shz::wrapf_fsrra(value, min, max), expected));
@@ -641,7 +649,8 @@ GBL_TEST_CASE(wrapf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(logf)
-    auto test = [&](volatile float value) {
+    auto test = [&](float value_) {
+        volatile float value = value_;
         float shz_res, c_res;
 
         shz_res = shz::logf(value);
@@ -663,7 +672,8 @@ GBL_TEST_CASE(logf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(log10f)
-    auto test = [&](volatile float value) {
+    auto test = [&](float value_) {
+        volatile float value = value_;
         float shz_res, c_res;
 
         shz_res = shz::log10f(value);
@@ -773,7 +783,9 @@ GBL_TEST_CASE(erff)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(fmodf)
-    auto test = [&](volatile float num, volatile float denom, float expected) {
+    auto test = [&](float num_, float denom_, float expected) {
+        volatile float num = num_;
+        volatile float denom = denom_;
         GBL_CTX_BEGIN(pCtx);
         GBL_TEST_VERIFY(shz::equalf(shz::fmodf(num, denom), expected));
         GBL_CTX_END();
@@ -843,7 +855,9 @@ GBL_TEST_CASE(fmodf)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(remainderf)
-    auto test = [&](volatile float num, volatile float denom, float expected) {
+    auto test = [&](float num_, float denom_, float expected) {
+        volatile float num = num_;
+        volatile float denom = denom_;
         GBL_CTX_BEGIN(pCtx);
         GBL_TEST_VERIFY(shz::equalf(shz::remainderf(num, denom), expected));
         GBL_CTX_END();

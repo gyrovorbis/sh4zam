@@ -166,14 +166,21 @@
 #   define SHZ_HOT                     __attribute__((hot))
     //! Tells GCC that a particular function should be optimized for size.
 #   define SHZ_COLD                    __attribute__((cold))
+#   ifdef SHZ_CLANG
+#       define SHZ_FAST_MATH
+#       define SHZ_NO_FAST_MATH
+#       define SHZ_NO_UNROLL_LOOPS
+#       define SHZ_NO_OPTIMIZATION     __attribute__((optnone))
+#   else
     //! Put this before a function definition to tell GCC to use fast math optimizations on a specific function.
-#   define SHZ_FAST_MATH               __attribute__((optimize("fast-math")))
+#       define SHZ_FAST_MATH           __attribute__((optimize("fast-math")))
     //! Put this before a function definition to tell GCC to NOT use fast math optimizations on a specific function.
-#   define SHZ_NO_FAST_MATH            __attribute__((optimize("no-fast-math")))
+#       define SHZ_NO_FAST_MATH        __attribute__((optimize("no-fast-math")))
     //! Put this before a function definition to tell GCC to NOT unroll loops in a specific function.
-#   define SHZ_NO_UNROLL_LOOPS         __attribute__((optimize("no-unroll-loops")))
+#       define SHZ_NO_UNROLL_LOOPS     __attribute__((optimize("no-unroll-loops")))
     //! Tells GCC to disable any optimizations when compiling a function.
-#   define SHZ_NO_OPTIMIZATION         __attribute__((optimize("O0")))
+#       define SHZ_NO_OPTIMIZATION     __attribute__((optimize("O0")))
+#   endif
     //! Aligns a function within the .text segment by \p N bytes.
 #   define SHZ_FUNC_ALIGNAS(N)         __attribute__((aligned(N)))
     //! Forces GCC to inline the given function.

@@ -232,10 +232,13 @@ GBL_TEST_CASE(vec3Dot)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3Dot2)
-   auto test = [&](volatile shz::vec3 vec1,
-                   volatile shz::vec3 vec2,
-                   volatile shz::vec3 vec3)
+   auto test = [&](shz::vec3 vec1_,
+                   shz::vec3 vec2_,
+                   shz::vec3 vec3_)
    {
+        volatile shz::vec3 vec1 = vec1_;
+        volatile shz::vec3 vec2 = vec2_;
+        volatile shz::vec3 vec3 = vec3_;
         shz::vec3 v1 = vec1;
         shz::vec3 v2 = vec2;
         shz::vec3 v3 = vec3;

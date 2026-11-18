@@ -29,7 +29,8 @@ GBL_TEST_FINAL_NONE
 #define SHZ_FSCA_ERROR_APPROX 0.0052
 
 GBL_TEST_CASE(sincos_from_radians)
-    auto test = [&](volatile float radians) {
+    auto test = [&](float radians_) {
+        volatile float radians = radians_;
         auto sincos = shz::sincos::from_radians(radians);
 
         GBL_CTX_BEGIN(pCtx);
@@ -106,7 +107,8 @@ GBL_TEST_CASE(sincos_from_u16)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(sincos_from_degrees)
-    auto test = [&](volatile float radians) {
+    auto test = [&](float radians_) {
+        volatile float radians = radians_;
         volatile float degrees = shz::rad_to_deg(radians);
         auto sincos = shz::sincos::from_degrees(degrees);
         auto sincos1 = shz::sincos::from_degrees(degrees + 180.0f);
@@ -150,7 +152,7 @@ GBL_TEST_CASE(cosf)
     GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::cosf", bench_fn(shz::cosf), "cosf", bench_fn(ref_cosf), gblRandUniform(-shz::pi_f, shz::pi_f)));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(atanf)
     GBL_TEST_ERROR(shz_atanf(0.0f), atanf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_atanf(11.0f), atanf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
@@ -158,7 +160,7 @@ GBL_TEST_CASE(atanf)
     GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::atanf", bench_fn(shz::atanf), "atanf", bench_fn(atanf), gblRandUniform(-shz::pi_f, shz::pi_f)));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(asinf)
     GBL_TEST_ERROR(shz_asinf(0.0f), asinf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_asinf(11.0f), asinf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
@@ -176,7 +178,7 @@ GBL_TEST_CASE(asinf)
     GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::asinf", bench_fn(shz::asinf), "asinf", bench_fn(asinf), gblRandUniform(-shz::pi_f, shz::pi_f)));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(acosf)
     GBL_TEST_ERROR(shz_acosf(0.0f), acosf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz_acosf(11.0f), acosf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
@@ -194,7 +196,7 @@ GBL_TEST_CASE(acosf)
     GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::acosf", bench_fn(shz::acosf), "acosf", bench_fn(acosf), gblRandUniform(-shz::pi_f, shz::pi_f)));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(sinhf)
     for(auto v : std::array<float, 3>{ 0.0f, 1.0f, -1.0f }) {
         GBL_TEST_ERROR(shz::sinhf(v), sinhf(v), 0.05f, GBL_TEST_ERROR_FUZZY);
@@ -205,7 +207,7 @@ GBL_TEST_CASE(sinhf)
     GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::sinhf", bench_fn(shz::sinhf), "sinhf", bench_fn(sinhf), static_cast<float volatile>(-1.0f)));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(coshf)
     for(auto v : std::array<float, 3>{ 0.0f, 1.0f, -1.0f }) {
         GBL_TEST_ERROR(shz::coshf(v), coshf(v), 0.05f, GBL_TEST_ERROR_FUZZY);
@@ -216,7 +218,7 @@ GBL_TEST_CASE(coshf)
     GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::coshf", bench_fn(shz::coshf), "coshf", bench_fn(coshf), static_cast<float volatile>(-1.0f)));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(tanhf)
     for(auto v : std::array<float, 3>{ 0.0f, 1.0f, -1.0f }) {
         GBL_TEST_VERIFY(shz_equalf(shz_tanhf(v), tanhf(v)));
@@ -244,7 +246,7 @@ GBL_TEST_CASE(cschf)
     );
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(sechf)
     GBL_TEST_SKIP("FUCKED");
     for(auto v : std::array<float, 3>{ 0.1f, 1.0f, -1.0f }) {
@@ -260,9 +262,10 @@ GBL_TEST_CASE(sechf)
     );
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(cothf)
-    auto test = [&](volatile float value) {
+    auto test = [&](float value_) {
+        volatile float value = value_;
         float shz_result, c_result;
 
         (benchmark)(&shz_result, "shz::cothf", bench_fn(shz::cothf), value);
@@ -277,9 +280,10 @@ GBL_TEST_CASE(cothf)
     GBL_TEST_VERIFY(test(-1.0f));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(asinhf)
-    auto test = [&](volatile float value) {
+    auto test = [&](float value_) {
+        volatile float value = value_;
         float shz_result, c_result;
 
         (benchmark)(&shz_result, "shz::asinhf", bench_fn(shz::asinhf), value);
@@ -295,9 +299,10 @@ GBL_TEST_CASE(asinhf)
     GBL_TEST_VERIFY(test(-1.0f));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(acoshf)
-    auto test = [&](volatile float value) {
+    auto test = [&](float value_) {
+        volatile float value = value_;
         float shz_result, c_result;
 
         (benchmark)(&shz_result, "shz::acoshf", bench_fn(shz::acoshf), value);
@@ -313,9 +318,10 @@ GBL_TEST_CASE(acoshf)
     GBL_TEST_VERIFY(test(2.0f));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(atanhf)
-    auto test = [&](volatile float value) {
+    auto test = [&](float value_) {
+        volatile float value = value_;
         float shz_result, c_result;
 
         (benchmark)(&shz_result, "shz::atanhf", bench_fn(shz::atanhf), value);
@@ -331,9 +337,10 @@ GBL_TEST_CASE(atanhf)
     GBL_TEST_VERIFY(test(-0.99f));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(acschf)
-    auto test = [&](volatile float value) {
+    auto test = [&](float value_) {
+        volatile float value = value_;
         float shz_result, c_result;
 
         (benchmark)(&shz_result, "shz::acschf", bench_fn(shz::acschf), value);
@@ -349,9 +356,10 @@ GBL_TEST_CASE(acschf)
     GBL_TEST_VERIFY(test(-1.0f));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(asechf)
-    auto test = [&](volatile float value) {
+    auto test = [&](float value_) {
+        volatile float value = value_;
         float shz_result, c_result;
 
         (benchmark)(&shz_result, "shz::asechf", bench_fn(shz::asechf), value);
@@ -367,9 +375,10 @@ GBL_TEST_CASE(asechf)
     GBL_TEST_VERIFY(test(0.001f));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(acothf)
-    auto test = [&](volatile float value) {
+    auto test = [&](float value_) {
+        volatile float value = value_;
         float shz_result, c_result;
 
         (benchmark)(&shz_result, "shz::acothf", bench_fn(shz::acothf), value);
@@ -405,7 +414,7 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(benches)
     volatile float result;
 
-    for(volatile unsigned i = 0; i < 1; ++i) {
+    for(volatile unsigned i = 0; i < 1; i = i + 1) {
         float random = gblRandUniform(-shz::pi_f, shz::pi_f);
         float random2 = gblRandUniform(-shz::pi_f, shz::pi_f);
         (benchmark)(&result, "shz::atan2f", bench_fn(shz::atan2f), random, random2);

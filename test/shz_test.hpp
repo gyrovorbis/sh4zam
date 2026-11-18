@@ -198,11 +198,12 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
         SHZ_INSTR_BARRIER();
 #endif
         [](auto r, auto&& fn, auto&&... fargs) {
-            if constexpr(!std::same_as<decltype(r), std::nullptr_t>)
-                [[maybe_unused]] auto tmp =
-                    *r = fn(std::forward<decltype(fargs)>(fargs)...);
-            else
+            if constexpr(std::same_as<decltype(r), std::nullptr_t>)
                 fn(std::forward<decltype(fargs)>(fargs)...);
+            else if constexpr(std::is_class_v<std::remove_cvref_t<decltype(*r)>>)
+                [[maybe_unused]] auto tmp = *r = fn(std::forward<decltype(fargs)>(fargs)...);
+            else
+                *r = fn(std::forward<decltype(fargs)>(fargs)...);
         }(std::forward<decltype(res)>(res), std::forward<decltype(function)>(function), std::forward<decltype(args)>(args)...);
         SHZ_INSTR_BARRIER();
 #if SHZ_TARGET == SHZ_SH4

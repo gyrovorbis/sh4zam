@@ -141,7 +141,7 @@ GBL_TEST_CASE(cinitf)
     GBL_TEST_VERIFY(c.real == 3.0f && c.imag == -2.0f);
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(cpolarf)
     auto test = [](float r, float theta, float exp_re, float exp_im) {
         shz::complex c = shz::cpolarf(r, theta);
@@ -219,7 +219,7 @@ GBL_TEST_CASE(csubf)
         shz::complex{1.0f, 2.0f}));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(cmulf)
     auto test = [](shz::complex a, shz::complex b) {
         std::complex<float> ra(a.real, a.imag), rb(b.real, b.imag);
@@ -246,7 +246,7 @@ GBL_TEST_CASE(cmulf)
         shz::complex{1.0f, 2.0f}));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(cdivf)
     auto test = [](shz::complex a, shz::complex b) {
         std::complex<float> ra(a.real, a.imag), rb(b.real, b.imag);
@@ -274,7 +274,7 @@ GBL_TEST_CASE(cdivf)
         shz::complex{1.0f, 2.0f}));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(cscalef)
     auto test = [](shz::complex c, float s) {
         shz::complex result = shz::cscalef(c, s);
@@ -295,7 +295,7 @@ GBL_TEST_CASE(cscalef)
         shz::complex{gblRandf(), gblRandf()}));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(crecipf)
     auto test = [](shz::complex c) {
         std::complex<float> rc(c.real, c.imag);
@@ -328,7 +328,7 @@ GBL_TEST_CASE_END
 // Manipulation
 // =====================================================================
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(cabsf)
     auto test = [](shz::complex c) {
         float result   = shz::cabsf(c);
@@ -348,7 +348,7 @@ GBL_TEST_CASE(cabsf)
         shz::complex{3.0f, 4.0f}));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(inv_cabsf)
     auto test = [](shz::complex c) {
         float result   = shz::inv_cabsf(c);
@@ -381,11 +381,11 @@ GBL_TEST_CASE(cnormf)
         "shz::cnormf",
         bench_fn(shz::cnormf),
         "std::norm",
-        [](volatile shz::complex c) { return std::norm(std::complex<float>(static_cast<float>(c.real), static_cast<float>(c.imag))); },
+        [](shz::complex c_) { volatile shz::complex c = c_; return std::norm(std::complex<float>(static_cast<float>(c.real), static_cast<float>(c.imag))); },
         shz::complex{3.0f, 4.0f}));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
+SHZ_NO_FAST_MATH
 GBL_TEST_CASE(cargf)
     auto test = [](shz::complex c) {
         float result   = shz::cargf(c);
@@ -423,7 +423,8 @@ GBL_TEST_CASE(conjf)
             "shz::conjf",
             bench_fn(shz::conjf),
             "std::conj",
-            [](volatile shz::complex c) {
+            [](shz::complex c_) {
+                volatile shz::complex c = c_;
                 auto r = std::conj(std::complex<float>(static_cast<float>(c.real), static_cast<float>(c.imag)));
                 return shz::complex{r.real(), r.imag()};
             },

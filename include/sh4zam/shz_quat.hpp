@@ -174,8 +174,8 @@ namespace shz {
 
         //! Generic overloaded operator for assigning a generic "this" type to volatile reference to base C type.
         template<typename T>
-        SHZ_FORCE_INLINE auto&& operator=(this T&& self, volatile shz_quat_t other) noexcept {
-            const_cast<std::remove_cvref_t<T>&>(self) = quat(const_cast<shz_quat_t&>(other));
+        SHZ_FORCE_INLINE auto&& operator=(this T&& self, shz_quat_t other) noexcept {
+            const_cast<std::remove_cvref_t<T>&>(self) = quat(other);
             return std::forward<T>(self);
         }
 
