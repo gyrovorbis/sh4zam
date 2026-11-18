@@ -13,6 +13,8 @@
 #ifndef SHZ_CDEFS_HPP
 #define SHZ_CDEFS_HPP
 
+#include <type_traits>
+
 #include "shz_cdefs.h"
 
 #if (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L) || (defined(__cplusplus) && __cplusplus >= 202002L)
@@ -49,6 +51,25 @@ namespace shz {
     using alias_uint64_t = shz_alias_uint64_t;
     //! double type whose value may be aliased as another type.
     using alias_double_t = shz_alias_double_t;
+
+    //! @}
+
+    /*! \name  Type Traits
+     *  \brief Compile-time predicates on argument types, for constraining overloads.
+     *  @{
+     */
+
+    /*! Whether deduced value types enable a radian overload.
+
+        Every type must be arithmetic, at least one floating-point,
+        and none exactly uint16_t. Used by the by-value rotation
+        overloads to preserve existing uint16_t dispatch.
+    */
+    template<typename... Ts>
+    inline constexpr bool is_radians_v =
+        (std::is_arithmetic_v<Ts> && ...) &&
+        (std::is_floating_point_v<Ts> || ...) &&
+        !(std::is_same_v<Ts, uint16_t> || ...);
 
     //! @}
 }

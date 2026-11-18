@@ -133,6 +133,21 @@ namespace shz {
             shz_mat4x4_init_rotation_z(this, angle);
         }
 
+        template<typename T, typename = std::enable_if_t<is_radians_v<T>>>
+        SHZ_FORCE_INLINE void init_rotation_x(T angle) noexcept {
+            shz_mat4x4_init_rotation_x(this, static_cast<float>(angle));
+        }
+
+        template<typename T, typename = std::enable_if_t<is_radians_v<T>>>
+        SHZ_FORCE_INLINE void init_rotation_y(T angle) noexcept {
+            shz_mat4x4_init_rotation_y(this, static_cast<float>(angle));
+        }
+
+        template<typename T, typename = std::enable_if_t<is_radians_v<T>>>
+        SHZ_FORCE_INLINE void init_rotation_z(T angle) noexcept {
+            shz_mat4x4_init_rotation_z(this, static_cast<float>(angle));
+        }
+
         SHZ_FORCE_INLINE void init_rotation_xyz(float xAngle, float yAngle, float zAngle) noexcept {
             shz_mat4x4_init_rotation_xyz(this, xAngle, yAngle, zAngle);
         }
@@ -147,6 +162,26 @@ namespace shz {
 
         SHZ_FORCE_INLINE void init_rotation_yxz(float yAngle, float xAngle, float zAngle) noexcept {
             shz_mat4x4_init_rotation_yxz(this, yAngle, xAngle, zAngle);
+        }
+
+        template<typename X, typename Y, typename Z, typename = std::enable_if_t<is_radians_v<X, Y, Z>>>
+        SHZ_FORCE_INLINE void init_rotation_xyz(X xAngle, Y yAngle, Z zAngle) noexcept {
+            shz_mat4x4_init_rotation_xyz(this, static_cast<float>(xAngle), static_cast<float>(yAngle), static_cast<float>(zAngle));
+        }
+
+        template<typename Z, typename Y, typename X, typename = std::enable_if_t<is_radians_v<Z, Y, X>>>
+        SHZ_FORCE_INLINE void init_rotation_zyx(Z zAngle, Y yAngle, X xAngle) noexcept {
+            shz_mat4x4_init_rotation_zyx(this, static_cast<float>(zAngle), static_cast<float>(yAngle), static_cast<float>(xAngle));
+        }
+
+        template<typename Z, typename X, typename Y, typename = std::enable_if_t<is_radians_v<Z, X, Y>>>
+        SHZ_FORCE_INLINE void init_rotation_zxy(Z zAngle, X xAngle, Y yAngle) noexcept {
+            shz_mat4x4_init_rotation_zxy(this, static_cast<float>(zAngle), static_cast<float>(xAngle), static_cast<float>(yAngle));
+        }
+
+        template<typename Y, typename X, typename Z, typename = std::enable_if_t<is_radians_v<Y, X, Z>>>
+        SHZ_FORCE_INLINE void init_rotation_yxz(Y yAngle, X xAngle, Z zAngle) noexcept {
+            shz_mat4x4_init_rotation_yxz(this, static_cast<float>(yAngle), static_cast<float>(xAngle), static_cast<float>(zAngle));
         }
 
         SHZ_FORCE_INLINE void init_rotation(float angle, float x, float y, float z) noexcept {
@@ -432,6 +467,21 @@ namespace shz {
             shz_mat4x4_rotate_z(this, radians);
         }
 
+        template<typename T, typename = std::enable_if_t<is_radians_v<T>>>
+        SHZ_FORCE_INLINE void rotate_x(T radians) noexcept {
+            shz_mat4x4_rotate_x(this, static_cast<float>(radians));
+        }
+
+        template<typename T, typename = std::enable_if_t<is_radians_v<T>>>
+        SHZ_FORCE_INLINE void rotate_y(T radians) noexcept {
+            shz_mat4x4_rotate_y(this, static_cast<float>(radians));
+        }
+
+        template<typename T, typename = std::enable_if_t<is_radians_v<T>>>
+        SHZ_FORCE_INLINE void rotate_z(T radians) noexcept {
+            shz_mat4x4_rotate_z(this, static_cast<float>(radians));
+        }
+
         SHZ_FORCE_INLINE void rotate_xyz(float xRadians, float yRadians, float zRadians) noexcept {
             shz_mat4x4_rotate_xyz(this, xRadians, yRadians, zRadians);
         }
@@ -446,6 +496,26 @@ namespace shz {
 
         SHZ_FORCE_INLINE void rotate_yxz(float yRadians, float xRadians, float zRadians) noexcept {
             shz_mat4x4_rotate_yxz(this, yRadians, xRadians, zRadians);
+        }
+
+        template<typename X, typename Y, typename Z, typename = std::enable_if_t<is_radians_v<X, Y, Z>>>
+        SHZ_FORCE_INLINE void rotate_xyz(X xRadians, Y yRadians, Z zRadians) noexcept {
+            shz_mat4x4_rotate_xyz(this, static_cast<float>(xRadians), static_cast<float>(yRadians), static_cast<float>(zRadians));
+        }
+
+        template<typename Z, typename Y, typename X, typename = std::enable_if_t<is_radians_v<Z, Y, X>>>
+        SHZ_FORCE_INLINE void rotate_zyx(Z zRadians, Y yRadians, X xRadians) noexcept {
+            shz_mat4x4_rotate_zyx(this, static_cast<float>(zRadians), static_cast<float>(yRadians), static_cast<float>(xRadians));
+        }
+
+        template<typename Z, typename X, typename Y, typename = std::enable_if_t<is_radians_v<Z, X, Y>>>
+        SHZ_FORCE_INLINE void rotate_zxy(Z zRadians, X xRadians, Y yRadians) noexcept {
+            shz_mat4x4_rotate_zxy(this, static_cast<float>(zRadians), static_cast<float>(xRadians), static_cast<float>(yRadians));
+        }
+
+        template<typename Y, typename X, typename Z, typename = std::enable_if_t<is_radians_v<Y, X, Z>>>
+        SHZ_FORCE_INLINE void rotate_yxz(Y yRadians, X xRadians, Z zRadians) noexcept {
+            shz_mat4x4_rotate_yxz(this, static_cast<float>(yRadians), static_cast<float>(xRadians), static_cast<float>(zRadians));
         }
 
         SHZ_FORCE_INLINE void rotate(float radians, float xAxis, float yAxis, float zAxis) noexcept {
