@@ -4,6 +4,7 @@
 #include "sh4zam/shz_matrix.hpp"
 
 #include <gimbal/gimbal_algorithms.h>
+#include <bit>
 #include <print>
 
 #include <cglm/clipspace/ortho_rh_no.h>
@@ -199,7 +200,8 @@ GBL_TEST_CASE(load_4x4)
 
     benchmark(nullptr, [&]() { shz::xmtrx::load(mat4); });
 #if SHZ_BACKEND == SHZ_SH4
-    (benchmark)(nullptr, "mat_load", bench_fn(mat_load), (const float(*)[4][4])&mat4);
+    (benchmark)(nullptr, "mat_load", bench_fn(mat_load),
+                reinterpret_cast<const float (*)[4][4]>(&mat4));
 #endif
 GBL_TEST_CASE_END
 
@@ -295,7 +297,7 @@ GBL_TEST_CASE(store_4x4)
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
     benchmark(nullptr, [&]{ shz::xmtrx::store(&mat); });
 #if SHZ_BACKEND == SHZ_SH4
-    benchmark(nullptr, [&]{ mat_store((float (*)[4][4])&mat); });
+    benchmark(nullptr, [&]{ mat_store(reinterpret_cast<float (*)[4][4]>(&mat)); });
 #endif
  GBL_TEST_CASE_END
 
@@ -458,6 +460,19 @@ GBL_TEST_CASE(init_rotation_x)
                     0.0f, cosf(shz::pi_f), -sinf(shz::pi_f), 0.0f,
                     0.0f, sinf(shz::pi_f), cosf(shz::pi_f), 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f}));
+    // Double arguments must select the radian overload.
+    {
+        shz::mat4x4 fromFloat, fromDouble;
+
+        shz::xmtrx::init_rotation_x(0.6f);
+        shz::xmtrx::store(&fromFloat);
+
+        randomize_xmtrx_();
+        shz::xmtrx::init_rotation_x(static_cast<double>(0.6f));
+        shz::xmtrx::store(&fromDouble);
+
+        GBL_TEST_VERIFY(fromDouble == fromFloat);
+    }
     {
         volatile float angle = 0.6f;
 
@@ -482,6 +497,19 @@ GBL_TEST_CASE(init_rotation_y)
                     0.0f, 1.0f, 0.0f, 0.0f,
                     -sinf(shz::pi_f), 0.0f, cosf(shz::pi_f), 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f}));
+    // Double arguments must select the radian overload.
+    {
+        shz::mat4x4 fromFloat, fromDouble;
+
+        shz::xmtrx::init_rotation_y(0.6f);
+        shz::xmtrx::store(&fromFloat);
+
+        randomize_xmtrx_();
+        shz::xmtrx::init_rotation_y(static_cast<double>(0.6f));
+        shz::xmtrx::store(&fromDouble);
+
+        GBL_TEST_VERIFY(fromDouble == fromFloat);
+    }
     {
         volatile float angle = 0.6f;
 
@@ -506,6 +534,19 @@ GBL_TEST_CASE(init_rotation_z)
                     sinf(shz::pi_f), cosf(shz::pi_f), 0.0f, 0.0f,
                     0.0f, 0.0f, 1.0f, 0.0f,
                     0.0f, 0.0f, 0.0f, 1.0f }));
+    // Double arguments must select the radian overload.
+    {
+        shz::mat4x4 fromFloat, fromDouble;
+
+        shz::xmtrx::init_rotation_z(0.6f);
+        shz::xmtrx::store(&fromFloat);
+
+        randomize_xmtrx_();
+        shz::xmtrx::init_rotation_z(static_cast<double>(0.6f));
+        shz::xmtrx::store(&fromDouble);
+
+        GBL_TEST_VERIFY(fromDouble == fromFloat);
+    }
     {
         volatile float angle = 0.6f;
 
@@ -589,7 +630,7 @@ static bool check_xmtrx_rotation_u16_(void (*u16)(uint16_t), void (*radians)(flo
 
         shz::xmtrx::init_identity();
         shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
-        radians((int16_t)angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+        radians(static_cast<int16_t>(angle) * (1.0f / SHZ_FSCA_RAD_FACTOR));
         shz::xmtrx::store(&expected);
 
         shz::xmtrx::init_identity();
@@ -626,6 +667,16 @@ GBL_TEST_CASE(init_rotation_xyz)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", true, [](float a0, float a1, float a2) {
         shz::xmtrx::init_rotation_xyz(a0, a1, a2);
     }));
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", true, [](float a0, float a1, float a2) {
+        shz::xmtrx::init_rotation_xyz(shz::vec3(a0, a1, a2));
+    }));
+    // Double arguments must select the radian overload.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", true, [](float a0, float a1, float a2) {
+        shz::xmtrx::init_rotation_xyz(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
+    // So must a double beside a float, and an integer beside floating-point arguments.
+    static_assert(noexcept(shz::xmtrx::init_rotation_xyz(0.3, -1.2f, 2.5)));
+    static_assert(noexcept(shz::xmtrx::init_rotation_xyz(0.3, -1, 2.5L)));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::init_rotation_xyz", "glm_mat4_identity + glm_rotate_x/y/z", "xyz", true,
                                           [](float a0, float a1, float a2) { shz::xmtrx::init_rotation_xyz(a0, a1, a2); }));
 GBL_TEST_CASE_END
@@ -634,6 +685,16 @@ GBL_TEST_CASE(init_rotation_zyx)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("zyx", true, [](float a0, float a1, float a2) {
         shz::xmtrx::init_rotation_zyx(a0, a1, a2);
     }));
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zyx", true, [](float a0, float a1, float a2) {
+        shz::xmtrx::init_rotation_zyx(shz::vec3(a2, a1, a0));
+    }));
+    // Double arguments must select the radian overload.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zyx", true, [](float a0, float a1, float a2) {
+        shz::xmtrx::init_rotation_zyx(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
+    // So must a double beside a float, and an integer beside floating-point arguments.
+    static_assert(noexcept(shz::xmtrx::init_rotation_zyx(0.3, -1.2f, 2.5)));
+    static_assert(noexcept(shz::xmtrx::init_rotation_zyx(0.3, -1, 2.5L)));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::init_rotation_zyx", "glm_mat4_identity + glm_rotate_z/y/x", "zyx", true,
                                           [](float a0, float a1, float a2) { shz::xmtrx::init_rotation_zyx(a0, a1, a2); }));
 GBL_TEST_CASE_END
@@ -642,6 +703,16 @@ GBL_TEST_CASE(init_rotation_zxy)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("zxy", true, [](float a0, float a1, float a2) {
         shz::xmtrx::init_rotation_zxy(a0, a1, a2);
     }));
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zxy", true, [](float a0, float a1, float a2) {
+        shz::xmtrx::init_rotation_zxy(shz::vec3(a1, a2, a0));
+    }));
+    // Double arguments must select the radian overload.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zxy", true, [](float a0, float a1, float a2) {
+        shz::xmtrx::init_rotation_zxy(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
+    // So must a double beside a float, and an integer beside floating-point arguments.
+    static_assert(noexcept(shz::xmtrx::init_rotation_zxy(0.3, -1.2f, 2.5)));
+    static_assert(noexcept(shz::xmtrx::init_rotation_zxy(0.3, -1, 2.5L)));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::init_rotation_zxy", "glm_mat4_identity + glm_rotate_z/x/y", "zxy", true,
                                           [](float a0, float a1, float a2) { shz::xmtrx::init_rotation_zxy(a0, a1, a2); }));
 GBL_TEST_CASE_END
@@ -650,12 +721,22 @@ GBL_TEST_CASE(init_rotation_yxz)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("yxz", true, [](float a0, float a1, float a2) {
         shz::xmtrx::init_rotation_yxz(a0, a1, a2);
     }));
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("yxz", true, [](float a0, float a1, float a2) {
+        shz::xmtrx::init_rotation_yxz(shz::vec3(a1, a0, a2));
+    }));
+    // Double arguments must select the radian overload.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("yxz", true, [](float a0, float a1, float a2) {
+        shz::xmtrx::init_rotation_yxz(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
+    // So must a double beside a float, and an integer beside floating-point arguments.
+    static_assert(noexcept(shz::xmtrx::init_rotation_yxz(0.3, -1.2f, 2.5)));
+    static_assert(noexcept(shz::xmtrx::init_rotation_yxz(0.3, -1, 2.5L)));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::init_rotation_yxz", "glm_mat4_identity + glm_rotate_y/x/z", "yxz", true,
                                           [](float a0, float a1, float a2) { shz::xmtrx::init_rotation_yxz(a0, a1, a2); }));
 GBL_TEST_CASE_END
 
 static float u16_radians_(uint16_t angle) {
-    return (int16_t)angle * (1.0f / SHZ_FSCA_RAD_FACTOR);
+    return static_cast<int16_t>(angle) * (1.0f / SHZ_FSCA_RAD_FACTOR);
 }
 
 template<typename U, typename R>
@@ -2493,6 +2574,15 @@ GBL_TEST_CASE(rotate_x)
 
     GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
 
+    // Double arguments must select the radian overload.
+    shz::mat4x4 shzRotDouble;
+    shz::xmtrx::init_identity();
+    shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+    shz::xmtrx::rotate_x(static_cast<double>(rotation_factor));
+    shz::xmtrx::store(&shzRotDouble);
+
+    GBL_TEST_VERIFY(shzRotDouble == shzRotRes);
+
     GBL_TEST_VERIFY(
         (benchmark_cmp<void>)(
             "shz::xmtrx::rotate_x", [](float angle) {
@@ -2530,6 +2620,15 @@ GBL_TEST_CASE(rotate_y)
 
     GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
 
+    // Double arguments must select the radian overload.
+    shz::mat4x4 shzRotDouble;
+    shz::xmtrx::init_identity();
+    shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+    shz::xmtrx::rotate_y(static_cast<double>(rotation_factor));
+    shz::xmtrx::store(&shzRotDouble);
+
+    GBL_TEST_VERIFY(shzRotDouble == shzRotRes);
+
     GBL_TEST_VERIFY(
         (benchmark_cmp<void>)(
             "shz::xmtrx::rotate_y", [](float angle) {
@@ -2566,6 +2665,15 @@ GBL_TEST_CASE(rotate_z)
     glm_rotate_z(glmRotRes, rotation_factor, glmRotRes);
 
     GBL_TEST_VERIFY(compare_glm(shzRotRes, glmRotRes));
+
+    // Double arguments must select the radian overload.
+    shz::mat4x4 shzRotDouble;
+    shz::xmtrx::init_identity();
+    shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
+    shz::xmtrx::rotate_z(static_cast<double>(rotation_factor));
+    shz::xmtrx::store(&shzRotDouble);
+
+    GBL_TEST_VERIFY(shzRotDouble == shzRotRes);
 
     GBL_TEST_VERIFY(
         (benchmark_cmp<void>)(
@@ -2683,7 +2791,10 @@ GBL_TEST_CASE(lookat)
         shz::xmtrx::lookat(eye, center, up);
         shz::xmtrx::store(&shzMat);
 
-        glm_lookat_rh(*(vec3*)&eye, *(vec3*)&center, *(vec3*)&up, *(mat4*)&cglmMat);
+        glm_lookat_rh(*reinterpret_cast<vec3*>(&eye),
+                      *reinterpret_cast<vec3*>(&center),
+                      *reinterpret_cast<vec3*>(&up),
+                      *reinterpret_cast<mat4*>(&cglmMat));
 
         for(unsigned i = 0; i < 4; ++i) {
             for(unsigned j = 0; j < 4; ++j) {
@@ -3250,9 +3361,8 @@ GBL_TEST_CASE(negate)
     shz::xmtrx::store(&got);
 
     for(unsigned i = 0; i < 16; ++i) {
-        uint32_t gotBits, inBits;
-        memcpy(&gotBits, &got.elem[i], sizeof(float));
-        memcpy(&inBits,  &in.elem[i],  sizeof(float));
+        const uint32_t gotBits = std::bit_cast<uint32_t>(got.elem[i]);
+        const uint32_t inBits  = std::bit_cast<uint32_t>(in.elem[i]);
         GBL_TEST_VERIFY(gotBits == (inBits ^ 0x80000000u));
     }
 
@@ -4139,6 +4249,16 @@ GBL_TEST_CASE(rotate_xyz)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_xyz(a0, a1, a2);
     }));
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_xyz(shz::vec3(a0, a1, a2));
+    }));
+    // Double arguments must select the radian overload.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_xyz(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
+    // So must a double beside a float, and an integer beside floating-point arguments.
+    static_assert(noexcept(shz::xmtrx::rotate_xyz(0.3, -1.2f, 2.5)));
+    static_assert(noexcept(shz::xmtrx::rotate_xyz(0.3, -1, 2.5L)));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::rotate_xyz", "glm_rotate_x/y/z", "xyz", false,
                                           [](float a0, float a1, float a2) { shz::xmtrx::rotate_xyz(a0, a1, a2); }));
 GBL_TEST_CASE_END
@@ -4147,6 +4267,16 @@ GBL_TEST_CASE(rotate_zyx)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("zyx", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_zyx(a0, a1, a2);
     }));
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zyx", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_zyx(shz::vec3(a2, a1, a0));
+    }));
+    // Double arguments must select the radian overload.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zyx", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_zyx(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
+    // So must a double beside a float, and an integer beside floating-point arguments.
+    static_assert(noexcept(shz::xmtrx::rotate_zyx(0.3, -1.2f, 2.5)));
+    static_assert(noexcept(shz::xmtrx::rotate_zyx(0.3, -1, 2.5L)));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::rotate_zyx", "glm_rotate_z/y/x", "zyx", false,
                                           [](float a0, float a1, float a2) { shz::xmtrx::rotate_zyx(a0, a1, a2); }));
 GBL_TEST_CASE_END
@@ -4155,6 +4285,16 @@ GBL_TEST_CASE(rotate_zxy)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("zxy", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_zxy(a0, a1, a2);
     }));
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zxy", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_zxy(shz::vec3(a1, a2, a0));
+    }));
+    // Double arguments must select the radian overload.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zxy", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_zxy(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
+    // So must a double beside a float, and an integer beside floating-point arguments.
+    static_assert(noexcept(shz::xmtrx::rotate_zxy(0.3, -1.2f, 2.5)));
+    static_assert(noexcept(shz::xmtrx::rotate_zxy(0.3, -1, 2.5L)));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::rotate_zxy", "glm_rotate_z/x/y", "zxy", false,
                                           [](float a0, float a1, float a2) { shz::xmtrx::rotate_zxy(a0, a1, a2); }));
 GBL_TEST_CASE_END
@@ -4163,6 +4303,16 @@ GBL_TEST_CASE(rotate_yxz)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("yxz", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_yxz(a0, a1, a2);
     }));
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("yxz", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_yxz(shz::vec3(a1, a0, a2));
+    }));
+    // Double arguments must select the radian overload.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("yxz", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_yxz(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
+    // So must a double beside a float, and an integer beside floating-point arguments.
+    static_assert(noexcept(shz::xmtrx::rotate_yxz(0.3, -1.2f, 2.5)));
+    static_assert(noexcept(shz::xmtrx::rotate_yxz(0.3, -1, 2.5L)));
     GBL_TEST_VERIFY(bench_xmtrx_rotation_("shz::xmtrx::rotate_yxz", "glm_rotate_y/x/z", "yxz", false,
                                           [](float a0, float a1, float a2) { shz::xmtrx::rotate_yxz(a0, a1, a2); }));
 GBL_TEST_CASE_END
@@ -4170,6 +4320,10 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(rotate_xyz_u16)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_xyz(fsca_angle_(a0), fsca_angle_(a1), fsca_angle_(a2));
+    }));
+    // A double beside uint16_t angles must not select the radian overload.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("xyz", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_xyz(static_cast<double>(fsca_angle_(a0)), fsca_angle_(a1), fsca_angle_(a2));
     }));
     (benchmark_cmp<void>)(
         "shz::xmtrx::rotate_xyz(uint16_t)", [](uint16_t x, uint16_t y, uint16_t z) { shz::xmtrx::rotate_xyz(x, y, z); },
@@ -4199,6 +4353,10 @@ GBL_TEST_CASE(rotate_zyx_u16)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("zyx", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_zyx(fsca_angle_(a0), fsca_angle_(a1), fsca_angle_(a2));
     }));
+    // A double beside uint16_t angles must not select the radian overload.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zyx", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_zyx(static_cast<double>(fsca_angle_(a0)), fsca_angle_(a1), fsca_angle_(a2));
+    }));
     (benchmark_cmp<void>)(
         "shz::xmtrx::rotate_zyx(uint16_t)", [](uint16_t z, uint16_t y, uint16_t x) { shz::xmtrx::rotate_zyx(z, y, x); },
         "rotate_z + rotate_y + rotate_x (uint16_t)", [](uint16_t z, uint16_t y, uint16_t x) {
@@ -4227,6 +4385,10 @@ GBL_TEST_CASE(rotate_zxy_u16)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("zxy", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_zxy(fsca_angle_(a0), fsca_angle_(a1), fsca_angle_(a2));
     }));
+    // A double beside uint16_t angles must not select the radian overload.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("zxy", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_zxy(static_cast<double>(fsca_angle_(a0)), fsca_angle_(a1), fsca_angle_(a2));
+    }));
     (benchmark_cmp<void>)(
         "shz::xmtrx::rotate_zxy(uint16_t)", [](uint16_t z, uint16_t x, uint16_t y) { shz::xmtrx::rotate_zxy(z, x, y); },
         "rotate_z + rotate_x + rotate_y (uint16_t)", [](uint16_t z, uint16_t x, uint16_t y) {
@@ -4254,6 +4416,10 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(rotate_yxz_u16)
     GBL_TEST_VERIFY(check_xmtrx_rotation_("yxz", false, [](float a0, float a1, float a2) {
         shz::xmtrx::rotate_yxz(fsca_angle_(a0), fsca_angle_(a1), fsca_angle_(a2));
+    }));
+    // A double beside uint16_t angles must not select the radian overload.
+    GBL_TEST_VERIFY(check_xmtrx_rotation_("yxz", false, [](float a0, float a1, float a2) {
+        shz::xmtrx::rotate_yxz(static_cast<double>(fsca_angle_(a0)), fsca_angle_(a1), fsca_angle_(a2));
     }));
     (benchmark_cmp<void>)(
         "shz::xmtrx::rotate_yxz(uint16_t)", [](uint16_t y, uint16_t x, uint16_t z) { shz::xmtrx::rotate_yxz(y, x, z); },

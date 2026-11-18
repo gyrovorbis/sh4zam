@@ -2338,8 +2338,8 @@ SHZ_INLINE void shz_xmtrx_rotate_zyx_u16_sh4(uint16_t zAngle, uint16_t yAngle, u
     )"
     :
     : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9",
-      "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
       "fpul");
 }
 
@@ -2394,8 +2394,8 @@ SHZ_INLINE void shz_xmtrx_rotate_xyz_u16_sh4(uint16_t xAngle, uint16_t yAngle, u
     )"
     :
     : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9",
-      "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
       "fpul");
 }
 
@@ -2451,8 +2451,8 @@ SHZ_INLINE void shz_xmtrx_rotate_zxy_u16_sh4(uint16_t zAngle, uint16_t xAngle, u
     )"
     :
     : [x] "r" (xAngle), [y] "r" (yAngle), [z] "r" (zAngle)
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9",
-      "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15",
       "fpul");
 }
 

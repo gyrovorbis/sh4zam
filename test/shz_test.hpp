@@ -43,9 +43,9 @@
 /* 5ns per count in 1 cycle = 1 count mode(PMCR_COUNT_CPU_CYCLES) */
 #   define NS_PER_CYCLE      5
 
-#   define PMCR_CTRL(o)  ( *((volatile uint16_t *)(0xff000084) + (o << 1)) )
-#   define PMCTR_HIGH(o) ( *((volatile uint32_t *)(0xff100004) + (o << 1)) )
-#   define PMCTR_LOW(o)  ( *((volatile uint32_t *)(0xff100008) + (o << 1)) )
+#   define PMCR_CTRL(o)  ( *(reinterpret_cast<volatile uint16_t *>(0xff000084) + (o << 1)) )
+#   define PMCTR_HIGH(o) ( *(reinterpret_cast<volatile uint32_t *>(0xff100004) + (o << 1)) )
+#   define PMCTR_LOW(o)  ( *(reinterpret_cast<volatile uint32_t *>(0xff100008) + (o << 1)) )
 
 SHZ_FORCE_INLINE void PERF_CNTR_START() {
     PMCR_CTRL(PERF_CNTR) = PMCR_CLR | PMCR_RUN
@@ -55,7 +55,8 @@ SHZ_FORCE_INLINE void PERF_CNTR_START() {
 
 SHZ_FORCE_INLINE uint64_t PERF_CNTR_STOP() {
     PMCR_CTRL(PERF_CNTR) &= ~PMCR_RUN;
-    return (((uint64_t)(PMCTR_HIGH(PERF_CNTR) & 0xfff) << 32) | PMCTR_LOW(PERF_CNTR));
+    return ((static_cast<uint64_t>(PMCTR_HIGH(PERF_CNTR) & 0xfff) << 32) |
+            PMCTR_LOW(PERF_CNTR));
 }
 
 /* PRFC0: dual-purpose second counter.
@@ -77,7 +78,8 @@ SHZ_FORCE_INLINE void PERF_CNTR2_START(perf_cntr_event_t event) {
 
 SHZ_FORCE_INLINE uint64_t PERF_CNTR2_STOP() {
     PMCR_CTRL(PERF_CNTR2) &= ~PMCR_RUN;
-    return (((uint64_t)(PMCTR_HIGH(PERF_CNTR2) & 0xfff) << 32) | PMCTR_LOW(PERF_CNTR2));
+    return ((static_cast<uint64_t>(PMCTR_HIGH(PERF_CNTR2) & 0xfff) << 32) |
+            PMCTR_LOW(PERF_CNTR2));
 }
 
 #endif
@@ -173,10 +175,10 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
                    and dominates UNCACHED benchmark wall time for no
                    benefit: the end state is identical either way. */
 #   if KOS_VERSION_BELOW(2, 3, 0)
-                icache_flush_range((uintptr_t)&_executable_start,
+                icache_flush_range(reinterpret_cast<uintptr_t>(&_executable_start),
                                    8 * 1024);
 #   else
-                icache_inval_range((uintptr_t)&_executable_start,
+                icache_inval_range(reinterpret_cast<uintptr_t>(&_executable_start),
                                    ARCH_CACHE_L1_ICACHE_SIZE);
 #   endif
                 dcache_purge_all();
@@ -404,10 +406,12 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
                            1.0f, 1.0f, SHZ_BENCHMARK_EQUAL };
 
 #ifndef SHZ_DISABLE_BENCHMARKS
-    float cacheGainz   = shzCacheCyc?   ((float)refCacheCyc   / (float)shzCacheCyc  ) : 1.0f;
+    float cacheGainz   = shzCacheCyc?
+        (static_cast<float>(refCacheCyc) / static_cast<float>(shzCacheCyc)) : 1.0f;
 
 #   if SHZ_TARGET == SHZ_SH4
-    float uncacheGainz = shzUncacheCyc? ((float)refUncacheCyc / (float)shzUncacheCyc) : 1.0f;
+    float uncacheGainz = shzUncacheCyc?
+        (static_cast<float>(refUncacheCyc) / static_cast<float>(shzUncacheCyc)) : 1.0f;
 #   else
     float uncacheGainz = cacheGainz;
 #   endif

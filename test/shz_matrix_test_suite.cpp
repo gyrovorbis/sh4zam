@@ -918,6 +918,16 @@ GBL_TEST_CASE(rotate_xyz)
     GBL_TEST_VERIFY(check_mat4x4_rotation_("xyz", [](shz::mat4x4& m, float a0, float a1, float a2) {
         m.rotate_xyz(a0, a1, a2);
     }));
+    GBL_TEST_VERIFY(check_mat4x4_rotation_("xyz", [](shz::mat4x4& m, float a0, float a1, float a2) {
+        m.rotate_xyz(shz::vec3(a0, a1, a2));
+    }));
+    // Double arguments must select the radian overload.
+    GBL_TEST_VERIFY(check_mat4x4_rotation_("xyz", [](shz::mat4x4& m, float a0, float a1, float a2) {
+        m.rotate_xyz(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
+    // So must a double beside a float, and an integer beside floating-point arguments.
+    static_assert(noexcept(std::declval<shz::mat4x4&>().rotate_xyz(0.3, -1.2f, 2.5)));
+    static_assert(noexcept(std::declval<shz::mat4x4&>().rotate_xyz(0.3, -1, 2.5L)));
     GBL_TEST_VERIFY(bench_mat4x4_rotation_("shz::mat4x4::rotate_xyz", "glm_rotate_x/y/z", "xyz",
                                            [](shz::mat4x4& m, float a0, float a1, float a2) { m.rotate_xyz(a0, a1, a2); }));
 GBL_TEST_CASE_END
@@ -926,6 +936,16 @@ GBL_TEST_CASE(rotate_zyx)
     GBL_TEST_VERIFY(check_mat4x4_rotation_("zyx", [](shz::mat4x4& m, float a0, float a1, float a2) {
         m.rotate_zyx(a0, a1, a2);
     }));
+    GBL_TEST_VERIFY(check_mat4x4_rotation_("zyx", [](shz::mat4x4& m, float a0, float a1, float a2) {
+        m.rotate_zyx(shz::vec3(a2, a1, a0));
+    }));
+    // Double arguments must select the radian overload.
+    GBL_TEST_VERIFY(check_mat4x4_rotation_("zyx", [](shz::mat4x4& m, float a0, float a1, float a2) {
+        m.rotate_zyx(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
+    // So must a double beside a float, and an integer beside floating-point arguments.
+    static_assert(noexcept(std::declval<shz::mat4x4&>().rotate_zyx(0.3, -1.2f, 2.5)));
+    static_assert(noexcept(std::declval<shz::mat4x4&>().rotate_zyx(0.3, -1, 2.5L)));
     GBL_TEST_VERIFY(bench_mat4x4_rotation_("shz::mat4x4::rotate_zyx", "glm_rotate_z/y/x", "zyx",
                                            [](shz::mat4x4& m, float a0, float a1, float a2) { m.rotate_zyx(a0, a1, a2); }));
 GBL_TEST_CASE_END
@@ -934,6 +954,16 @@ GBL_TEST_CASE(rotate_zxy)
     GBL_TEST_VERIFY(check_mat4x4_rotation_("zxy", [](shz::mat4x4& m, float a0, float a1, float a2) {
         m.rotate_zxy(a0, a1, a2);
     }));
+    GBL_TEST_VERIFY(check_mat4x4_rotation_("zxy", [](shz::mat4x4& m, float a0, float a1, float a2) {
+        m.rotate_zxy(shz::vec3(a1, a2, a0));
+    }));
+    // Double arguments must select the radian overload.
+    GBL_TEST_VERIFY(check_mat4x4_rotation_("zxy", [](shz::mat4x4& m, float a0, float a1, float a2) {
+        m.rotate_zxy(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
+    // So must a double beside a float, and an integer beside floating-point arguments.
+    static_assert(noexcept(std::declval<shz::mat4x4&>().rotate_zxy(0.3, -1.2f, 2.5)));
+    static_assert(noexcept(std::declval<shz::mat4x4&>().rotate_zxy(0.3, -1, 2.5L)));
     GBL_TEST_VERIFY(bench_mat4x4_rotation_("shz::mat4x4::rotate_zxy", "glm_rotate_z/x/y", "zxy",
                                            [](shz::mat4x4& m, float a0, float a1, float a2) { m.rotate_zxy(a0, a1, a2); }));
 GBL_TEST_CASE_END
@@ -942,12 +972,22 @@ GBL_TEST_CASE(rotate_yxz)
     GBL_TEST_VERIFY(check_mat4x4_rotation_("yxz", [](shz::mat4x4& m, float a0, float a1, float a2) {
         m.rotate_yxz(a0, a1, a2);
     }));
+    GBL_TEST_VERIFY(check_mat4x4_rotation_("yxz", [](shz::mat4x4& m, float a0, float a1, float a2) {
+        m.rotate_yxz(shz::vec3(a1, a0, a2));
+    }));
+    // Double arguments must select the radian overload.
+    GBL_TEST_VERIFY(check_mat4x4_rotation_("yxz", [](shz::mat4x4& m, float a0, float a1, float a2) {
+        m.rotate_yxz(static_cast<double>(a0), static_cast<double>(a1), static_cast<double>(a2));
+    }));
+    // So must a double beside a float, and an integer beside floating-point arguments.
+    static_assert(noexcept(std::declval<shz::mat4x4&>().rotate_yxz(0.3, -1.2f, 2.5)));
+    static_assert(noexcept(std::declval<shz::mat4x4&>().rotate_yxz(0.3, -1, 2.5L)));
     GBL_TEST_VERIFY(bench_mat4x4_rotation_("shz::mat4x4::rotate_yxz", "glm_rotate_y/x/z", "yxz",
                                            [](shz::mat4x4& m, float a0, float a1, float a2) { m.rotate_yxz(a0, a1, a2); }));
 GBL_TEST_CASE_END
 
 static float u16_radians_(uint16_t angle) {
-    return (int16_t)angle * (1.0f / SHZ_FSCA_RAD_FACTOR);
+    return static_cast<int16_t>(angle) * (1.0f / SHZ_FSCA_RAD_FACTOR);
 }
 
 static uint16_t fsca_angle_(float radians) {
@@ -1046,6 +1086,57 @@ SHZ_MAT4X4_ROTATION_U16_CASE_3(rotate_zyx,        "zyx", "glm_rotate_z/y/x",    
 SHZ_MAT4X4_ROTATION_U16_CASE_3(rotate_zxy,        "zxy", "glm_rotate_z/x/y",                     false)
 SHZ_MAT4X4_ROTATION_U16_CASE_3(rotate_yxz,        "yxz", "glm_rotate_y/x/z",                     false)
 
+// Applies a rotation to identity for comparing overloads.
+template<typename F>
+static shz::mat4x4 rotated_mat4x4_(F&& rotate) {
+    shz::mat4x4 mat;
+    mat.init_identity();
+    rotate(mat);
+    return mat;
+}
+
+// The rotations with no test case of their own: double arguments must select the radian overload.
+GBL_TEST_CASE(rotation_doubles)
+    constexpr float  x  = 0.3f, y = -1.2f, z = 2.5f;
+    constexpr double xd = x, zd = z;
+
+    GBL_TEST_VERIFY(rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_x(xd); }) ==
+                    rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_x(x); }));
+    GBL_TEST_VERIFY(rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_y(xd); }) ==
+                    rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_y(x); }));
+    GBL_TEST_VERIFY(rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_z(xd); }) ==
+                    rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_z(x); }));
+    GBL_TEST_VERIFY(rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_xyz(xd, y, zd); }) ==
+                    rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_xyz(x, y, z); }));
+    GBL_TEST_VERIFY(rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_zyx(xd, y, zd); }) ==
+                    rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_zyx(x, y, z); }));
+    GBL_TEST_VERIFY(rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_zxy(xd, y, zd); }) ==
+                    rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_zxy(x, y, z); }));
+    GBL_TEST_VERIFY(rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_yxz(xd, y, zd); }) ==
+                    rotated_mat4x4_([](shz::mat4x4& m) { m.init_rotation_yxz(x, y, z); }));
+
+    GBL_TEST_VERIFY(rotated_mat4x4_([](shz::mat4x4& m) { m.rotate_x(xd); }) ==
+                    rotated_mat4x4_([](shz::mat4x4& m) { m.rotate_x(x); }));
+    GBL_TEST_VERIFY(rotated_mat4x4_([](shz::mat4x4& m) { m.rotate_y(xd); }) ==
+                    rotated_mat4x4_([](shz::mat4x4& m) { m.rotate_y(x); }));
+    GBL_TEST_VERIFY(rotated_mat4x4_([](shz::mat4x4& m) { m.rotate_z(xd); }) ==
+                    rotated_mat4x4_([](shz::mat4x4& m) { m.rotate_z(x); }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_rotation_vec3)
+    constexpr float x = 0.3f, y = -1.2f, z = 2.5f;
+    const shz::vec3 angles(x, y, z);
+
+    GBL_TEST_VERIFY(rotated_mat4x4_([&](shz::mat4x4& m) { m.init_rotation_xyz(angles); }) ==
+                    rotated_mat4x4_([&](shz::mat4x4& m) { m.init_rotation_xyz(x, y, z); }));
+    GBL_TEST_VERIFY(rotated_mat4x4_([&](shz::mat4x4& m) { m.init_rotation_zyx(angles); }) ==
+                    rotated_mat4x4_([&](shz::mat4x4& m) { m.init_rotation_zyx(z, y, x); }));
+    GBL_TEST_VERIFY(rotated_mat4x4_([&](shz::mat4x4& m) { m.init_rotation_zxy(angles); }) ==
+                    rotated_mat4x4_([&](shz::mat4x4& m) { m.init_rotation_zxy(z, x, y); }));
+    GBL_TEST_VERIFY(rotated_mat4x4_([&](shz::mat4x4& m) { m.init_rotation_yxz(angles); }) ==
+                    rotated_mat4x4_([&](shz::mat4x4& m) { m.init_rotation_yxz(y, x, z); }));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(permute_wzyx)
     alignas(32) std::array<uint8_t, sizeof(shz_glm_mat4) + alignof(shz_glm_mat4)> buffer;
     auto& mat = *reinterpret_cast<shz_glm_mat4*>(buffer.data() + alignof(shz_glm_mat4));
@@ -1089,6 +1180,8 @@ GBL_TEST_REGISTER(copy,
                   rotate_zyx_u16,
                   rotate_zxy_u16,
                   rotate_yxz_u16,
+                  rotation_doubles,
+                  init_rotation_vec3,
                   permute_wzyx,
                   blend,
                   to_quat)

@@ -59,7 +59,8 @@ GBL_TEST_CASE(sincos_from_u16)
     auto test = [&](uint16_t angle) {
         const auto   sincos = shz::sincos::from_radians(angle);
         const auto   pair   = shz::sincosu16(angle);
-        const double rad    = (double)angle * ((double)shz::tau_f / (UINT16_MAX + 1));
+        const double rad    = static_cast<double>(angle) *
+                              (static_cast<double>(shz::tau_f) / (UINT16_MAX + 1));
 
         GBL_CTX_BEGIN(pCtx);
         GBL_TEST_ERROR(sincos.sinf(), ref_sin(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
@@ -81,7 +82,7 @@ GBL_TEST_CASE(sincos_from_u16)
     auto sweep = [&]() {
         GBL_CTX_BEGIN(pCtx);
         for(unsigned a = 0; a <= UINT16_MAX; a += 64)
-            GBL_TEST_CALL(test((uint16_t)a));
+            GBL_TEST_CALL(test(static_cast<uint16_t>(a)));
         GBL_CTX_END();
     };
 
@@ -100,8 +101,8 @@ GBL_TEST_CASE(sincos_from_u16)
     GBL_TEST_CALL(quadrant(40960, -1, -1));
     GBL_TEST_CALL(quadrant(57344, -1,  1));
 
-    GBL_TEST_VERIFY(shz_equalf(shz::sincos::from_radians((uint16_t)0).cosf(), 1.0f));
-    GBL_TEST_VERIFY(shz_equalf(shz::sincos::from_radians((uint16_t)0).sinf(), 0.0f));
+    GBL_TEST_VERIFY(shz_equalf(shz::sincos::from_radians(static_cast<uint16_t>(0)).cosf(), 1.0f));
+    GBL_TEST_VERIFY(shz_equalf(shz::sincos::from_radians(static_cast<uint16_t>(0)).sinf(), 0.0f));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(sincos_from_degrees)

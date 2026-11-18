@@ -71,13 +71,13 @@ struct vecN: C {
     //! Conversion operator for going from a layout-compatible vector type to a SH4ZAM vector type.
     template<typename T>
     SHZ_FORCE_INLINE static CppType from(const T& raw) noexcept {
-        return *reinterpret_cast<const CppType*>(&raw);
+        return SHZ_CONVERT(CppType, raw);
     }
 
     //! Conversion operator for going from a SH4ZAM vector type to another layout-compatible type.
     template<typename T>
     SHZ_FORCE_INLINE T to() const noexcept {
-        return *reinterpret_cast<const T*>(this);
+        return SHZ_CONVERT(T, *this);
     }
 
     //! Conversion operator for accessing an existing pointer type as though it were a refrence to a SH4ZAM type.
@@ -112,8 +112,7 @@ struct vecN: C {
 #ifdef SHZ_CPP23
     //! Overloaded subscript operator -- allows for indexing vectors like an array.
     SHZ_FORCE_INLINE auto& operator[](this auto&& self, size_t index) noexcept {
-        using Elem = std::conditional_t<std::is_const_v<std::remove_reference_t<decltype(self)>>, const float, float>;
-        return reinterpret_cast<Elem*>(&self.e)[index];
+        return self.e[index];
     }
 
     //! Returns an iterator to the beginning of the vector -- For STL support.
