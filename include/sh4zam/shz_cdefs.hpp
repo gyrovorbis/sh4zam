@@ -54,24 +54,24 @@ namespace shz {
 
     //! @}
 
-    /*! \name  Overload Constraints
-     *  \brief Aliases which enable a function template for only some argument types.
+    /*! \name  Type Traits
+     *  \brief Compile-time predicates on argument types, for constraining overloads.
      *  @{
      */
 
-    /*! Enables a function template for arguments that are radians.
+    /*! Whether \p Ts are the types of arguments in radians.
 
         A routine overloaded on `float` radians and on a `uint16_t` angle is ambiguous for a
-        `double`, which converts to either. A template beside the `float` overload, constrained
-        by this, takes it as radians. \p Ts are radians where each is arithmetic, at least one
-        is floating-point and none is a `uint16_t`, so that a call with a 16-bit angle keeps
-        the overload it had.
+        `double`, which converts to either. A template beside the `float` overload, enabled
+        where this is true, takes it as radians. \p Ts are radians where each is arithmetic,
+        at least one is floating-point and none is a `uint16_t`, so that a call with a 16-bit
+        angle keeps the overload it had.
     */
     template<typename... Ts>
-    using enable_if_radians = std::enable_if_t<
+    inline constexpr bool is_radians_v =
         (std::is_arithmetic_v<Ts> && ...) &&
         (std::is_floating_point_v<Ts> || ...) &&
-        !(std::is_same_v<Ts, uint16_t> || ...)>;
+        !(std::is_same_v<Ts, uint16_t> || ...);
 
     //! @}
 }
