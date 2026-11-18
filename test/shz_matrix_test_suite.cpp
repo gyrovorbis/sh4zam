@@ -974,7 +974,7 @@ GBL_TEST_CASE(rotate_yxz)
                                            [](shz::mat4x4& m, float a0, float a1, float a2) { m.rotate_yxz(a0, a1, a2); }));
 GBL_TEST_CASE_END
 
-// The matrix a rotation leaves of the identity, to hold one of its overloads against another.
+// Applies a rotation to identity for comparing overloads.
 template<typename F>
 static shz::mat4x4 rotated_mat4x4_(F&& rotate) {
     shz::mat4x4 mat;

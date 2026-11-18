@@ -59,13 +59,11 @@ namespace shz {
      *  @{
      */
 
-    /*! Whether \p Ts are the types of arguments in radians.
+    /*! Whether deduced value types enable a radian overload.
 
-        A routine overloaded on `float` radians and on a `uint16_t` angle is ambiguous for a
-        `double`, which converts to either. A template beside the `float` overload, enabled
-        where this is true, takes it as radians. \p Ts are radians where each is arithmetic,
-        at least one is floating-point and none is a `uint16_t`, so that a call with a 16-bit
-        angle keeps the overload it had.
+        Every type must be arithmetic, at least one floating-point,
+        and none exactly uint16_t. Used by the by-value rotation
+        overloads to preserve existing uint16_t dispatch.
     */
     template<typename... Ts>
     inline constexpr bool is_radians_v =

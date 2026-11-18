@@ -464,6 +464,8 @@ GBL_TEST_CASE(init_rotation_x)
 
         shz::xmtrx::init_rotation_x(0.6f);
         shz::xmtrx::store(&fromFloat);
+
+        randomize_xmtrx_();
         shz::xmtrx::init_rotation_x(static_cast<double>(0.6f));
         shz::xmtrx::store(&fromDouble);
 
@@ -499,6 +501,8 @@ GBL_TEST_CASE(init_rotation_y)
 
         shz::xmtrx::init_rotation_y(0.6f);
         shz::xmtrx::store(&fromFloat);
+
+        randomize_xmtrx_();
         shz::xmtrx::init_rotation_y(static_cast<double>(0.6f));
         shz::xmtrx::store(&fromDouble);
 
@@ -534,6 +538,8 @@ GBL_TEST_CASE(init_rotation_z)
 
         shz::xmtrx::init_rotation_z(0.6f);
         shz::xmtrx::store(&fromFloat);
+
+        randomize_xmtrx_();
         shz::xmtrx::init_rotation_z(static_cast<double>(0.6f));
         shz::xmtrx::store(&fromDouble);
 
