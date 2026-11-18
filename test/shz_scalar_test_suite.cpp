@@ -19,11 +19,27 @@ GBL_TEST_FINAL_NONE
 GBL_TEST_CASE(min)
     GBL_TEST_VERIFY((shz::fminf(-3.0f, 12.0f)) == -3.0f);
     GBL_TEST_VERIFY((shz::fminf(8, 8)) == 8);
+
+    // Arguments the compiler cannot fold, in either order.
+    {
+        volatile float low = -3.0f, high = 12.0f;
+
+        GBL_TEST_VERIFY(shz::fminf(low, high) == -3.0f);
+        GBL_TEST_VERIFY(shz::fminf(high, low) == -3.0f);
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(max)
     GBL_TEST_VERIFY(shz::fmaxf(-3.0f, 12.0f) == 12.0f);
     GBL_TEST_VERIFY(shz::fmaxf(8, 8) == 8);
+
+    // Arguments the compiler cannot fold, in either order.
+    {
+        volatile float low = -3.0f, high = 12.0f;
+
+        GBL_TEST_VERIFY(shz::fmaxf(low, high) == 12.0f);
+        GBL_TEST_VERIFY(shz::fmaxf(high, low) == 12.0f);
+    }
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(clamp)
