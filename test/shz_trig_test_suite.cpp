@@ -12,6 +12,12 @@ namespace {
 
         return std::fabs(static_cast<double>(actual) - precise) <= epsilon;
     }
+
+    SHZ_NO_FAST_MATH SHZ_NO_INLINE float  ref_sinf(float x)  { return ::sinf(x); }
+    SHZ_NO_FAST_MATH SHZ_NO_INLINE float  ref_cosf(float x)  { return ::cosf(x); }
+    SHZ_NO_FAST_MATH SHZ_NO_INLINE float  ref_tanf(float x)  { return ::tanf(x); }
+    SHZ_NO_FAST_MATH SHZ_NO_INLINE double ref_sin(double x)  { return ::sin(x);  }
+    SHZ_NO_FAST_MATH SHZ_NO_INLINE double ref_cos(double x)  { return ::cos(x);  }
 }
 
 #define GBL_SELF_TYPE   shz_trig_test_suite
@@ -23,20 +29,20 @@ GBL_TEST_FINAL_NONE
 #define SHZ_FSCA_ERROR_APPROX 0.0052
 
 GBL_TEST_CASE(sincos_from_radians)
-    auto test = [&](volatile float radians) GBL_FP_PRECISE {
+    auto test = [&](volatile float radians) {
         auto sincos = shz::sincos::from_radians(radians);
 
         GBL_CTX_BEGIN(pCtx);
         GBL_TEST_CALL([&] GBL_NO_INLINE {
             GBL_CTX_BEGIN(pCtx);
-            GBL_TEST_ERROR(sincos.sinf(),      sinf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
-            GBL_TEST_ERROR(shz::sinf(radians), sinf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
-            GBL_TEST_ERROR(sincos.cosf(),      cosf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_ERROR(sincos.sinf(),      ref_sinf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_ERROR(shz::sinf(radians), ref_sinf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_ERROR(sincos.cosf(),      ref_cosf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
             GBL_CTX_END();
         }());
-        GBL_TEST_ERROR(shz::cosf(radians), cosf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
-        GBL_TEST_ERROR(sincos.tanf(),      tanf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
-        GBL_TEST_ERROR(shz::tanf(radians), tanf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+        GBL_TEST_ERROR(shz::cosf(radians), ref_cosf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+        GBL_TEST_ERROR(sincos.tanf(),      ref_tanf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+        GBL_TEST_ERROR(shz::tanf(radians), ref_tanf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
         GBL_CTX_END();
     };
 
@@ -49,18 +55,17 @@ GBL_TEST_CASE(sincos_from_radians)
     GBL_TEST_CALL(test(-shz::pi_f * 3.41f / 45.656f));
 GBL_TEST_CASE_END
 
-GBL_FP_PRECISE
 GBL_TEST_CASE(sincos_from_u16)
-    auto test = [&](uint16_t angle) GBL_FP_PRECISE {
+    auto test = [&](uint16_t angle) {
         const auto   sincos = shz::sincos::from_radians(angle);
         const auto   pair   = shz::sincosu16(angle);
         const double rad    = (double)angle * ((double)shz::tau_f / (UINT16_MAX + 1));
 
         GBL_CTX_BEGIN(pCtx);
-        GBL_TEST_ERROR(sincos.sinf(), sin(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
-        GBL_TEST_ERROR(sincos.cosf(), cos(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
-        GBL_TEST_ERROR(pair.sin,      sin(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
-        GBL_TEST_ERROR(pair.cos,      cos(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+        GBL_TEST_ERROR(sincos.sinf(), ref_sin(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+        GBL_TEST_ERROR(sincos.cosf(), ref_cos(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+        GBL_TEST_ERROR(pair.sin,      ref_sin(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+        GBL_TEST_ERROR(pair.cos,      ref_cos(rad), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
         GBL_CTX_END();
     };
 
@@ -100,7 +105,7 @@ GBL_TEST_CASE(sincos_from_u16)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(sincos_from_degrees)
-    auto test = [&](volatile float radians) GBL_FP_PRECISE {
+    auto test = [&](volatile float radians) {
         volatile float degrees = shz::rad_to_deg(radians);
         auto sincos = shz::sincos::from_degrees(degrees);
         auto sincos1 = shz::sincos::from_degrees(degrees + 180.0f);
@@ -109,16 +114,16 @@ GBL_TEST_CASE(sincos_from_degrees)
         GBL_CTX_BEGIN(pCtx);
         GBL_TEST_CALL([&] {
             GBL_CTX_BEGIN(pCtx);
-            GBL_TEST_ERROR(sincos.sinf(),          sinf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
-            GBL_TEST_ERROR(shz::sinf_deg(degrees), sinf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
-            GBL_TEST_ERROR(sincos.cosf(),          cosf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
-            GBL_TEST_ERROR(sincos1.sinf(), sinf(radians + shz::deg_to_rad(180.0f)), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
-            GBL_TEST_ERROR(sincos2.sinf(), sinf(radians + shz::deg_to_rad(360.0f)), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_ERROR(sincos.sinf(),          ref_sinf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_ERROR(shz::sinf_deg(degrees), ref_sinf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_ERROR(sincos.cosf(),          ref_cosf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_ERROR(sincos1.sinf(), ref_sinf(radians + shz::deg_to_rad(180.0f)), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+            GBL_TEST_ERROR(sincos2.sinf(), ref_sinf(radians + shz::deg_to_rad(360.0f)), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
             GBL_CTX_END();
         }());
-        GBL_TEST_ERROR(shz::cosf_deg(degrees), cosf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
-        GBL_TEST_ERROR(sincos.tanf(),          tanf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
-        GBL_TEST_ERROR(shz::tanf_deg(degrees), tanf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+        GBL_TEST_ERROR(shz::cosf_deg(degrees), ref_cosf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_ABSOLUTE);
+        GBL_TEST_ERROR(sincos.tanf(),          ref_tanf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+        GBL_TEST_ERROR(shz::tanf_deg(degrees), ref_tanf(radians), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
         GBL_CTX_END();
     };
     GBL_TEST_CALL(test(0.0f));
@@ -130,20 +135,18 @@ GBL_TEST_CASE(sincos_from_degrees)
     GBL_TEST_CALL(test(-shz::pi_f * 3.41f / 45.656f));
 GBL_TEST_CASE_END
 
-SHZ_NO_FAST_MATH
 GBL_TEST_CASE(sinf)
-    GBL_TEST_ERROR(shz::sinf(0.0f), sinf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
-    GBL_TEST_ERROR(shz::sinf(11.0f), sinf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
-    GBL_TEST_ERROR(shz::sinf(-2.0f), sinf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
-    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::sinf", bench_fn(shz::sinf), "sinf", bench_fn(sinf), gblRandUniform(-shz::pi_f, shz::pi_f)));
+    GBL_TEST_ERROR(shz::sinf(0.0f), ref_sinf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz::sinf(11.0f), ref_sinf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz::sinf(-2.0f), ref_sinf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::sinf", bench_fn(shz::sinf), "sinf", bench_fn(ref_sinf), gblRandUniform(-shz::pi_f, shz::pi_f)));
 GBL_TEST_CASE_END
 
-SHZ_NO_FAST_MATH
 GBL_TEST_CASE(cosf)
-    GBL_TEST_ERROR(shz::cosf(0.0f), cosf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
-    GBL_TEST_ERROR(shz::cosf(11.0f), cosf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
-    GBL_TEST_ERROR(shz::cosf(-2.0f), cosf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
-    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::cosf", bench_fn(shz::cosf), "cosf", bench_fn(cosf), gblRandUniform(-shz::pi_f, shz::pi_f)));
+    GBL_TEST_ERROR(shz::cosf(0.0f), ref_cosf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz::cosf(11.0f), ref_cosf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz::cosf(-2.0f), ref_cosf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::cosf", bench_fn(shz::cosf), "cosf", bench_fn(ref_cosf), gblRandUniform(-shz::pi_f, shz::pi_f)));
 GBL_TEST_CASE_END
 
 GBL_FP_PRECISE
