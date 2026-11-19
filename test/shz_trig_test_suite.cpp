@@ -13,6 +13,14 @@ namespace {
         return std::fabs(static_cast<double>(actual) - precise) <= epsilon;
     }
 
+    // Distance between two angles in radians, where +pi and -pi are the same direction.
+    SHZ_NO_INLINE double angle_error(float actual, double precise) {
+        const double pi    = 3.14159265358979323846;
+        const double error = std::fabs(static_cast<double>(actual) - precise);
+
+        return (error > pi)? std::fabs(error - 2.0 * pi) : error;
+    }
+
     SHZ_NO_FAST_MATH SHZ_NO_INLINE float  ref_sinf(float x)  { return ::sinf(x); }
     SHZ_NO_FAST_MATH SHZ_NO_INLINE float  ref_cosf(float x)  { return ::cosf(x); }
     SHZ_NO_FAST_MATH SHZ_NO_INLINE float  ref_tanf(float x)  { return ::tanf(x); }
@@ -163,15 +171,32 @@ GBL_TEST_CASE_END
 SHZ_NO_FAST_MATH
 GBL_TEST_CASE(asinf)
     GBL_TEST_ERROR(shz_asinf(0.0f), asinf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
-    GBL_TEST_ERROR(shz_asinf(11.0f), asinf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
-    GBL_TEST_ERROR(shz_asinf(-2.0f), asinf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz_asinf(0.5f), asinf(0.5f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz_asinf(-0.75f), asinf(-0.75f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+
+    // Arguments beyond the domain clamp to the end values rather than returning NaN.
+    GBL_TEST_VERIFY(shz_asinf(11.0f) ==  SHZ_F_PI_2);
+    GBL_TEST_VERIFY(shz_asinf(-2.0f) == -SHZ_F_PI_2);
 
     GBL_TEST_CALL([&] GBL_NO_INLINE {
         GBL_CTX_BEGIN(pCtx);
         for(float v : unit_domain) {
             const float actual = shz::asinf(volatile_cast(v));
-            GBL_TEST_VERIFY(within_error(actual, std::asin(static_cast<double>(v)), SHZ_FSCA_ERROR_APPROX));
+            GBL_TEST_VERIFY(within_error(actual, std::asin(static_cast<double>(v)), SHZ_ASINF_ERROR_MAX));
         }
+
+        for(int i = -1000; i <= 1000; ++i) {
+            const float v      = static_cast<float>(i) / 1000.0f;
+            const float actual = shz::asinf(volatile_cast(v));
+            GBL_TEST_VERIFY(within_error(actual, std::asin(static_cast<double>(v)), SHZ_ASINF_ERROR_MAX));
+        }
+
+        GBL_TEST_VERIFY(shz::asinf(volatile_cast( 0.0f))       ==  0.0f);
+        GBL_TEST_VERIFY(shz::asinf(volatile_cast( 1.0000001f)) ==  SHZ_F_PI_2);
+        GBL_TEST_VERIFY(shz::asinf(volatile_cast(-1.0000001f)) == -SHZ_F_PI_2);
+        GBL_TEST_VERIFY(shz::asinf(volatile_cast( 11.0f))      ==  SHZ_F_PI_2);
+        GBL_TEST_VERIFY(shz::asinf(volatile_cast(-2.0f))       == -SHZ_F_PI_2);
+        GBL_TEST_VERIFY(shz::asinf(volatile_cast(-0.3f))       == -shz::asinf(volatile_cast(0.3f)));
         GBL_CTX_END();
     }());
 
@@ -181,19 +206,68 @@ GBL_TEST_CASE_END
 SHZ_NO_FAST_MATH
 GBL_TEST_CASE(acosf)
     GBL_TEST_ERROR(shz_acosf(0.0f), acosf(0.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
-    GBL_TEST_ERROR(shz_acosf(11.0f), acosf(11.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
-    GBL_TEST_ERROR(shz_acosf(-2.0f), acosf(-2.0f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz_acosf(0.5f), acosf(0.5f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+    GBL_TEST_ERROR(shz_acosf(-0.75f), acosf(-0.75f), SHZ_FSCA_ERROR_APPROX, GBL_TEST_ERROR_FUZZY);
+
+    // Arguments beyond the domain clamp to the end values rather than returning NaN.
+    GBL_TEST_VERIFY(shz_acosf(11.0f) == 0.0f);
+    GBL_TEST_VERIFY(within_error(shz_acosf(-2.0f), 3.14159265358979323846, 1.0e-6));
 
     GBL_TEST_CALL([&] GBL_NO_INLINE {
         GBL_CTX_BEGIN(pCtx);
         for(float v : unit_domain) {
             const float actual = shz::acosf(volatile_cast(v));
-            GBL_TEST_VERIFY(within_error(actual, std::acos(static_cast<double>(v)), SHZ_FSCA_ERROR_APPROX));
+            GBL_TEST_VERIFY(within_error(actual, std::acos(static_cast<double>(v)), SHZ_ASINF_ERROR_MAX));
         }
+
+        for(int i = -1000; i <= 1000; ++i) {
+            const float v      = static_cast<float>(i) / 1000.0f;
+            const float actual = shz::acosf(volatile_cast(v));
+            GBL_TEST_VERIFY(within_error(actual, std::acos(static_cast<double>(v)), SHZ_ASINF_ERROR_MAX));
+        }
+
+        GBL_TEST_VERIFY(shz::acosf(volatile_cast( 1.0000001f)) == 0.0f);
+        GBL_TEST_VERIFY(shz::acosf(volatile_cast(-1.0000001f)) == SHZ_F_PI);
+        GBL_TEST_VERIFY(shz::acosf(volatile_cast( 11.0f))      == 0.0f);
+        GBL_TEST_VERIFY(shz::acosf(volatile_cast(-2.0f))       == SHZ_F_PI);
         GBL_CTX_END();
     }());
 
     GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::acosf", bench_fn(shz::acosf), "acosf", bench_fn(acosf), gblRandUniform(-shz::pi_f, shz::pi_f)));
+GBL_TEST_CASE_END
+
+SHZ_NO_FAST_MATH
+GBL_TEST_CASE(atan2f)
+    GBL_TEST_VERIFY(within_error(shz_atan2f(1.0f, 1.0f), 3.14159265358979323846 / 4.0, 1.0e-6));
+
+    GBL_TEST_CALL([&] GBL_NO_INLINE {
+        GBL_CTX_BEGIN(pCtx);
+        // Directions all the way around the circle, at several magnitudes.
+        for(float magnitude : { 1.0e-3f, 1.0f, 37.5f, 1.0e6f }) {
+            for(int i = 0; i < 720; ++i) {
+                const double theta  = (i + 0.25) * (2.0 * 3.14159265358979323846 / 720.0);
+                const float  x      = static_cast<float>(magnitude * std::cos(theta));
+                const float  y      = static_cast<float>(magnitude * std::sin(theta));
+                const float  actual = shz::atan2f(volatile_cast(y), volatile_cast(x));
+                const double precise = std::atan2(static_cast<double>(y), static_cast<double>(x));
+
+                GBL_TEST_VERIFY(angle_error(actual, precise) <= SHZ_ATAN2F_ERROR_MAX);
+                GBL_TEST_VERIFY((actual < 0.0f) == (y < 0.0f));
+            }
+        }
+        GBL_CTX_END();
+    }());
+
+    // The polynomial has no error of its own on the axes, whatever SHZ_ATAN2F_TERMS is.
+    GBL_TEST_VERIFY(within_error(shz::atan2f(volatile_cast( 0.0f), volatile_cast( 2.0f)),  0.0,                          6.0e-7));
+    GBL_TEST_VERIFY(within_error(shz::atan2f(volatile_cast( 3.0f), volatile_cast( 0.0f)),  3.14159265358979323846 / 2.0, 6.0e-7));
+    GBL_TEST_VERIFY(within_error(shz::atan2f(volatile_cast(-3.0f), volatile_cast( 0.0f)), -3.14159265358979323846 / 2.0, 6.0e-7));
+    GBL_TEST_VERIFY(within_error(shz::atan2f(volatile_cast( 0.0f), volatile_cast(-2.0f)),  3.14159265358979323846,       6.0e-7));
+
+    // The zero vector, and a zero y of either sign counting as positive.
+    GBL_TEST_VERIFY(shz::atan2f(volatile_cast( 0.0f), volatile_cast( 0.0f)) == 0.0f);
+    GBL_TEST_VERIFY(shz::atan2f(volatile_cast(-0.0f), volatile_cast(-0.0f)) == 0.0f);
+    GBL_TEST_VERIFY(shz::atan2f(volatile_cast(-0.0f), volatile_cast(-2.0f)) >  0.0f);
 GBL_TEST_CASE_END
 
 SHZ_NO_FAST_MATH
@@ -435,6 +509,7 @@ GBL_TEST_REGISTER(sincos_from_radians,
                   atanf,
                   asinf,
                   acosf,
+                  atan2f,
                   sinhf,
                   coshf,
                   tanhf,

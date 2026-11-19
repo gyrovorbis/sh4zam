@@ -40,6 +40,53 @@
 #define SHZ_FSCA_DEG_FACTOR     182.04444443f
 //! Maximum FP error for FSCA instruction
 #define SHZ_FSCA_ERROR_MAX      4.76837158e-7
+//! Maximum absolute error, in radians, of shz_asinf() and shz_acosf().
+#define SHZ_ASINF_ERROR_MAX     8.0e-6
+
+/*! \def SHZ_ATAN2F_TERMS
+    Number of terms in the arctangent polynomial used by shz_atan2f().
+
+    shz_atan2f() reduces its arguments to a quotient `r` within `[-1, 1]` and
+    evaluates `atan(r) = r * P(r^2)`. This selects the length of `P`: each
+    additional term is one more multiply-accumulate.
+
+    | Terms | Degree | Maximum error (radians) | Cycles (model) |
+    |-------|--------|-------------------------|----------------|
+    | 2     | 3      | 6.2e-3                  | 36             |
+    | 5     | 9      | 1.4e-5                  | 45             |
+    | 6     | 11     | 2.5e-6                  | 46             |
+    | 7     | 13     | 1.0e-6                  | 49             |
+
+    Defaults to 5. To change it, define it as 2, 5, 6, or 7 for the entire
+    build (on the compiler's command line), so that every translation unit and
+    the library itself agree.
+
+    \note
+    The cycle counts are estimates from a pipeline model of the SH4 for one
+    call within a loop over an array, with every access a cache hit. They are
+    there to compare the settings with each other and are not measurements
+    taken on a console.
+
+    \sa shz_atan2f(), SHZ_ATAN2F_ERROR_MAX
+*/
+#ifndef SHZ_ATAN2F_TERMS
+#   define SHZ_ATAN2F_TERMS     5
+#endif
+
+/*! \def SHZ_ATAN2F_ERROR_MAX
+    Maximum absolute error, in radians, of shz_atan2f() for the configured SHZ_ATAN2F_TERMS.
+*/
+#if SHZ_ATAN2F_TERMS == 2
+#   define SHZ_ATAN2F_ERROR_MAX 6.2e-3
+#elif SHZ_ATAN2F_TERMS == 5
+#   define SHZ_ATAN2F_ERROR_MAX 1.4e-5
+#elif SHZ_ATAN2F_TERMS == 6
+#   define SHZ_ATAN2F_ERROR_MAX 2.5e-6
+#elif SHZ_ATAN2F_TERMS == 7
+#   define SHZ_ATAN2F_ERROR_MAX 1.0e-6
+#else
+#   error "SHZ_ATAN2F_TERMS must be 2, 5, 6, or 7."
+#endif
 
 //! Converts the given angle in degrees to radians
 #define SHZ_DEG_TO_RAD(deg)     ((deg) * SHZ_F_PI / 180.0f)
@@ -141,10 +188,37 @@ SHZ_INLINE float shz_cotf_deg(float degrees) SHZ_NOEXCEPT;
     @{
 */
 
-//! Fast arcsine approximation; equivalent to C's asinf().
+/*! Fast arcsine approximation; equivalent to C's asinf().
+
+    Returns the arcsine of \p x in radians, within `[-pi/2, pi/2]`.
+
+    Accuracy: `|shz_asinf(x) - asin(x)| <= 8e-6` radians (#SHZ_ASINF_ERROR_MAX)
+    over `[-1, 1]`. The error is absolute, not relative: near zero the result
+    has the sign of \p x and lies within the bound of it.
+
+    \note
+    Arguments outside of `[-1, 1]` are clamped rather than producing a NaN:
+    `x >= 1` returns `pi/2` and `x <= -1` returns `-pi/2`. A dot product of two
+    unit vectors which lands just beyond 1 from rounding is safe to pass in.
+
+    \sa shz_acosf()
+*/
 SHZ_INLINE float shz_asinf(float x) SHZ_NOEXCEPT;
 
-//! Fast arccosine approximation; equivalent to C's acosf().
+/*! Fast arccosine approximation; equivalent to C's acosf().
+
+    Returns the arccosine of \p x in radians, within `[0, pi]`.
+
+    Accuracy: `|shz_acosf(x) - acos(x)| <= 8e-6` radians (#SHZ_ASINF_ERROR_MAX)
+    over `[-1, 1]`.
+
+    \note
+    Arguments outside of `[-1, 1]` are clamped rather than producing a NaN:
+    `x >= 1` returns `0` and `x <= -1` returns `pi`. A dot product of two unit
+    vectors which lands just beyond 1 from rounding is safe to pass in.
+
+    \sa shz_asinf()
+*/
 SHZ_INLINE float shz_acosf(float x) SHZ_NOEXCEPT;
 
 //! Fast arctangent approximation for unit values between `0.0f` and `1.0f`.
@@ -156,7 +230,23 @@ SHZ_INLINE float shz_atanf_q1(float x) SHZ_NOEXCEPT;
 //! Fast arctangent approximation; equvalent to C's atanf().
 SHZ_INLINE float shz_atanf(float x) SHZ_NOEXCEPT;
 
-//! Computes arctangent of `y / x`, using the signs of arguments to determine correct quadtrant. Equivalent to C's atan2f().
+/*! Computes arctangent of `y / x`, using the signs of arguments to determine correct quadrant. Equivalent to C's atan2f().
+
+    Returns the angle of the vector `(x, y)` in radians, within `[-pi, pi]`.
+
+    Accuracy: `|shz_atan2f(y, x) - atan2(y, x)| <= 1.4e-5` radians with the
+    default #SHZ_ATAN2F_TERMS of 5 (#SHZ_ATAN2F_ERROR_MAX gives the bound for the
+    configured value), for finite arguments with `2e-18 <= |x| + |y| <= 5e17`.
+    On the four axes the result is within `6e-7` of `0`, `+-pi/2`, or `pi` for
+    every setting.
+
+    \note
+    `shz_atan2f(+-0, +-0)` returns `0`. The result takes the sign of \p y, where
+    a zero \p y of either sign counts as positive: `shz_atan2f(-0.0f, -1.0f)` is
+    `+pi` where C's atan2f() gives `-pi`.
+
+    \sa SHZ_ATAN2F_TERMS
+*/
 SHZ_INLINE float shz_atan2f(float y, float x) SHZ_NOEXCEPT;
 
 //! Fast arcsecant/inverse secant approximation, taking units in radians.
