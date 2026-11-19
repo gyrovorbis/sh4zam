@@ -196,30 +196,80 @@ SHZ_INLINE float shz_atan2f(float y, float x) SHZ_NOEXCEPT {
     }
 
     r *= shz_invf_fsrra(abs_sum);
-    angle += shz_fmaf(0.1963f, r * r, -0.9817f) * r;
 
-    return shz_copysignf(angle, y);
+    /* atan(r) = r * P(r^2) over [-1, 1]. Every P is the minimax fit under
+       P(1) = pi/4, which keeps the error at zero on the axes (r = +-1). The
+       longer ones are evaluated in pairs so that their terms can overlap. */
+    const float r2 = r * r;
+#if SHZ_ATAN2F_TERMS == 2
+    const float p  = shz_fmaf(r2, -0.182084382f, 0.967482567f);
+#elif SHZ_ATAN2F_TERMS == 5
+    const float r4 = r2 * r2;
+    const float p  = shz_fmaf(r4, shz_fmaf(r4, 0.0202457625f,
+                                           shz_fmaf(r2, -0.0839662105f, 0.179388285f)),
+                              shz_fmaf(r2, -0.330125183f, 0.999855518f));
+#elif SHZ_ATAN2F_TERMS == 6
+    const float r4 = r2 * r2;
+    const float p  = shz_fmaf(r4, shz_fmaf(r4, shz_fmaf(r2, -0.0114275254f, 0.0519234873f),
+                                           shz_fmaf(r2, -0.11578197f, 0.193293691f)),
+                              shz_fmaf(r2, -0.332585186f, 0.999975681f));
+#else
+    const float r4 = r2 * r2;
+    const float p  = shz_fmaf(r4, shz_fmaf(r4, shz_fmaf(r4, 0.00666252105f,
+                                                        shz_fmaf(r2, -0.0331594534f, 0.0791187882f)),
+                                           shz_fmaf(r2, -0.132061511f, 0.198008001f)),
+                              shz_fmaf(r2, -0.333166063f, 0.999995887f));
+#endif
+
+    return shz_copysignf(shz_fmaf(-r, p, angle), y);
+}
+
+/* acos(t) = sqrt(1 - t) * Q(t) over [0, 1]: Q is smooth there, since the
+   square root carries the infinite slope at 1. Q is a quartic, the minimax
+   fit under Q(0) = pi/2, which keeps the error at zero at t = 0. Returns
+   (1 - t) * Q(t), to be multiplied by the reciprocal square root of (1 - t). */
+SHZ_FORCE_INLINE float shz_acosf_unit_poly(float t, float one_minus_t) SHZ_NOEXCEPT {
+    const float t2   = t * t;
+    const float low  = shz_fmaf(t, -0.214366547f, SHZ_F_PI_2);
+    const float high = shz_fmaf(t2, 0.0100441489f, shz_fmaf(t, -0.0382241586f, 0.0860212715f));
+
+    return one_minus_t * shz_fmaf(t2, high, low);
 }
 
 SHZ_FORCE_INLINE float shz_asinf(float x) SHZ_NOEXCEPT {
 #ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
-        return __builtin_asinf(x);
+        return __builtin_asinf(shz_clampf(x, -1.0f, 1.0f));
 #endif
+    const float t           = shz_fabsf(x);
+    const float one_minus_t = 1.0f - t;
 
-#if SHZ_BACKEND == SHZ_SH4
-    return shz_asinf_sh4(x);
-#else
-    return shz_asinf_sw(x);
-#endif
+    // asin(t) = pi/2 - acos(t); fabsf() keeps a last-bit excess near t = 0 from flipping the sign.
+    float r = shz_fabsf(shz_fmaf(-shz_inv_sqrtf_fsrra(one_minus_t),
+                                 shz_acosf_unit_poly(t, one_minus_t), SHZ_F_PI_2));
+
+    // Also discards the reciprocal root of a non-positive value.
+    if(SHZ_UNLIKELY(t >= 1.0f))
+        r = SHZ_F_PI_2;
+
+    return (x < 0.0f)? -r : r;
 }
 
 SHZ_INLINE float shz_acosf(float x) SHZ_NOEXCEPT {
 #ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
-        return __builtin_acosf(x);
+        return __builtin_acosf(shz_clampf(x, -1.0f, 1.0f));
 #endif
-    return SHZ_F_PI_2 - shz_asinf(x);
+    const float t           = shz_fabsf(x);
+    const float one_minus_t = 1.0f - t;
+
+    float r = shz_inv_sqrtf_fsrra(one_minus_t) * shz_acosf_unit_poly(t, one_minus_t);
+
+    // Also discards the reciprocal root of a non-positive value.
+    if(SHZ_UNLIKELY(t >= 1.0f))
+        r = 0.0f;
+
+    return (x < 0.0f)? SHZ_F_PI - r : r;
 }
 
 SHZ_INLINE float shz_asecf(float x) SHZ_NOEXCEPT {
