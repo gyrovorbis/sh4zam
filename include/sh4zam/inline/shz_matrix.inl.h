@@ -766,23 +766,22 @@ SHZ_FORCE_INLINE float shz_mat4x4_trace(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
 }
 
 SHZ_INLINE float shz_mat4x4_determinant(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
-	const float (*m)[4] = mat->elem2D;
+    const float (*m)[4] = mat->elem2D;
+    float s0 = m[2][2] * m[3][3] - m[3][2] * m[2][3];
 
 #if 0 // Cache the subfactors
-    float s0 = m[2][1] * m[3][3] - m[3][1] * m[2][3];
-    float s1 = m[2][1] * m[3][2] - m[3][1] * m[2][2];
-    float s2 = m[2][0] * m[3][3] - m[3][0] * m[2][3];
+    float s1 = m[2][1] * m[3][3] - m[3][1] * m[2][3];
+    float s2 = m[2][1] * m[3][2] - m[3][1] * m[2][2];
 
     float s3 = m[2][0] * m[3][3] - m[3][0] * m[2][3];
     float s4 = m[2][0] * m[3][2] - m[3][0] * m[2][2];
     float s5 = m[2][0] * m[3][1] - m[3][0] * m[2][1];
 #else // FIPR da subfactors
-    shz_vec2_t s01 = shz_vec2_dot2(shz_vec2_init(m[2][1], -m[3][1]),
+    shz_vec2_t s12 = shz_vec2_dot2(shz_vec2_init(m[2][1], -m[3][1]),
                                    shz_vec2_init(m[3][3],  m[2][3]),
                                    shz_vec2_init(m[3][2],  m[2][2]));
-    float s0 = s01.x;
-    float s1 = s01.y;
-    float s2 = m[2][0] * m[3][3] - m[3][0] * m[2][3];
+    float s1 = s12.x;
+    float s2 = s12.y;
 
     shz_vec3_t s345 = shz_vec2_dot3(shz_vec2_init(m[2][0], -m[3][0]),
                                     shz_vec2_init(m[3][3],  m[2][3]),
