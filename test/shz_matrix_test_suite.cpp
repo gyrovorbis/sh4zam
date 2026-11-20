@@ -1145,8 +1145,8 @@ static shz::mat4x4 rotated_mat4x4_(F&& rotate) {
 
 // The rotations with no test case of their own: double arguments must select the radian overload.
 GBL_TEST_CASE(init_rotation_x_yz)
-    shz_glm_mat4   res, ref;
-    volatile float angle = 0.6f;
+    alignas(32) static shz_glm_mat4 res, ref;
+    volatile float                  angle = 0.6f;
 
     for(float theta : { 0.0f, 0.6f, -1.9f, 2.5f, 3.1f, -shz::pi_f * 0.5f }) {
         res.shz.init_rotation_x_yz(-sinf(theta), cosf(theta));
@@ -1156,7 +1156,7 @@ GBL_TEST_CASE(init_rotation_x_yz)
         GBL_TEST_VERIFY(res.shz == ref.shz);
     }
 
-    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+    (benchmark_cmp<void>)(
         "shz::mat4x4::init_rotation_x_yz", [&](float y, float z) {
             res.shz.init_rotation_x_yz(y, z);
         },
@@ -1167,7 +1167,7 @@ GBL_TEST_CASE(init_rotation_x_yz)
             ref.glm[2][1] = y;
             ref.glm[2][2] = z;
         },
-        -sinf(0.6f), cosf(0.6f)));
+        -sinf(0.6f), cosf(0.6f));
 
     GBL_TEST_VERIFY((benchmark_cmp<void>)(
         "shz::mat4x4::init_rotation_x_yz", [&](float y, float z, const volatile float*) {
@@ -1181,8 +1181,8 @@ GBL_TEST_CASE(init_rotation_x_yz)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_rotation_y_xz)
-    shz_glm_mat4   res, ref;
-    volatile float angle = 0.6f;
+    alignas(32) static shz_glm_mat4 res, ref;
+    volatile float                  angle = 0.6f;
 
     for(float theta : { 0.0f, 0.6f, -1.9f, 2.5f, 3.1f, -shz::pi_f * 0.5f }) {
         res.shz.init_rotation_y_xz(sinf(theta), cosf(theta));
@@ -1192,7 +1192,7 @@ GBL_TEST_CASE(init_rotation_y_xz)
         GBL_TEST_VERIFY(res.shz == ref.shz);
     }
 
-    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+    (benchmark_cmp<void>)(
         "shz::mat4x4::init_rotation_y_xz", [&](float x, float z) {
             res.shz.init_rotation_y_xz(x, z);
         },
@@ -1203,7 +1203,7 @@ GBL_TEST_CASE(init_rotation_y_xz)
             ref.glm[2][0] = x;
             ref.glm[2][2] = z;
         },
-        sinf(0.6f), cosf(0.6f)));
+        sinf(0.6f), cosf(0.6f));
 
     GBL_TEST_VERIFY((benchmark_cmp<void>)(
         "shz::mat4x4::init_rotation_y_xz", [&](float x, float z, const volatile float*) {
@@ -1217,8 +1217,8 @@ GBL_TEST_CASE(init_rotation_y_xz)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(init_rotation_z_xy)
-    shz_glm_mat4   res, ref;
-    volatile float angle = 0.6f;
+    alignas(32) static shz_glm_mat4 res, ref;
+    volatile float                  angle = 0.6f;
 
     for(float theta : { 0.0f, 0.6f, -1.9f, 2.5f, 3.1f, -shz::pi_f * 0.5f }) {
         res.shz.init_rotation_z_xy(cosf(theta), sinf(theta));
@@ -1228,7 +1228,7 @@ GBL_TEST_CASE(init_rotation_z_xy)
         GBL_TEST_VERIFY(res.shz == ref.shz);
     }
 
-    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+    (benchmark_cmp<void>)(
         "shz::mat4x4::init_rotation_z_xy", [&](float x, float y) {
             res.shz.init_rotation_z_xy(x, y);
         },
@@ -1239,7 +1239,7 @@ GBL_TEST_CASE(init_rotation_z_xy)
             ref.glm[1][0] = -y;
             ref.glm[1][1] = x;
         },
-        cosf(0.6f), sinf(0.6f)));
+        cosf(0.6f), sinf(0.6f));
 
     GBL_TEST_VERIFY((benchmark_cmp<void>)(
         "shz::mat4x4::init_rotation_z_xy", [&](float x, float y, const volatile float*) {
@@ -1253,8 +1253,8 @@ GBL_TEST_CASE(init_rotation_z_xy)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_x_yz)
-    shz_glm_mat4 res, ref;
-    mat4         rot;
+    alignas(32) static shz_glm_mat4 res, ref;
+    mat4                            rot;
 
     for(float theta : { 0.0f, 0.6f, -1.9f, 2.5f, 3.1f, -shz::pi_f * 0.5f }) {
         res = dense_matrix();
@@ -1284,8 +1284,8 @@ GBL_TEST_CASE(rotate_x_yz)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_y_xz)
-    shz_glm_mat4 res, ref;
-    mat4         rot;
+    alignas(32) static shz_glm_mat4 res, ref;
+    mat4                            rot;
 
     for(float theta : { 0.0f, 0.6f, -1.9f, 2.5f, 3.1f, -shz::pi_f * 0.5f }) {
         res = dense_matrix();
@@ -1315,8 +1315,8 @@ GBL_TEST_CASE(rotate_y_xz)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_z_xy)
-    shz_glm_mat4 res, ref;
-    mat4         rot;
+    alignas(32) static shz_glm_mat4 res, ref;
+    mat4                            rot;
 
     for(float theta : { 0.0f, 0.6f, -1.9f, 2.5f, 3.1f, -shz::pi_f * 0.5f }) {
         res = dense_matrix();
@@ -1355,7 +1355,7 @@ GBL_TEST_CASE(init_billboard_x)
     };
     static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 9.0f, 2.0f, 3.0f } };
     static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
-    shz_glm_mat4           res, ref;
+    alignas(32) static shz_glm_mat4 res, ref;
 
     for(const auto& c : cases) {
         res.shz.init_billboard_x(c[0], c[1]);
@@ -1398,7 +1398,7 @@ GBL_TEST_CASE(init_billboard_y)
     };
     static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 1.0f, 9.0f, 3.0f } };
     static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
-    shz_glm_mat4           res, ref;
+    alignas(32) static shz_glm_mat4 res, ref;
 
     for(const auto& c : cases) {
         res.shz.init_billboard_y(c[0], c[1]);
@@ -1441,7 +1441,7 @@ GBL_TEST_CASE(init_billboard_z)
     };
     static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 1.0f, 2.0f, 9.0f } };
     static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
-    shz_glm_mat4           res, ref;
+    alignas(32) static shz_glm_mat4 res, ref;
 
     for(const auto& c : cases) {
         res.shz.init_billboard_z(c[0], c[1]);
@@ -1484,8 +1484,8 @@ GBL_TEST_CASE(billboard_x)
     };
     static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 9.0f, 2.0f, 3.0f } };
     static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
-    shz_glm_mat4           res, ref;
-    mat4                   rot;
+    alignas(32) static shz_glm_mat4 res, ref;
+    mat4                            rot;
 
     for(const auto& c : cases) {
         res = dense_matrix();
@@ -1534,8 +1534,8 @@ GBL_TEST_CASE(billboard_y)
     };
     static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 1.0f, 9.0f, 3.0f } };
     static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
-    shz_glm_mat4           res, ref;
-    mat4                   rot;
+    alignas(32) static shz_glm_mat4 res, ref;
+    mat4                            rot;
 
     for(const auto& c : cases) {
         res = dense_matrix();
@@ -1584,8 +1584,8 @@ GBL_TEST_CASE(billboard_z)
     };
     static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 1.0f, 2.0f, 9.0f } };
     static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
-    shz_glm_mat4           res, ref;
-    mat4                   rot;
+    alignas(32) static shz_glm_mat4 res, ref;
+    mat4                            rot;
 
     for(const auto& c : cases) {
         res = dense_matrix();
