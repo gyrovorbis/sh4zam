@@ -192,6 +192,36 @@ namespace shz {
             shz_mat4x4_init_rotation_z_u16(this, angle);
         }
 
+        //! C++ wrapper around shz_mat4x4_init_rotation_x_yz().
+        SHZ_FORCE_INLINE void init_rotation_x_yz(float y, float z) noexcept {
+            shz_mat4x4_init_rotation_x_yz(this, y, z);
+        }
+
+        //! C++ wrapper around shz_mat4x4_init_rotation_y_xz().
+        SHZ_FORCE_INLINE void init_rotation_y_xz(float x, float z) noexcept {
+            shz_mat4x4_init_rotation_y_xz(this, x, z);
+        }
+
+        //! C++ wrapper around shz_mat4x4_init_rotation_z_xy().
+        SHZ_FORCE_INLINE void init_rotation_z_xy(float x, float y) noexcept {
+            shz_mat4x4_init_rotation_z_xy(this, x, y);
+        }
+
+        //! C++ wrapper around shz_mat4x4_init_billboard_x().
+        SHZ_FORCE_INLINE void init_billboard_x(const vec3& pos, const vec3& eye) noexcept {
+            shz_mat4x4_init_billboard_x(this, pos, eye);
+        }
+
+        //! C++ wrapper around shz_mat4x4_init_billboard_y().
+        SHZ_FORCE_INLINE void init_billboard_y(const vec3& pos, const vec3& eye) noexcept {
+            shz_mat4x4_init_billboard_y(this, pos, eye);
+        }
+
+        //! C++ wrapper around shz_mat4x4_init_billboard_z().
+        SHZ_FORCE_INLINE void init_billboard_z(const vec3& pos, const vec3& eye) noexcept {
+            shz_mat4x4_init_billboard_z(this, pos, eye);
+        }
+
         SHZ_FORCE_INLINE void init_rotation_xyz(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) noexcept {
             shz_mat4x4_init_rotation_xyz_u16(this, xAngle, yAngle, zAngle);
         }
@@ -568,6 +598,36 @@ namespace shz {
 
         SHZ_FORCE_INLINE void rotate_z(uint16_t radians16) noexcept {
             shz_mat4x4_rotate_z_u16(this, radians16);
+        }
+
+        //! C++ wrapper around shz_mat4x4_rotate_x_yz().
+        SHZ_FORCE_INLINE void rotate_x_yz(float y, float z) noexcept {
+            shz_mat4x4_rotate_x_yz(this, y, z);
+        }
+
+        //! C++ wrapper around shz_mat4x4_rotate_y_xz().
+        SHZ_FORCE_INLINE void rotate_y_xz(float x, float z) noexcept {
+            shz_mat4x4_rotate_y_xz(this, x, z);
+        }
+
+        //! C++ wrapper around shz_mat4x4_rotate_z_xy().
+        SHZ_FORCE_INLINE void rotate_z_xy(float x, float y) noexcept {
+            shz_mat4x4_rotate_z_xy(this, x, y);
+        }
+
+        //! C++ wrapper around shz_mat4x4_billboard_x().
+        SHZ_FORCE_INLINE void billboard_x(const vec3& pos, const vec3& eye) noexcept {
+            shz_mat4x4_billboard_x(this, pos, eye);
+        }
+
+        //! C++ wrapper around shz_mat4x4_billboard_y().
+        SHZ_FORCE_INLINE void billboard_y(const vec3& pos, const vec3& eye) noexcept {
+            shz_mat4x4_billboard_y(this, pos, eye);
+        }
+
+        //! C++ wrapper around shz_mat4x4_billboard_z().
+        SHZ_FORCE_INLINE void billboard_z(const vec3& pos, const vec3& eye) noexcept {
+            shz_mat4x4_billboard_z(this, pos, eye);
         }
 
         SHZ_FORCE_INLINE void rotate_xyz(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) noexcept {

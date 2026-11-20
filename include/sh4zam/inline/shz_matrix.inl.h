@@ -107,6 +107,36 @@ SHZ_INLINE void shz_mat4x4_init_rotation_z_u16(shz_mat4x4_t* mat, uint16_t zAngl
     shz_xmtrx_store_4x4(mat);
 }
 
+SHZ_INLINE void shz_mat4x4_init_rotation_x_yz(shz_mat4x4_t* mat, float y, float z) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_x_yz(y, z);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_rotation_y_xz(shz_mat4x4_t* mat, float x, float z) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_y_xz(x, z);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_rotation_z_xy(shz_mat4x4_t* mat, float x, float y) SHZ_NOEXCEPT {
+    shz_xmtrx_init_rotation_z_xy(x, y);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_billboard_x(shz_mat4x4_t* mat, shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT {
+    shz_xmtrx_init_billboard_x(pos, eye);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_billboard_y(shz_mat4x4_t* mat, shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT {
+    shz_xmtrx_init_billboard_y(pos, eye);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_init_billboard_z(shz_mat4x4_t* mat, shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT {
+    shz_xmtrx_init_billboard_z(pos, eye);
+    shz_xmtrx_store_4x4(mat);
+}
+
 SHZ_INLINE void shz_mat4x4_init_rotation_xyz_u16(shz_mat4x4_t* mat, uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT {
     shz_xmtrx_init_rotation_xyz_u16(xAngle, yAngle, zAngle);
     shz_xmtrx_store_4x4(mat);
@@ -509,6 +539,42 @@ SHZ_INLINE void shz_mat4x4_rotate_y_u16(shz_mat4x4_t* mat, uint16_t radians16) S
 SHZ_INLINE void shz_mat4x4_rotate_z_u16(shz_mat4x4_t* mat, uint16_t radians16) SHZ_NOEXCEPT {
     shz_xmtrx_load_4x4(mat);
     shz_xmtrx_rotate_z_u16(radians16);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_rotate_x_yz(shz_mat4x4_t* mat, float y, float z) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_x_yz(y, z);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_rotate_y_xz(shz_mat4x4_t* mat, float x, float z) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_y_xz(x, z);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_rotate_z_xy(shz_mat4x4_t* mat, float x, float y) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_z_xy(x, y);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_billboard_x(shz_mat4x4_t* mat, shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_billboard_x(pos, eye);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_billboard_y(shz_mat4x4_t* mat, shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_billboard_y(pos, eye);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_billboard_z(shz_mat4x4_t* mat, shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_billboard_z(pos, eye);
     shz_xmtrx_store_4x4(mat);
 }
 

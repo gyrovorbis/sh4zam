@@ -192,6 +192,87 @@ SHZ_INLINE void shz_mat4x4_init_rotation_y_u16(shz_mat4x4_t* mat, uint16_t yAngl
 */
 SHZ_INLINE void shz_mat4x4_init_rotation_z_u16(shz_mat4x4_t* mat, uint16_t zAngle) SHZ_NOEXCEPT;
 
+/*! Initializes the given matrix to the rotation about the X axis that turns local +Z toward the unit direction (0, \p y, \p z).
+
+    \warning (\p y, \p z) must be unit length.
+    \warning This routine clobbers XMTRX.
+
+    \param  mat     The matrix to initialize.
+    \param  y       Y component of the unit direction.
+    \param  z       Z component of the unit direction.
+
+    \sa shz_xmtrx_init_rotation_x_yz(), shz_mat4x4_rotate_x_yz()
+*/
+SHZ_INLINE void shz_mat4x4_init_rotation_x_yz(shz_mat4x4_t* mat, float y, float z) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix to the rotation about the Y axis that turns local +Z toward the unit direction (\p x, 0, \p z).
+
+    \warning (\p x, \p z) must be unit length.
+    \warning This routine clobbers XMTRX.
+
+    \param  mat     The matrix to initialize.
+    \param  x       X component of the unit direction.
+    \param  z       Z component of the unit direction.
+
+    \sa shz_xmtrx_init_rotation_y_xz(), shz_mat4x4_rotate_y_xz()
+*/
+SHZ_INLINE void shz_mat4x4_init_rotation_y_xz(shz_mat4x4_t* mat, float x, float z) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix to the rotation about the Z axis that turns local +X toward the unit direction (\p x, \p y, 0).
+
+    \warning (\p x, \p y) must be unit length.
+    \warning This routine clobbers XMTRX.
+
+    \param  mat     The matrix to initialize.
+    \param  x       X component of the unit direction.
+    \param  y       Y component of the unit direction.
+
+    \sa shz_xmtrx_init_rotation_z_xy(), shz_mat4x4_rotate_z_xy()
+*/
+SHZ_INLINE void shz_mat4x4_init_rotation_z_xy(shz_mat4x4_t* mat, float x, float y) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix to the rotation about the X axis that turns local +Z toward \p eye, as seen from \p pos.
+
+    \note If \p eye lies on the X axis through \p pos, the facing direction is undefined and
+          no rotation is applied, leaving local +Z unrotated.
+    \warning This routine clobbers XMTRX.
+
+    \param  mat     The matrix to initialize.
+    \param  pos     Position of the billboarded object, used only to compute the direction to \p eye.
+    \param  eye     Position to face, such as the camera eye, in the same space as \p pos.
+
+    \sa shz_xmtrx_init_billboard_x(), shz_mat4x4_billboard_x()
+*/
+SHZ_INLINE void shz_mat4x4_init_billboard_x(shz_mat4x4_t* mat, shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix to the rotation about the Y axis that turns local +Z toward \p eye, as seen from \p pos.
+
+    \note If \p eye lies on the Y axis through \p pos, the facing direction is undefined and
+          no rotation is applied, leaving local +Z unrotated.
+    \warning This routine clobbers XMTRX.
+
+    \param  mat     The matrix to initialize.
+    \param  pos     Position of the billboarded object, used only to compute the direction to \p eye.
+    \param  eye     Position to face, such as the camera eye, in the same space as \p pos.
+
+    \sa shz_xmtrx_init_billboard_y(), shz_mat4x4_billboard_y()
+*/
+SHZ_INLINE void shz_mat4x4_init_billboard_y(shz_mat4x4_t* mat, shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT;
+
+/*! Initializes the given matrix to the rotation about the Z axis that turns local +X toward \p eye, as seen from \p pos.
+
+    \note If \p eye lies on the Z axis through \p pos, the facing direction is undefined and
+          no rotation is applied, leaving local +X unrotated.
+    \warning This routine clobbers XMTRX.
+
+    \param  mat     The matrix to initialize.
+    \param  pos     Position of the billboarded object, used only to compute the direction to \p eye.
+    \param  eye     Position to face, such as the camera eye, in the same space as \p pos.
+
+    \sa shz_xmtrx_init_billboard_z(), shz_mat4x4_billboard_z()
+*/
+SHZ_INLINE void shz_mat4x4_init_billboard_z(shz_mat4x4_t* mat, shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT;
+
 /*! Equivalent to shz_mat4x4_init_rotation_xyz(), with 16-bit binary angles.
 
     \warning This routine clobbers XMTRX.
@@ -614,6 +695,87 @@ SHZ_INLINE void shz_mat4x4_rotate_y_u16(shz_mat4x4_t* mat, uint16_t radians16) S
     \warning This routine clobbers XMTRX.
 */
 SHZ_INLINE void shz_mat4x4_rotate_z_u16(shz_mat4x4_t* mat, uint16_t radians16) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by the rotation about the X axis that turns local +Z toward the unit direction (0, \p y, \p z).
+
+    \warning (\p y, \p z) must be unit length.
+    \warning This routine clobbers XMTRX.
+
+    \param  mat     The matrix to accumulate into.
+    \param  y       Y component of the unit direction.
+    \param  z       Z component of the unit direction.
+
+    \sa shz_xmtrx_rotate_x_yz(), shz_mat4x4_init_rotation_x_yz()
+*/
+SHZ_INLINE void shz_mat4x4_rotate_x_yz(shz_mat4x4_t* mat, float y, float z) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by the rotation about the Y axis that turns local +Z toward the unit direction (\p x, 0, \p z).
+
+    \warning (\p x, \p z) must be unit length.
+    \warning This routine clobbers XMTRX.
+
+    \param  mat     The matrix to accumulate into.
+    \param  x       X component of the unit direction.
+    \param  z       Z component of the unit direction.
+
+    \sa shz_xmtrx_rotate_y_xz(), shz_mat4x4_init_rotation_y_xz()
+*/
+SHZ_INLINE void shz_mat4x4_rotate_y_xz(shz_mat4x4_t* mat, float x, float z) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by the rotation about the Z axis that turns local +X toward the unit direction (\p x, \p y, 0).
+
+    \warning (\p x, \p y) must be unit length.
+    \warning This routine clobbers XMTRX.
+
+    \param  mat     The matrix to accumulate into.
+    \param  x       X component of the unit direction.
+    \param  y       Y component of the unit direction.
+
+    \sa shz_xmtrx_rotate_z_xy(), shz_mat4x4_init_rotation_z_xy()
+*/
+SHZ_INLINE void shz_mat4x4_rotate_z_xy(shz_mat4x4_t* mat, float x, float y) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by the rotation about the X axis that turns local +Z toward \p eye, as seen from \p pos.
+
+    \note If \p eye lies on the X axis through \p pos, the facing direction is undefined and
+          no rotation is applied.
+    \warning This routine clobbers XMTRX.
+
+    \param  mat     The matrix to accumulate into.
+    \param  pos     Position of the billboarded object, used only to compute the direction to \p eye.
+    \param  eye     Position to face, such as the camera eye, in the same space as \p pos.
+
+    \sa shz_xmtrx_billboard_x(), shz_mat4x4_init_billboard_x()
+*/
+SHZ_INLINE void shz_mat4x4_billboard_x(shz_mat4x4_t* mat, shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by the rotation about the Y axis that turns local +Z toward \p eye, as seen from \p pos.
+
+    \note If \p eye lies on the Y axis through \p pos, the facing direction is undefined and
+          no rotation is applied.
+    \warning This routine clobbers XMTRX.
+
+    \param  mat     The matrix to accumulate into.
+    \param  pos     Position of the billboarded object, used only to compute the direction to \p eye.
+    \param  eye     Position to face, such as the camera eye, in the same space as \p pos.
+
+    \sa shz_xmtrx_billboard_y(), shz_mat4x4_init_billboard_y()
+*/
+SHZ_INLINE void shz_mat4x4_billboard_y(shz_mat4x4_t* mat, shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates \p mat by the rotation about the Z axis that turns local +X toward \p eye, as seen from \p pos.
+
+    \note If \p eye lies on the Z axis through \p pos, the facing direction is undefined and
+          no rotation is applied.
+    \warning This routine clobbers XMTRX.
+
+    \param  mat     The matrix to accumulate into.
+    \param  pos     Position of the billboarded object, used only to compute the direction to \p eye.
+    \param  eye     Position to face, such as the camera eye, in the same space as \p pos.
+
+    \sa shz_xmtrx_billboard_z(), shz_mat4x4_init_billboard_z()
+*/
+SHZ_INLINE void shz_mat4x4_billboard_z(shz_mat4x4_t* mat, shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT;
 
 /*! Equivalent to shz_mat4x4_rotate_xyz(), with 16-bit binary angles.
 

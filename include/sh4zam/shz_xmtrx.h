@@ -339,10 +339,10 @@ SHZ_INLINE void shz_xmtrx_init_rotation_yxz_u16(uint16_t yAngle, uint16_t xAngle
     without computing an angle or going through FSCA. Useful for billboarding and for any direction
     that is already normalized.
 
-    \param  y   Y component of the unit direction.
-    \param  z   Z component of the unit direction.
-
     \warning (\p y, \p z) must be unit length.
+
+    \param  y       Y component of the unit direction.
+    \param  z       Z component of the unit direction.
 
     \sa shz_xmtrx_rotate_x_yz(), shz_xmtrx_init_billboard_x()
 */
@@ -352,10 +352,10 @@ SHZ_INLINE void shz_xmtrx_init_rotation_x_yz(float y, float z) SHZ_NOEXCEPT;
 
     Equivalent to shz_xmtrx_init_rotation_y() for the angle whose sine is \p x and cosine is \p z.
 
-    \param  x   X component of the unit direction.
-    \param  z   Z component of the unit direction.
-
     \warning (\p x, \p z) must be unit length.
+
+    \param  x       X component of the unit direction.
+    \param  z       Z component of the unit direction.
 
     \sa shz_xmtrx_rotate_y_xz(), shz_xmtrx_init_billboard_y()
 */
@@ -365,10 +365,10 @@ SHZ_INLINE void shz_xmtrx_init_rotation_y_xz(float x, float z) SHZ_NOEXCEPT;
 
     Equivalent to shz_xmtrx_init_rotation_z() for the angle whose sine is \p y and cosine is \p x.
 
-    \param  x   X component of the unit direction.
-    \param  y   Y component of the unit direction.
-
     \warning (\p x, \p y) must be unit length.
+
+    \param  x       X component of the unit direction.
+    \param  y       Y component of the unit direction.
 
     \sa shz_xmtrx_rotate_z_xy(), shz_xmtrx_init_billboard_z()
 */
@@ -673,8 +673,8 @@ SHZ_INLINE void shz_xmtrx_rotate_z_u16(uint16_t radians16) SHZ_NOEXCEPT;
 
     \warning (\p y, \p z) must be unit length.
 
-    \param  y   Y component of the unit direction.
-    \param  z   Z component of the unit direction.
+    \param  y       Y component of the unit direction.
+    \param  z       Z component of the unit direction.
 
     \sa shz_xmtrx_init_rotation_x_yz(), shz_xmtrx_billboard_x()
 */
@@ -686,8 +686,8 @@ SHZ_INLINE void shz_xmtrx_rotate_x_yz(float y, float z) SHZ_NOEXCEPT;
 
     \warning (\p x, \p z) must be unit length.
 
-    \param  x   X component of the unit direction.
-    \param  z   Z component of the unit direction.
+    \param  x       X component of the unit direction.
+    \param  z       Z component of the unit direction.
 
     \sa shz_xmtrx_init_rotation_y_xz(), shz_xmtrx_billboard_y()
 */
@@ -699,8 +699,8 @@ SHZ_INLINE void shz_xmtrx_rotate_y_xz(float x, float z) SHZ_NOEXCEPT;
 
     \warning (\p x, \p y) must be unit length.
 
-    \param  x   X component of the unit direction.
-    \param  y   Y component of the unit direction.
+    \param  x       X component of the unit direction.
+    \param  y       Y component of the unit direction.
 
     \sa shz_xmtrx_init_rotation_z_xy(), shz_xmtrx_billboard_z()
 */
