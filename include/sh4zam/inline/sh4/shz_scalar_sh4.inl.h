@@ -74,6 +74,12 @@ SHZ_FORCE_INLINE float shz_mag_sqr3f_sh4(float x, float y, float z) SHZ_NOEXCEPT
     return shz_mag_sqr4f_sh4(x, y, z, 0.0f);
 }
 
+SHZ_FORCE_INLINE float shz_opaquef_sh4(float value) SHZ_NOEXCEPT {
+    asm("" : "+f" (value));
+
+    return value;
+}
+
 SHZ_FORCE_INLINE float shz_inv_sqrtf_fsrra_sh4(float x) SHZ_NOEXCEPT {
     asm("fsrra %0" : "+f" (x));
 

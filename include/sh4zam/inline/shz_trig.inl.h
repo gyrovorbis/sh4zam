@@ -239,7 +239,7 @@ SHZ_FORCE_INLINE float shz_acosf_unit_poly(float t, float one_minus_t) SHZ_NOEXC
 SHZ_FORCE_INLINE float shz_asinf(float x) SHZ_NOEXCEPT {
 #ifdef SHZ_GNUC
     if(__builtin_constant_p(x))
-        return __builtin_asinf(shz_clampf(x, -1.0f, 1.0f));
+        return (x >= 1.0f)? SHZ_F_PI_2 : (x <= -1.0f)? -SHZ_F_PI_2 : __builtin_asinf(x);
 #endif
     const float t           = shz_fabsf(x);
     const float one_minus_t = 1.0f - t;

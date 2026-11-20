@@ -201,6 +201,14 @@ SHZ_INLINE float shz_copysignf(float x, float y) SHZ_NOEXCEPT;
 */
 SHZ_INLINE float shz_fmaf(float a, float b, float c) SHZ_NOEXCEPT;
 
+/*! Returns \p value unchanged, hidden from the optimizer.
+
+    Emits no instructions, but prevents the compiler from reassociating
+    across \p value or substituting it with a known equivalent, which can
+    be used to influence instruction scheduling.
+*/
+SHZ_INLINE float shz_opaquef(float value) SHZ_NOEXCEPT;
+
 /*! Replacement for the <math.h> routine, fdimf(),
 
     Returns the positive difference between \p x and \p y or zero if
@@ -269,17 +277,74 @@ SHZ_INLINE float shz_sqrtf_fsrra(float x) SHZ_NOEXCEPT;
 //! Returns the fast approximate square root of the given value, \p x, safely returning `0.0f` is \p x == `0.0f`.
 SHZ_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT;
 
-//! Takes the inverse of \p x using a very fast approximation, returning a positive result.
-SHZ_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT;
+/*! Approximate inverse of a signed number.
 
-//! Takes the inverse of \p x using a slighty faster approximation than doing a full division, safely handling negative values.
+    This routine takes approximately the same number of cycles as `1.0f / x` on the SH4
+    and is slightly less accurate; however, it can be paired with a full inversion to
+    perform the two in parallel.
+
+    \note The vector forms of this routine automatically handle optimal parallelization
+          of this operation across multiple lanes.
+
+    \param  x   The signed number to reciprocate.
+    \returns    The approximated value `1.0f / x`.
+
+    \sa shz_invf_fsrra(), shz_vec2_inv(), shz_vec3_inv(), shz_vec4_inv()
+*/
 SHZ_INLINE float shz_invf(float x) SHZ_NOEXCEPT;
 
-//! Divides \p num by \p denom using a very fast approximation, which requires \p denom be a positive value.
-SHZ_INLINE float shz_divf_fsrra(float num, float denom) SHZ_NOEXCEPT;
+/*! Fast unsigned approximate inverse of a number.
 
-//! Divides \p num by \p denom using a slightly faster approximation, allowing \p denom to be negative.
+    This routine returns a fast unsigned reciprocal, which is approximately equal
+    to `1.0f / fabsf(x)`. It can also be paired with a real floating-point reciprocal
+    in the same form with both computing in parallel.
+
+    \note The vector forms of this routine automatically handle optimal parallelization
+          of this operation across multiple lanes.
+
+    \warning The result value is always positive, regardless of the sign of \p x.
+
+    \param  x   The unsigned number to reciprocate.
+    \returns    The approximated value `1.0f / fabsf(x)`.
+
+    \sa shz_invf(), shz_vec2_inv_fsrra(), shz_vec3_inv_fsrra(), shz_vec4_inv_fsrra()
+*/
+SHZ_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT;
+
+/*! Approximate division by a signed denominator.
+
+    This routine takes approximately the same number of cycles as a full float division
+    on the SH4; however, it can be paired with a real division to perform two in parallel.
+
+    \note The vector forms of this routine automatically handle optimal parallelization
+          of this operation across multiple lanes.
+
+    \param  num     Numerator to divide into.
+    \param  denom   Signed denominoator to divide by.
+    \returns        The approximated quotient `num / denom`.
+
+    \sa shz_divf_fsrra(), shz_vec2_divf(), shz_vec3_divf(), shz_vec4_divf()
+*/
 SHZ_INLINE float shz_divf(float num, float denom) SHZ_NOEXCEPT;
+
+/*! Fast approximate division by an unsigned denominator.
+
+    This routine performs a fast division approximation that takes fewer clock cycles to
+    perform than using a regular division operator on two floats.
+
+    \note The vector forms of this routine automatically handle optimal parallelization
+          of this operation across multiple lanes.
+
+    \warning The denominator is treated as though it were an unsigned value.
+
+    \param  num     Numerator to divide into.
+    \param  denom   Unsigned denominoator to divide by.
+
+    \returns        The approximated quotient `num / fabsf(denom)`.
+
+    \sa shz_divf(), shz_vec2_divf_fsrra(), shz_vec3_divf_fsrra(), shz_vec4_divf_fsrra()
+*/
+SHZ_INLINE float shz_divf_fsrra(float num, float denom) SHZ_NOEXCEPT;
 
 //! @}
 

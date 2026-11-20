@@ -35,20 +35,19 @@ SHZ_FORCE_INLINE shz_vec3_t shz_mat4x4_transform_vec3_sh4(const shz_mat4x4_t* ma
         fmov.s    @%[m]+, fr1
         fmov.s    @%[m]+, fr9
         add       #8, %[m]
-        fldi0     fr3
+        fmov      fr7, fr3
         fmov.s    @%[m]+, fr2
         fmov.s    @%[m]+, fr10
-        fldi0     fr11
+        fmov      fr7, fr11
         add       #-32, %[m]
         fipr      fv4, fv0
         fmov.s    @%[m], fr0
         add       #16, %[m]
         fmov.s    @%[m], fr1
-        fipr      fv4, fv8
         add       #16, %[m]
         fmov.s    @%[m], fr2
+        fipr      fv4, fv8
         fmov      fr3, fr8
-        fldi0     fr3
         fipr      fv4, fv0
     )"
     : [m] "+&r" (mat), "=&f" (ox), "=&f" (oy), "=&f" (oz)

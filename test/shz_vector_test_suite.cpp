@@ -209,6 +209,12 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(vec2Magnitude)
     GBL_TEST_ERROR((shz::vec2{1.0f, 1.0f}.magnitude()), sqrtf(2.0f), 0.0001f, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR((shz::vec2(2.0f, 3.0f).magnitude()), 3.60555127546f, 0.0001f, GBL_TEST_ERROR_FUZZY);
+
+    (benchmark_cmp<float>)("shz::vec2::magnitude",
+                           [](const shz::vec2& v) { return v.magnitude(); },
+                           "glm_vec2_norm",
+                           [](const shz::vec2& v) { return glm_vec2_norm(const_cast<float*>(&v[0])); },
+                           shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2MagnitudeSqr)
@@ -219,6 +225,12 @@ GBL_TEST_CASE_END
 GBL_TEST_CASE(vec2MagnitudeInv)
     GBL_TEST_ERROR((shz::vec2{1.0f, 1.0f}.magnitude_inv()), 1.0f / sqrtf(2.0f), 0.0001f, GBL_TEST_ERROR_FUZZY);
     GBL_TEST_ERROR(shz::vec2(2.0f, 3.0f).magnitude_inv(), 1.0f / sqrtf(13.0f), 0.0001f, GBL_TEST_ERROR_FUZZY);
+
+    (benchmark_cmp<float>)("shz::vec2::magnitude_inv",
+                           [](const shz::vec2& v) { return v.magnitude_inv(); },
+                           "1.0f / glm_vec2_norm",
+                           [](const shz::vec2& v) { return 1.0f / glm_vec2_norm(const_cast<float*>(&v[0])); },
+                           shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec2Direction)
@@ -1068,50 +1080,6 @@ static bool vec_normalize_or_(const V& v, const V& alt, const V& safe_alt) {
            vec_close_(nonZeroSafe,            ref);
 }
 
-template<typename V>
-static void vec_magnitude_bench_(const V& v, auto glmNorm, auto glmNormalizeTo) {
-    const std::string dim  = std::to_string(vec_dim_<V>);
-    auto              name = [&](std::string_view prefix, std::string_view fn) {
-        return std::string(prefix) + dim + std::string(fn);
-    };
-
-    (benchmark_cmp<float>)(name("shz::vec", "::magnitude").c_str(),
-                           [](const V& v) { return v.magnitude(); },
-                           name("glm_vec", "_norm").c_str(),
-                           [&](const V& v) { return glmNorm(const_cast<float*>(&v[0])); },
-                           v);
-    (benchmark_cmp<float>)(name("shz::vec", "::magnitude_fsrra").c_str(),
-                           [](const V& v) { return v.magnitude_fsrra(); },
-                           name("glm_vec", "_norm").c_str(),
-                           [&](const V& v) { return glmNorm(const_cast<float*>(&v[0])); },
-                           v);
-    (benchmark_cmp<float>)(name("shz::vec", "::magnitude_inv").c_str(),
-                           [](const V& v) { return v.magnitude_inv(); },
-                           name("1.0f / glm_vec", "_norm").c_str(),
-                           [&](const V& v) { return 1.0f / glmNorm(const_cast<float*>(&v[0])); },
-                           v);
-    (benchmark_cmp<float>)(name("shz::vec", "::magnitude_inv_fsrra").c_str(),
-                           [](const V& v) { return v.magnitude_inv_fsrra(); },
-                           name("1.0f / glm_vec", "_norm").c_str(),
-                           [&](const V& v) { return 1.0f / glmNorm(const_cast<float*>(&v[0])); },
-                           v);
-    (benchmark_cmp<V>)(name("shz::vec", "::normalized").c_str(),
-                       [](const V& v) { return v.normalized(); },
-                       name("glm_vec", "_normalize_to").c_str(),
-                       [&](const V& v) { V out; glmNormalizeTo(const_cast<float*>(&v[0]), &out[0]); return out; },
-                       v);
-    (benchmark_cmp<V>)(name("shz::vec", "::normalized_or").c_str(),
-                       [](const V& v) { return v.normalized_or(V(0.0f)); },
-                       name("glm_vec", "_normalize_to").c_str(),
-                       [&](const V& v) { V out; glmNormalizeTo(const_cast<float*>(&v[0]), &out[0]); return out; },
-                       v);
-    (benchmark_cmp<V>)(name("shz::vec", "::normalized_safe").c_str(),
-                       [](const V& v) { return v.normalized_safe(); },
-                       name("glm_vec", "_normalize_to").c_str(),
-                       [&](const V& v) { V out; glmNormalizeTo(const_cast<float*>(&v[0]), &out[0]); return out; },
-                       v);
-}
-
 GBL_TEST_CASE(vecMagnitudeSafety)
     GBL_TEST_VERIFY(vec_magnitude_safety_(shz::vec2(3.0f, -4.0f)));
     GBL_TEST_VERIFY(vec_magnitude_safety_(shz::vec2(0.001f, 0.0f)));
@@ -1133,16 +1101,689 @@ GBL_TEST_CASE(vecNormalizeOr)
                                       shz::vec4(0.0f)));
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(vecMagnitudeBenchmark)
-    vec_magnitude_bench_(shz::vec2(gblRandf(), gblRandf()),
-                         [](float* v) { return glm_vec2_norm(v); },
-                         [](float* v, float* d) { glm_vec2_normalize_to(v, d); });
-    vec_magnitude_bench_(shz::vec3(gblRandf(), gblRandf(), gblRandf()),
-                         [](float* v) { return glm_vec3_norm(v); },
-                         [](float* v, float* d) { glm_vec3_normalize_to(v, d); });
-    vec_magnitude_bench_(shz::vec4(gblRandf(), gblRandf(), gblRandf(), gblRandf()),
-                         [](float* v) { return glm_vec4_norm(v); },
-                         [](float* v, float* d) { glm_vec4_normalize_to(v, d); });
+GBL_TEST_CASE(vec2MagnitudeFsrra)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec2(3.0f, 4.0f).magnitude_fsrra(), 5.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec2(3.0f, comp).magnitude_fsrra(), 5.0f));
+
+    (benchmark_cmp<float>)("shz::vec2::magnitude_fsrra",
+                           [](const shz::vec2& v) { return v.magnitude_fsrra(); },
+                           "glm_vec2_norm",
+                           [](const shz::vec2& v) { return glm_vec2_norm(const_cast<float*>(&v[0])); },
+                           shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec2MagnitudeInvFsrra)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec2(3.0f, 4.0f).magnitude_inv_fsrra(), 1.0f / 5.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec2(3.0f, comp).magnitude_inv_fsrra(), 1.0f / 5.0f));
+
+    (benchmark_cmp<float>)("shz::vec2::magnitude_inv_fsrra",
+                           [](const shz::vec2& v) { return v.magnitude_inv_fsrra(); },
+                           "1.0f / glm_vec2_norm",
+                           [](const shz::vec2& v) { return 1.0f / glm_vec2_norm(const_cast<float*>(&v[0])); },
+                           shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec2Normalized)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::vec2(3.0f, 4.0f).normalized() == shz::vec2(0.6f, 0.8f));
+    GBL_TEST_VERIFY(shz::vec2(3.0f, comp).normalized() == shz::vec2(0.6f, 0.8f));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::normalized",
+                               [](const shz::vec2& v) { return v.normalized(); },
+                               "glm_vec2_normalize_to",
+                               [](const shz::vec2& v) {
+                                   shz::vec2 out;
+                                   glm_vec2_normalize_to(const_cast<float*>(&v[0]), &out[0]);
+                                   return out;
+                               },
+                               shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec2NormalizedOr)
+    volatile float comp = 4.0f;
+    volatile float zero = 0.0f;
+
+    GBL_TEST_VERIFY(shz::vec2(3.0f, 4.0f).normalized_or(shz::vec2(1.0f, 0.0f)) == shz::vec2(0.6f, 0.8f));
+    GBL_TEST_VERIFY(shz::vec2(3.0f, comp).normalized_or(shz::vec2(1.0f, 0.0f)) == shz::vec2(0.6f, 0.8f));
+    GBL_TEST_VERIFY(shz::vec2(0.0f).normalized_or(shz::vec2(1.0f, 0.0f)) == shz::vec2(1.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec2(zero).normalized_or(shz::vec2(1.0f, 0.0f)) == shz::vec2(1.0f, 0.0f));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::normalized_or",
+                               [](const shz::vec2& v) { return v.normalized_or(shz::vec2(0.0f)); },
+                               "glm_vec2_normalize_to",
+                               [](const shz::vec2& v) {
+                                   shz::vec2 out;
+                                   glm_vec2_normalize_to(const_cast<float*>(&v[0]), &out[0]);
+                                   return out;
+                               },
+                               shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec2NormalizedSafe)
+    volatile float comp = 4.0f;
+    volatile float zero = 0.0f;
+
+    GBL_TEST_VERIFY(shz::vec2(3.0f, 4.0f).normalized_safe() == shz::vec2(0.6f, 0.8f));
+    GBL_TEST_VERIFY(shz::vec2(3.0f, comp).normalized_safe() == shz::vec2(0.6f, 0.8f));
+    GBL_TEST_VERIFY(shz::vec2(0.0f).normalized_safe() == shz::vec2(0.0f));
+    GBL_TEST_VERIFY(shz::vec2(zero).normalized_safe() == shz::vec2(0.0f));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::normalized_safe",
+                               [](const shz::vec2& v) { return v.normalized_safe(); },
+                               "glm_vec2_normalize_to",
+                               [](const shz::vec2& v) {
+                                   shz::vec2 out;
+                                   glm_vec2_normalize_to(const_cast<float*>(&v[0]), &out[0]);
+                                   return out;
+                               },
+                               shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Magnitude)
+    volatile float comp = 6.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec3(2.0f, 3.0f, 6.0f).magnitude(), 7.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec3(2.0f, 3.0f, comp).magnitude(), 7.0f));
+
+    (benchmark_cmp<float>)("shz::vec3::magnitude",
+                           [](const shz::vec3& v) { return v.magnitude(); },
+                           "glm_vec3_norm",
+                           [](const shz::vec3& v) { return glm_vec3_norm(const_cast<float*>(&v[0])); },
+                           shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3MagnitudeFsrra)
+    volatile float comp = 6.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec3(2.0f, 3.0f, 6.0f).magnitude_fsrra(), 7.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec3(2.0f, 3.0f, comp).magnitude_fsrra(), 7.0f));
+
+    (benchmark_cmp<float>)("shz::vec3::magnitude_fsrra",
+                           [](const shz::vec3& v) { return v.magnitude_fsrra(); },
+                           "glm_vec3_norm",
+                           [](const shz::vec3& v) { return glm_vec3_norm(const_cast<float*>(&v[0])); },
+                           shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3MagnitudeInv)
+    volatile float comp = 6.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec3(2.0f, 3.0f, 6.0f).magnitude_inv(), 1.0f / 7.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec3(2.0f, 3.0f, comp).magnitude_inv(), 1.0f / 7.0f));
+
+    (benchmark_cmp<float>)("shz::vec3::magnitude_inv",
+                           [](const shz::vec3& v) { return v.magnitude_inv(); },
+                           "1.0f / glm_vec3_norm",
+                           [](const shz::vec3& v) { return 1.0f / glm_vec3_norm(const_cast<float*>(&v[0])); },
+                           shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3MagnitudeInvFsrra)
+    volatile float comp = 6.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec3(2.0f, 3.0f, 6.0f).magnitude_inv_fsrra(), 1.0f / 7.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec3(2.0f, 3.0f, comp).magnitude_inv_fsrra(), 1.0f / 7.0f));
+
+    (benchmark_cmp<float>)("shz::vec3::magnitude_inv_fsrra",
+                           [](const shz::vec3& v) { return v.magnitude_inv_fsrra(); },
+                           "1.0f / glm_vec3_norm",
+                           [](const shz::vec3& v) { return 1.0f / glm_vec3_norm(const_cast<float*>(&v[0])); },
+                           shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Normalized)
+    volatile float comp = 6.0f;
+
+    GBL_TEST_VERIFY(shz::vec3(2.0f, 3.0f, 6.0f).normalized() == shz::vec3(2.0f / 7.0f, 3.0f / 7.0f, 6.0f / 7.0f));
+    GBL_TEST_VERIFY(shz::vec3(2.0f, 3.0f, comp).normalized() == shz::vec3(2.0f / 7.0f, 3.0f / 7.0f, 6.0f / 7.0f));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::normalized",
+                               [](const shz::vec3& v) { return v.normalized(); },
+                               "glm_vec3_normalize_to",
+                               [](const shz::vec3& v) {
+                                   shz::vec3 out;
+                                   glm_vec3_normalize_to(const_cast<float*>(&v[0]), &out[0]);
+                                   return out;
+                               },
+                               shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3NormalizedOr)
+    volatile float comp = 6.0f;
+    volatile float zero = 0.0f;
+
+    GBL_TEST_VERIFY(shz::vec3(2.0f, 3.0f, 6.0f).normalized_or(shz::vec3(1.0f, 0.0f, 0.0f)) == shz::vec3(2.0f / 7.0f, 3.0f / 7.0f, 6.0f / 7.0f));
+    GBL_TEST_VERIFY(shz::vec3(2.0f, 3.0f, comp).normalized_or(shz::vec3(1.0f, 0.0f, 0.0f)) == shz::vec3(2.0f / 7.0f, 3.0f / 7.0f, 6.0f / 7.0f));
+    GBL_TEST_VERIFY(shz::vec3(0.0f).normalized_or(shz::vec3(1.0f, 0.0f, 0.0f)) == shz::vec3(1.0f, 0.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec3(zero).normalized_or(shz::vec3(1.0f, 0.0f, 0.0f)) == shz::vec3(1.0f, 0.0f, 0.0f));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::normalized_or",
+                               [](const shz::vec3& v) { return v.normalized_or(shz::vec3(0.0f)); },
+                               "glm_vec3_normalize_to",
+                               [](const shz::vec3& v) {
+                                   shz::vec3 out;
+                                   glm_vec3_normalize_to(const_cast<float*>(&v[0]), &out[0]);
+                                   return out;
+                               },
+                               shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3NormalizedSafe)
+    volatile float comp = 6.0f;
+    volatile float zero = 0.0f;
+
+    GBL_TEST_VERIFY(shz::vec3(2.0f, 3.0f, 6.0f).normalized_safe() == shz::vec3(2.0f / 7.0f, 3.0f / 7.0f, 6.0f / 7.0f));
+    GBL_TEST_VERIFY(shz::vec3(2.0f, 3.0f, comp).normalized_safe() == shz::vec3(2.0f / 7.0f, 3.0f / 7.0f, 6.0f / 7.0f));
+    GBL_TEST_VERIFY(shz::vec3(0.0f).normalized_safe() == shz::vec3(0.0f));
+    GBL_TEST_VERIFY(shz::vec3(zero).normalized_safe() == shz::vec3(0.0f));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::normalized_safe",
+                               [](const shz::vec3& v) { return v.normalized_safe(); },
+                               "glm_vec3_normalize_to",
+                               [](const shz::vec3& v) {
+                                   shz::vec3 out;
+                                   glm_vec3_normalize_to(const_cast<float*>(&v[0]), &out[0]);
+                                   return out;
+                               },
+                               shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4Magnitude)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec4(1.0f, 2.0f, 2.0f, 4.0f).magnitude(), 5.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec4(1.0f, 2.0f, 2.0f, comp).magnitude(), 5.0f));
+
+    (benchmark_cmp<float>)("shz::vec4::magnitude",
+                           [](const shz::vec4& v) { return v.magnitude(); },
+                           "glm_vec4_norm",
+                           [](const shz::vec4& v) { return glm_vec4_norm(const_cast<float*>(&v[0])); },
+                           shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4MagnitudeFsrra)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec4(1.0f, 2.0f, 2.0f, 4.0f).magnitude_fsrra(), 5.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec4(1.0f, 2.0f, 2.0f, comp).magnitude_fsrra(), 5.0f));
+
+    (benchmark_cmp<float>)("shz::vec4::magnitude_fsrra",
+                           [](const shz::vec4& v) { return v.magnitude_fsrra(); },
+                           "glm_vec4_norm",
+                           [](const shz::vec4& v) { return glm_vec4_norm(const_cast<float*>(&v[0])); },
+                           shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4MagnitudeInv)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec4(1.0f, 2.0f, 2.0f, 4.0f).magnitude_inv(), 1.0f / 5.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec4(1.0f, 2.0f, 2.0f, comp).magnitude_inv(), 1.0f / 5.0f));
+
+    (benchmark_cmp<float>)("shz::vec4::magnitude_inv",
+                           [](const shz::vec4& v) { return v.magnitude_inv(); },
+                           "1.0f / glm_vec4_norm",
+                           [](const shz::vec4& v) { return 1.0f / glm_vec4_norm(const_cast<float*>(&v[0])); },
+                           shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4MagnitudeInvFsrra)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec4(1.0f, 2.0f, 2.0f, 4.0f).magnitude_inv_fsrra(), 1.0f / 5.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec4(1.0f, 2.0f, 2.0f, comp).magnitude_inv_fsrra(), 1.0f / 5.0f));
+
+    (benchmark_cmp<float>)("shz::vec4::magnitude_inv_fsrra",
+                           [](const shz::vec4& v) { return v.magnitude_inv_fsrra(); },
+                           "1.0f / glm_vec4_norm",
+                           [](const shz::vec4& v) { return 1.0f / glm_vec4_norm(const_cast<float*>(&v[0])); },
+                           shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4Normalized)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::vec4(1.0f, 2.0f, 2.0f, 4.0f).normalized() == shz::vec4(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(shz::vec4(1.0f, 2.0f, 2.0f, comp).normalized() == shz::vec4(0.2f, 0.4f, 0.4f, 0.8f));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::normalized",
+                               [](const shz::vec4& v) { return v.normalized(); },
+                               "glm_vec4_normalize_to",
+                               [](const shz::vec4& v) {
+                                   shz::vec4 out;
+                                   glm_vec4_normalize_to(const_cast<float*>(&v[0]), &out[0]);
+                                   return out;
+                               },
+                               shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4NormalizedOr)
+    volatile float comp = 4.0f;
+    volatile float zero = 0.0f;
+
+    GBL_TEST_VERIFY(shz::vec4(1.0f, 2.0f, 2.0f, 4.0f).normalized_or(shz::vec4(1.0f, 0.0f, 0.0f, 0.0f)) == shz::vec4(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(shz::vec4(1.0f, 2.0f, 2.0f, comp).normalized_or(shz::vec4(1.0f, 0.0f, 0.0f, 0.0f)) == shz::vec4(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(shz::vec4(0.0f).normalized_or(shz::vec4(1.0f, 0.0f, 0.0f, 0.0f)) == shz::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+    GBL_TEST_VERIFY(shz::vec4(zero).normalized_or(shz::vec4(1.0f, 0.0f, 0.0f, 0.0f)) == shz::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::normalized_or",
+                               [](const shz::vec4& v) { return v.normalized_or(shz::vec4(0.0f)); },
+                               "glm_vec4_normalize_to",
+                               [](const shz::vec4& v) {
+                                   shz::vec4 out;
+                                   glm_vec4_normalize_to(const_cast<float*>(&v[0]), &out[0]);
+                                   return out;
+                               },
+                               shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4NormalizedSafe)
+    volatile float comp = 4.0f;
+    volatile float zero = 0.0f;
+
+    GBL_TEST_VERIFY(shz::vec4(1.0f, 2.0f, 2.0f, 4.0f).normalized_safe() == shz::vec4(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(shz::vec4(1.0f, 2.0f, 2.0f, comp).normalized_safe() == shz::vec4(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(shz::vec4(0.0f).normalized_safe() == shz::vec4(0.0f));
+    GBL_TEST_VERIFY(shz::vec4(zero).normalized_safe() == shz::vec4(0.0f));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::normalized_safe",
+                               [](const shz::vec4& v) { return v.normalized_safe(); },
+                               "glm_vec4_normalize_to",
+                               [](const shz::vec4& v) {
+                                   shz::vec4 out;
+                                   glm_vec4_normalize_to(const_cast<float*>(&v[0]), &out[0]);
+                                   return out;
+                               },
+                               shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec2Div)
+    volatile float denom = -3.0f;
+
+    GBL_TEST_VERIFY(shz::vec2(6.0f, -9.0f).div(shz::vec2(2.0f, -3.0f)) == shz::vec2(3.0f, 3.0f));
+    GBL_TEST_VERIFY(shz::vec2(6.0f, -9.0f).div(shz::vec2(2.0f, denom)) == shz::vec2(3.0f, 3.0f));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::div",
+                         [](const shz::vec2& a, const shz::vec2& b) { return a.div(b); },
+                         "glm_vec2_div",
+                         [](const shz::vec2& a, const shz::vec2& b) {
+                             shz::vec2 r;
+                             glm_vec2_div(const_cast<float*>(&a[0]), const_cast<float*>(&b[0]), &r[0]);
+                             return r;
+                         },
+                         shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         shz::vec2(gblRandUniform(-100.0f, -1.0f), gblRandUniform(-100.0f, -1.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec2DivFsrra)
+    volatile float denom = 3.0f;
+
+    GBL_TEST_VERIFY(shz::vec2(6.0f, -9.0f).div_fsrra(shz::vec2(2.0f, 3.0f)) == shz::vec2(3.0f, -3.0f));
+    GBL_TEST_VERIFY(shz::vec2(6.0f, -9.0f).div_fsrra(shz::vec2(2.0f, denom)) == shz::vec2(3.0f, -3.0f));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::div_fsrra",
+                         [](const shz::vec2& a, const shz::vec2& b) { return a.div_fsrra(b); },
+                         "glm_vec2_div",
+                         [](const shz::vec2& a, const shz::vec2& b) {
+                             shz::vec2 r;
+                             glm_vec2_div(const_cast<float*>(&a[0]), const_cast<float*>(&b[0]), &r[0]);
+                             return r;
+                         },
+                         shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         shz::vec2(gblRandUniform(1.0f, 100.0f), gblRandUniform(1.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec2Inv)
+    volatile float value = -4.0f;
+
+    GBL_TEST_VERIFY(shz::vec2(2.0f, -4.0f).inv() == shz::vec2(0.5f, -0.25f));
+    GBL_TEST_VERIFY(shz::vec2(2.0f, value).inv() == shz::vec2(0.5f, -0.25f));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::inv",
+                         [](const shz::vec2& v) { return v.inv(); },
+                         "glm_vec2_div(1, v)",
+                         [](const shz::vec2& v) {
+                             shz::vec2 one(1.0f), r;
+                             glm_vec2_div(&one[0], const_cast<float*>(&v[0]), &r[0]);
+                             return r;
+                         },
+                         shz::vec2(gblRandUniform(-100.0f, -1.0f), gblRandUniform(-100.0f, -1.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec2InvFsrra)
+    volatile float value = 4.0f;
+
+    GBL_TEST_VERIFY(shz::vec2(2.0f, 4.0f).inv_fsrra() == shz::vec2(0.5f, 0.25f));
+    GBL_TEST_VERIFY(shz::vec2(2.0f, value).inv_fsrra() == shz::vec2(0.5f, 0.25f));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::inv_fsrra",
+                         [](const shz::vec2& v) { return v.inv_fsrra(); },
+                         "glm_vec2_div(1, v)",
+                         [](const shz::vec2& v) {
+                             shz::vec2 one(1.0f), r;
+                             glm_vec2_div(&one[0], const_cast<float*>(&v[0]), &r[0]);
+                             return r;
+                         },
+                         shz::vec2(gblRandUniform(1.0f, 100.0f), gblRandUniform(1.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec2Divf)
+    volatile float denom = -3.0f;
+
+    GBL_TEST_VERIFY(shz::vec2(6.0f, -9.0f).divf(-3.0f) == shz::vec2(-2.0f, 3.0f));
+    GBL_TEST_VERIFY(shz::vec2(6.0f, -9.0f).divf(denom) == shz::vec2(-2.0f, 3.0f));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::divf",
+                         [](const shz::vec2& v, float s) { return v.divf(s); },
+                         "v / s",
+                         [](const shz::vec2& v, float s) { return shz::vec2(v.x / s, v.y / s); },
+                         shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         gblRandUniform(-100.0f, -1.0f));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::divf",
+                         [](const shz::vec2& v, float s) { return v.divf(s); },
+                         "v * (1.0f / s)",
+                         [](const shz::vec2& v, float s) { const float inv = 1.0f / s; return shz::vec2(v.x * inv, v.y * inv); },
+                         shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         gblRandUniform(-100.0f, -1.0f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec2DivfFsrra)
+    volatile float denom = 3.0f;
+
+    GBL_TEST_VERIFY(shz::vec2(6.0f, -9.0f).divf_fsrra(3.0f) == shz::vec2(2.0f, -3.0f));
+    GBL_TEST_VERIFY(shz::vec2(6.0f, -9.0f).divf_fsrra(denom) == shz::vec2(2.0f, -3.0f));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::divf_fsrra",
+                         [](const shz::vec2& v, float s) { return v.divf_fsrra(s); },
+                         "v / s",
+                         [](const shz::vec2& v, float s) { return shz::vec2(v.x / s, v.y / s); },
+                         shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         gblRandUniform(1.0f, 100.0f));
+
+    (benchmark_cmp<shz::vec2>)("shz::vec2::divf_fsrra",
+                         [](const shz::vec2& v, float s) { return v.divf_fsrra(s); },
+                         "v * (1.0f / s)",
+                         [](const shz::vec2& v, float s) { const float inv = 1.0f / s; return shz::vec2(v.x * inv, v.y * inv); },
+                         shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         gblRandUniform(1.0f, 100.0f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec2Distance)
+    volatile float coord = 6.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec2(1.0f, 2.0f).distance(shz::vec2(4.0f, 6.0f)), 5.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec2(1.0f, 2.0f).distance(shz::vec2(4.0f, coord)), 5.0f));
+
+    (benchmark_cmp<float>)("shz::vec2::distance",
+                           [](const shz::vec2& a, const shz::vec2& b) { return a.distance(b); },
+                           "glm_vec2_distance",
+                           [](const shz::vec2& a, const shz::vec2& b) {
+                               return glm_vec2_distance(const_cast<float*>(&a[0]), const_cast<float*>(&b[0]));
+                           },
+                           shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                           shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Div)
+    volatile float denom = -4.0f;
+
+    GBL_TEST_VERIFY(shz::vec3(6.0f, -9.0f, 20.0f).div(shz::vec3(2.0f, -3.0f, -4.0f)) == shz::vec3(3.0f, 3.0f, -5.0f));
+    GBL_TEST_VERIFY(shz::vec3(6.0f, -9.0f, 20.0f).div(shz::vec3(2.0f, -3.0f, denom)) == shz::vec3(3.0f, 3.0f, -5.0f));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::div",
+                         [](const shz::vec3& a, const shz::vec3& b) { return a.div(b); },
+                         "glm_vec3_div",
+                         [](const shz::vec3& a, const shz::vec3& b) {
+                             shz::vec3 r;
+                             glm_vec3_div(const_cast<float*>(&a[0]), const_cast<float*>(&b[0]), &r[0]);
+                             return r;
+                         },
+                         shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         shz::vec3(gblRandUniform(-100.0f, -1.0f), gblRandUniform(-100.0f, -1.0f), gblRandUniform(-100.0f, -1.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3DivFsrra)
+    volatile float denom = 4.0f;
+
+    GBL_TEST_VERIFY(shz::vec3(6.0f, -9.0f, 20.0f).div_fsrra(shz::vec3(2.0f, 3.0f, 4.0f)) == shz::vec3(3.0f, -3.0f, 5.0f));
+    GBL_TEST_VERIFY(shz::vec3(6.0f, -9.0f, 20.0f).div_fsrra(shz::vec3(2.0f, 3.0f, denom)) == shz::vec3(3.0f, -3.0f, 5.0f));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::div_fsrra",
+                         [](const shz::vec3& a, const shz::vec3& b) { return a.div_fsrra(b); },
+                         "glm_vec3_div",
+                         [](const shz::vec3& a, const shz::vec3& b) {
+                             shz::vec3 r;
+                             glm_vec3_div(const_cast<float*>(&a[0]), const_cast<float*>(&b[0]), &r[0]);
+                             return r;
+                         },
+                         shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         shz::vec3(gblRandUniform(1.0f, 100.0f), gblRandUniform(1.0f, 100.0f), gblRandUniform(1.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Inv)
+    volatile float value = 0.5f;
+
+    GBL_TEST_VERIFY(shz::vec3(2.0f, -4.0f, 0.5f).inv() == shz::vec3(0.5f, -0.25f, 2.0f));
+    GBL_TEST_VERIFY(shz::vec3(2.0f, -4.0f, value).inv() == shz::vec3(0.5f, -0.25f, 2.0f));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::inv",
+                         [](const shz::vec3& v) { return v.inv(); },
+                         "glm_vec3_div(1, v)",
+                         [](const shz::vec3& v) {
+                             shz::vec3 one(1.0f), r;
+                             glm_vec3_div(&one[0], const_cast<float*>(&v[0]), &r[0]);
+                             return r;
+                         },
+                         shz::vec3(gblRandUniform(-100.0f, -1.0f), gblRandUniform(-100.0f, -1.0f), gblRandUniform(-100.0f, -1.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3InvFsrra)
+    volatile float value = 0.5f;
+
+    GBL_TEST_VERIFY(shz::vec3(2.0f, 4.0f, 0.5f).inv_fsrra() == shz::vec3(0.5f, 0.25f, 2.0f));
+    GBL_TEST_VERIFY(shz::vec3(2.0f, 4.0f, value).inv_fsrra() == shz::vec3(0.5f, 0.25f, 2.0f));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::inv_fsrra",
+                         [](const shz::vec3& v) { return v.inv_fsrra(); },
+                         "glm_vec3_div(1, v)",
+                         [](const shz::vec3& v) {
+                             shz::vec3 one(1.0f), r;
+                             glm_vec3_div(&one[0], const_cast<float*>(&v[0]), &r[0]);
+                             return r;
+                         },
+                         shz::vec3(gblRandUniform(1.0f, 100.0f), gblRandUniform(1.0f, 100.0f), gblRandUniform(1.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Divf)
+    volatile float denom = -3.0f;
+
+    GBL_TEST_VERIFY(shz::vec3(6.0f, -9.0f, 12.0f).divf(-3.0f) == shz::vec3(-2.0f, 3.0f, -4.0f));
+    GBL_TEST_VERIFY(shz::vec3(6.0f, -9.0f, 12.0f).divf(denom) == shz::vec3(-2.0f, 3.0f, -4.0f));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::divf",
+                         [](const shz::vec3& v, float s) { return v.divf(s); },
+                         "v / s",
+                         [](const shz::vec3& v, float s) { return shz::vec3(v.x / s, v.y / s, v.z / s); },
+                         shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         gblRandUniform(-100.0f, -1.0f));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::divf",
+                         [](const shz::vec3& v, float s) { return v.divf(s); },
+                         "v * (1.0f / s)",
+                         [](const shz::vec3& v, float s) { const float inv = 1.0f / s; return shz::vec3(v.x * inv, v.y * inv, v.z * inv); },
+                         shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         gblRandUniform(-100.0f, -1.0f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3DivfFsrra)
+    volatile float denom = 3.0f;
+
+    GBL_TEST_VERIFY(shz::vec3(6.0f, -9.0f, 12.0f).divf_fsrra(3.0f) == shz::vec3(2.0f, -3.0f, 4.0f));
+    GBL_TEST_VERIFY(shz::vec3(6.0f, -9.0f, 12.0f).divf_fsrra(denom) == shz::vec3(2.0f, -3.0f, 4.0f));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::divf_fsrra",
+                         [](const shz::vec3& v, float s) { return v.divf_fsrra(s); },
+                         "v / s",
+                         [](const shz::vec3& v, float s) { return shz::vec3(v.x / s, v.y / s, v.z / s); },
+                         shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         gblRandUniform(1.0f, 100.0f));
+
+    (benchmark_cmp<shz::vec3>)("shz::vec3::divf_fsrra",
+                         [](const shz::vec3& v, float s) { return v.divf_fsrra(s); },
+                         "v * (1.0f / s)",
+                         [](const shz::vec3& v, float s) { const float inv = 1.0f / s; return shz::vec3(v.x * inv, v.y * inv, v.z * inv); },
+                         shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         gblRandUniform(1.0f, 100.0f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Distance)
+    volatile float coord = 9.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec3(1.0f, 2.0f, 3.0f).distance(shz::vec3(3.0f, 5.0f, 9.0f)), 7.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec3(1.0f, 2.0f, 3.0f).distance(shz::vec3(3.0f, 5.0f, coord)), 7.0f));
+
+    (benchmark_cmp<float>)("shz::vec3::distance",
+                           [](const shz::vec3& a, const shz::vec3& b) { return a.distance(b); },
+                           "glm_vec3_distance",
+                           [](const shz::vec3& a, const shz::vec3& b) {
+                               return glm_vec3_distance(const_cast<float*>(&a[0]), const_cast<float*>(&b[0]));
+                           },
+                           shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                           shz::vec3(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4Div)
+    volatile float denom = 0.5f;
+
+    GBL_TEST_VERIFY(shz::vec4(6.0f, -9.0f, 20.0f, -1.0f).div(shz::vec4(2.0f, -3.0f, -4.0f, 0.5f)) == shz::vec4(3.0f, 3.0f, -5.0f, -2.0f));
+    GBL_TEST_VERIFY(shz::vec4(6.0f, -9.0f, 20.0f, -1.0f).div(shz::vec4(2.0f, -3.0f, -4.0f, denom)) == shz::vec4(3.0f, 3.0f, -5.0f, -2.0f));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::div",
+                         [](const shz::vec4& a, const shz::vec4& b) { return a.div(b); },
+                         "glm_vec4_div",
+                         [](const shz::vec4& a, const shz::vec4& b) {
+                             shz::vec4 r;
+                             glm_vec4_div(const_cast<float*>(&a[0]), const_cast<float*>(&b[0]), &r[0]);
+                             return r;
+                         },
+                         shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         shz::vec4(gblRandUniform(-100.0f, -1.0f), gblRandUniform(-100.0f, -1.0f), gblRandUniform(-100.0f, -1.0f), gblRandUniform(-100.0f, -1.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4DivFsrra)
+    volatile float denom = 0.5f;
+
+    GBL_TEST_VERIFY(shz::vec4(6.0f, -9.0f, 20.0f, -1.0f).div_fsrra(shz::vec4(2.0f, 3.0f, 4.0f, 0.5f)) == shz::vec4(3.0f, -3.0f, 5.0f, -2.0f));
+    GBL_TEST_VERIFY(shz::vec4(6.0f, -9.0f, 20.0f, -1.0f).div_fsrra(shz::vec4(2.0f, 3.0f, 4.0f, denom)) == shz::vec4(3.0f, -3.0f, 5.0f, -2.0f));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::div_fsrra",
+                         [](const shz::vec4& a, const shz::vec4& b) { return a.div_fsrra(b); },
+                         "glm_vec4_div",
+                         [](const shz::vec4& a, const shz::vec4& b) {
+                             shz::vec4 r;
+                             glm_vec4_div(const_cast<float*>(&a[0]), const_cast<float*>(&b[0]), &r[0]);
+                             return r;
+                         },
+                         shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         shz::vec4(gblRandUniform(1.0f, 100.0f), gblRandUniform(1.0f, 100.0f), gblRandUniform(1.0f, 100.0f), gblRandUniform(1.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4Inv)
+    volatile float value = -0.25f;
+
+    GBL_TEST_VERIFY(shz::vec4(2.0f, -4.0f, 0.5f, -0.25f).inv() == shz::vec4(0.5f, -0.25f, 2.0f, -4.0f));
+    GBL_TEST_VERIFY(shz::vec4(2.0f, -4.0f, 0.5f, value).inv() == shz::vec4(0.5f, -0.25f, 2.0f, -4.0f));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::inv",
+                         [](const shz::vec4& v) { return v.inv(); },
+                         "glm_vec4_div(1, v)",
+                         [](const shz::vec4& v) {
+                             shz::vec4 one(1.0f), r;
+                             glm_vec4_div(&one[0], const_cast<float*>(&v[0]), &r[0]);
+                             return r;
+                         },
+                         shz::vec4(gblRandUniform(-100.0f, -1.0f), gblRandUniform(-100.0f, -1.0f), gblRandUniform(-100.0f, -1.0f), gblRandUniform(-100.0f, -1.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4InvFsrra)
+    volatile float value = 0.25f;
+
+    GBL_TEST_VERIFY(shz::vec4(2.0f, 4.0f, 0.5f, 0.25f).inv_fsrra() == shz::vec4(0.5f, 0.25f, 2.0f, 4.0f));
+    GBL_TEST_VERIFY(shz::vec4(2.0f, 4.0f, 0.5f, value).inv_fsrra() == shz::vec4(0.5f, 0.25f, 2.0f, 4.0f));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::inv_fsrra",
+                         [](const shz::vec4& v) { return v.inv_fsrra(); },
+                         "glm_vec4_div(1, v)",
+                         [](const shz::vec4& v) {
+                             shz::vec4 one(1.0f), r;
+                             glm_vec4_div(&one[0], const_cast<float*>(&v[0]), &r[0]);
+                             return r;
+                         },
+                         shz::vec4(gblRandUniform(1.0f, 100.0f), gblRandUniform(1.0f, 100.0f), gblRandUniform(1.0f, 100.0f), gblRandUniform(1.0f, 100.0f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4Divf)
+    volatile float denom = -3.0f;
+
+    GBL_TEST_VERIFY(shz::vec4(6.0f, -9.0f, 12.0f, -3.0f).divf(-3.0f) == shz::vec4(-2.0f, 3.0f, -4.0f, 1.0f));
+    GBL_TEST_VERIFY(shz::vec4(6.0f, -9.0f, 12.0f, -3.0f).divf(denom) == shz::vec4(-2.0f, 3.0f, -4.0f, 1.0f));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::divf",
+                         [](const shz::vec4& v, float s) { return v.divf(s); },
+                         "v / s",
+                         [](const shz::vec4& v, float s) { return shz::vec4(v.x / s, v.y / s, v.z / s, v.w / s); },
+                         shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         gblRandUniform(-100.0f, -1.0f));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::divf",
+                         [](const shz::vec4& v, float s) { return v.divf(s); },
+                         "v * (1.0f / s)",
+                         [](const shz::vec4& v, float s) { const float inv = 1.0f / s; return shz::vec4(v.x * inv, v.y * inv, v.z * inv, v.w * inv); },
+                         shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         gblRandUniform(-100.0f, -1.0f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4DivfFsrra)
+    volatile float denom = 3.0f;
+
+    GBL_TEST_VERIFY(shz::vec4(6.0f, -9.0f, 12.0f, -3.0f).divf_fsrra(3.0f) == shz::vec4(2.0f, -3.0f, 4.0f, -1.0f));
+    GBL_TEST_VERIFY(shz::vec4(6.0f, -9.0f, 12.0f, -3.0f).divf_fsrra(denom) == shz::vec4(2.0f, -3.0f, 4.0f, -1.0f));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::divf_fsrra",
+                         [](const shz::vec4& v, float s) { return v.divf_fsrra(s); },
+                         "v / s",
+                         [](const shz::vec4& v, float s) { return shz::vec4(v.x / s, v.y / s, v.z / s, v.w / s); },
+                         shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         gblRandUniform(1.0f, 100.0f));
+
+    (benchmark_cmp<shz::vec4>)("shz::vec4::divf_fsrra",
+                         [](const shz::vec4& v, float s) { return v.divf_fsrra(s); },
+                         "v * (1.0f / s)",
+                         [](const shz::vec4& v, float s) { const float inv = 1.0f / s; return shz::vec4(v.x * inv, v.y * inv, v.z * inv, v.w * inv); },
+                         shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                         gblRandUniform(1.0f, 100.0f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec4Distance)
+    volatile float coord = 8.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::vec4(1.0f, 2.0f, 3.0f, 4.0f).distance(shz::vec4(2.0f, 4.0f, 5.0f, 8.0f)), 5.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::vec4(1.0f, 2.0f, 3.0f, 4.0f).distance(shz::vec4(2.0f, 4.0f, 5.0f, coord)), 5.0f));
+
+    (benchmark_cmp<float>)("shz::vec4::distance",
+                           [](const shz::vec4& a, const shz::vec4& b) { return a.distance(b); },
+                           "glm_vec4_distance",
+                           [](const shz::vec4& a, const shz::vec4& b) {
+                               return glm_vec4_distance(const_cast<float*>(&a[0]), const_cast<float*>(&b[0]));
+                           },
+                           shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)),
+                           shz::vec4(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f)));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(vec3Triple)
@@ -1505,7 +2146,46 @@ GBL_TEST_REGISTER(vec2Construct,
                   vecMagnitudeSafety,
                   vecSubscript,
                   vecNormalizeOr,
-                  vecMagnitudeBenchmark,
+                  vec2MagnitudeFsrra,
+                  vec2MagnitudeInvFsrra,
+                  vec2Normalized,
+                  vec2NormalizedOr,
+                  vec2NormalizedSafe,
+                  vec3Magnitude,
+                  vec3MagnitudeFsrra,
+                  vec3MagnitudeInv,
+                  vec3MagnitudeInvFsrra,
+                  vec3Normalized,
+                  vec3NormalizedOr,
+                  vec3NormalizedSafe,
+                  vec4Magnitude,
+                  vec4MagnitudeFsrra,
+                  vec4MagnitudeInv,
+                  vec4MagnitudeInvFsrra,
+                  vec4Normalized,
+                  vec4NormalizedOr,
+                  vec4NormalizedSafe,
+                  vec2Div,
+                  vec2DivFsrra,
+                  vec2Inv,
+                  vec2InvFsrra,
+                  vec2Divf,
+                  vec2DivfFsrra,
+                  vec2Distance,
+                  vec3Div,
+                  vec3DivFsrra,
+                  vec3Inv,
+                  vec3InvFsrra,
+                  vec3Divf,
+                  vec3DivfFsrra,
+                  vec3Distance,
+                  vec4Div,
+                  vec4DivFsrra,
+                  vec4Inv,
+                  vec4InvFsrra,
+                  vec4Divf,
+                  vec4DivfFsrra,
+                  vec4Distance,
                   vec3Dot,
                   vec3Dot2,
                   vec3Dot3,

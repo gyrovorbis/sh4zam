@@ -94,6 +94,8 @@ namespace shz {
     SHZ_FORCE_INLINE float copysignf(float x, float y) noexcept { return shz_copysignf(x, y); }
     //! C++ wrapper around shz_fmaf().
     SHZ_FORCE_INLINE float fmaf(float a, float b, float c) noexcept { return shz_fmaf(a, b, c); }
+    //! C++ wrapper around shz_opaquef().
+    SHZ_FORCE_INLINE float opaquef(float value) noexcept { return shz_opaquef(value); }
     //! C++ wrapper around shz_fdimf().
     SHZ_FORCE_INLINE float fdimf(float x, float y) noexcept { return shz_fdimf(x, y); }
     //! C++ wrapper around shz_hypotf().
