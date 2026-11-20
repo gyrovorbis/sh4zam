@@ -13,6 +13,7 @@
 #include <cglm/mat4.h>
 #include <cglm/mat3.h>
 #include <cglm/mat2.h>
+#include <cglm/vec4.h>
 #include <cglm/affine.h>
 
 #define GBL_SELF_TYPE shz_xmtrx_test_suite
@@ -3347,6 +3348,55 @@ GBL_TEST_CASE(invert_rigid)
         "glm_inv_tr",               [&] { glm_inv_tr(ref); });
 GBL_TEST_CASE_END
 
+static void init_add_sub_operands_(shz_mat4x4_t& lhs, shz_mat4x4_t& rhs) {
+    for(unsigned i = 0; i < 16; ++i) {
+        lhs.elem[i] = 32.0f - i;
+        rhs.elem[i] = 2.0f * i + 1.0f;
+    }
+}
+
+GBL_TEST_CASE(add_4x4)
+    alignas(32) shz_mat4x4_t lhs, rhs, sum;
+    init_add_sub_operands_(lhs, rhs);
+    shz::xmtrx::load(lhs);
+    shz::xmtrx::add(rhs);
+    shz::xmtrx::store(&sum);
+
+    for(unsigned i = 0; i < 16; ++i)
+        GBL_TEST_VERIFY(sum.elem[i] == lhs.elem[i] + rhs.elem[i]);
+
+    shz::xmtrx::load(lhs);
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::add",  [&] { shz::xmtrx::add(rhs); },
+        "4 x glm_vec4_add", [&] {
+            glm_vec4_add(lhs.elem2D[0], rhs.elem2D[0], lhs.elem2D[0]);
+            glm_vec4_add(lhs.elem2D[1], rhs.elem2D[1], lhs.elem2D[1]);
+            glm_vec4_add(lhs.elem2D[2], rhs.elem2D[2], lhs.elem2D[2]);
+            glm_vec4_add(lhs.elem2D[3], rhs.elem2D[3], lhs.elem2D[3]);
+        });
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(sub_4x4)
+    alignas(32) shz_mat4x4_t lhs, rhs, difference;
+    init_add_sub_operands_(lhs, rhs);
+    shz::xmtrx::load(lhs);
+    shz::xmtrx::sub(rhs);
+    shz::xmtrx::store(&difference);
+
+    for(unsigned i = 0; i < 16; ++i)
+        GBL_TEST_VERIFY(difference.elem[i] == lhs.elem[i] - rhs.elem[i]);
+
+    shz::xmtrx::load(lhs);
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::sub",  [&] { shz::xmtrx::sub(rhs); },
+        "4 x glm_vec4_sub", [&] {
+            glm_vec4_sub(lhs.elem2D[0], rhs.elem2D[0], lhs.elem2D[0]);
+            glm_vec4_sub(lhs.elem2D[1], rhs.elem2D[1], lhs.elem2D[1]);
+            glm_vec4_sub(lhs.elem2D[2], rhs.elem2D[2], lhs.elem2D[2]);
+            glm_vec4_sub(lhs.elem2D[3], rhs.elem2D[3], lhs.elem2D[3]);
+        });
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(negate)
     alignas(32) shz_mat4x4_t in = { .elem = { 2.0f,     -3.0f,  0.0f,     -0.0f,
                                               5.5f,     -1.5f,  1.0e30f,  -1.0e-30f,
@@ -4560,6 +4610,8 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_self,
                   trace,
                   invert_rigid,
+                  add_4x4,
+                  sub_4x4,
                   negate,
                   load_3x3,
                   load_transpose_3x3,

@@ -49,7 +49,7 @@ SHZ_FORCE_INLINE shz_complex_t shz_cmulf(shz_complex_t lhs, shz_complex_t rhs) S
 }
 
 SHZ_FORCE_INLINE shz_complex_t shz_cdivf(shz_complex_t num, shz_complex_t denom) SHZ_NOEXCEPT {
-    float inv_mag = shz_invf(shz_cnormf(denom));
+    float inv_mag = shz_invf_fsrra(shz_cnormf(denom));
 
     return shz_cinitf((num.real * denom.real + num.imag * denom.imag) * inv_mag,
                       (num.imag * denom.real - num.real * denom.imag) * inv_mag);

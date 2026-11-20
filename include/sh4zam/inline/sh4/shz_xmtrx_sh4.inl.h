@@ -4462,7 +4462,7 @@ SHZ_INLINE void shz_xmtrx_add_4x4_sh4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
         fmov    xd2, dr6
         pref    @%[m]
         fadd    fr8, fr4
-        add     #(24-8), %[m]
+        add     #-24, %[m]
         fadd    fr9, fr5
         fmov.d  @%[m]+, dr8
         fadd    fr8, fr6
@@ -4508,7 +4508,7 @@ SHZ_INLINE void shz_xmtrx_sub_4x4_sh4(const shz_mat4x4_t* mat) SHZ_NOEXCEPT {
         fmov    xd2, dr6
         pref    @%[m]
         fsub    fr8, fr4
-        add     #(24-8), %[m]
+        add     #-24, %[m]
         fsub    fr9, fr5
         fmov.d  @%[m]+, dr8
         fsub    fr8, fr6

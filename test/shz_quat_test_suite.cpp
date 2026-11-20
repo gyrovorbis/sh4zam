@@ -295,9 +295,6 @@ GBL_TEST_CASE(from_rotation_u16)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(to_angles_xyz)
-#if SHZ_BACKEND == SHZ_SH4
-    GBL_TEST_SKIP("TODO: GCC 17 dev (20260630) miscompiles its own fsca expansion, swapping sin/cos lanes on spill. Re-enable once the toolchain is fixed.");
-#endif
     {
         auto near = [](float a, float b) {
             return shz::fabsf(a - b) <= 3e-2f;
@@ -465,9 +462,6 @@ GBL_TEST_CASE(to_angles_benchmark)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(to_angles)
-#if SHZ_BACKEND == SHZ_SH4
-    GBL_TEST_SKIP("TODO: GCC 17 dev (20260630) miscompiles its own fsca expansion, swapping sin/cos lanes on spill. Re-enable once the toolchain is fixed.");
-#endif
     {
         auto near = [](float a, float b) {
             return shz::fabsf(a - b) <= 3e-2f;
@@ -819,129 +813,177 @@ GBL_TEST_CASE(nlerp)
     }
 GBL_TEST_CASE_END
 
-static bool quat_close_(float a, float b) {
-    return std::fabs(a - b) <= 1e-4f * std::fmax(1.0f, std::fabs(b));
-}
-
-static bool quat_close_(const shz::quat& a, const shz::quat& b) {
-    return quat_close_(a.w, b.w) && quat_close_(a.x, b.x) &&
-           quat_close_(a.y, b.y) && quat_close_(a.z, b.z);
-}
-
 GBL_TEST_CASE(magnitude)
-    const shz::quat zero(0.0f, 0.0f, 0.0f, 0.0f);
+    volatile float comp = 4.0f;
 
-    GBL_TEST_VERIFY(zero.magnitude()     == 0.0f);
-    GBL_TEST_VERIFY(zero.magnitude_inv() == 0.0f);
-
-    for(const shz::quat& q : { shz::quat(1.0f, 2.0f, -3.0f, 4.0f),
-                               shz::quat(0.0f, 0.0f, 0.001f, 0.0f),
-                               shz::quat(-250.0f, 3.0f, 7.0f, -11.0f) }) {
-        const float ref = std::sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
-
-        GBL_TEST_VERIFY(quat_close_(q.magnitude(),           ref));
-        GBL_TEST_VERIFY(quat_close_(q.magnitude_fsrra(),     ref));
-        GBL_TEST_VERIFY(quat_close_(q.magnitude_inv(),       1.0f / ref));
-        GBL_TEST_VERIFY(quat_close_(q.magnitude_inv_fsrra(), 1.0f / ref));
-    }
-GBL_TEST_CASE_END
-
-GBL_TEST_CASE(normalize)
-    const shz::quat zero(0.0f, 0.0f, 0.0f, 0.0f);
-    const shz::quat alt (0.0f, 1.0f, 0.0f, 0.0f);
-
-    GBL_TEST_VERIFY(zero.normalized_or(alt) == alt);
-    GBL_TEST_VERIFY(zero.normalized_safe()  == shz::quat::identity());
-    {
-        shz::quat q = zero;
-        q.normalize_or(alt);
-        GBL_TEST_VERIFY(q == alt);
-    }{
-        shz::quat q = zero;
-        q.normalize_safe();
-        GBL_TEST_VERIFY(q == shz::quat::identity());
-    }
-
-    for(const shz::quat& q : { shz::quat(1.0f, 2.0f, -3.0f, 4.0f),
-                               shz::quat(0.0f, 0.0f, 0.001f, 0.0f),
-                               shz::quat(-250.0f, 3.0f, 7.0f, -11.0f) }) {
-        const float     mag = std::sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
-        const shz::quat ref(q.w / mag, q.x / mag, q.y / mag, q.z / mag);
-
-        GBL_TEST_VERIFY(quat_close_(q.normalized(),        ref));
-        GBL_TEST_VERIFY(quat_close_(q.normalized_or(alt),  ref));
-        GBL_TEST_VERIFY(quat_close_(q.normalized_safe(),   ref));
-
-        shz::quat inPlace = q;
-        inPlace.normalize_or(alt);
-        GBL_TEST_VERIFY(quat_close_(inPlace, ref));
-    }
-GBL_TEST_CASE_END
-
-GBL_TEST_CASE(inverse)
-    for(const shz::quat& q : { shz::quat(1.0f, 2.0f, -3.0f, 4.0f),
-                               shz::quat(0.5f, 0.0f, 0.001f, 0.0f),
-                               shz::quat::from_rotation_xyz(0.3f, -1.2f, 2.5f) }) {
-        const float     sqr = q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z;
-        const shz::quat ref(q.w / sqr, -q.x / sqr, -q.y / sqr, -q.z / sqr);
-
-        GBL_TEST_VERIFY(quat_close_(q.inverse(),       ref));
-        GBL_TEST_VERIFY(quat_close_(q * q.inverse(),   shz::quat::identity()));
-
-        shz::quat inPlace = q;
-        inPlace.invert();
-        GBL_TEST_VERIFY(quat_close_(inPlace, ref));
-    }
-GBL_TEST_CASE_END
-
-GBL_TEST_CASE(magnitude_benchmark)
-    const shz::quat q(gblRandf(), gblRandf(), gblRandf(), gblRandf());
-
-    auto glmQuat = [](const shz::quat& q) {
-        versor v = { q.x, q.y, q.z, q.w };
-        return std::to_array(v);
-    };
+    GBL_TEST_VERIFY(shz::equalf(shz::quat(1.0f, 2.0f, 2.0f, 4.0f).magnitude(), 5.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::quat(1.0f, 2.0f, 2.0f, comp).magnitude(), 5.0f));
+    GBL_TEST_VERIFY(shz::quat(0.0f, 0.0f, 0.0f, 0.0f).magnitude() == 0.0f);
 
     (benchmark_cmp<float>)("shz::quat::magnitude",
                            [](const shz::quat& q) { return q.magnitude(); },
                            "glm_quat_norm",
-                           [&](const shz::quat& q) { auto v = glmQuat(q); return glm_quat_norm(v.data()); },
-                           q);
+                           [](const shz::quat& q) { versor v = { q.x, q.y, q.z, q.w }; return glm_quat_norm(v); },
+                           shz::quat(gblRandf(), gblRandf(), gblRandf(), gblRandf()));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(magnitude_fsrra)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::quat(1.0f, 2.0f, 2.0f, 4.0f).magnitude_fsrra(), 5.0f));
+    GBL_TEST_VERIFY(shz::equalf(shz::quat(1.0f, 2.0f, 2.0f, comp).magnitude_fsrra(), 5.0f));
+
     (benchmark_cmp<float>)("shz::quat::magnitude_fsrra",
                            [](const shz::quat& q) { return q.magnitude_fsrra(); },
                            "glm_quat_norm",
-                           [&](const shz::quat& q) { auto v = glmQuat(q); return glm_quat_norm(v.data()); },
-                           q);
+                           [](const shz::quat& q) { versor v = { q.x, q.y, q.z, q.w }; return glm_quat_norm(v); },
+                           shz::quat(gblRandf(), gblRandf(), gblRandf(), gblRandf()));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(magnitude_inv)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::quat(1.0f, 2.0f, 2.0f, 4.0f).magnitude_inv(), 0.2f));
+    GBL_TEST_VERIFY(shz::equalf(shz::quat(1.0f, 2.0f, 2.0f, comp).magnitude_inv(), 0.2f));
+    GBL_TEST_VERIFY(shz::quat(0.0f, 0.0f, 0.0f, 0.0f).magnitude_inv() == 0.0f);
+
     (benchmark_cmp<float>)("shz::quat::magnitude_inv",
                            [](const shz::quat& q) { return q.magnitude_inv(); },
                            "1.0f / glm_quat_norm",
-                           [&](const shz::quat& q) { auto v = glmQuat(q); return 1.0f / glm_quat_norm(v.data()); },
-                           q);
+                           [](const shz::quat& q) { versor v = { q.x, q.y, q.z, q.w }; return 1.0f / glm_quat_norm(v); },
+                           shz::quat(gblRandf(), gblRandf(), gblRandf(), gblRandf()));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(magnitude_inv_fsrra)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::equalf(shz::quat(1.0f, 2.0f, 2.0f, 4.0f).magnitude_inv_fsrra(), 0.2f));
+    GBL_TEST_VERIFY(shz::equalf(shz::quat(1.0f, 2.0f, 2.0f, comp).magnitude_inv_fsrra(), 0.2f));
+
     (benchmark_cmp<float>)("shz::quat::magnitude_inv_fsrra",
                            [](const shz::quat& q) { return q.magnitude_inv_fsrra(); },
                            "1.0f / glm_quat_norm",
-                           [&](const shz::quat& q) { auto v = glmQuat(q); return 1.0f / glm_quat_norm(v.data()); },
-                           q);
+                           [](const shz::quat& q) { versor v = { q.x, q.y, q.z, q.w }; return 1.0f / glm_quat_norm(v); },
+                           shz::quat(gblRandf(), gblRandf(), gblRandf(), gblRandf()));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(normalized)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::quat(1.0f, 2.0f, 2.0f, 4.0f).normalized() == shz::quat(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(shz::quat(1.0f, 2.0f, 2.0f, comp).normalized() == shz::quat(0.2f, 0.4f, 0.4f, 0.8f));
+
     (benchmark_cmp<shz::quat>)("shz::quat::normalized",
                                [](const shz::quat& q) { return q.normalized(); },
                                "glm_quat_normalize_to",
-                               [&](const shz::quat& q) { auto v = glmQuat(q); versor d; glm_quat_normalize_to(v.data(), d); return shz::quat(d[3], d[0], d[1], d[2]); },
-                               q);
+                               [](const shz::quat& q) {
+                                   versor v = { q.x, q.y, q.z, q.w };
+                                   versor d;
+                                   glm_quat_normalize_to(v, d);
+                                   return shz::quat(d[3], d[0], d[1], d[2]);
+                               },
+                               shz::quat(gblRandf(), gblRandf(), gblRandf(), gblRandf()));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(normalized_or)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::quat(1.0f, 2.0f, 2.0f, 4.0f).normalized_or(shz::quat(0.0f, 1.0f, 0.0f, 0.0f)) == shz::quat(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(shz::quat(1.0f, 2.0f, 2.0f, comp).normalized_or(shz::quat(0.0f, 1.0f, 0.0f, 0.0f)) == shz::quat(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(shz::quat(0.0f, 0.0f, 0.0f, 0.0f).normalized_or(shz::quat(0.0f, 1.0f, 0.0f, 0.0f)) == shz::quat(0.0f, 1.0f, 0.0f, 0.0f));
+
     (benchmark_cmp<shz::quat>)("shz::quat::normalized_or",
                                [](const shz::quat& q) { return q.normalized_or(shz::quat::identity()); },
                                "glm_quat_normalize_to",
-                               [&](const shz::quat& q) { auto v = glmQuat(q); versor d; glm_quat_normalize_to(v.data(), d); return shz::quat(d[3], d[0], d[1], d[2]); },
-                               q);
+                               [](const shz::quat& q) {
+                                   versor v = { q.x, q.y, q.z, q.w };
+                                   versor d;
+                                   glm_quat_normalize_to(v, d);
+                                   return shz::quat(d[3], d[0], d[1], d[2]);
+                               },
+                               shz::quat(gblRandf(), gblRandf(), gblRandf(), gblRandf()));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(normalized_safe)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::quat(1.0f, 2.0f, 2.0f, 4.0f).normalized_safe() == shz::quat(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(shz::quat(1.0f, 2.0f, 2.0f, comp).normalized_safe() == shz::quat(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(shz::quat(0.0f, 0.0f, 0.0f, 0.0f).normalized_safe() == shz::quat::identity());
+
     (benchmark_cmp<shz::quat>)("shz::quat::normalized_safe",
                                [](const shz::quat& q) { return q.normalized_safe(); },
                                "glm_quat_normalize_to",
-                               [&](const shz::quat& q) { auto v = glmQuat(q); versor d; glm_quat_normalize_to(v.data(), d); return shz::quat(d[3], d[0], d[1], d[2]); },
-                               q);
+                               [](const shz::quat& q) {
+                                   versor v = { q.x, q.y, q.z, q.w };
+                                   versor d;
+                                   glm_quat_normalize_to(v, d);
+                                   return shz::quat(d[3], d[0], d[1], d[2]);
+                               },
+                               shz::quat(gblRandf(), gblRandf(), gblRandf(), gblRandf()));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(normalize_or)
+    volatile float comp = 4.0f;
+
+    shz::quat q1 = shz::quat(1.0f, 2.0f, 2.0f, 4.0f);
+    shz::quat q2 = shz::quat(1.0f, 2.0f, 2.0f, comp);
+    shz::quat q3(0.0f, 0.0f, 0.0f, 0.0f);
+
+    q1.normalize_or(shz::quat(0.0f, 1.0f, 0.0f, 0.0f));
+    q2.normalize_or(shz::quat(0.0f, 1.0f, 0.0f, 0.0f));
+    q3.normalize_or(shz::quat(0.0f, 1.0f, 0.0f, 0.0f));
+
+    GBL_TEST_VERIFY(q1 == shz::quat(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(q2 == shz::quat(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(q3 == shz::quat(0.0f, 1.0f, 0.0f, 0.0f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(normalize_safe)
+    volatile float comp = 4.0f;
+
+    shz::quat q1 = shz::quat(1.0f, 2.0f, 2.0f, 4.0f);
+    shz::quat q2 = shz::quat(1.0f, 2.0f, 2.0f, comp);
+    shz::quat q3(0.0f, 0.0f, 0.0f, 0.0f);
+
+    q1.normalize_safe();
+    q2.normalize_safe();
+    q3.normalize_safe();
+
+    GBL_TEST_VERIFY(q1 == shz::quat(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(q2 == shz::quat(0.2f, 0.4f, 0.4f, 0.8f));
+    GBL_TEST_VERIFY(q3 == shz::quat::identity());
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(inverse)
+    volatile float comp = 4.0f;
+
+    GBL_TEST_VERIFY(shz::quat(1.0f, 2.0f, 2.0f, 4.0f).inverse() == shz::quat(0.04f, -0.08f, -0.08f, -0.16f));
+    GBL_TEST_VERIFY(shz::quat(1.0f, 2.0f, 2.0f, comp).inverse() == shz::quat(0.04f, -0.08f, -0.08f, -0.16f));
+
     (benchmark_cmp<shz::quat>)("shz::quat::inverse",
                                [](const shz::quat& q) { return q.inverse(); },
                                "glm_quat_inv",
-                               [&](const shz::quat& q) { auto v = glmQuat(q); versor d; glm_quat_inv(v.data(), d); return shz::quat(d[3], d[0], d[1], d[2]); },
-                               q);
+                               [](const shz::quat& q) {
+                                   versor v = { q.x, q.y, q.z, q.w };
+                                   versor d;
+                                   glm_quat_inv(v, d);
+                                   return shz::quat(d[3], d[0], d[1], d[2]);
+                               },
+                               shz::quat(gblRandf(), gblRandf(), gblRandf(), gblRandf()));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(invert)
+    volatile float comp = 4.0f;
+
+    shz::quat q1 = shz::quat(1.0f, 2.0f, 2.0f, 4.0f);
+    shz::quat q2 = shz::quat(1.0f, 2.0f, 2.0f, comp);
+
+    q1.invert();
+    q2.invert();
+
+    GBL_TEST_VERIFY(q1 == shz::quat(0.04f, -0.08f, -0.08f, -0.16f));
+    GBL_TEST_VERIFY(q2 == shz::quat(0.04f, -0.08f, -0.08f, -0.16f));
 GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(identity,
@@ -953,9 +995,16 @@ GBL_TEST_REGISTER(identity,
                   slerp,
                   nlerp,
                   magnitude,
-                  normalize,
+                  magnitude_fsrra,
+                  magnitude_inv,
+                  magnitude_inv_fsrra,
+                  normalized,
+                  normalized_or,
+                  normalized_safe,
+                  normalize_or,
+                  normalize_safe,
                   inverse,
-                  magnitude_benchmark,
+                  invert,
                   from_rotation_benchmark,
                   to_angles_benchmark,
                   to_angles,
