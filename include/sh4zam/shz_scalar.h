@@ -289,7 +289,7 @@ SHZ_INLINE float shz_sqrtf(float x) SHZ_NOEXCEPT;
     \param  x   The signed number to reciprocate.
     \returns    The approximated value `1.0f / x`.
 
-    \sa shz_invf_fsrra(), shz_vec2_invf(), shz_vec3_invf(), shz_vec4_invf()
+    \sa shz_invf_fsrra(), shz_vec2_inv(), shz_vec3_inv(), shz_vec4_inv()
 */
 SHZ_INLINE float shz_invf(float x) SHZ_NOEXCEPT;
 
@@ -307,7 +307,7 @@ SHZ_INLINE float shz_invf(float x) SHZ_NOEXCEPT;
     \param  x   The unsigned number to reciprocate.
     \returns    The approximated value `1.0f / fabsf(x)`.
 
-    \sa shz_invf_fsrra(), shz_vec2_invf(), shz_vec3_invf(), shz_vec4_invf()
+    \sa shz_invf(), shz_vec2_inv_fsrra(), shz_vec3_inv_fsrra(), shz_vec4_inv_fsrra()
 */
 SHZ_INLINE float shz_invf_fsrra(float x) SHZ_NOEXCEPT;
 
