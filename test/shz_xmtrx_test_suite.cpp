@@ -3347,6 +3347,27 @@ GBL_TEST_CASE(invert_rigid)
         "glm_inv_tr",               [&] { glm_inv_tr(ref); });
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(add_sub_4x4)
+    alignas(32) shz_mat4x4_t lhs, rhs, sum, difference;
+    for(unsigned i = 0; i < 16; ++i) {
+        lhs.elem[i] = 32.0f - i;
+        rhs.elem[i] = 2.0f * i + 1.0f;
+    }
+
+    shz::xmtrx::load(lhs);
+    shz::xmtrx::add(rhs);
+    shz::xmtrx::store(&sum);
+
+    shz::xmtrx::load(lhs);
+    shz::xmtrx::sub(rhs);
+    shz::xmtrx::store(&difference);
+
+    for(unsigned i = 0; i < 16; ++i) {
+        GBL_TEST_VERIFY(sum.elem[i] == lhs.elem[i] + rhs.elem[i]);
+        GBL_TEST_VERIFY(difference.elem[i] == lhs.elem[i] - rhs.elem[i]);
+    }
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(negate)
     alignas(32) shz_mat4x4_t in = { .elem = { 2.0f,     -3.0f,  0.0f,     -0.0f,
                                               5.5f,     -1.5f,  1.0e30f,  -1.0e-30f,
@@ -4560,6 +4581,7 @@ GBL_TEST_REGISTER(read_write_registers,
                   apply_self,
                   trace,
                   invert_rigid,
+                  add_sub_4x4,
                   negate,
                   load_3x3,
                   load_transpose_3x3,
