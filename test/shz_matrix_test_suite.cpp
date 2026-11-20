@@ -67,13 +67,17 @@ GBL_TEST_CASE(swap)
     );
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(determinant)
-    shz_glm_mat4 mat = { .glm = {
+static shz_glm_mat4 dense_matrix() {
+    return { .glm = {
         { 1, 2, 3, 4 },
         { 2, 5, 7, 1 },
         { 3, 1, 4, 2 },
         { 4, 3, 2, 1 }
     } };
+}
+
+GBL_TEST_CASE(determinant)
+    shz_glm_mat4 mat = dense_matrix();
     GBL_TEST_VERIFY(mat.shz.determinant() == glm_mat4_det(mat.glm));
 
     mat.shz.init_identity();
@@ -94,6 +98,7 @@ GBL_TEST_CASE(inverse)
     };
 
     shz_glm_mat4 mat;
+    shz_glm_mat4 dense = dense_matrix();
     shz::mat4x4 inverted, invertedInverted;
 
     mat.shz.init_identity();
@@ -106,10 +111,7 @@ GBL_TEST_CASE(inverse)
     GBL_TEST_VERIFY(mat.shz == invertedInverted);
     GBL_TEST_VERIFY(test(mat));
 
-    mat.shz.elem2D[0][3] = 1.0f;
-    mat.shz.elem2D[1][3] = -2.0f;
-    mat.shz.elem2D[2][3] = 3.0f;
-    GBL_TEST_VERIFY(test(mat));
+    GBL_TEST_VERIFY(test(dense));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(inverse_rigid)
