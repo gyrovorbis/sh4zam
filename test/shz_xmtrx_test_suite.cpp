@@ -3369,8 +3369,10 @@ GBL_TEST_CASE(add_4x4)
     (benchmark_cmp<void>)(
         "shz::xmtrx::add",  [&] { shz::xmtrx::add(rhs); },
         "4 x glm_vec4_add", [&] {
-            for(unsigned col = 0; col < 4; ++col)
-                glm_vec4_add(lhs.elem2D[col], rhs.elem2D[col], lhs.elem2D[col]);
+            glm_vec4_add(lhs.elem2D[0], rhs.elem2D[0], lhs.elem2D[0]);
+            glm_vec4_add(lhs.elem2D[1], rhs.elem2D[1], lhs.elem2D[1]);
+            glm_vec4_add(lhs.elem2D[2], rhs.elem2D[2], lhs.elem2D[2]);
+            glm_vec4_add(lhs.elem2D[3], rhs.elem2D[3], lhs.elem2D[3]);
         });
 GBL_TEST_CASE_END
 
@@ -3388,8 +3390,10 @@ GBL_TEST_CASE(sub_4x4)
     (benchmark_cmp<void>)(
         "shz::xmtrx::sub",  [&] { shz::xmtrx::sub(rhs); },
         "4 x glm_vec4_sub", [&] {
-            for(unsigned col = 0; col < 4; ++col)
-                glm_vec4_sub(lhs.elem2D[col], rhs.elem2D[col], lhs.elem2D[col]);
+            glm_vec4_sub(lhs.elem2D[0], rhs.elem2D[0], lhs.elem2D[0]);
+            glm_vec4_sub(lhs.elem2D[1], rhs.elem2D[1], lhs.elem2D[1]);
+            glm_vec4_sub(lhs.elem2D[2], rhs.elem2D[2], lhs.elem2D[2]);
+            glm_vec4_sub(lhs.elem2D[3], rhs.elem2D[3], lhs.elem2D[3]);
         });
 GBL_TEST_CASE_END
 

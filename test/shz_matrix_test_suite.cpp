@@ -82,22 +82,23 @@ GBL_TEST_CASE(determinant)
 
     mat.shz.init_identity();
     GBL_TEST_VERIFY(mat.shz.determinant() == 1.0f);
+
+    mat = dense_matrix();
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<float>)("shz::mat4x4::determinant",
+                               [](const shz_glm_mat4& m) {
+                                   return m.shz.determinant();
+                               },
+                               "glm_mat4_det",
+                               [](const shz_glm_mat4& m) {
+                                   return glm_mat4_det(const_cast<mat4&>(m.glm));
+                               },
+                               mat)
+    );
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(inverse)
-   auto test = [&](shz_glm_mat4& mat) {
-        shz_glm_mat4 shzInverted, glmInverted;
-
-        benchmark(nullptr, [&]{
-            glm_mat4_inv(mat.glm, glmInverted.glm);
-        });
-
-        benchmark(nullptr, [&]{ mat.shz.inverse(&shzInverted.shz); });
-
-        return shzInverted.shz == glmInverted.shz;
-    };
-
-    shz_glm_mat4 mat;
+    shz_glm_mat4 mat, shzInverted, glmInverted;
     shz_glm_mat4 dense = dense_matrix();
     shz::mat4x4 inverted, invertedInverted;
 
@@ -109,9 +110,36 @@ GBL_TEST_CASE(inverse)
     inverted.inverse(&invertedInverted);
 
     GBL_TEST_VERIFY(mat.shz == invertedInverted);
-    GBL_TEST_VERIFY(test(mat));
 
-    GBL_TEST_VERIFY(test(dense));
+    mat.shz.inverse(&shzInverted.shz);
+    glm_mat4_inv(mat.glm, glmInverted.glm);
+    GBL_TEST_VERIFY(shzInverted.shz == glmInverted.shz);
+
+    dense.shz.inverse(&shzInverted.shz);
+    glm_mat4_inv(dense.glm, glmInverted.glm);
+    GBL_TEST_VERIFY(shzInverted.shz == glmInverted.shz);
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<void>)("shz::mat4x4::inverse",
+                              [](const shz_glm_mat4& src, shz_glm_mat4* dst) {
+                                  src.shz.inverse(&dst->shz);
+                              },
+                              "glm_mat4_inv",
+                              [](const shz_glm_mat4& src, shz_glm_mat4* dst) {
+                                  glm_mat4_inv(const_cast<mat4&>(src.glm), dst->glm);
+                              },
+                              mat, &shzInverted)
+    );
+
+    (benchmark_cmp<void>)("shz::mat4x4::inverse [dense]",
+                          [](const shz_glm_mat4& src, shz_glm_mat4* dst) {
+                              src.shz.inverse(&dst->shz);
+                          },
+                          "glm_mat4_inv [dense]",
+                          [](const shz_glm_mat4& src, shz_glm_mat4* dst) {
+                              glm_mat4_inv(const_cast<mat4&>(src.glm), dst->glm);
+                          },
+                          dense, &shzInverted);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(inverse_rigid)
