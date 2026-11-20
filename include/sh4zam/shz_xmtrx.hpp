@@ -428,6 +428,36 @@ struct xmtrx {
         shz_xmtrx_init_rotation_dir(angle, dir.x, dir.y, dir.z);
     }
 
+    //! C++ wrapper around shz_xmtrx_init_rotation_x_yz().
+    SHZ_FORCE_INLINE static void init_rotation_x_yz(float y, float z) noexcept {
+        shz_xmtrx_init_rotation_x_yz(y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_rotation_y_xz().
+    SHZ_FORCE_INLINE static void init_rotation_y_xz(float x, float z) noexcept {
+        shz_xmtrx_init_rotation_y_xz(x, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_rotation_z_xy().
+    SHZ_FORCE_INLINE static void init_rotation_z_xy(float x, float y) noexcept {
+        shz_xmtrx_init_rotation_z_xy(x, y);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_billboard_x().
+    SHZ_FORCE_INLINE static void init_billboard_x(const vec3& pos, const vec3& eye) noexcept {
+        shz_xmtrx_init_billboard_x(pos, eye);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_billboard_y().
+    SHZ_FORCE_INLINE static void init_billboard_y(const vec3& pos, const vec3& eye) noexcept {
+        shz_xmtrx_init_billboard_y(pos, eye);
+    }
+
+    //! C++ wrapper around shz_xmtrx_init_billboard_z().
+    SHZ_FORCE_INLINE static void init_billboard_z(const vec3& pos, const vec3& eye) noexcept {
+        shz_xmtrx_init_billboard_z(pos, eye);
+    }
+
     //! C++ wrapper around shz_xmtrx_init_diagonal().
     SHZ_FORCE_INLINE static void init_diagonal(float x, float y, float z, float w) noexcept {
         shz_xmtrx_init_diagonal(x, y, z, w);
@@ -738,6 +768,36 @@ struct xmtrx {
     //! C++ wrapper around shz_xmtrx_rotate_z_u16().
     SHZ_FORCE_INLINE static void rotate_z(uint16_t radians16) noexcept {
         shz_xmtrx_rotate_z_u16(radians16);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_x_yz().
+    SHZ_FORCE_INLINE static void rotate_x_yz(float y, float z) noexcept {
+        shz_xmtrx_rotate_x_yz(y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_y_xz().
+    SHZ_FORCE_INLINE static void rotate_y_xz(float x, float z) noexcept {
+        shz_xmtrx_rotate_y_xz(x, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_z_xy().
+    SHZ_FORCE_INLINE static void rotate_z_xy(float x, float y) noexcept {
+        shz_xmtrx_rotate_z_xy(x, y);
+    }
+
+    //! C++ wrapper around shz_xmtrx_billboard_x().
+    SHZ_FORCE_INLINE static void billboard_x(const vec3& pos, const vec3& eye) noexcept {
+        shz_xmtrx_billboard_x(pos, eye);
+    }
+
+    //! C++ wrapper around shz_xmtrx_billboard_y().
+    SHZ_FORCE_INLINE static void billboard_y(const vec3& pos, const vec3& eye) noexcept {
+        shz_xmtrx_billboard_y(pos, eye);
+    }
+
+    //! C++ wrapper around shz_xmtrx_billboard_z().
+    SHZ_FORCE_INLINE static void billboard_z(const vec3& pos, const vec3& eye) noexcept {
+        shz_xmtrx_billboard_z(pos, eye);
     }
 
     //! C++ wrapper around shz_xmtrx_rotate_xyz().

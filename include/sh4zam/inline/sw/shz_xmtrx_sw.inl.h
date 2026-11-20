@@ -521,6 +521,16 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_x_u16_sw(uint16_t x) SHZ_NOEXCEPT 
     xmtrx_state_->col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_x_yz_sw(float y, float z) SHZ_NOEXCEPT {
+    shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
+    const float s = -y;
+    const float c = z;
+    xmtrx_state_->col[0] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
+    xmtrx_state_->col[1] = shz_vec4_init(0.0f, c,    s,    0.0f);
+    xmtrx_state_->col[2] = shz_vec4_init(0.0f, -s,   c,    0.0f);
+    xmtrx_state_->col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_y_u16_sw(uint16_t y) SHZ_NOEXCEPT {
     shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
     const shz_sincos_t sc = shz_sincosu16(y);
@@ -532,11 +542,31 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_y_u16_sw(uint16_t y) SHZ_NOEXCEPT 
     xmtrx_state_->col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_y_xz_sw(float x, float z) SHZ_NOEXCEPT {
+    shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
+    const float s = x;
+    const float c = z;
+    xmtrx_state_->col[0] = shz_vec4_init(c,    0.0f, -s,   0.0f);
+    xmtrx_state_->col[1] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
+    xmtrx_state_->col[2] = shz_vec4_init(s,    0.0f, c,    0.0f);
+    xmtrx_state_->col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_z_u16_sw(uint16_t z) SHZ_NOEXCEPT {
     shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
     const shz_sincos_t sc = shz_sincosu16(z);
     const float s = sc.sin;
     const float c = sc.cos;
+    xmtrx_state_->col[0] = shz_vec4_init(c,    s,    0.0f, 0.0f);
+    xmtrx_state_->col[1] = shz_vec4_init(-s,   c,    0.0f, 0.0f);
+    xmtrx_state_->col[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
+    xmtrx_state_->col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_z_xy_sw(float x, float y) SHZ_NOEXCEPT {
+    shz_xmtrx__t* xmtrx_state_ = shz_xmtrx_state_();
+    const float s = y;
+    const float c = x;
     xmtrx_state_->col[0] = shz_vec4_init(c,    s,    0.0f, 0.0f);
     xmtrx_state_->col[1] = shz_vec4_init(-s,   c,    0.0f, 0.0f);
     xmtrx_state_->col[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
@@ -1036,6 +1066,39 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_z_u16_sw(uint16_t radians16) SHZ_NOEXCEPT
     const shz_sincos_t sc = shz_sincosu16(radians16);
     const float s = sc.sin;
     const float c = sc.cos;
+    shz_vec4_t rot[4];
+    rot[0] = shz_vec4_init(c,    s,    0.0f, 0.0f);
+    rot[1] = shz_vec4_init(-s,   c,    0.0f, 0.0f);
+    rot[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
+    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+    shz_xmtrx_mul4x4_cols_(rot);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_x_yz_sw(float y, float z) SHZ_NOEXCEPT {
+    const float s = -y;
+    const float c = z;
+    shz_vec4_t rot[4];
+    rot[0] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
+    rot[1] = shz_vec4_init(0.0f, c,    s,    0.0f);
+    rot[2] = shz_vec4_init(0.0f, -s,   c,    0.0f);
+    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+    shz_xmtrx_mul4x4_cols_(rot);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_y_xz_sw(float x, float z) SHZ_NOEXCEPT {
+    const float s = x;
+    const float c = z;
+    shz_vec4_t rot[4];
+    rot[0] = shz_vec4_init(c,    0.0f, -s,   0.0f);
+    rot[1] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
+    rot[2] = shz_vec4_init(s,    0.0f, c,    0.0f);
+    rot[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+    shz_xmtrx_mul4x4_cols_(rot);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_z_xy_sw(float x, float y) SHZ_NOEXCEPT {
+    const float s = y;
+    const float c = x;
     shz_vec4_t rot[4];
     rot[0] = shz_vec4_init(c,    s,    0.0f, 0.0f);
     rot[1] = shz_vec4_init(-s,   c,    0.0f, 0.0f);

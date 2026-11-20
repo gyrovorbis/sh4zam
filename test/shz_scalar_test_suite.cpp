@@ -279,27 +279,34 @@ GBL_TEST_CASE(sqrtf)
     GBL_TEST_VERIFY(shz::sqrtf(volatile_cast(4.0f)) == 2.0f);
 
     for(float value : { 1e-6f, 0.01f, 0.5f, 2.0f, 3.0f, 1234.5f, 333333.33f, 1e30f })
-        GBL_TEST_ERROR(shz::sqrtf(volatile_cast(value)), ::sqrtf(value), 0.001, GBL_TEST_ERROR_FUZZY);
+        GBL_TEST_VERIFY(shz::equalf(shz::sqrtf(volatile_cast(value)), ::sqrtf(value)));
 
     (benchmark_cmp<float>)("shz::sqrtf",
                            [](float x) { return shz::sqrtf(x); },
                            "sqrtf",
                            [](float x) { return ::sqrtf(x); },
                            1234.5f);
+GBL_TEST_CASE_END
 
-    (benchmark_cmp<float>)("shz::sqrtf",
-                           [](float x) { return shz::sqrtf(x); },
-                           "shz::sqrtf_fsrra",
+GBL_TEST_CASE(sqrtf_fsrra)
+    for(float value : { 1e-6f, 0.01f, 0.5f, 1.0f, 2.0f, 3.0f, 4.0f, 1234.5f, 333333.33f, 1e30f }) {
+        const float expected = ::sqrtf(value);
+        GBL_TEST_VERIFY(fabsf(shz::sqrtf_fsrra(volatile_cast(value)) - expected) <= expected * 1e-4f);
+    }
+
+    (benchmark_cmp<float>)("shz::sqrtf_fsrra",
                            [](float x) { return shz::sqrtf_fsrra(x); },
+                           "sqrtf",
+                           [](float x) { return ::sqrtf(x); },
                            1234.5f);
 
-    (benchmark_cmp<float>)("shz::sqrtf x4",
-                           [](float a, float b, float c, float d) {
-                               return (shz::sqrtf(a) + shz::sqrtf(b)) + (shz::sqrtf(c) + shz::sqrtf(d));
-                           },
-                           "shz::sqrtf_fsrra x4",
+    (benchmark_cmp<float>)("shz::sqrtf_fsrra x4",
                            [](float a, float b, float c, float d) {
                                return (shz::sqrtf_fsrra(a) + shz::sqrtf_fsrra(b)) + (shz::sqrtf_fsrra(c) + shz::sqrtf_fsrra(d));
+                           },
+                           "sqrtf x4",
+                           [](float a, float b, float c, float d) {
+                               return (::sqrtf(a) + ::sqrtf(b)) + (::sqrtf(c) + ::sqrtf(d));
                            },
                            1234.5f, 2.0f, 333.3f, 77.7f);
 GBL_TEST_CASE_END
@@ -1059,6 +1066,7 @@ GBL_TEST_REGISTER(min,
                   barycentric_lerpf,
                   inv_sqrtf,
                   sqrtf,
+                  sqrtf_fsrra,
                   invf_fsrra,
                   divf_fsrra,
                   invf,

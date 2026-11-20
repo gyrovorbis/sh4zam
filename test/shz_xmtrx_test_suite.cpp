@@ -57,25 +57,25 @@ static void load_asymmetric_xmtrx_() {
     shz::xmtrx::write(shz::xmtrx::reg::XF11, 0.75f);
 }
 
-static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, double epsilon=0.01) {
+static GBL_RESULT verify_matrix(GblTestSuite* pSelf, std::array<float, 16> mat, float epsilon = 0.01f) {
     mat = transpose(mat);
     GBL_CTX_BEGIN(pSelf);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF0 ), mat[SHZ_XMTRX_XF0 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF1 ), mat[SHZ_XMTRX_XF1 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF2 ), mat[SHZ_XMTRX_XF2 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF3 ), mat[SHZ_XMTRX_XF3 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF4 ), mat[SHZ_XMTRX_XF4 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF5 ), mat[SHZ_XMTRX_XF5 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF6 ), mat[SHZ_XMTRX_XF6 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF7 ), mat[SHZ_XMTRX_XF7 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF8 ), mat[SHZ_XMTRX_XF8 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF9 ), mat[SHZ_XMTRX_XF9 ], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF10), mat[SHZ_XMTRX_XF10], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF11), mat[SHZ_XMTRX_XF11], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF12), mat[SHZ_XMTRX_XF12], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF13), mat[SHZ_XMTRX_XF13], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF14), mat[SHZ_XMTRX_XF14], epsilon, GBL_TEST_ERROR_ABSOLUTE);
-    GBL_TEST_ERROR(shz::xmtrx::read(shz::xmtrx::reg::XF15), mat[SHZ_XMTRX_XF15], epsilon, GBL_TEST_ERROR_ABSOLUTE);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF0 ) - mat[SHZ_XMTRX_XF0 ]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF1 ) - mat[SHZ_XMTRX_XF1 ]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF2 ) - mat[SHZ_XMTRX_XF2 ]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF3 ) - mat[SHZ_XMTRX_XF3 ]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF4 ) - mat[SHZ_XMTRX_XF4 ]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF5 ) - mat[SHZ_XMTRX_XF5 ]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF6 ) - mat[SHZ_XMTRX_XF6 ]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF7 ) - mat[SHZ_XMTRX_XF7 ]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF8 ) - mat[SHZ_XMTRX_XF8 ]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF9 ) - mat[SHZ_XMTRX_XF9 ]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF10) - mat[SHZ_XMTRX_XF10]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF11) - mat[SHZ_XMTRX_XF11]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF12) - mat[SHZ_XMTRX_XF12]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF13) - mat[SHZ_XMTRX_XF13]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF14) - mat[SHZ_XMTRX_XF14]) <= epsilon);
+    GBL_TEST_VERIFY(std::abs(shz::xmtrx::read(shz::xmtrx::reg::XF15) - mat[SHZ_XMTRX_XF15]) <= epsilon);
     GBL_CTX_END();
 }
 
@@ -631,7 +631,7 @@ static bool check_xmtrx_rotation_u16_(void (*u16)(uint16_t), void (*radians)(flo
 
         shz::xmtrx::init_identity();
         shz::xmtrx::translate(1.0f, 2.0f, 3.0f);
-        radians(static_cast<int16_t>(angle) * (1.0f / SHZ_FSCA_RAD_FACTOR));
+        radians(static_cast<int16_t>(angle) * (1.0f / shz::fsca_rad_factor));
         shz::xmtrx::store(&expected);
 
         shz::xmtrx::init_identity();
@@ -647,7 +647,7 @@ static bool check_xmtrx_rotation_u16_(void (*u16)(uint16_t), void (*radians)(flo
 
 // Radians in FSCA's 16-bit units, scaled and truncated as the radian routines' FTRC does.
 static uint16_t fsca_angle_(float radians) {
-    return static_cast<uint16_t>(static_cast<int32_t>(radians * SHZ_FSCA_RAD_FACTOR));
+    return static_cast<uint16_t>(static_cast<int32_t>(radians * shz::fsca_rad_factor));
 }
 
 template<typename F>
@@ -737,7 +737,7 @@ GBL_TEST_CASE(init_rotation_yxz)
 GBL_TEST_CASE_END
 
 static float u16_radians_(uint16_t angle) {
-    return static_cast<int16_t>(angle) * (1.0f / SHZ_FSCA_RAD_FACTOR);
+    return static_cast<int16_t>(angle) * (1.0f / shz::fsca_rad_factor);
 }
 
 template<typename U, typename R>
@@ -772,12 +772,12 @@ GBL_TEST_CASE(init_rotation_x_u16)
     (benchmark_cmp<void>)(
         "shz::xmtrx::init_rotation_x(uint16_t)", [](uint16_t angle) { shz::xmtrx::init_rotation_x(angle); },
         "shz::xmtrx::init_rotation_x(float)", [](uint16_t angle) {
-            shz::xmtrx::init_rotation_x(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+            shz::xmtrx::init_rotation_x(angle * (1.0f / shz::fsca_rad_factor));
         },
         static_cast<uint16_t>(0x2000));
     {
         volatile uint16_t angle16 = 0x2000;
-        volatile float    angle   = 0x2000 * (1.0f / SHZ_FSCA_RAD_FACTOR);
+        volatile float    angle   = 0x2000 * (1.0f / shz::fsca_rad_factor);
 
         GBL_TEST_VERIFY((benchmark_cmp<void>)(
             "shz::xmtrx::init_rotation_x(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
@@ -799,12 +799,12 @@ GBL_TEST_CASE(init_rotation_y_u16)
     (benchmark_cmp<void>)(
         "shz::xmtrx::init_rotation_y(uint16_t)", [](uint16_t angle) { shz::xmtrx::init_rotation_y(angle); },
         "shz::xmtrx::init_rotation_y(float)", [](uint16_t angle) {
-            shz::xmtrx::init_rotation_y(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+            shz::xmtrx::init_rotation_y(angle * (1.0f / shz::fsca_rad_factor));
         },
         static_cast<uint16_t>(0x2000));
     {
         volatile uint16_t angle16 = 0x2000;
-        volatile float    angle   = 0x2000 * (1.0f / SHZ_FSCA_RAD_FACTOR);
+        volatile float    angle   = 0x2000 * (1.0f / shz::fsca_rad_factor);
 
         GBL_TEST_VERIFY((benchmark_cmp<void>)(
             "shz::xmtrx::init_rotation_y(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
@@ -826,12 +826,12 @@ GBL_TEST_CASE(init_rotation_z_u16)
     (benchmark_cmp<void>)(
         "shz::xmtrx::init_rotation_z(uint16_t)", [](uint16_t angle) { shz::xmtrx::init_rotation_z(angle); },
         "shz::xmtrx::init_rotation_z(float)", [](uint16_t angle) {
-            shz::xmtrx::init_rotation_z(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+            shz::xmtrx::init_rotation_z(angle * (1.0f / shz::fsca_rad_factor));
         },
         static_cast<uint16_t>(0x2000));
     {
         volatile uint16_t angle16 = 0x2000;
-        volatile float    angle   = 0x2000 * (1.0f / SHZ_FSCA_RAD_FACTOR);
+        volatile float    angle   = 0x2000 * (1.0f / shz::fsca_rad_factor);
 
         GBL_TEST_VERIFY((benchmark_cmp<void>)(
             "shz::xmtrx::init_rotation_z(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
@@ -2610,7 +2610,7 @@ GBL_TEST_CASE(rotate_y)
 
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                     {
-                            0.707107f,  0.0f,  0.707107,  1.0f,
+                            0.707107f,  0.0f,  0.707107f,  1.0f,
                             0.0f,       1.0f,  0.0f,      2.0f,
                         -0.707107f,  0.0f,  0.707107f, 3.0f,
                             0.0f,       0.0f,  0.0f,      1.0f }));
@@ -2656,8 +2656,8 @@ GBL_TEST_CASE(rotate_z)
 
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME,
                     {
-                        0.707107, -0.707107, 0.0f, 1.0f,
-                        0.707107,  0.707107, 0.0f, 2.0f,
+                        0.707107f, -0.707107f, 0.0f, 1.0f,
+                        0.707107f,  0.707107f, 0.0f, 2.0f,
                         0.0f,      0.0f,     1.0f, 3.0f,
                         0.0f,      0.0f,     0.0f, 1.0f }));
 
@@ -4228,12 +4228,12 @@ GBL_TEST_CASE(rotate_x_u16)
     (benchmark_cmp<void>)(
         "shz::xmtrx::rotate_x(uint16_t)", [](uint16_t angle) { shz::xmtrx::rotate_x(angle); },
         "shz::xmtrx::rotate_x(float)", [](uint16_t angle) {
-            shz::xmtrx::rotate_x(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+            shz::xmtrx::rotate_x(angle * (1.0f / shz::fsca_rad_factor));
         },
         static_cast<uint16_t>(0x2000));
     {
         volatile uint16_t angle16 = 0x2000;
-        volatile float    angle   = 0x2000 * (1.0f / SHZ_FSCA_RAD_FACTOR);
+        volatile float    angle   = 0x2000 * (1.0f / shz::fsca_rad_factor);
 
         GBL_TEST_VERIFY((benchmark_cmp<void>)(
             "shz::xmtrx::rotate_x(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
@@ -4252,12 +4252,12 @@ GBL_TEST_CASE(rotate_y_u16)
     (benchmark_cmp<void>)(
         "shz::xmtrx::rotate_y(uint16_t)", [](uint16_t angle) { shz::xmtrx::rotate_y(angle); },
         "shz::xmtrx::rotate_y(float)", [](uint16_t angle) {
-            shz::xmtrx::rotate_y(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+            shz::xmtrx::rotate_y(angle * (1.0f / shz::fsca_rad_factor));
         },
         static_cast<uint16_t>(0x2000));
     {
         volatile uint16_t angle16 = 0x2000;
-        volatile float    angle   = 0x2000 * (1.0f / SHZ_FSCA_RAD_FACTOR);
+        volatile float    angle   = 0x2000 * (1.0f / shz::fsca_rad_factor);
 
         GBL_TEST_VERIFY((benchmark_cmp<void>)(
             "shz::xmtrx::rotate_y(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
@@ -4276,12 +4276,12 @@ GBL_TEST_CASE(rotate_z_u16)
     (benchmark_cmp<void>)(
         "shz::xmtrx::rotate_z(uint16_t)", [](uint16_t angle) { shz::xmtrx::rotate_z(angle); },
         "shz::xmtrx::rotate_z(float)", [](uint16_t angle) {
-            shz::xmtrx::rotate_z(angle * (1.0f / SHZ_FSCA_RAD_FACTOR));
+            shz::xmtrx::rotate_z(angle * (1.0f / shz::fsca_rad_factor));
         },
         static_cast<uint16_t>(0x2000));
     {
         volatile uint16_t angle16 = 0x2000;
-        volatile float    angle   = 0x2000 * (1.0f / SHZ_FSCA_RAD_FACTOR);
+        volatile float    angle   = 0x2000 * (1.0f / shz::fsca_rad_factor);
 
         GBL_TEST_VERIFY((benchmark_cmp<void>)(
             "shz::xmtrx::rotate_z(uint16_t)", [](const volatile uint16_t* a, const volatile float*) {
@@ -4293,6 +4293,537 @@ GBL_TEST_CASE(rotate_z_u16)
             },
             &angle16, &angle));
     }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_rotation_x_yz)
+    shz::mat4x4    out;
+    mat4           glmMat;
+    volatile float angle = 0.6f;
+
+    for(float theta : { 0.0f, 0.6f, -1.9f, 2.5f, 3.1f, -shz::pi_f * 0.5f }) {
+        randomize_xmtrx_();
+        shz::xmtrx::init_rotation_x_yz(-sinf(theta), cosf(theta));
+        shz::xmtrx::store(&out);
+
+        glm_mat4_identity(glmMat);
+        glm_rotate_x(glmMat, theta, glmMat);
+
+        GBL_TEST_VERIFY(compare_glm(out, glmMat));
+    }
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::init_rotation_x_yz", [](float y, float z) {
+            shz::xmtrx::init_rotation_x_yz(y, z);
+        },
+        "C init_rotation_x_yz", [&](float y, float z) {
+            glm_mat4_identity(glmMat);
+            glmMat[1][1] = z;
+            glmMat[1][2] = -y;
+            glmMat[2][1] = y;
+            glmMat[2][2] = z;
+        },
+        -sinf(0.6f), cosf(0.6f)));
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::init_rotation_x_yz", [](float y, float z, const volatile float*) {
+            shz::xmtrx::init_rotation_x_yz(y, z);
+        },
+        "glm_mat4_identity + glm_rotate_x", [&](float, float, const volatile float* r) {
+            glm_mat4_identity(glmMat);
+            glm_rotate_x(glmMat, *r, glmMat);
+        },
+        -sinf(0.6f), cosf(0.6f), &angle));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_rotation_y_xz)
+    shz::mat4x4    out;
+    mat4           glmMat;
+    volatile float angle = 0.6f;
+
+    for(float theta : { 0.0f, 0.6f, -1.9f, 2.5f, 3.1f, -shz::pi_f * 0.5f }) {
+        randomize_xmtrx_();
+        shz::xmtrx::init_rotation_y_xz(sinf(theta), cosf(theta));
+        shz::xmtrx::store(&out);
+
+        glm_mat4_identity(glmMat);
+        glm_rotate_y(glmMat, theta, glmMat);
+
+        GBL_TEST_VERIFY(compare_glm(out, glmMat));
+    }
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::init_rotation_y_xz", [](float x, float z) {
+            shz::xmtrx::init_rotation_y_xz(x, z);
+        },
+        "C init_rotation_y_xz", [&](float x, float z) {
+            glm_mat4_identity(glmMat);
+            glmMat[0][0] = z;
+            glmMat[0][2] = -x;
+            glmMat[2][0] = x;
+            glmMat[2][2] = z;
+        },
+        sinf(0.6f), cosf(0.6f)));
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::init_rotation_y_xz", [](float x, float z, const volatile float*) {
+            shz::xmtrx::init_rotation_y_xz(x, z);
+        },
+        "glm_mat4_identity + glm_rotate_y", [&](float, float, const volatile float* r) {
+            glm_mat4_identity(glmMat);
+            glm_rotate_y(glmMat, *r, glmMat);
+        },
+        sinf(0.6f), cosf(0.6f), &angle));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_rotation_z_xy)
+    shz::mat4x4    out;
+    mat4           glmMat;
+    volatile float angle = 0.6f;
+
+    for(float theta : { 0.0f, 0.6f, -1.9f, 2.5f, 3.1f, -shz::pi_f * 0.5f }) {
+        randomize_xmtrx_();
+        shz::xmtrx::init_rotation_z_xy(cosf(theta), sinf(theta));
+        shz::xmtrx::store(&out);
+
+        glm_mat4_identity(glmMat);
+        glm_rotate_z(glmMat, theta, glmMat);
+
+        GBL_TEST_VERIFY(compare_glm(out, glmMat));
+    }
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::init_rotation_z_xy", [](float x, float y) {
+            shz::xmtrx::init_rotation_z_xy(x, y);
+        },
+        "C init_rotation_z_xy", [&](float x, float y) {
+            glm_mat4_identity(glmMat);
+            glmMat[0][0] = x;
+            glmMat[0][1] = y;
+            glmMat[1][0] = -y;
+            glmMat[1][1] = x;
+        },
+        cosf(0.6f), sinf(0.6f)));
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::init_rotation_z_xy", [](float x, float y, const volatile float*) {
+            shz::xmtrx::init_rotation_z_xy(x, y);
+        },
+        "glm_mat4_identity + glm_rotate_z", [&](float, float, const volatile float* r) {
+            glm_mat4_identity(glmMat);
+            glm_rotate_z(glmMat, *r, glmMat);
+        },
+        cosf(0.6f), sinf(0.6f), &angle));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_x_yz)
+    shz::mat4x4 before, out;
+    mat4        glmMat, glmRot;
+
+    for(float theta : { 0.0f, 0.6f, -1.9f, 2.5f, 3.1f, -shz::pi_f * 0.5f }) {
+        for(unsigned reg = SHZ_XMTRX_XF0; reg <= SHZ_XMTRX_XF15; ++reg)
+            shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandUniform(-10.0f, 10.0f));
+        shz::xmtrx::store(&before);
+        shz::xmtrx::rotate_x_yz(-sinf(theta), cosf(theta));
+        shz::xmtrx::store(&out);
+
+        memcpy(glmMat, &before, sizeof(mat4));
+        glm_rotate_x(glmMat, theta, glmMat);
+
+        GBL_TEST_VERIFY(compare_glm(out, glmMat));
+    }
+
+    glm_mat4_identity(glmMat);
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::rotate_x_yz", [](float y, float z) {
+            shz::xmtrx::rotate_x_yz(y, z);
+        },
+        "glm_mul_rot", [&](float y, float z) {
+            glm_mat4_identity(glmRot);
+            glmRot[1][1] = z;
+            glmRot[1][2] = -y;
+            glmRot[2][1] = y;
+            glmRot[2][2] = z;
+            glm_mul_rot(glmMat, glmRot, glmMat);
+        },
+        -sinf(0.6f), cosf(0.6f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_y_xz)
+    shz::mat4x4 before, out;
+    mat4        glmMat, glmRot;
+
+    for(float theta : { 0.0f, 0.6f, -1.9f, 2.5f, 3.1f, -shz::pi_f * 0.5f }) {
+        for(unsigned reg = SHZ_XMTRX_XF0; reg <= SHZ_XMTRX_XF15; ++reg)
+            shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandUniform(-10.0f, 10.0f));
+        shz::xmtrx::store(&before);
+        shz::xmtrx::rotate_y_xz(sinf(theta), cosf(theta));
+        shz::xmtrx::store(&out);
+
+        memcpy(glmMat, &before, sizeof(mat4));
+        glm_rotate_y(glmMat, theta, glmMat);
+
+        GBL_TEST_VERIFY(compare_glm(out, glmMat));
+    }
+
+    glm_mat4_identity(glmMat);
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::rotate_y_xz", [](float x, float z) {
+            shz::xmtrx::rotate_y_xz(x, z);
+        },
+        "glm_mul_rot", [&](float x, float z) {
+            glm_mat4_identity(glmRot);
+            glmRot[0][0] = z;
+            glmRot[0][2] = -x;
+            glmRot[2][0] = x;
+            glmRot[2][2] = z;
+            glm_mul_rot(glmMat, glmRot, glmMat);
+        },
+        sinf(0.6f), cosf(0.6f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(rotate_z_xy)
+    shz::mat4x4 before, out;
+    mat4        glmMat, glmRot;
+
+    for(float theta : { 0.0f, 0.6f, -1.9f, 2.5f, 3.1f, -shz::pi_f * 0.5f }) {
+        for(unsigned reg = SHZ_XMTRX_XF0; reg <= SHZ_XMTRX_XF15; ++reg)
+            shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandUniform(-10.0f, 10.0f));
+        shz::xmtrx::store(&before);
+        shz::xmtrx::rotate_z_xy(cosf(theta), sinf(theta));
+        shz::xmtrx::store(&out);
+
+        memcpy(glmMat, &before, sizeof(mat4));
+        glm_rotate_z(glmMat, theta, glmMat);
+
+        GBL_TEST_VERIFY(compare_glm(out, glmMat));
+    }
+
+    glm_mat4_identity(glmMat);
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::rotate_z_xy", [](float x, float y) {
+            shz::xmtrx::rotate_z_xy(x, y);
+        },
+        "glm_mul_rot", [&](float x, float y) {
+            glm_mat4_identity(glmRot);
+            glmRot[0][0] = x;
+            glmRot[0][1] = y;
+            glmRot[1][0] = -y;
+            glmRot[1][1] = x;
+            glm_mul_rot(glmMat, glmRot, glmMat);
+        },
+        cosf(0.6f), sinf(0.6f)));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_billboard_x)
+    static const shz::vec3 cases[][2] = {
+        { {  1.0f, 2.0f,  3.0f }, {  4.0f, -1.0f,  7.0f } },
+        { {  0.0f, 0.0f,  0.0f }, { -3.0f,  5.0f, -2.0f } },
+        { { -2.0f, 1.0f,  4.0f }, {  5.0f,  9.0f, -6.0f } },
+        { { 10.0f, 0.5f, -5.0f }, { 10.5f,  3.0f, -5.5f } },
+        { {  0.0f, 0.0f,  0.0f }, {  0.0f, -1.0f, -1.0f } },
+    };
+    static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 9.0f, 2.0f, 3.0f } };
+    static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
+    shz::mat4x4            out;
+    mat4                   glmMat;
+
+    for(const auto& c : cases) {
+        randomize_xmtrx_();
+        shz::xmtrx::init_billboard_x(c[0], c[1]);
+        shz::xmtrx::store(&out);
+
+        vec2 d = { c[1].y - c[0].y, c[1].z - c[0].z };
+        glm_vec2_normalize(d);
+        glm_mat4_identity(glmMat);
+        glm_rotate_x(glmMat, atan2f(-d[0], d[1]), glmMat);
+
+        GBL_TEST_VERIFY(compare_glm(out, glmMat));
+    }
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_billboard_x(onAxis[0], onAxis[1]);
+    shz::xmtrx::store(&out);
+    glm_mat4_identity(glmMat);
+    GBL_TEST_VERIFY(compare_glm(out, glmMat));
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::init_billboard_x", [](const volatile float* v) {
+            shz::xmtrx::init_billboard_x(shz::vec3(v[0], v[1], v[2]), shz::vec3(v[3], v[4], v[5]));
+        },
+        "glm_vec2_normalize + rotation", [&](const volatile float* v) {
+            vec2 d = { v[4] - v[1], v[5] - v[2] };
+            glm_vec2_normalize(d);
+            glm_mat4_identity(glmMat);
+            glmMat[1][1] = d[1];
+            glmMat[1][2] = -d[0];
+            glmMat[2][1] = d[0];
+            glmMat[2][2] = d[1];
+        },
+        in));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_billboard_y)
+    static const shz::vec3 cases[][2] = {
+        { {  1.0f, 2.0f,  3.0f }, {  4.0f, -1.0f,  7.0f } },
+        { {  0.0f, 0.0f,  0.0f }, { -3.0f,  5.0f, -2.0f } },
+        { { -2.0f, 1.0f,  4.0f }, {  5.0f,  9.0f, -6.0f } },
+        { { 10.0f, 0.5f, -5.0f }, { 10.5f,  3.0f, -5.5f } },
+        { {  0.0f, 0.0f,  0.0f }, {  0.0f, -1.0f, -1.0f } },
+    };
+    static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 1.0f, 9.0f, 3.0f } };
+    static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
+    shz::mat4x4            out;
+    mat4                   glmMat;
+
+    for(const auto& c : cases) {
+        randomize_xmtrx_();
+        shz::xmtrx::init_billboard_y(c[0], c[1]);
+        shz::xmtrx::store(&out);
+
+        vec2 d = { c[1].x - c[0].x, c[1].z - c[0].z };
+        glm_vec2_normalize(d);
+        glm_mat4_identity(glmMat);
+        glm_rotate_y(glmMat, atan2f(d[0], d[1]), glmMat);
+
+        GBL_TEST_VERIFY(compare_glm(out, glmMat));
+    }
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_billboard_y(onAxis[0], onAxis[1]);
+    shz::xmtrx::store(&out);
+    glm_mat4_identity(glmMat);
+    GBL_TEST_VERIFY(compare_glm(out, glmMat));
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::init_billboard_y", [](const volatile float* v) {
+            shz::xmtrx::init_billboard_y(shz::vec3(v[0], v[1], v[2]), shz::vec3(v[3], v[4], v[5]));
+        },
+        "glm_vec2_normalize + rotation", [&](const volatile float* v) {
+            vec2 d = { v[3] - v[0], v[5] - v[2] };
+            glm_vec2_normalize(d);
+            glm_mat4_identity(glmMat);
+            glmMat[0][0] = d[1];
+            glmMat[0][2] = -d[0];
+            glmMat[2][0] = d[0];
+            glmMat[2][2] = d[1];
+        },
+        in));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_billboard_z)
+    static const shz::vec3 cases[][2] = {
+        { {  1.0f, 2.0f,  3.0f }, {  4.0f, -1.0f,  7.0f } },
+        { {  0.0f, 0.0f,  0.0f }, { -3.0f,  5.0f, -2.0f } },
+        { { -2.0f, 1.0f,  4.0f }, {  5.0f,  9.0f, -6.0f } },
+        { { 10.0f, 0.5f, -5.0f }, { 10.5f,  3.0f, -5.5f } },
+        { {  0.0f, 0.0f,  0.0f }, {  0.0f, -1.0f, -1.0f } },
+    };
+    static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 1.0f, 2.0f, 9.0f } };
+    static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
+    shz::mat4x4            out;
+    mat4                   glmMat;
+
+    for(const auto& c : cases) {
+        randomize_xmtrx_();
+        shz::xmtrx::init_billboard_z(c[0], c[1]);
+        shz::xmtrx::store(&out);
+
+        vec2 d = { c[1].x - c[0].x, c[1].y - c[0].y };
+        glm_vec2_normalize(d);
+        glm_mat4_identity(glmMat);
+        glm_rotate_z(glmMat, atan2f(d[1], d[0]), glmMat);
+
+        GBL_TEST_VERIFY(compare_glm(out, glmMat));
+    }
+
+    randomize_xmtrx_();
+    shz::xmtrx::init_billboard_z(onAxis[0], onAxis[1]);
+    shz::xmtrx::store(&out);
+    glm_mat4_identity(glmMat);
+    GBL_TEST_VERIFY(compare_glm(out, glmMat));
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::init_billboard_z", [](const volatile float* v) {
+            shz::xmtrx::init_billboard_z(shz::vec3(v[0], v[1], v[2]), shz::vec3(v[3], v[4], v[5]));
+        },
+        "glm_vec2_normalize + rotation", [&](const volatile float* v) {
+            vec2 d = { v[3] - v[0], v[4] - v[1] };
+            glm_vec2_normalize(d);
+            glm_mat4_identity(glmMat);
+            glmMat[0][0] = d[0];
+            glmMat[0][1] = d[1];
+            glmMat[1][0] = -d[1];
+            glmMat[1][1] = d[0];
+        },
+        in));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(billboard_x)
+    static const shz::vec3 cases[][2] = {
+        { {  1.0f, 2.0f,  3.0f }, {  4.0f, -1.0f,  7.0f } },
+        { {  0.0f, 0.0f,  0.0f }, { -3.0f,  5.0f, -2.0f } },
+        { { -2.0f, 1.0f,  4.0f }, {  5.0f,  9.0f, -6.0f } },
+        { { 10.0f, 0.5f, -5.0f }, { 10.5f,  3.0f, -5.5f } },
+        { {  0.0f, 0.0f,  0.0f }, {  0.0f, -1.0f, -1.0f } },
+    };
+    static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 9.0f, 2.0f, 3.0f } };
+    static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
+    shz::mat4x4            before, out;
+    mat4                   glmMat, glmRot;
+
+    for(const auto& c : cases) {
+        for(unsigned reg = SHZ_XMTRX_XF0; reg <= SHZ_XMTRX_XF15; ++reg)
+            shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandUniform(-10.0f, 10.0f));
+        shz::xmtrx::store(&before);
+        shz::xmtrx::billboard_x(c[0], c[1]);
+        shz::xmtrx::store(&out);
+
+        vec2 d = { c[1].y - c[0].y, c[1].z - c[0].z };
+        glm_vec2_normalize(d);
+        memcpy(glmMat, &before, sizeof(mat4));
+        glm_rotate_x(glmMat, atan2f(-d[0], d[1]), glmMat);
+
+        GBL_TEST_VERIFY(compare_glm(out, glmMat));
+    }
+
+    for(unsigned reg = SHZ_XMTRX_XF0; reg <= SHZ_XMTRX_XF15; ++reg)
+        shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandUniform(-10.0f, 10.0f));
+    shz::xmtrx::store(&before);
+    shz::xmtrx::billboard_x(onAxis[0], onAxis[1]);
+    shz::xmtrx::store(&out);
+    memcpy(glmMat, &before, sizeof(mat4));
+    GBL_TEST_VERIFY(compare_glm(out, glmMat));
+
+    glm_mat4_identity(glmMat);
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::billboard_x", [](const volatile float* v) {
+            shz::xmtrx::billboard_x(shz::vec3(v[0], v[1], v[2]), shz::vec3(v[3], v[4], v[5]));
+        },
+        "glm_vec2_normalize + glm_mul_rot", [&](const volatile float* v) {
+            vec2 d = { v[4] - v[1], v[5] - v[2] };
+            glm_vec2_normalize(d);
+            glm_mat4_identity(glmRot);
+            glmRot[1][1] = d[1];
+            glmRot[1][2] = -d[0];
+            glmRot[2][1] = d[0];
+            glmRot[2][2] = d[1];
+            glm_mul_rot(glmMat, glmRot, glmMat);
+        },
+        in));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(billboard_y)
+    static const shz::vec3 cases[][2] = {
+        { {  1.0f, 2.0f,  3.0f }, {  4.0f, -1.0f,  7.0f } },
+        { {  0.0f, 0.0f,  0.0f }, { -3.0f,  5.0f, -2.0f } },
+        { { -2.0f, 1.0f,  4.0f }, {  5.0f,  9.0f, -6.0f } },
+        { { 10.0f, 0.5f, -5.0f }, { 10.5f,  3.0f, -5.5f } },
+        { {  0.0f, 0.0f,  0.0f }, {  0.0f, -1.0f, -1.0f } },
+    };
+    static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 1.0f, 9.0f, 3.0f } };
+    static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
+    shz::mat4x4            before, out;
+    mat4                   glmMat, glmRot;
+
+    for(const auto& c : cases) {
+        for(unsigned reg = SHZ_XMTRX_XF0; reg <= SHZ_XMTRX_XF15; ++reg)
+            shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandUniform(-10.0f, 10.0f));
+        shz::xmtrx::store(&before);
+        shz::xmtrx::billboard_y(c[0], c[1]);
+        shz::xmtrx::store(&out);
+
+        vec2 d = { c[1].x - c[0].x, c[1].z - c[0].z };
+        glm_vec2_normalize(d);
+        memcpy(glmMat, &before, sizeof(mat4));
+        glm_rotate_y(glmMat, atan2f(d[0], d[1]), glmMat);
+
+        GBL_TEST_VERIFY(compare_glm(out, glmMat));
+    }
+
+    for(unsigned reg = SHZ_XMTRX_XF0; reg <= SHZ_XMTRX_XF15; ++reg)
+        shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandUniform(-10.0f, 10.0f));
+    shz::xmtrx::store(&before);
+    shz::xmtrx::billboard_y(onAxis[0], onAxis[1]);
+    shz::xmtrx::store(&out);
+    memcpy(glmMat, &before, sizeof(mat4));
+    GBL_TEST_VERIFY(compare_glm(out, glmMat));
+
+    glm_mat4_identity(glmMat);
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::billboard_y", [](const volatile float* v) {
+            shz::xmtrx::billboard_y(shz::vec3(v[0], v[1], v[2]), shz::vec3(v[3], v[4], v[5]));
+        },
+        "glm_vec2_normalize + glm_mul_rot", [&](const volatile float* v) {
+            vec2 d = { v[3] - v[0], v[5] - v[2] };
+            glm_vec2_normalize(d);
+            glm_mat4_identity(glmRot);
+            glmRot[0][0] = d[1];
+            glmRot[0][2] = -d[0];
+            glmRot[2][0] = d[0];
+            glmRot[2][2] = d[1];
+            glm_mul_rot(glmMat, glmRot, glmMat);
+        },
+        in));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(billboard_z)
+    static const shz::vec3 cases[][2] = {
+        { {  1.0f, 2.0f,  3.0f }, {  4.0f, -1.0f,  7.0f } },
+        { {  0.0f, 0.0f,  0.0f }, { -3.0f,  5.0f, -2.0f } },
+        { { -2.0f, 1.0f,  4.0f }, {  5.0f,  9.0f, -6.0f } },
+        { { 10.0f, 0.5f, -5.0f }, { 10.5f,  3.0f, -5.5f } },
+        { {  0.0f, 0.0f,  0.0f }, {  0.0f, -1.0f, -1.0f } },
+    };
+    static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 1.0f, 2.0f, 9.0f } };
+    static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
+    shz::mat4x4            before, out;
+    mat4                   glmMat, glmRot;
+
+    for(const auto& c : cases) {
+        for(unsigned reg = SHZ_XMTRX_XF0; reg <= SHZ_XMTRX_XF15; ++reg)
+            shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandUniform(-10.0f, 10.0f));
+        shz::xmtrx::store(&before);
+        shz::xmtrx::billboard_z(c[0], c[1]);
+        shz::xmtrx::store(&out);
+
+        vec2 d = { c[1].x - c[0].x, c[1].y - c[0].y };
+        glm_vec2_normalize(d);
+        memcpy(glmMat, &before, sizeof(mat4));
+        glm_rotate_z(glmMat, atan2f(d[1], d[0]), glmMat);
+
+        GBL_TEST_VERIFY(compare_glm(out, glmMat));
+    }
+
+    for(unsigned reg = SHZ_XMTRX_XF0; reg <= SHZ_XMTRX_XF15; ++reg)
+        shz::xmtrx::write(static_cast<shz::xmtrx::reg>(reg), gblRandUniform(-10.0f, 10.0f));
+    shz::xmtrx::store(&before);
+    shz::xmtrx::billboard_z(onAxis[0], onAxis[1]);
+    shz::xmtrx::store(&out);
+    memcpy(glmMat, &before, sizeof(mat4));
+    GBL_TEST_VERIFY(compare_glm(out, glmMat));
+
+    glm_mat4_identity(glmMat);
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::billboard_z", [](const volatile float* v) {
+            shz::xmtrx::billboard_z(shz::vec3(v[0], v[1], v[2]), shz::vec3(v[3], v[4], v[5]));
+        },
+        "glm_vec2_normalize + glm_mul_rot", [&](const volatile float* v) {
+            vec2 d = { v[3] - v[0], v[4] - v[1] };
+            glm_vec2_normalize(d);
+            glm_mat4_identity(glmRot);
+            glmRot[0][0] = d[0];
+            glmRot[0][1] = d[1];
+            glmRot[1][0] = -d[1];
+            glmRot[1][1] = d[0];
+            glm_mul_rot(glmMat, glmRot, glmMat);
+        },
+        in));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(rotate_xyz)
@@ -4581,6 +5112,18 @@ GBL_TEST_REGISTER(read_write_registers,
                   rotate_x_u16,
                   rotate_y_u16,
                   rotate_z_u16,
+                  init_rotation_x_yz,
+                  init_rotation_y_xz,
+                  init_rotation_z_xy,
+                  rotate_x_yz,
+                  rotate_y_xz,
+                  rotate_z_xy,
+                  init_billboard_x,
+                  init_billboard_y,
+                  init_billboard_z,
+                  billboard_x,
+                  billboard_y,
+                  billboard_z,
                   rotate_xyz,
                   rotate_zyx,
                   rotate_zxy,

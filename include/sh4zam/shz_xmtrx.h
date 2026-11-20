@@ -333,6 +333,97 @@ SHZ_INLINE void shz_xmtrx_init_rotation_zxy_u16(uint16_t zAngle, uint16_t xAngle
 //! Equivalent to shz_xmtrx_init_rotation_yxz(), with 16-bit binary angles.
 SHZ_INLINE void shz_xmtrx_init_rotation_yxz_u16(uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) SHZ_NOEXCEPT;
 
+/*! Initializes XMTRX to the rotation about the X axis that turns local +Z toward the unit direction (0, \p y, \p z).
+
+    Equivalent to shz_xmtrx_init_rotation_x() for the angle whose sine is -\p y and cosine is \p z,
+    without computing an angle or going through FSCA. Useful for billboarding and for any direction
+    that is already normalized.
+
+    \param  y   Y component of the unit direction.
+    \param  z   Z component of the unit direction.
+
+    \warning (\p y, \p z) must be unit length.
+
+    \sa shz_xmtrx_rotate_x_yz(), shz_xmtrx_init_billboard_x()
+*/
+SHZ_INLINE void shz_xmtrx_init_rotation_x_yz(float y, float z) SHZ_NOEXCEPT;
+
+/*! Initializes XMTRX to the rotation about the Y axis that turns local +Z toward the unit direction (\p x, 0, \p z).
+
+    Equivalent to shz_xmtrx_init_rotation_y() for the angle whose sine is \p x and cosine is \p z.
+
+    \param  x   X component of the unit direction.
+    \param  z   Z component of the unit direction.
+
+    \warning (\p x, \p z) must be unit length.
+
+    \sa shz_xmtrx_rotate_y_xz(), shz_xmtrx_init_billboard_y()
+*/
+SHZ_INLINE void shz_xmtrx_init_rotation_y_xz(float x, float z) SHZ_NOEXCEPT;
+
+/*! Initializes XMTRX to the rotation about the Z axis that turns local +X toward the unit direction (\p x, \p y, 0).
+
+    Equivalent to shz_xmtrx_init_rotation_z() for the angle whose sine is \p y and cosine is \p x.
+
+    \param  x   X component of the unit direction.
+    \param  y   Y component of the unit direction.
+
+    \warning (\p x, \p y) must be unit length.
+
+    \sa shz_xmtrx_rotate_z_xy(), shz_xmtrx_init_billboard_z()
+*/
+SHZ_INLINE void shz_xmtrx_init_rotation_z_xy(float x, float y) SHZ_NOEXCEPT;
+
+/*! Initializes XMTRX to the rotation about the X axis that turns local +Z toward \p eye, as seen from \p pos.
+
+    Axial billboarding about X: the direction from \p pos to \p eye is projected onto the YZ plane,
+    normalized, and passed to shz_xmtrx_init_rotation_x_yz(). Only the rotation is written; \p pos
+    is used for the direction and is not applied as a translation.
+
+    \note If \p eye lies on the X axis through \p pos, the facing direction is undefined and
+          no rotation is applied, leaving local +Z unrotated.
+
+    \param  pos     Position of the billboarded object, used only to compute the direction to \p eye.
+    \param  eye     Position to face, such as the camera eye, in the same space as \p pos.
+
+    \sa shz_xmtrx_init_rotation_x_yz(), shz_xmtrx_billboard_x(), shz_xmtrx_init_billboard_y()
+*/
+SHZ_INLINE void shz_xmtrx_init_billboard_x(shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT;
+
+/*! Initializes XMTRX to the rotation about the Y axis that turns local +Z toward \p eye, as seen from \p pos.
+
+    Axial (cylindrical) billboarding about Y, the usual case for Y-up sprites such as trees and
+    enemies: the direction from \p pos to \p eye is projected onto the XZ plane, normalized, and
+    passed to shz_xmtrx_init_rotation_y_xz(). Only the rotation is written; \p pos is used for the
+    direction and is not applied as a translation.
+
+    \note If \p eye lies on the Y axis through \p pos, the facing direction is undefined and
+          no rotation is applied, leaving local +Z unrotated.
+
+    \param  pos     Position of the billboarded object, used only to compute the direction to \p eye.
+    \param  eye     Position to face, such as the camera eye, in the same space as \p pos.
+
+    \sa shz_xmtrx_init_rotation_y_xz(), shz_xmtrx_billboard_y(), shz_xmtrx_init_billboard_x()
+*/
+SHZ_INLINE void shz_xmtrx_init_billboard_y(shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT;
+
+/*! Initializes XMTRX to the rotation about the Z axis that turns local +X toward \p eye, as seen from \p pos.
+
+    Axial billboarding about Z: the direction from \p pos to \p eye is projected onto the XY plane,
+    normalized, and passed to shz_xmtrx_init_rotation_z_xy(). A rotation about Z cannot move +Z, so
+    the quad faces along local +X. Only the rotation is written; \p pos is used for the direction
+    and is not applied as a translation.
+
+    \note If \p eye lies on the Z axis through \p pos, the facing direction is undefined and
+          no rotation is applied, leaving local +X unrotated.
+
+    \param  pos     Position of the billboarded object, used only to compute the direction to \p eye.
+    \param  eye     Position to face, such as the camera eye, in the same space as \p pos.
+
+    \sa shz_xmtrx_init_rotation_z_xy(), shz_xmtrx_billboard_z(), shz_xmtrx_init_billboard_x()
+*/
+SHZ_INLINE void shz_xmtrx_init_billboard_z(shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT;
+
 /*! Initializes XMTRX to a 3D rotation matrix of \p angle radians about the vector with the given components.
 
     \note This routine works similarly to glRotatef() applied to an identitiy matrix. The given
@@ -575,6 +666,93 @@ SHZ_INLINE void shz_xmtrx_rotate_y_u16(uint16_t radians16) SHZ_NOEXCEPT;
 
 //! Equivalent to shz_xmtrx_rotate_z(), with a 16-bit binary angle.
 SHZ_INLINE void shz_xmtrx_rotate_z_u16(uint16_t radians16) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates XMTRX by the rotation about the X axis that turns local +Z toward the unit direction (0, \p y, \p z).
+
+    Equivalent to shz_xmtrx_rotate_x() for the angle whose sine is -\p y and cosine is \p z.
+
+    \warning (\p y, \p z) must be unit length.
+
+    \param  y   Y component of the unit direction.
+    \param  z   Z component of the unit direction.
+
+    \sa shz_xmtrx_init_rotation_x_yz(), shz_xmtrx_billboard_x()
+*/
+SHZ_INLINE void shz_xmtrx_rotate_x_yz(float y, float z) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates XMTRX by the rotation about the Y axis that turns local +Z toward the unit direction (\p x, 0, \p z).
+
+    Equivalent to shz_xmtrx_rotate_y() for the angle whose sine is \p x and cosine is \p z.
+
+    \warning (\p x, \p z) must be unit length.
+
+    \param  x   X component of the unit direction.
+    \param  z   Z component of the unit direction.
+
+    \sa shz_xmtrx_init_rotation_y_xz(), shz_xmtrx_billboard_y()
+*/
+SHZ_INLINE void shz_xmtrx_rotate_y_xz(float x, float z) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates XMTRX by the rotation about the Z axis that turns local +X toward the unit direction (\p x, \p y, 0).
+
+    Equivalent to shz_xmtrx_rotate_z() for the angle whose sine is \p y and cosine is \p x.
+
+    \warning (\p x, \p y) must be unit length.
+
+    \param  x   X component of the unit direction.
+    \param  y   Y component of the unit direction.
+
+    \sa shz_xmtrx_init_rotation_z_xy(), shz_xmtrx_billboard_z()
+*/
+SHZ_INLINE void shz_xmtrx_rotate_z_xy(float x, float y) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates XMTRX by the rotation about the X axis that turns local +Z toward \p eye, as seen from \p pos.
+
+    Accumulating counterpart of shz_xmtrx_init_billboard_x(): the direction from \p pos to \p eye is
+    projected onto the YZ plane, normalized, and passed to shz_xmtrx_rotate_x_yz(). Only a rotation
+    is applied; \p pos is used for the direction and is not applied as a translation.
+
+    \note If \p eye lies on the X axis through \p pos, the facing direction is undefined and
+          no rotation is applied, leaving local +Z unrotated.
+
+    \param  pos     Position of the billboarded object, used only to compute the direction to \p eye.
+    \param  eye     Position to face, such as the camera eye, in the same space as \p pos.
+
+    \sa shz_xmtrx_init_billboard_x(), shz_xmtrx_rotate_x_yz()
+*/
+SHZ_INLINE void shz_xmtrx_billboard_x(shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates XMTRX by the rotation about the Y axis that turns local +Z toward \p eye, as seen from \p pos.
+
+    Accumulating counterpart of shz_xmtrx_init_billboard_y(): the direction from \p pos to \p eye is
+    projected onto the XZ plane, normalized, and passed to shz_xmtrx_rotate_y_xz(). Only a rotation
+    is applied; \p pos is used for the direction and is not applied as a translation.
+
+    \note If \p eye lies on the Y axis through \p pos, the facing direction is undefined and
+          no rotation is applied, leaving local +Z unrotated.
+
+    \param  pos     Position of the billboarded object, used only to compute the direction to \p eye.
+    \param  eye     Position to face, such as the camera eye, in the same space as \p pos.
+
+    \sa shz_xmtrx_init_billboard_y(), shz_xmtrx_rotate_y_xz()
+*/
+SHZ_INLINE void shz_xmtrx_billboard_y(shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT;
+
+/*! Multiplies and accumulates XMTRX by the rotation about the Z axis that turns local +X toward \p eye, as seen from \p pos.
+
+    Accumulating counterpart of shz_xmtrx_init_billboard_z(): the direction from \p pos to \p eye is
+    projected onto the XY plane, normalized, and passed to shz_xmtrx_rotate_z_xy(). Only a rotation
+    is applied; \p pos is used for the direction and is not applied as a translation.
+
+    \note If \p eye lies on the Z axis through \p pos, the facing direction is undefined and
+          no rotation is applied, leaving local +X unrotated.
+
+    \param  pos     Position of the billboarded object, used only to compute the direction to \p eye.
+    \param  eye     Position to face, such as the camera eye, in the same space as \p pos.
+
+    \sa shz_xmtrx_init_billboard_z(), shz_xmtrx_rotate_z_xy()
+*/
+SHZ_INLINE void shz_xmtrx_billboard_z(shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT;
 
 //! Multiplies and accumulates XMTRX by 3D rotation matrices about the X then Y then Z axes.
 SHZ_INLINE void shz_xmtrx_rotate_xyz(float xRadians, float yRadians, float zRadians) SHZ_NOEXCEPT;

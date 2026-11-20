@@ -19,21 +19,17 @@
 
 #include "../../shz_mem.h"
 
-SHZ_INLINE float shz_vec3_triple_sh4(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT {
-    float ax = a.x;
-    float bx = b.x;
-    float cx = c.x;
-
-    float dotPQ = shz_dot6f(ax, bx, cx, -b.y * c.z, -c.y * a.z, -a.y * b.z);
-    float dotRS = shz_dot6f(ax, bx, cx, c.y * b.z,  a.y * c.z,  b.y * a.z);
-
-    return -(dotPQ + dotRS);
+SHZ_FORCE_INLINE float shz_vec3_triple_sh4(shz_vec3_t a, shz_vec3_t b, shz_vec3_t c) SHZ_NOEXCEPT {
+    shz_vec2_t dot = shz_vec3_dot2(shz_vec3_init(a.x, b.x, c.x),
+                                   shz_vec3_init(b.y * c.z, c.y * a.z, a.y * b.z),
+                                   shz_vec3_init(c.y * b.z, a.y * c.z, b.y * a.z));
+    return dot.x - dot.y;
 }
 
-SHZ_INLINE shz_vec3_t shz_vec3_barycenter_sh4(shz_vec3_t p,
-                                             shz_vec3_t a,
-                                             shz_vec3_t b,
-                                             shz_vec3_t c) SHZ_NOEXCEPT {
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_barycenter_sh4(shz_vec3_t p,
+                                                    shz_vec3_t a,
+                                                    shz_vec3_t b,
+                                                    shz_vec3_t c) SHZ_NOEXCEPT {
     shz_vec3_t result;
 
     // Assign v0 immediately to FV0.

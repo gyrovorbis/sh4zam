@@ -729,7 +729,7 @@ SHZ_FORCE_INLINE shz_vec2_t shz_vec2_reject_safe(shz_vec2_t v1, shz_vec2_t v2) S
     if(SHZ_UNLIKELY(v2dv2 == 0.0f))
         return v1;
 
-    float   mag = shz_divf_fsrra(v1dv2, v2dv2);
+    float mag = shz_divf_fsrra(v1dv2, v2dv2);
 
     return shz_vec2_sub(v1, shz_vec2_scale(v2, mag));
 }
@@ -747,7 +747,7 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_reject_safe(shz_vec3_t v1, shz_vec3_t v2) S
     if(SHZ_UNLIKELY(v2dv2 == 0.0f))
         return v1;
 
-    float   mag = shz_divf_fsrra(v1dv2, v2dv2);
+    float mag = shz_divf_fsrra(v1dv2, v2dv2);
 
     return shz_vec3_sub(v1, shz_vec3_scale(v2, mag));
 }
@@ -765,7 +765,7 @@ SHZ_FORCE_INLINE shz_vec4_t shz_vec4_reject_safe(shz_vec4_t v1, shz_vec4_t v2) S
     if(SHZ_UNLIKELY(v2dv2 == 0.0f))
         return v1;
 
-    float   mag = shz_divf_fsrra(v1dv2, v2dv2);
+    float mag = shz_divf_fsrra(v1dv2, v2dv2);
 
     return shz_vec4_sub(v1, shz_vec4_scale(v2, mag));
 }

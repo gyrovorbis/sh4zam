@@ -219,12 +219,12 @@ _shz_sq_memcpy32_sh4_:
     ! Load current 32 byte chunk
     fmov.d  @r5+, dr0
     dt      r6
-    pref    @r7         ! Prefetch next 32 byte chunk
-    add     #32, r7
     fmov.d  @r5+, dr2
     add     #64, r4
     fmov.d  @r5+, dr4
     fmov.d  @r5+, dr6
+    pref    @r7         ! Prefetch next 32 byte chunk
+    add     #32, r7
 
     ! Write current chunk into SQs
     fmov.d  dr6, @-r4

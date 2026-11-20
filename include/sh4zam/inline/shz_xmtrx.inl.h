@@ -410,6 +410,84 @@ SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_z(float z) SHZ_NOEXCEPT {
 #endif
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_x_yz(float y, float z) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_init_rotation_x_yz_sh4(y, z);
+#else
+    shz_xmtrx_init_rotation_x_yz_sw(y, z);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_y_xz(float x, float z) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_init_rotation_y_xz_sh4(x, z);
+#else
+    shz_xmtrx_init_rotation_y_xz_sw(x, z);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_init_rotation_z_xy(float x, float y) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_init_rotation_z_xy_sh4(x, y);
+#else
+    shz_xmtrx_init_rotation_z_xy_sw(x, y);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_init_billboard_x(shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT {
+    const shz_vec2_t d =
+        shz_vec2_normalize_or(shz_vec2_sub(shz_vec2_init(eye.y, eye.z),
+                                           shz_vec2_init(pos.y, pos.z)),
+                              shz_vec2_init(0.0f, 1.0f));
+
+    shz_xmtrx_init_rotation_x_yz(d.x, d.y);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_init_billboard_y(shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT {
+    const shz_vec2_t d =
+        shz_vec2_normalize_or(shz_vec2_sub(shz_vec2_init(eye.x, eye.z),
+                                           shz_vec2_init(pos.x, pos.z)),
+                              shz_vec2_init(0.0f, 1.0f));
+
+    shz_xmtrx_init_rotation_y_xz(d.x, d.y);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_init_billboard_z(shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT {
+    const shz_vec2_t d =
+        shz_vec2_normalize_or(shz_vec2_sub(shz_vec2_init(eye.x, eye.y),
+                                           shz_vec2_init(pos.x, pos.y)),
+                              shz_vec2_init(1.0f, 0.0f));
+
+    shz_xmtrx_init_rotation_z_xy(d.x, d.y);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_billboard_x(shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT {
+    const shz_vec2_t d =
+        shz_vec2_normalize_or(shz_vec2_sub(shz_vec2_init(eye.y, eye.z),
+                                           shz_vec2_init(pos.y, pos.z)),
+                              shz_vec2_init(0.0f, 1.0f));
+
+    shz_xmtrx_rotate_x_yz(d.x, d.y);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_billboard_y(shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT {
+    const shz_vec2_t d =
+        shz_vec2_normalize_or(shz_vec2_sub(shz_vec2_init(eye.x, eye.z),
+                                           shz_vec2_init(pos.x, pos.z)),
+                              shz_vec2_init(0.0f, 1.0f));
+
+    shz_xmtrx_rotate_y_xz(d.x, d.y);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_billboard_z(shz_vec3_t pos, shz_vec3_t eye) SHZ_NOEXCEPT {
+    const shz_vec2_t d =
+        shz_vec2_normalize_or(shz_vec2_sub(shz_vec2_init(eye.x, eye.y),
+                                           shz_vec2_init(pos.x, pos.y)),
+                              shz_vec2_init(1.0f, 0.0f));
+
+    shz_xmtrx_rotate_z_xy(d.x, d.y);
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_init_rotation(float angle, float x, float y, float z) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_init_rotation_sh4(angle, x, y, z);
@@ -1024,6 +1102,30 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_z_u16(uint16_t radians16) SHZ_NOEXCEPT {
     shz_xmtrx_rotate_z_u16_sh4(radians16);
 #else
     shz_xmtrx_rotate_z_u16_sw(radians16);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_x_yz(float y, float z) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_x_yz_sh4(y, z);
+#else
+    shz_xmtrx_rotate_x_yz_sw(y, z);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_y_xz(float x, float z) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_y_xz_sh4(x, z);
+#else
+    shz_xmtrx_rotate_y_xz_sw(x, z);
+#endif
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_z_xy(float x, float y) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_z_xy_sh4(x, y);
+#else
+    shz_xmtrx_rotate_z_xy_sw(x, y);
 #endif
 }
 

@@ -351,12 +351,12 @@ SHZ_FORCE_INLINE void* shz_sq_memcpy32_xmtrx_sh4(      void* SHZ_RESTRICT dst,
         1:
             fmov.d  @%[src]+, xd0
             add     #64, %[dst]
-            pref    @%[pref]
-            add     #32, %[pref]
             fmov.d  @%[src]+, xd2
             dt      %[blks]          ! while(n--)
             fmov.d  @%[src]+, xd4
             fmov.d  @%[src]+, xd6
+            pref    @%[pref]
+            add     #32, %[pref]
             fmov.d  xd6, @-%[dst]
             fmov.d  xd4, @-%[dst]
             fmov.d  xd2, @-%[dst]
