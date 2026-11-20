@@ -172,6 +172,15 @@ SHZ_INLINE shz_vec3_t shz_vec3_inv(shz_vec3_t vec) SHZ_NOEXCEPT;
 //! Returns the 4D vector whose components have been inverted or reciprocated.
 SHZ_INLINE shz_vec4_t shz_vec4_inv(shz_vec4_t vec) SHZ_NOEXCEPT;
 
+//! Returns the 2D vector whose components have been reciprocated, using a fast approximation which requires positive components.
+SHZ_INLINE shz_vec2_t shz_vec2_inv_fsrra(shz_vec2_t vec) SHZ_NOEXCEPT;
+
+//! Returns the 3D vector whose components have been reciprocated, using a fast approximation which requires positive components.
+SHZ_INLINE shz_vec3_t shz_vec3_inv_fsrra(shz_vec3_t vec) SHZ_NOEXCEPT;
+
+//! Returns the 4D vector whose components have been reciprocated, using a fast approximation which requires positive components.
+SHZ_INLINE shz_vec4_t shz_vec4_inv_fsrra(shz_vec4_t vec) SHZ_NOEXCEPT;
+
 //! Returns the maximum value of both of the given vector's components.
 SHZ_INLINE float shz_vec2_max(shz_vec2_t vec) SHZ_NOEXCEPT;
 
@@ -395,6 +404,33 @@ SHZ_INLINE shz_vec3_t shz_vec3_div(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEP
 
 //! Returns a 4D vector whose component values are those of \p vec1 divided by \p vec2.
 SHZ_INLINE shz_vec4_t shz_vec4_div(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector whose component values are those of \p vec1 divided by \p vec2, using a fast approximation which requires \p vec2 to have positive components.
+SHZ_INLINE shz_vec2_t shz_vec2_div_fsrra(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose component values are those of \p vec1 divided by \p vec2, using a fast approximation which requires \p vec2 to have positive components.
+SHZ_INLINE shz_vec3_t shz_vec3_div_fsrra(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose component values are those of \p vec1 divided by \p vec2, using a fast approximation which requires \p vec2 to have positive components.
+SHZ_INLINE shz_vec4_t shz_vec4_div_fsrra(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector whose component values are those of \p num divided by the scalar \p denom.
+SHZ_INLINE shz_vec2_t shz_vec2_divf(shz_vec2_t num, float denom) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose component values are those of \p num divided by the scalar \p denom.
+SHZ_INLINE shz_vec3_t shz_vec3_divf(shz_vec3_t num, float denom) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose component values are those of \p num divided by the scalar \p denom.
+SHZ_INLINE shz_vec4_t shz_vec4_divf(shz_vec4_t num, float denom) SHZ_NOEXCEPT;
+
+//! Returns a 2D vector whose component values are those of \p num divided by the scalar \p denom, using a fast approximation which requires \p denom to be positive.
+SHZ_INLINE shz_vec2_t shz_vec2_divf_fsrra(shz_vec2_t num, float denom) SHZ_NOEXCEPT;
+
+//! Returns a 3D vector whose component values are those of \p num divided by the scalar \p denom, using a fast approximation which requires \p denom to be positive.
+SHZ_INLINE shz_vec3_t shz_vec3_divf_fsrra(shz_vec3_t num, float denom) SHZ_NOEXCEPT;
+
+//! Returns a 4D vector whose component values are those of \p num divided by the scalar \p denom, using a fast approximation which requires \p denom to be positive.
+SHZ_INLINE shz_vec4_t shz_vec4_divf_fsrra(shz_vec4_t num, float denom) SHZ_NOEXCEPT;
 
 //! Returns a 2D vector whose component values are those of the given vector multiplied by a factor.
 SHZ_INLINE shz_vec2_t shz_vec2_scale(shz_vec2_t vec, float factor) SHZ_NOEXCEPT;
@@ -1063,6 +1099,13 @@ SHZ_DECLS_END
                  shz_vec3_t: shz_vec3_inv, \
                  shz_vec4_t: shz_vec4_inv)(vec)
 
+    //! C type-generic fast approximate vector inversion.
+#   define shz_vec_inv_fsrra(vec) \
+        _Generic((vec), \
+                 shz_vec2_t: shz_vec2_inv_fsrra, \
+                 shz_vec3_t: shz_vec3_inv_fsrra, \
+                 shz_vec4_t: shz_vec4_inv_fsrra)(vec)
+
     //! C type-generic vector maximum value.
 #   define shz_vec_max(vec) \
         _Generic((vec), \
@@ -1118,6 +1161,27 @@ SHZ_DECLS_END
                  shz_vec2_t: shz_vec2_div, \
                  shz_vec3_t: shz_vec3_div, \
                  shz_vec4_t: shz_vec4_div)(vec1, vec2)
+
+    //! C type-generic fast approximate vector division.
+#   define shz_vec_div_fsrra(vec1, vec2) \
+        _Generic((vec1), \
+                 shz_vec2_t: shz_vec2_div_fsrra, \
+                 shz_vec3_t: shz_vec3_div_fsrra, \
+                 shz_vec4_t: shz_vec4_div_fsrra)(vec1, vec2)
+
+    //! C type-generic vector division by a scalar.
+#   define shz_vec_divf(num, denom) \
+        _Generic((num), \
+                 shz_vec2_t: shz_vec2_divf, \
+                 shz_vec3_t: shz_vec3_divf, \
+                 shz_vec4_t: shz_vec4_divf)(num, denom)
+
+    //! C type-generic fast approximate vector division by a positive scalar.
+#   define shz_vec_divf_fsrra(num, denom) \
+        _Generic((num), \
+                 shz_vec2_t: shz_vec2_divf_fsrra, \
+                 shz_vec3_t: shz_vec3_divf_fsrra, \
+                 shz_vec4_t: shz_vec4_divf_fsrra)(num, denom)
 
     //! C type-generic vector scaling.
 #   define shz_vec_scale(vec, factor) \
@@ -1427,276 +1491,296 @@ SHZ_DECLS_END
 #else // C++ generics (because it's too dumb to support _Generic()).
 
     //! C++ type-generic vector absolute value.
-    SHZ_INLINE shz_vec2_t shz_vec_abs(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_abs(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_abs(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_abs(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_abs(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_abs(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_abs(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_abs(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_abs(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_abs(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_abs(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_abs(vec); }
 
     //! C++ type-generic vector negation.
-    SHZ_INLINE shz_vec2_t shz_vec_neg(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_neg(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_neg(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_neg(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_neg(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_neg(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_neg(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_neg(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_neg(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_neg(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_neg(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_neg(vec); }
 
     //! C++ type-generic vector inversion.
-    SHZ_INLINE shz_vec2_t shz_vec_inv(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_inv(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_inv(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_inv(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_inv(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_inv(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_inv(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_inv(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_inv(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_inv(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_inv(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_inv(vec); }
+
+    //! C++ type-generic fast approximate vector inversion.
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_inv_fsrra(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_inv_fsrra(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_inv_fsrra(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_inv_fsrra(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_inv_fsrra(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_inv_fsrra(vec); }
 
     //! C++ type-generic vector maximum value.
-    SHZ_INLINE float shz_vec_max(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_max(vec); }
-    SHZ_INLINE float shz_vec_max(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_max(vec); }
-    SHZ_INLINE float shz_vec_max(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_max(vec); }
+    SHZ_FORCE_INLINE float shz_vec_max(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_max(vec); }
+    SHZ_FORCE_INLINE float shz_vec_max(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_max(vec); }
+    SHZ_FORCE_INLINE float shz_vec_max(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_max(vec); }
 
     //! C++ type-generic vector minimum value.
-    SHZ_INLINE float shz_vec_min(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_min(vec); }
-    SHZ_INLINE float shz_vec_min(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_min(vec); }
-    SHZ_INLINE float shz_vec_min(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_min(vec); }
+    SHZ_FORCE_INLINE float shz_vec_min(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_min(vec); }
+    SHZ_FORCE_INLINE float shz_vec_min(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_min(vec); }
+    SHZ_FORCE_INLINE float shz_vec_min(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_min(vec); }
 
     //! C++ type-generic vector clamp.
-    SHZ_INLINE shz_vec2_t shz_vec_clamp(shz_vec2_t vec, float min, float max) SHZ_NOEXCEPT { return shz_vec2_clamp(vec, min, max); }
-    SHZ_INLINE shz_vec3_t shz_vec_clamp(shz_vec3_t vec, float min, float max) SHZ_NOEXCEPT { return shz_vec3_clamp(vec, min, max); }
-    SHZ_INLINE shz_vec4_t shz_vec_clamp(shz_vec4_t vec, float min, float max) SHZ_NOEXCEPT { return shz_vec4_clamp(vec, min, max); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_clamp(shz_vec2_t vec, float min, float max) SHZ_NOEXCEPT { return shz_vec2_clamp(vec, min, max); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_clamp(shz_vec3_t vec, float min, float max) SHZ_NOEXCEPT { return shz_vec3_clamp(vec, min, max); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_clamp(shz_vec4_t vec, float min, float max) SHZ_NOEXCEPT { return shz_vec4_clamp(vec, min, max); }
 
     //! C++ type-generic vector equality.
-    SHZ_INLINE bool shz_vec_equal(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_equal(vec1, vec2); }
-    SHZ_INLINE bool shz_vec_equal(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_equal(vec1, vec2); }
-    SHZ_INLINE bool shz_vec_equal(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_equal(vec1, vec2); }
+    SHZ_FORCE_INLINE bool shz_vec_equal(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_equal(vec1, vec2); }
+    SHZ_FORCE_INLINE bool shz_vec_equal(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_equal(vec1, vec2); }
+    SHZ_FORCE_INLINE bool shz_vec_equal(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_equal(vec1, vec2); }
 
     //! C++ type-generic vector addition.
-    SHZ_INLINE shz_vec2_t shz_vec_add(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_add(vec1, vec2); }
-    SHZ_INLINE shz_vec3_t shz_vec_add(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_add(vec1, vec2); }
-    SHZ_INLINE shz_vec4_t shz_vec_add(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_add(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_add(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_add(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_add(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_add(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_add(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_add(vec1, vec2); }
 
     //! C++ type-generic vector subtraction.
-    SHZ_INLINE shz_vec2_t shz_vec_sub(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_sub(vec1, vec2); }
-    SHZ_INLINE shz_vec3_t shz_vec_sub(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_sub(vec1, vec2); }
-    SHZ_INLINE shz_vec4_t shz_vec_sub(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_sub(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_sub(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_sub(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_sub(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_sub(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_sub(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_sub(vec1, vec2); }
 
     //! C++ type-generic component-wise multiplication.
-    SHZ_INLINE shz_vec2_t shz_vec_mul(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_mul(vec1, vec2); }
-    SHZ_INLINE shz_vec3_t shz_vec_mul(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_mul(vec1, vec2); }
-    SHZ_INLINE shz_vec4_t shz_vec_mul(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_mul(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_mul(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_mul(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_mul(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_mul(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_mul(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_mul(vec1, vec2); }
 
     //! C++ type-generic component-wise division.
-    SHZ_INLINE shz_vec2_t shz_vec_div(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_div(vec1, vec2); }
-    SHZ_INLINE shz_vec3_t shz_vec_div(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_div(vec1, vec2); }
-    SHZ_INLINE shz_vec4_t shz_vec_div(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_div(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_div(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_div(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_div(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_div(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_div(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_div(vec1, vec2); }
+
+    //! C++ type-generic fast approximate component-wise division.
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_div_fsrra(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_div_fsrra(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_div_fsrra(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_div_fsrra(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_div_fsrra(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_div_fsrra(vec1, vec2); }
+
+    //! C++ type-generic division by a scalar.
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_divf(shz_vec2_t num, float denom) SHZ_NOEXCEPT { return shz_vec2_divf(num, denom); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_divf(shz_vec3_t num, float denom) SHZ_NOEXCEPT { return shz_vec3_divf(num, denom); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_divf(shz_vec4_t num, float denom) SHZ_NOEXCEPT { return shz_vec4_divf(num, denom); }
+
+    //! C++ type-generic fast approximate division by a positive scalar.
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_divf_fsrra(shz_vec2_t num, float denom) SHZ_NOEXCEPT { return shz_vec2_divf_fsrra(num, denom); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_divf_fsrra(shz_vec3_t num, float denom) SHZ_NOEXCEPT { return shz_vec3_divf_fsrra(num, denom); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_divf_fsrra(shz_vec4_t num, float denom) SHZ_NOEXCEPT { return shz_vec4_divf_fsrra(num, denom); }
 
     //! C++ type-generic uniform scaling.
-    SHZ_INLINE shz_vec2_t shz_vec_scale(shz_vec2_t vec, float factor) SHZ_NOEXCEPT { return shz_vec2_scale(vec, factor); }
-    SHZ_INLINE shz_vec3_t shz_vec_scale(shz_vec3_t vec, float factor) SHZ_NOEXCEPT { return shz_vec3_scale(vec, factor); }
-    SHZ_INLINE shz_vec4_t shz_vec_scale(shz_vec4_t vec, float factor) SHZ_NOEXCEPT { return shz_vec4_scale(vec, factor); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_scale(shz_vec2_t vec, float factor) SHZ_NOEXCEPT { return shz_vec2_scale(vec, factor); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_scale(shz_vec3_t vec, float factor) SHZ_NOEXCEPT { return shz_vec3_scale(vec, factor); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_scale(shz_vec4_t vec, float factor) SHZ_NOEXCEPT { return shz_vec4_scale(vec, factor); }
 
     //! C++ type-generic dot product.
-    SHZ_INLINE float shz_vec_dot(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_dot(vec1, vec2); }
-    SHZ_INLINE float shz_vec_dot(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_dot(vec1, vec2); }
-    SHZ_INLINE float shz_vec_dot(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_dot(vec1, vec2); }
+    SHZ_FORCE_INLINE float shz_vec_dot(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_dot(vec1, vec2); }
+    SHZ_FORCE_INLINE float shz_vec_dot(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_dot(vec1, vec2); }
+    SHZ_FORCE_INLINE float shz_vec_dot(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_dot(vec1, vec2); }
 
     //! C++ type-generic dual dot product.
-    SHZ_INLINE shz_vec2_t shz_vec_dot2(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2) SHZ_NOEXCEPT { return shz_vec2_dot2(l, r1, r2); }
-    SHZ_INLINE shz_vec2_t shz_vec_dot2(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2) SHZ_NOEXCEPT { return shz_vec3_dot2(l, r1, r2); }
-    SHZ_INLINE shz_vec2_t shz_vec_dot2(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2) SHZ_NOEXCEPT { return shz_vec4_dot2(l, r1, r2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_dot2(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2) SHZ_NOEXCEPT { return shz_vec2_dot2(l, r1, r2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_dot2(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2) SHZ_NOEXCEPT { return shz_vec3_dot2(l, r1, r2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_dot2(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2) SHZ_NOEXCEPT { return shz_vec4_dot2(l, r1, r2); }
 
     //! C++ type-generic triple dot product.
-    SHZ_INLINE shz_vec3_t shz_vec_dot3(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2, shz_vec2_t r3) SHZ_NOEXCEPT { return shz_vec2_dot3(l, r1, r2, r3); }
-    SHZ_INLINE shz_vec3_t shz_vec_dot3(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2, shz_vec3_t r3) SHZ_NOEXCEPT { return shz_vec3_dot3(l, r1, r2, r3); }
-    SHZ_INLINE shz_vec3_t shz_vec_dot3(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2, shz_vec4_t r3) SHZ_NOEXCEPT { return shz_vec4_dot3(l, r1, r2, r3); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_dot3(shz_vec2_t l, shz_vec2_t r1, shz_vec2_t r2, shz_vec2_t r3) SHZ_NOEXCEPT { return shz_vec2_dot3(l, r1, r2, r3); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_dot3(shz_vec3_t l, shz_vec3_t r1, shz_vec3_t r2, shz_vec3_t r3) SHZ_NOEXCEPT { return shz_vec3_dot3(l, r1, r2, r3); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_dot3(shz_vec4_t l, shz_vec4_t r1, shz_vec4_t r2, shz_vec4_t r3) SHZ_NOEXCEPT { return shz_vec4_dot3(l, r1, r2, r3); }
 
     //! C++ type-generic squared magnitude.
-    SHZ_INLINE float shz_vec_magnitude_sqr(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_magnitude_sqr(vec); }
-    SHZ_INLINE float shz_vec_magnitude_sqr(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_magnitude_sqr(vec); }
-    SHZ_INLINE float shz_vec_magnitude_sqr(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_magnitude_sqr(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude_sqr(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_magnitude_sqr(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude_sqr(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_magnitude_sqr(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude_sqr(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_magnitude_sqr(vec); }
 
     //! C++ type-generic magnitude.
-    SHZ_INLINE float shz_vec_magnitude(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_magnitude(vec); }
-    SHZ_INLINE float shz_vec_magnitude(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_magnitude(vec); }
-    SHZ_INLINE float shz_vec_magnitude(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_magnitude(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_magnitude(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_magnitude(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_magnitude(vec); }
 
     //! C++ type-generic unsafe magnitude using FSRRA.
-    SHZ_INLINE float shz_vec_magnitude_fsrra(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_magnitude_fsrra(vec); }
-    SHZ_INLINE float shz_vec_magnitude_fsrra(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_magnitude_fsrra(vec); }
-    SHZ_INLINE float shz_vec_magnitude_fsrra(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_magnitude_fsrra(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude_fsrra(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_magnitude_fsrra(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude_fsrra(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_magnitude_fsrra(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude_fsrra(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_magnitude_fsrra(vec); }
 
     //! C++ type-generic inverse magnitude.
-    SHZ_INLINE float shz_vec_magnitude_inv(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_magnitude_inv(vec); }
-    SHZ_INLINE float shz_vec_magnitude_inv(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_magnitude_inv(vec); }
-    SHZ_INLINE float shz_vec_magnitude_inv(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_magnitude_inv(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude_inv(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_magnitude_inv(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude_inv(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_magnitude_inv(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude_inv(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_magnitude_inv(vec); }
 
     //! C++ type-generic unsafe inverse magnitude using FSRRA.
-    SHZ_INLINE float shz_vec_magnitude_inv_fsrra(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_magnitude_inv_fsrra(vec); }
-    SHZ_INLINE float shz_vec_magnitude_inv_fsrra(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_magnitude_inv_fsrra(vec); }
-    SHZ_INLINE float shz_vec_magnitude_inv_fsrra(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_magnitude_inv_fsrra(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude_inv_fsrra(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_magnitude_inv_fsrra(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude_inv_fsrra(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_magnitude_inv_fsrra(vec); }
+    SHZ_FORCE_INLINE float shz_vec_magnitude_inv_fsrra(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_magnitude_inv_fsrra(vec); }
 
     //! C++ type-generic vector normalization.
-    SHZ_INLINE shz_vec2_t shz_vec_normalize(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_normalize(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_normalize(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_normalize(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_normalize(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_normalize(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_normalize(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_normalize(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_normalize(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_normalize(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_normalize(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_normalize(vec); }
 
     //! C++ type-generic safe vector normalization, avoids divide-by-zero.
-    SHZ_INLINE shz_vec2_t shz_vec_normalize_safe(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_normalize_safe(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_normalize_safe(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_normalize_safe(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_normalize_safe(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_normalize_safe(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_normalize_safe(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_normalize_safe(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_normalize_safe(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_normalize_safe(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_normalize_safe(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_normalize_safe(vec); }
 
     //! C++ type-generic vector normalization, returning an alternate value upon failure.
-    SHZ_INLINE shz_vec2_t shz_vec_normalize_or(shz_vec2_t vec, shz_vec2_t alt) SHZ_NOEXCEPT { return shz_vec2_normalize_or(vec, alt); }
-    SHZ_INLINE shz_vec3_t shz_vec_normalize_or(shz_vec3_t vec, shz_vec3_t alt) SHZ_NOEXCEPT { return shz_vec3_normalize_or(vec, alt); }
-    SHZ_INLINE shz_vec4_t shz_vec_normalize_or(shz_vec4_t vec, shz_vec4_t alt) SHZ_NOEXCEPT { return shz_vec4_normalize_or(vec, alt); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_normalize_or(shz_vec2_t vec, shz_vec2_t alt) SHZ_NOEXCEPT { return shz_vec2_normalize_or(vec, alt); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_normalize_or(shz_vec3_t vec, shz_vec3_t alt) SHZ_NOEXCEPT { return shz_vec3_normalize_or(vec, alt); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_normalize_or(shz_vec4_t vec, shz_vec4_t alt) SHZ_NOEXCEPT { return shz_vec4_normalize_or(vec, alt); }
 
     //! C++ type-generic distance between two points.
-    SHZ_INLINE float shz_vec_distance(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_distance(vec1, vec2); }
-    SHZ_INLINE float shz_vec_distance(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_distance(vec1, vec2); }
-    SHZ_INLINE float shz_vec_distance(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_distance(vec1, vec2); }
+    SHZ_FORCE_INLINE float shz_vec_distance(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_distance(vec1, vec2); }
+    SHZ_FORCE_INLINE float shz_vec_distance(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_distance(vec1, vec2); }
+    SHZ_FORCE_INLINE float shz_vec_distance(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_distance(vec1, vec2); }
 
     //! C++ type-generic squared distance between two points.
-    SHZ_INLINE float shz_vec_distance_sqr(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_distance_sqr(vec1, vec2); }
-    SHZ_INLINE float shz_vec_distance_sqr(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_distance_sqr(vec1, vec2); }
-    SHZ_INLINE float shz_vec_distance_sqr(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_distance_sqr(vec1, vec2); }
+    SHZ_FORCE_INLINE float shz_vec_distance_sqr(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_distance_sqr(vec1, vec2); }
+    SHZ_FORCE_INLINE float shz_vec_distance_sqr(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_distance_sqr(vec1, vec2); }
+    SHZ_FORCE_INLINE float shz_vec_distance_sqr(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_distance_sqr(vec1, vec2); }
 
     //! C++ type-generic moving of one vector towards another.
-    SHZ_INLINE shz_vec2_t shz_vec_move(shz_vec2_t vec, shz_vec2_t target, float maxdist) SHZ_NOEXCEPT { return shz_vec2_move(vec, target, maxdist); }
-    SHZ_INLINE shz_vec3_t shz_vec_move(shz_vec3_t vec, shz_vec3_t target, float maxdist) SHZ_NOEXCEPT { return shz_vec3_move(vec, target, maxdist); }
-    SHZ_INLINE shz_vec4_t shz_vec_move(shz_vec4_t vec, shz_vec4_t target, float maxdist) SHZ_NOEXCEPT { return shz_vec4_move(vec, target, maxdist); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_move(shz_vec2_t vec, shz_vec2_t target, float maxdist) SHZ_NOEXCEPT { return shz_vec2_move(vec, target, maxdist); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_move(shz_vec3_t vec, shz_vec3_t target, float maxdist) SHZ_NOEXCEPT { return shz_vec3_move(vec, target, maxdist); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_move(shz_vec4_t vec, shz_vec4_t target, float maxdist) SHZ_NOEXCEPT { return shz_vec4_move(vec, target, maxdist); }
 
     //! C++ type-generic linear interpolation between two vectors.
-    SHZ_INLINE shz_vec2_t shz_vec_lerp(shz_vec2_t vec1, shz_vec2_t vec2, float t) SHZ_NOEXCEPT { return shz_vec2_lerp(vec1, vec2, t); }
-    SHZ_INLINE shz_vec3_t shz_vec_lerp(shz_vec3_t vec1, shz_vec3_t vec2, float t) SHZ_NOEXCEPT { return shz_vec3_lerp(vec1, vec2, t); }
-    SHZ_INLINE shz_vec4_t shz_vec_lerp(shz_vec4_t vec1, shz_vec4_t vec2, float t) SHZ_NOEXCEPT { return shz_vec4_lerp(vec1, vec2, t); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_lerp(shz_vec2_t vec1, shz_vec2_t vec2, float t) SHZ_NOEXCEPT { return shz_vec2_lerp(vec1, vec2, t); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_lerp(shz_vec3_t vec1, shz_vec3_t vec2, float t) SHZ_NOEXCEPT { return shz_vec3_lerp(vec1, vec2, t); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_lerp(shz_vec4_t vec1, shz_vec4_t vec2, float t) SHZ_NOEXCEPT { return shz_vec4_lerp(vec1, vec2, t); }
 
     //! C++ type-generic reflection of a vector over a surface normal.
-    SHZ_INLINE shz_vec2_t shz_vec_reflect(shz_vec2_t incidence, shz_vec2_t normal) SHZ_NOEXCEPT { return shz_vec2_reflect(incidence, normal); }
-    SHZ_INLINE shz_vec3_t shz_vec_reflect(shz_vec3_t incidence, shz_vec3_t normal) SHZ_NOEXCEPT { return shz_vec3_reflect(incidence, normal); }
-    SHZ_INLINE shz_vec4_t shz_vec_reflect(shz_vec4_t incidence, shz_vec4_t normal) SHZ_NOEXCEPT { return shz_vec4_reflect(incidence, normal); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_reflect(shz_vec2_t incidence, shz_vec2_t normal) SHZ_NOEXCEPT { return shz_vec2_reflect(incidence, normal); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_reflect(shz_vec3_t incidence, shz_vec3_t normal) SHZ_NOEXCEPT { return shz_vec3_reflect(incidence, normal); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_reflect(shz_vec4_t incidence, shz_vec4_t normal) SHZ_NOEXCEPT { return shz_vec4_reflect(incidence, normal); }
 
     //! C++ type-generic refraction of a vector over a surface normal.
-    SHZ_INLINE shz_vec2_t shz_vec_refract(shz_vec2_t incidence, shz_vec2_t normal, float eta) SHZ_NOEXCEPT { return shz_vec2_refract(incidence, normal, eta); }
-    SHZ_INLINE shz_vec3_t shz_vec_refract(shz_vec3_t incidence, shz_vec3_t normal, float eta) SHZ_NOEXCEPT { return shz_vec3_refract(incidence, normal, eta); }
-    SHZ_INLINE shz_vec4_t shz_vec_refract(shz_vec4_t incidence, shz_vec4_t normal, float eta) SHZ_NOEXCEPT { return shz_vec4_refract(incidence, normal, eta); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_refract(shz_vec2_t incidence, shz_vec2_t normal, float eta) SHZ_NOEXCEPT { return shz_vec2_refract(incidence, normal, eta); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_refract(shz_vec3_t incidence, shz_vec3_t normal, float eta) SHZ_NOEXCEPT { return shz_vec3_refract(incidence, normal, eta); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_refract(shz_vec4_t incidence, shz_vec4_t normal, float eta) SHZ_NOEXCEPT { return shz_vec4_refract(incidence, normal, eta); }
 
     //! C++ type-generic cross product (2D returns scalar, 3D returns vector).
-    SHZ_INLINE float      shz_vec_cross(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_cross(vec1, vec2); }
-    SHZ_INLINE shz_vec3_t shz_vec_cross(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_cross(vec1, vec2); }
+    SHZ_FORCE_INLINE float      shz_vec_cross(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_cross(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_cross(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_cross(vec1, vec2); }
 
     //! C++ type-generic projection of the first vector onto the second.
-    SHZ_INLINE shz_vec2_t shz_vec_project(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_project(vec1, vec2); }
-    SHZ_INLINE shz_vec3_t shz_vec_project(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_project(vec1, vec2); }
-    SHZ_INLINE shz_vec4_t shz_vec_project(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_project(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_project(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_project(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_project(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_project(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_project(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_project(vec1, vec2); }
 
     //! C++ type-generic safe projection, avoiding division-by-zero.
-    SHZ_INLINE shz_vec2_t shz_vec_project_safe(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_project_safe(vec1, vec2); }
-    SHZ_INLINE shz_vec3_t shz_vec_project_safe(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_project_safe(vec1, vec2); }
-    SHZ_INLINE shz_vec4_t shz_vec_project_safe(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_project_safe(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_project_safe(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_project_safe(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_project_safe(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_project_safe(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_project_safe(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_project_safe(vec1, vec2); }
 
     //! C++ type-generic rejection of the first vector onto the second.
-    SHZ_INLINE shz_vec2_t shz_vec_reject(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_reject(vec1, vec2); }
-    SHZ_INLINE shz_vec3_t shz_vec_reject(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_reject(vec1, vec2); }
-    SHZ_INLINE shz_vec4_t shz_vec_reject(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_reject(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_reject(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_reject(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_reject(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_reject(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_reject(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_reject(vec1, vec2); }
 
     //! C++ type-generic safe rejection, avoiding division-by-zero.
-    SHZ_INLINE shz_vec2_t shz_vec_reject_safe(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_reject_safe(vec1, vec2); }
-    SHZ_INLINE shz_vec3_t shz_vec_reject_safe(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_reject_safe(vec1, vec2); }
-    SHZ_INLINE shz_vec4_t shz_vec_reject_safe(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_reject_safe(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_reject_safe(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_reject_safe(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_reject_safe(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_reject_safe(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_reject_safe(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_reject_safe(vec1, vec2); }
 
     //! C++ type-generic angle bisector.
-    SHZ_INLINE shz_vec2_t shz_vec_bisector(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_bisector(vec1, vec2); }
-    SHZ_INLINE shz_vec3_t shz_vec_bisector(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_bisector(vec1, vec2); }
-    SHZ_INLINE shz_vec4_t shz_vec_bisector(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_bisector(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_bisector(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_bisector(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_bisector(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_bisector(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_bisector(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_bisector(vec1, vec2); }
 
     //! C++ type-generic half-angle unit vector.
-    SHZ_INLINE shz_vec2_t shz_vec_half_angle(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_half_angle(vec1, vec2); }
-    SHZ_INLINE shz_vec3_t shz_vec_half_angle(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_half_angle(vec1, vec2); }
-    SHZ_INLINE shz_vec4_t shz_vec_half_angle(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_half_angle(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_half_angle(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_half_angle(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_half_angle(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_half_angle(vec1, vec2); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_half_angle(shz_vec4_t vec1, shz_vec4_t vec2) SHZ_NOEXCEPT { return shz_vec4_half_angle(vec1, vec2); }
 
     //! C++ type-generic angles from the +X axis (2D returns float, 3D returns vec2).
-    SHZ_INLINE float      shz_vec_angles(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_angle(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_angles(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_angles(vec); }
+    SHZ_FORCE_INLINE float      shz_vec_angles(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_angle(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_angles(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_angles(vec); }
 
     //! C++ type-generic angle between two vectors.
-    SHZ_INLINE float shz_vec_angle_between(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_angle_between(vec1, vec2); }
-    SHZ_INLINE float shz_vec_angle_between(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_angle_between(vec1, vec2); }
+    SHZ_FORCE_INLINE float shz_vec_angle_between(shz_vec2_t vec1, shz_vec2_t vec2) SHZ_NOEXCEPT { return shz_vec2_angle_between(vec1, vec2); }
+    SHZ_FORCE_INLINE float shz_vec_angle_between(shz_vec3_t vec1, shz_vec3_t vec2) SHZ_NOEXCEPT { return shz_vec3_angle_between(vec1, vec2); }
 
     //! C++ type-generic swizzle.
-    SHZ_INLINE shz_vec2_t shz_vec_swizzle(shz_vec2_t vec, unsigned x_idx, unsigned y_idx) SHZ_NOEXCEPT {
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_swizzle(shz_vec2_t vec, unsigned x_idx, unsigned y_idx) SHZ_NOEXCEPT {
         return shz_vec2_swizzle(vec, x_idx, y_idx);
     }
-    SHZ_INLINE shz_vec3_t shz_vec_swizzle(shz_vec3_t vec, unsigned x_idx, unsigned y_idx, unsigned z_idx) SHZ_NOEXCEPT {
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_swizzle(shz_vec3_t vec, unsigned x_idx, unsigned y_idx, unsigned z_idx) SHZ_NOEXCEPT {
         return shz_vec3_swizzle(vec, x_idx, y_idx, z_idx);
     }
-    SHZ_INLINE shz_vec4_t shz_vec_swizzle(shz_vec4_t vec, unsigned x_idx, unsigned y_idx, unsigned z_idx, unsigned w_idx) SHZ_NOEXCEPT {
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_swizzle(shz_vec4_t vec, unsigned x_idx, unsigned y_idx, unsigned z_idx, unsigned w_idx) SHZ_NOEXCEPT {
         return shz_vec4_swizzle(vec, x_idx, y_idx, z_idx, w_idx);
     }
 
     //! C++ type-generic component-wise floor.
-    SHZ_INLINE shz_vec2_t shz_vec_floor(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_floor(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_floor(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_floor(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_floor(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_floor(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_floor(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_floor(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_floor(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_floor(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_floor(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_floor(vec); }
 
     //! C++ type-generic component-wise ceil.
-    SHZ_INLINE shz_vec2_t shz_vec_ceil(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_ceil(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_ceil(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_ceil(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_ceil(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_ceil(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_ceil(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_ceil(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_ceil(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_ceil(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_ceil(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_ceil(vec); }
 
     //! C++ type-generic component-wise round.
-    SHZ_INLINE shz_vec2_t shz_vec_round(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_round(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_round(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_round(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_round(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_round(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_round(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_round(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_round(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_round(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_round(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_round(vec); }
 
     //! C++ type-generic component-wise fract.
-    SHZ_INLINE shz_vec2_t shz_vec_fract(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_fract(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_fract(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_fract(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_fract(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_fract(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_fract(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_fract(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_fract(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_fract(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_fract(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_fract(vec); }
 
     //! C++ type-generic component-wise sign.
-    SHZ_INLINE shz_vec2_t shz_vec_sign(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_sign(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_sign(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_sign(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_sign(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_sign(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_sign(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_sign(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_sign(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_sign(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_sign(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_sign(vec); }
 
     //! C++ type-generic component-wise saturate.
-    SHZ_INLINE shz_vec2_t shz_vec_saturate(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_saturate(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_saturate(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_saturate(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_saturate(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_saturate(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_saturate(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_saturate(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_saturate(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_saturate(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_saturate(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_saturate(vec); }
 
     //! C++ type-generic component-wise minimum.
-    SHZ_INLINE shz_vec2_t shz_vec_minv(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT { return shz_vec2_minv(a, b); }
-    SHZ_INLINE shz_vec3_t shz_vec_minv(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT { return shz_vec3_minv(a, b); }
-    SHZ_INLINE shz_vec4_t shz_vec_minv(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT { return shz_vec4_minv(a, b); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_minv(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT { return shz_vec2_minv(a, b); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_minv(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT { return shz_vec3_minv(a, b); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_minv(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT { return shz_vec4_minv(a, b); }
 
     //! C++ type-generic component-wise maximum.
-    SHZ_INLINE shz_vec2_t shz_vec_maxv(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT { return shz_vec2_maxv(a, b); }
-    SHZ_INLINE shz_vec3_t shz_vec_maxv(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT { return shz_vec3_maxv(a, b); }
-    SHZ_INLINE shz_vec4_t shz_vec_maxv(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT { return shz_vec4_maxv(a, b); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_maxv(shz_vec2_t a, shz_vec2_t b) SHZ_NOEXCEPT { return shz_vec2_maxv(a, b); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_maxv(shz_vec3_t a, shz_vec3_t b) SHZ_NOEXCEPT { return shz_vec3_maxv(a, b); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_maxv(shz_vec4_t a, shz_vec4_t b) SHZ_NOEXCEPT { return shz_vec4_maxv(a, b); }
 
     //! C++ type-generic vector inverse square root.
-    SHZ_INLINE shz_vec2_t shz_vec_inv_sqrtf(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_inv_sqrtf(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_inv_sqrtf(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_inv_sqrtf(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_inv_sqrtf(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_inv_sqrtf(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_inv_sqrtf(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_inv_sqrtf(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_inv_sqrtf(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_inv_sqrtf(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_inv_sqrtf(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_inv_sqrtf(vec); }
 
     //! C++ type-generic vector square root.
-    SHZ_INLINE shz_vec2_t shz_vec_sqrtf(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_sqrtf(vec); }
-    SHZ_INLINE shz_vec3_t shz_vec_sqrtf(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_sqrtf(vec); }
-    SHZ_INLINE shz_vec4_t shz_vec_sqrtf(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_sqrtf(vec); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_sqrtf(shz_vec2_t vec) SHZ_NOEXCEPT { return shz_vec2_sqrtf(vec); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_sqrtf(shz_vec3_t vec) SHZ_NOEXCEPT { return shz_vec3_sqrtf(vec); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_sqrtf(shz_vec4_t vec) SHZ_NOEXCEPT { return shz_vec4_sqrtf(vec); }
 
     //! C++ type-generic step: 0 per component if vec[i] < edge, else 1.
-    SHZ_INLINE shz_vec2_t shz_vec_step(shz_vec2_t vec, float       edge) SHZ_NOEXCEPT { return shz_vec2_step (vec, edge); }
-    SHZ_INLINE shz_vec2_t shz_vec_step(shz_vec2_t vec, shz_vec2_t  edge) SHZ_NOEXCEPT { return shz_vec2_stepv(vec, edge); }
-    SHZ_INLINE shz_vec3_t shz_vec_step(shz_vec3_t vec, float       edge) SHZ_NOEXCEPT { return shz_vec3_step (vec, edge); }
-    SHZ_INLINE shz_vec3_t shz_vec_step(shz_vec3_t vec, shz_vec3_t  edge) SHZ_NOEXCEPT { return shz_vec3_stepv(vec, edge); }
-    SHZ_INLINE shz_vec4_t shz_vec_step(shz_vec4_t vec, float       edge) SHZ_NOEXCEPT { return shz_vec4_step (vec, edge); }
-    SHZ_INLINE shz_vec4_t shz_vec_step(shz_vec4_t vec, shz_vec4_t  edge) SHZ_NOEXCEPT { return shz_vec4_stepv(vec, edge); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_step(shz_vec2_t vec, float       edge) SHZ_NOEXCEPT { return shz_vec2_step (vec, edge); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_step(shz_vec2_t vec, shz_vec2_t  edge) SHZ_NOEXCEPT { return shz_vec2_stepv(vec, edge); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_step(shz_vec3_t vec, float       edge) SHZ_NOEXCEPT { return shz_vec3_step (vec, edge); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_step(shz_vec3_t vec, shz_vec3_t  edge) SHZ_NOEXCEPT { return shz_vec3_stepv(vec, edge); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_step(shz_vec4_t vec, float       edge) SHZ_NOEXCEPT { return shz_vec4_step (vec, edge); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_step(shz_vec4_t vec, shz_vec4_t  edge) SHZ_NOEXCEPT { return shz_vec4_stepv(vec, edge); }
 
     //! C++ type-generic smoothstep: 0 at/below edge0, 1 at/above edge1, smooth in-between. Undefined for edge0 > edge1.
-    SHZ_INLINE shz_vec2_t shz_vec_smoothstep(shz_vec2_t vec, float       edge0, float       edge1) SHZ_NOEXCEPT { return shz_vec2_smoothstep (vec, edge0, edge1); }
-    SHZ_INLINE shz_vec2_t shz_vec_smoothstep(shz_vec2_t vec, shz_vec2_t  edge0, shz_vec2_t  edge1) SHZ_NOEXCEPT { return shz_vec2_smoothstepv(vec, edge0, edge1); }
-    SHZ_INLINE shz_vec3_t shz_vec_smoothstep(shz_vec3_t vec, float       edge0, float       edge1) SHZ_NOEXCEPT { return shz_vec3_smoothstep (vec, edge0, edge1); }
-    SHZ_INLINE shz_vec3_t shz_vec_smoothstep(shz_vec3_t vec, shz_vec3_t  edge0, shz_vec3_t  edge1) SHZ_NOEXCEPT { return shz_vec3_smoothstepv(vec, edge0, edge1); }
-    SHZ_INLINE shz_vec4_t shz_vec_smoothstep(shz_vec4_t vec, float       edge0, float       edge1) SHZ_NOEXCEPT { return shz_vec4_smoothstep (vec, edge0, edge1); }
-    SHZ_INLINE shz_vec4_t shz_vec_smoothstep(shz_vec4_t vec, shz_vec4_t  edge0, shz_vec4_t  edge1) SHZ_NOEXCEPT { return shz_vec4_smoothstepv(vec, edge0, edge1); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_smoothstep(shz_vec2_t vec, float       edge0, float       edge1) SHZ_NOEXCEPT { return shz_vec2_smoothstep (vec, edge0, edge1); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_smoothstep(shz_vec2_t vec, shz_vec2_t  edge0, shz_vec2_t  edge1) SHZ_NOEXCEPT { return shz_vec2_smoothstepv(vec, edge0, edge1); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_smoothstep(shz_vec3_t vec, float       edge0, float       edge1) SHZ_NOEXCEPT { return shz_vec3_smoothstep (vec, edge0, edge1); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_smoothstep(shz_vec3_t vec, shz_vec3_t  edge0, shz_vec3_t  edge1) SHZ_NOEXCEPT { return shz_vec3_smoothstepv(vec, edge0, edge1); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_smoothstep(shz_vec4_t vec, float       edge0, float       edge1) SHZ_NOEXCEPT { return shz_vec4_smoothstep (vec, edge0, edge1); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_smoothstep(shz_vec4_t vec, shz_vec4_t  edge0, shz_vec4_t  edge1) SHZ_NOEXCEPT { return shz_vec4_smoothstepv(vec, edge0, edge1); }
 
     //! C++ type-generic smoothstep with safe edge ordering (accepts edge0 > edge1).
-    SHZ_INLINE shz_vec2_t shz_vec_smoothstep_safe(shz_vec2_t vec, float       edge0, float       edge1) SHZ_NOEXCEPT { return shz_vec2_smoothstep_safe (vec, edge0, edge1); }
-    SHZ_INLINE shz_vec2_t shz_vec_smoothstep_safe(shz_vec2_t vec, shz_vec2_t  edge0, shz_vec2_t  edge1) SHZ_NOEXCEPT { return shz_vec2_smoothstepv_safe(vec, edge0, edge1); }
-    SHZ_INLINE shz_vec3_t shz_vec_smoothstep_safe(shz_vec3_t vec, float       edge0, float       edge1) SHZ_NOEXCEPT { return shz_vec3_smoothstep_safe (vec, edge0, edge1); }
-    SHZ_INLINE shz_vec3_t shz_vec_smoothstep_safe(shz_vec3_t vec, shz_vec3_t  edge0, shz_vec3_t  edge1) SHZ_NOEXCEPT { return shz_vec3_smoothstepv_safe(vec, edge0, edge1); }
-    SHZ_INLINE shz_vec4_t shz_vec_smoothstep_safe(shz_vec4_t vec, float       edge0, float       edge1) SHZ_NOEXCEPT { return shz_vec4_smoothstep_safe (vec, edge0, edge1); }
-    SHZ_INLINE shz_vec4_t shz_vec_smoothstep_safe(shz_vec4_t vec, shz_vec4_t  edge0, shz_vec4_t  edge1) SHZ_NOEXCEPT { return shz_vec4_smoothstepv_safe(vec, edge0, edge1); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_smoothstep_safe(shz_vec2_t vec, float       edge0, float       edge1) SHZ_NOEXCEPT { return shz_vec2_smoothstep_safe (vec, edge0, edge1); }
+    SHZ_FORCE_INLINE shz_vec2_t shz_vec_smoothstep_safe(shz_vec2_t vec, shz_vec2_t  edge0, shz_vec2_t  edge1) SHZ_NOEXCEPT { return shz_vec2_smoothstepv_safe(vec, edge0, edge1); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_smoothstep_safe(shz_vec3_t vec, float       edge0, float       edge1) SHZ_NOEXCEPT { return shz_vec3_smoothstep_safe (vec, edge0, edge1); }
+    SHZ_FORCE_INLINE shz_vec3_t shz_vec_smoothstep_safe(shz_vec3_t vec, shz_vec3_t  edge0, shz_vec3_t  edge1) SHZ_NOEXCEPT { return shz_vec3_smoothstepv_safe(vec, edge0, edge1); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_smoothstep_safe(shz_vec4_t vec, float       edge0, float       edge1) SHZ_NOEXCEPT { return shz_vec4_smoothstep_safe (vec, edge0, edge1); }
+    SHZ_FORCE_INLINE shz_vec4_t shz_vec_smoothstep_safe(shz_vec4_t vec, shz_vec4_t  edge0, shz_vec4_t  edge1) SHZ_NOEXCEPT { return shz_vec4_smoothstepv_safe(vec, edge0, edge1); }
 
 #endif
 

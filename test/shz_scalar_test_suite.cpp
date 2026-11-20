@@ -265,6 +265,12 @@ GBL_TEST_CASE(inv_sqrtf)
    GBL_TEST_VERIFY(test(-1.0f));
    GBL_TEST_VERIFY(test(-1.001f));
    GBL_TEST_VERIFY(test((volatile float)-33333.33f));
+
+    (benchmark_cmp<float>)("shz::inv_sqrtf",
+                           [](float x) { return shz::inv_sqrtf(x); },
+                           "1.0f / sqrtf",
+                           [](float x) { return 1.0f / ::sqrtf(x); },
+                           1234.5f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(sqrtf)
@@ -314,6 +320,12 @@ GBL_TEST_CASE(invf_fsrra)
    GBL_TEST_VERIFY(test(-1.0f));
    GBL_TEST_VERIFY(test(-1.001f));
    //GBL_TEST_VERIFY(test(-33333.33f));
+
+    (benchmark_cmp<float>)("shz::invf_fsrra",
+                           [](float x) { return shz::invf_fsrra(x); },
+                           "1.0f / x",
+                           [](float x) { return 1.0f / x; },
+                           7.89f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(divf_fsrra)
@@ -332,6 +344,12 @@ GBL_TEST_CASE(divf_fsrra)
    //GBL_TEST_VERIFY(test(-1.0f, 0.3333f));
    //GBL_TEST_VERIFY(test(-1.001f, 0.666f));
    //GBL_TEST_VERIFY(test(-33333.33f, 0.0001f));
+
+    (benchmark_cmp<float>)("shz::divf_fsrra",
+                           [](float num, float denom) { return shz::divf_fsrra(num, denom); },
+                           "num / denom",
+                           [](float num, float denom) { return num / denom; },
+                           -123.456f, 7.89f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(invf)
@@ -350,6 +368,37 @@ GBL_TEST_CASE(invf)
    GBL_TEST_VERIFY(test(-1.0f));
    GBL_TEST_VERIFY(test(-1.001f));
    GBL_TEST_VERIFY(test(-33333.33f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(divf)
+    auto test = [&](float num, float denom) {
+        volatile float nom = num;
+        return gblFloatEquals(shz::divf(num, denom), num / denom, 0.001f * fabsf(num / denom) + 0.0001f)
+            && gblFloatEquals(shz::divf(nom, denom), num / denom, 0.001f * fabsf(num / denom) + 0.0001f);
+    };
+    GBL_TEST_VERIFY(test(1.0f, 333333.33f));
+    GBL_TEST_VERIFY(test(0.0f, 1.0f));
+    GBL_TEST_VERIFY(test(0.001f, 1.001f));
+    GBL_TEST_VERIFY(test(-3.0f, 0.55f));
+    GBL_TEST_VERIFY(test(0.01f, 0.01f));
+    GBL_TEST_VERIFY(test(9999.0f, -0.001f));
+    GBL_TEST_VERIFY(test(0.55f, -0.55f));
+    GBL_TEST_VERIFY(test(-1.0f, 0.3333f));
+    GBL_TEST_VERIFY(test(-1.001f, -0.666f));
+    GBL_TEST_VERIFY(test(-33333.33f, 0.0001f));
+    GBL_TEST_VERIFY(test(123.456f, -789.0f));
+
+    (benchmark_cmp<float>)("shz::divf (+denom)",
+                           [](float num, float denom) { return shz::divf(num, denom); },
+                           "num / denom",
+                           [](float num, float denom) { return num / denom; },
+                           -123.456f, 7.89f);
+
+    (benchmark_cmp<float>)("shz::divf (-denom)",
+                           [](float num, float denom) { return shz::divf(num, denom); },
+                           "num / denom",
+                           [](float num, float denom) { return num / denom; },
+                           123.456f, -7.89f);
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(dot6f)
@@ -1013,6 +1062,7 @@ GBL_TEST_REGISTER(min,
                   invf_fsrra,
                   divf_fsrra,
                   invf,
+                  divf,
                   dot6f,
                   dot8f,
                   mag_sqr3f,

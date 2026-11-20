@@ -206,6 +206,31 @@ struct vecN: C {
         return shz_vec_inv(*static_cast<const CppType*>(this));
     }
 
+    //! Returns a new vector whose components are the reciprocal values of the given vector, using a fast approximation which requires positive components.
+    SHZ_FORCE_INLINE CppType inv_fsrra() const noexcept {
+        return shz_vec_inv_fsrra(*static_cast<const CppType*>(this));
+    }
+
+    //! Returns a new vector whose components are those of the given vector divided by \p rhs.
+    SHZ_FORCE_INLINE CppType div(const CppType& rhs) const noexcept {
+        return shz_vec_div(*static_cast<const CppType*>(this), rhs);
+    }
+
+    //! Returns a new vector whose components are those of the given vector divided by \p rhs, using a fast approximation which requires \p rhs to have positive components.
+    SHZ_FORCE_INLINE CppType div_fsrra(const CppType& rhs) const noexcept {
+        return shz_vec_div_fsrra(*static_cast<const CppType*>(this), rhs);
+    }
+
+    //! Returns a new vector whose components are those of the given vector divided by the scalar \p denom.
+    SHZ_FORCE_INLINE CppType divf(float denom) const noexcept {
+        return shz_vec_divf(*static_cast<const CppType*>(this), denom);
+    }
+
+    //! Returns a new vector whose components are those of the given vector divided by the scalar \p denom, using a fast approximation which requires \p denom to be positive.
+    SHZ_FORCE_INLINE CppType divf_fsrra(float denom) const noexcept {
+        return shz_vec_divf_fsrra(*static_cast<const CppType*>(this), denom);
+    }
+
     //! Returns the maximum value of every element within the vector.
     SHZ_FORCE_INLINE float max() const noexcept {
         return shz_vec_max(*static_cast<const CppType*>(this));
@@ -457,7 +482,7 @@ SHZ_FORCE_INLINE CRTP operator*(float lhs, const vecN<CRTP, C, R>& rhs) noexcept
 //! Overloaded division operator for component-wise dividing each element of the given vector by the given scalar.
 template<typename CRTP, typename C, size_t R>
 SHZ_FORCE_INLINE CRTP operator/(const vecN<CRTP, C, R>& lhs, float rhs) noexcept {
-    return shz_vec_scale(lhs, shz::invf(rhs));
+    return shz_vec_divf(lhs, rhs);
 }
 
 //! Reverse overloaded division operator for component-wise dividing a vector whose elements have all been initialized to the scalar by the given vector.

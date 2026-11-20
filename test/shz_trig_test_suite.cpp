@@ -201,6 +201,7 @@ GBL_TEST_CASE(asinf)
     }());
 
     GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::asinf", bench_fn(shz::asinf), "asinf", bench_fn(asinf), gblRandUniform(-shz::pi_f, shz::pi_f)));
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::asinf (|x| < 1)", bench_fn(shz::asinf), "asinf", bench_fn(asinf), gblRandUniform(-0.99f, 0.99f)));
 GBL_TEST_CASE_END
 
 SHZ_NO_FAST_MATH
@@ -234,6 +235,7 @@ GBL_TEST_CASE(acosf)
     }());
 
     GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::acosf", bench_fn(shz::acosf), "acosf", bench_fn(acosf), gblRandUniform(-shz::pi_f, shz::pi_f)));
+    GBL_TEST_VERIFY((benchmark_cmp<float>)("shz::acosf (|x| < 1)", bench_fn(shz::acosf), "acosf", bench_fn(acosf), gblRandUniform(-0.99f, 0.99f)));
 GBL_TEST_CASE_END
 
 SHZ_NO_FAST_MATH

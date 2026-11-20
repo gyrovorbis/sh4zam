@@ -352,6 +352,14 @@ SHZ_FORCE_INLINE float shz_fmaf(float a, float b, float c) SHZ_NOEXCEPT {
     return a * b + c;
 }
 
+SHZ_FORCE_INLINE float shz_opaquef(float value) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_opaquef_sh4(value);
+#else
+    return value;
+#endif
+}
+
 SHZ_FORCE_INLINE float shz_lerpf(float a, float b, float t) SHZ_NOEXCEPT {
     return shz_fmaf(t, (b - a), a);
 }
@@ -415,7 +423,9 @@ SHZ_FORCE_INLINE float shz_inv_sqrtf(float x) SHZ_NOEXCEPT {
     if(__builtin_constant_p(x))
         return (x == 0.0f)? 0.0f : 1.0f / __builtin_sqrtf(__builtin_fabsf(x));
 #endif
-    return (x == 0.0f)? 0.0f : shz_inv_sqrtf_fsrra(x);
+    const float r = shz_inv_sqrtf_fsrra(x);
+
+    return SHZ_UNLIKELY(x == 0.0f)? shz_opaquef(0.0f) : r;
 }
 
 SHZ_FORCE_INLINE float shz_sqrtf_fsrra(float x) SHZ_NOEXCEPT {
