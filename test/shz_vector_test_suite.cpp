@@ -457,7 +457,7 @@ GBL_TEST_CASE(vec3RotateX)
     }
 
     {
-        volatile float out[3];
+        alignas(32) static volatile float out[3];
 
         GBL_TEST_VERIFY(
             (benchmark_cmp<void>)("shz::vec3::rotate_x",
@@ -501,7 +501,7 @@ GBL_TEST_CASE(vec3RotateY)
     }
 
     {
-        volatile float out[3];
+        alignas(32) static volatile float out[3];
 
         GBL_TEST_VERIFY(
             (benchmark_cmp<void>)("shz::vec3::rotate_y",
@@ -554,7 +554,7 @@ GBL_TEST_CASE(vec3RotateZ)
     }
 
     {
-        volatile float out[3];
+        alignas(32) static volatile float out[3];
 
         GBL_TEST_VERIFY(
             (benchmark_cmp<void>)("shz::vec3::rotate_z",

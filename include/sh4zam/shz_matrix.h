@@ -94,28 +94,16 @@ typedef shz_mat4x4_t shz_mat4x4;
    @{
 */
 
-/*! Initializes the given matrix to the 4x4 identity matrix.
-
-    \warning This routine clobbers XMTRX.
-*/
+/*! Initializes the given matrix to the 4x4 identity matrix. */
 SHZ_INLINE void shz_mat4x4_init_identity(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
-/*! Initializes the given matrix with all 0s for its element values.
-
-    \warning This routine clobbers XMTRX.
-*/
+/*! Initializes the given matrix with all 0s for its element values. */
 SHZ_INLINE void shz_mat4x4_init_zero(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
-/*! Initializes the given matrix with all 1s for its element values.
-
-    \warning This routine clobbers XMTRX.
-*/
+/*! Initializes the given matrix with all 1s for its element values. */
 SHZ_INLINE void shz_mat4x4_init_one(shz_mat4x4_t* mat) SHZ_NOEXCEPT;
 
-/*! Initializes the given matrix with all elements assigned to the given value.
-
-    \warning This routine clobbers XMTRX.
-*/
+/*! Initializes the given matrix with all elements assigned to the given value. */
 SHZ_INLINE void shz_mat4x4_init_fill(shz_mat4x4_t* mat, float value) SHZ_NOEXCEPT;
 
 /*! Initializes the given matrix to a 3D translation matrix with the given coordinates.
@@ -124,10 +112,7 @@ SHZ_INLINE void shz_mat4x4_init_fill(shz_mat4x4_t* mat, float value) SHZ_NOEXCEP
 */
 SHZ_INLINE void shz_mat4x4_init_translation(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
 
-/*! Initializes the given matrix to a 3D scaling matrix with the given dimensions.
-
-    \warning This routine clobbers XMTRX.
-*/
+/*! Initializes the given matrix to a 3D scaling matrix with the given dimensions. */
 SHZ_INLINE void shz_mat4x4_init_scale(shz_mat4x4_t* mat, float x, float y, float z) SHZ_NOEXCEPT;
 
 /*! Initializes the given matrix to a 3D rotation matrix by \p xAngle radians over the X-axis.
@@ -195,7 +180,6 @@ SHZ_INLINE void shz_mat4x4_init_rotation_z_u16(shz_mat4x4_t* mat, uint16_t zAngl
 /*! Initializes the given matrix to the rotation about the X axis that turns local +Z toward the unit direction (0, \p y, \p z).
 
     \warning (\p y, \p z) must be unit length.
-    \warning This routine clobbers XMTRX.
 
     \param  mat     The matrix to initialize.
     \param  y       Y component of the unit direction.
@@ -327,10 +311,7 @@ SHZ_INLINE void shz_mat4x4_init_rotation_dir(shz_mat4x4_t* mat, float angle, flo
 */
 SHZ_INLINE void shz_mat4x4_init_rotation_quat(shz_mat4x4_t* m, shz_quat_t q) SHZ_NOEXCEPT;
 
-/*! Initializes the given matrix to a diagonal matrix with the given 4 values.
-
-    \warning This routine clobbers XMTRX.
-*/
+/*! Initializes the given matrix to a diagonal matrix with the given 4 values. */
 SHZ_INLINE void shz_mat4x4_init_diagonal(shz_mat4x4_t* mat, float x, float y, float z, float w) SHZ_NOEXCEPT;
 
 /*! Initializes the given matrix to an upper triangular matrix whose nonzero entries have the given value.
@@ -1258,8 +1239,6 @@ SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3_transpose(const shz_mat3x3_t* m,
 */
 
 /*! Safely initializes the given matrix to the 4x4 identity matrix.
-
-    \warning This routine clobbers XMTRX.
 
     \deprecated
     shz_mat4x4_init_identity() is already safe now by default. This routine

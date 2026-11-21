@@ -76,6 +76,180 @@ static shz_glm_mat4 dense_matrix() {
     } };
 }
 
+GBL_TEST_CASE(init_identity)
+    alignas(32) static shz_glm_mat4 res, ref;
+
+    res = dense_matrix();
+    res.shz.init_identity();
+    glm_mat4_identity(ref.glm);
+
+    GBL_TEST_VERIFY(res.shz == ref.shz);
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::mat4x4::init_identity", [&]() {
+            res.shz.init_identity();
+        },
+        "glm_mat4_identity", [&]() {
+            glm_mat4_identity(ref.glm);
+        }));
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::mat4x4::init_identity", [&]() {
+            res.shz.init_identity();
+        },
+        "shz::xmtrx::init_identity + store", [&]() {
+            shz::xmtrx::init_identity();
+            shz::xmtrx::store(&ref.shz);
+        }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_zero)
+    alignas(32) static shz_glm_mat4 res, ref;
+
+    res = dense_matrix();
+    res.shz.init_zero();
+    glm_mat4_zero(ref.glm);
+
+    GBL_TEST_VERIFY(res.shz == ref.shz);
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::mat4x4::init_zero", [&]() {
+            res.shz.init_zero();
+        },
+        "glm_mat4_zero", [&]() {
+            glm_mat4_zero(ref.glm);
+        }));
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::mat4x4::init_zero", [&]() {
+            res.shz.init_zero();
+        },
+        "shz::xmtrx::init_zero + store", [&]() {
+            shz::xmtrx::init_zero();
+            shz::xmtrx::store(&ref.shz);
+        }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_one)
+    alignas(32) static shz_glm_mat4 res;
+
+    res = dense_matrix();
+    res.shz.init_one();
+
+    for(unsigned i = 0; i < 16; ++i)
+        GBL_TEST_VERIFY(res.shz.elem[i] == 1.0f);
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::mat4x4::init_one", [&]() {
+            res.shz.init_one();
+        },
+        "shz::xmtrx::init_one + store", [&]() {
+            shz::xmtrx::init_one();
+            shz::xmtrx::store(&res.shz);
+        }));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_fill)
+    alignas(32) static shz_glm_mat4 res, ref;
+    volatile float                  value = -3.5f;
+
+    res = dense_matrix();
+    res.shz.init_fill(-3.5f);
+
+    for(unsigned i = 0; i < 16; ++i)
+        GBL_TEST_VERIFY(res.shz.elem[i] == -3.5f);
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::mat4x4::init_fill", [&](const volatile float* v) {
+            res.shz.init_fill(*v);
+        },
+        "C fill", [&](const volatile float* v) {
+            const float f = *v;
+            for(unsigned i = 0; i < 16; ++i)
+                ref.shz.elem[i] = f;
+        },
+        &value));
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::mat4x4::init_fill", [&](const volatile float* v) {
+            res.shz.init_fill(*v);
+        },
+        "shz::xmtrx::init_fill + store", [&](const volatile float* v) {
+            shz::xmtrx::init_fill(*v);
+            shz::xmtrx::store(&ref.shz);
+        },
+        &value));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_diagonal)
+    alignas(32) static shz_glm_mat4 res, ref;
+
+    res = dense_matrix();
+    res.shz.init_diagonal(2.0f, -3.0f, 4.5f, 0.25f);
+    glm_mat4_zero(ref.glm);
+    ref.glm[0][0] = 2.0f;
+    ref.glm[1][1] = -3.0f;
+    ref.glm[2][2] = 4.5f;
+    ref.glm[3][3] = 0.25f;
+
+    GBL_TEST_VERIFY(res.shz == ref.shz);
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::mat4x4::init_diagonal", [&](float x, float y, float z, float w) {
+            res.shz.init_diagonal(x, y, z, w);
+        },
+        "glm_mat4_zero + diagonal", [&](float x, float y, float z, float w) {
+            glm_mat4_zero(ref.glm);
+            ref.glm[0][0] = x;
+            ref.glm[1][1] = y;
+            ref.glm[2][2] = z;
+            ref.glm[3][3] = w;
+        },
+        2.0f, -3.0f, 4.5f, 0.25f));
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::mat4x4::init_diagonal", [&](float x, float y, float z, float w) {
+            res.shz.init_diagonal(x, y, z, w);
+        },
+        "shz::xmtrx::init_diagonal + store", [&](float x, float y, float z, float w) {
+            shz::xmtrx::init_diagonal(x, y, z, w);
+            shz::xmtrx::store(&ref.shz);
+        },
+        2.0f, -3.0f, 4.5f, 0.25f));
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(init_scale)
+    alignas(32) static shz_glm_mat4 res, ref;
+
+    vec3 scale = { 2.0f, -3.0f, 4.5f };
+
+    res = dense_matrix();
+    res.shz.init_scale(2.0f, -3.0f, 4.5f);
+    glm_scale_make(ref.glm, scale);
+
+    GBL_TEST_VERIFY(res.shz == ref.shz);
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::mat4x4::init_scale", [&](float x, float y, float z) {
+            res.shz.init_scale(x, y, z);
+        },
+        "glm_scale_make", [&](float x, float y, float z) {
+            vec3 v = { x, y, z };
+            glm_scale_make(ref.glm, v);
+        },
+        2.0f, -3.0f, 4.5f));
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::mat4x4::init_scale", [&](float x, float y, float z) {
+            res.shz.init_scale(x, y, z);
+        },
+        "shz::xmtrx::init_scale + store", [&](float x, float y, float z) {
+            shz::xmtrx::init_scale(x, y, z);
+            shz::xmtrx::store(&ref.shz);
+        },
+        2.0f, -3.0f, 4.5f));
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(determinant)
     shz_glm_mat4 mat = dense_matrix();
     GBL_TEST_VERIFY(mat.shz.determinant() == glm_mat4_det(mat.glm));
@@ -1676,7 +1850,13 @@ GBL_TEST_CASE(permute_wzyx)
                     shz::vec4(4.0f, 3.0f, 2.0f, 1.0f));
 GBL_TEST_CASE_END
 
-GBL_TEST_REGISTER(copy,
+GBL_TEST_REGISTER(init_identity,
+                  init_zero,
+                  init_one,
+                  init_fill,
+                  init_diagonal,
+                  init_scale,
+                  copy,
                   swap,
                   determinant,
                   inverse,

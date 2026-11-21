@@ -19,10 +19,6 @@ set(CGLM_SHARED OFF)
 set(CGLM_STATIC ON)
 add_subdirectory(cglm)
 
-if(PLATFORM_DREAMCAST)
-    target_compile_options(cglm PRIVATE -fno-fast-math)
-endif()
-
 add_executable(Sh4zamTests
     shz_test.c
     shz_test_scenario.c

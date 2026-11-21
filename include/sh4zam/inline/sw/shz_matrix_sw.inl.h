@@ -67,6 +67,32 @@ SHZ_INLINE void shz_mat4x4_swap_sw(shz_mat4x4_t* matA, shz_mat4x4_t* matB) SHZ_N
     shz_mat4x4_copy(matB, &tmp);
 }
 
+SHZ_INLINE void shz_mat4x4_init_identity_sw(shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+    mat->col[0] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
+    mat->col[1] = shz_vec4_init(0.0f, 1.0f, 0.0f, 0.0f);
+    mat->col[2] = shz_vec4_init(0.0f, 0.0f, 1.0f, 0.0f);
+    mat->col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+SHZ_INLINE void shz_mat4x4_init_fill_sw(shz_mat4x4_t* mat, float value) SHZ_NOEXCEPT {
+    for(unsigned i = 0; i < 4; ++i)
+        mat->col[i] = shz_vec4_init(value, value, value, value);
+}
+
+SHZ_INLINE void shz_mat4x4_init_diagonal_sw(shz_mat4x4_t* mat, float x, float y, float z, float w) SHZ_NOEXCEPT {
+    mat->col[0] = shz_vec4_init(   x, 0.0f, 0.0f, 0.0f);
+    mat->col[1] = shz_vec4_init(0.0f,    y, 0.0f, 0.0f);
+    mat->col[2] = shz_vec4_init(0.0f, 0.0f,    z, 0.0f);
+    mat->col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f,    w);
+}
+
+SHZ_INLINE void shz_mat4x4_init_rotation_x_yz_sw(shz_mat4x4_t* mat, float y, float z) SHZ_NOEXCEPT {
+    mat->col[0] = shz_vec4_init(1.0f, 0.0f, 0.0f, 0.0f);
+    mat->col[1] = shz_vec4_init(0.0f,    z,   -y, 0.0f);
+    mat->col[2] = shz_vec4_init(0.0f,    y,    z, 0.0f);
+    mat->col[3] = shz_vec4_init(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
 SHZ_INLINE shz_vec3_t shz_mat3x3_transform_vec3_sw(const shz_mat3x3_t* mat, shz_vec3_t v) SHZ_NOEXCEPT {
     return shz_vec3_add(shz_vec3_scale(mat->col[0], v.x),
            shz_vec3_add(shz_vec3_scale(mat->col[1], v.y),

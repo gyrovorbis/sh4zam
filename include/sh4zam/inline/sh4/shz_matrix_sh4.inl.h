@@ -497,4 +497,172 @@ SHZ_INLINE shz_vec3_t shz_mat4x4_get_scale_sh4(const shz_mat4x4_t* mat) SHZ_NOEX
     return shz_vec3_init(fr10, fr6, fr3);
 }
 
+SHZ_INLINE void shz_mat4x4_init_identity_sh4(shz_mat4x4_t* m) SHZ_NOEXCEPT {
+    register float fr4 asm("fr4") = 0.0f;
+    register float fr5 asm("fr5") = 0.0f;
+    register float fr6 asm("fr6") = 1.0f;
+
+    asm(R"(
+        add     #64, %[m]
+        fmov.s  fr6, @-%[m]
+        add     #-60, %[m]
+        pref    @%[m]
+        add     #60, %[m]
+        fmov.s  fr4, @-%[m]
+        fschg
+        fmov.d  dr4, @-%[m]
+        fschg
+        fmov.s  fr4, @-%[m]
+        fmov.s  fr6, @-%[m]
+        fschg
+        fmov.d  dr4, @-%[m]
+        fmov.d  dr4, @-%[m]
+        fschg
+        fmov.s  fr6, @-%[m]
+        fmov.s  fr4, @-%[m]
+        fschg
+        fmov.d  dr4, @-%[m]
+        fschg
+        fmov.s  fr4, @-%[m]
+        fmov.s  fr6, @-%[m]
+    )"
+    : "=m" (*m)
+    : "f" (fr4), "f" (fr5), "f" (fr6),
+      [m] "u" (m));
+}
+
+SHZ_FORCE_INLINE void shz_mat4x4_init_fill_sh4(shz_mat4x4_t* m, float value) SHZ_NOEXCEPT {
+    register float fr4 asm("fr4") = value;
+    register float fr5 asm("fr5") = value;
+
+    asm(R"(
+        add     #64, %[m]
+        fmov.s  fr4, @-%[m]
+        add     #-60, %[m]
+        pref    @%[m]
+        add     #60, %[m]
+        fmov.s  fr4, @-%[m]
+        fschg
+        fmov.d  dr4, @-%[m]
+        fmov.d  dr4, @-%[m]
+        fmov.d  dr4, @-%[m]
+        fmov.d  dr4, @-%[m]
+        fmov.d  dr4, @-%[m]
+        fmov.d  dr4, @-%[m]
+        fmov.d  dr4, @-%[m]
+        fschg
+    )"
+    : "=m" (*m)
+    : "f" (fr4), "f" (fr5),
+      [m] "u" (m));
+}
+
+SHZ_INLINE void shz_mat4x4_init_translation_sh4(shz_mat4x4_t* m, float x, float y, float z, float w) SHZ_NOEXCEPT {
+    register float fr4 asm("fr4") = x;
+    register float fr5 asm("fr5") = y;
+    register float fr6 asm("fr6") = z;
+    register float fr7 asm("fr7") = w;
+
+    asm(R"(
+        add     #64, %[m]
+        fschg
+        fmov.d  dr6, @-%[m]
+        add     #-56, %[m]
+        fldi0   fr7
+        pref    @%[m]
+        add     #56, %[m]
+        fldi0   fr6
+        fmov.d  dr4, @-%[m]
+        fldi1   fr4
+        fldi0   fr5
+        fmov.d  dr4, @-%[m]
+        fmov.d  dr6, @-%[m]
+        fmov.d  dr6, @-%[m]
+        fldi0   fr4
+        fldi1   fr5
+        fmov.d  dr4, @-%[m]
+        fmov.d  dr6, @-%[m]
+        fschg
+        fmov.s  fr6, @-%[m]
+        fmov.s  fr5, @-%[m]
+    )"
+    : "+&f" (fr4), "+&f" (fr5), "+&f" (fr6), "+&f" (fr7),
+      "=m" (*m)
+    : [m] "u" (m));
+}
+
+SHZ_INLINE void shz_mat4x4_init_diagonal_sh4(shz_mat4x4_t* m, float x, float y, float z, float w) SHZ_NOEXCEPT {
+    register float fr4 asm("fr4") = x;
+    register float fr5 asm("fr5") = y;
+    register float fr6 asm("fr6") = z;
+    register float fr7 asm("fr7") = w;
+    register float fr8 asm("fr8") = 0.0f;
+    register float fr9 asm("fr9") = 0.0f;
+
+    asm(R"(
+        add     #64, %[m]
+        fmov.s  fr7, @-%[m]
+        add     #-60, %[m]
+        pref    @%[m]
+        add     #60, %[m]
+        fmov.s  fr8, @-%[m]
+        fschg
+        fmov.d  dr8, @-%[m]
+        fschg
+        fmov.s  fr8, @-%[m]
+        fmov.s  fr6, @-%[m]
+        fschg
+        fmov.d  dr8, @-%[m]
+        fmov.d  dr8, @-%[m]
+        fschg
+        fmov.s  fr5, @-%[m]
+        fmov.s  fr8, @-%[m]
+        fschg
+        fmov.d  dr8, @-%[m]
+        fschg
+        fmov.s  fr8, @-%[m]
+        fmov.s  fr4, @-%[m]
+    )"
+    : "=m" (*m)
+    : "f" (fr4), "f" (fr5), "f" (fr6), "f" (fr7), "f" (fr8), "f" (fr9),
+      [m] "u" (m));
+}
+
+SHZ_INLINE void shz_mat4x4_init_rotation_x_yz_sh4(shz_mat4x4_t* m, float y, float z) SHZ_NOEXCEPT {
+    register float fr4 asm("fr4") = z;
+    register float fr5 asm("fr5") = y;
+    register float fr6 asm("fr6") = 0.0f;
+    register float fr7 asm("fr7") = 1.0f;
+
+    asm(R"(
+        add     #64, %[m]
+        fmov.s  fr7, @-%[m]
+        add     #-60, %[m]
+        pref    @%[m]
+        add     #60, %[m]
+        fmov.s  fr6, @-%[m]
+        fmov.s  fr6, @-%[m]
+        fmov.s  fr6, @-%[m]
+
+        fmov.s  fr6, @-%[m]
+        fmov.s  fr4, @-%[m]
+        fmov.s  fr5, @-%[m]
+        fmov.s  fr6, @-%[m]
+
+        fneg    fr5
+        fmov.s  fr6, @-%[m]
+        fmov.s  fr5, @-%[m]
+        fmov.s  fr4, @-%[m]
+        fmov.s  fr6, @-%[m]
+
+        fmov.s  fr6, @-%[m]
+        fmov.s  fr6, @-%[m]
+        fmov.s  fr6, @-%[m]
+        fmov.s  fr7, @-%[m]
+    )"
+    : "+f" (fr5), "=m" (*m)
+    : "f" (fr4), "f" (fr6), "f" (fr7),
+      [m] "u" (m));
+}
+
 #endif
