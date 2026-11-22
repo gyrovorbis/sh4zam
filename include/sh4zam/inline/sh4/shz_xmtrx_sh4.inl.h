@@ -3611,10 +3611,81 @@ SHZ_INLINE void shz_xmtrx_rotate_dir_sh4(float angle, float x, float y, float z)
       "fr8", "fr9", "fr10", "fr11", "fpul");
 }
 
+SHZ_INLINE void shz_xmtrx_rotate_dir_u16_sh4(uint16_t radians16, float x, float y, float z) SHZ_NOEXCEPT {
+    register float fr12 asm("fr12") = x;
+    register float fr13 asm("fr13") = y;
+    register float fr14 asm("fr14") = z;
+    register float fr15 asm("fr15");
+
+    asm volatile(R"(
+        lds     %[angle], fpul
+        fldi1   fr15                ! fr15 = 1
+        fsca    fpul, dr8           ! fr8  = s, fr9 = c
+        fmov    fr8, fr10           ! fr10 = s
+        fmov    fr8, fr7            ! fr7  = s
+        fsub    fr9, fr15           ! fr15 = t = 1-c
+        fmov    fr8, fr11           ! fr11 = s
+        fmul    fr14, fr7           ! fr7  = z*s
+        fmov    fr15, fr0           ! fr0  = t
+        fmul    fr13, fr11          ! fr11 = y*s
+        fmov    fr7, fr1            ! fr1  = z*s
+        fmul    fr12, fr0           ! fr0  = x*t
+        fmov    fr11, fr8           ! fr8  = y*s
+        fmac    fr0, fr13, fr1      ! fr1  = x*y*t + z*s  => XF1
+        fneg    fr11                ! fr11 = -y*s
+        fmac    fr0, fr14, fr8      ! fr8  = x*z*t + y*s  => XF8
+        fmov    fr11, fr2           ! fr2  = -y*s
+        fneg    fr7                 ! fr7  = -z*s
+        fmac    fr0, fr14, fr2      ! fr2  = x*z*t - y*s  => XF2
+        fmov    fr7, fr4            ! fr4  = -z*s
+        fmac    fr0, fr13, fr4      ! fr4  = x*y*t - z*s  => XF4
+        fmov    fr9, fr6            ! fr6  = c
+        fmov    fr10, fr3           ! fr3  = s
+        fmac    fr0, fr12, fr6      ! fr6  = x*x*t + c    => XF0
+        fmov    fr15, fr0           ! fr0  = t
+        fmul    fr12, fr3           ! fr3  = x*s
+        fmov    fr9, fr5            ! fr5  = c
+        fmul    fr13, fr0           ! fr0  = y*t
+        flds    fr6, fpul           ! fpul = XF0 value
+        fmov    fr3, fr6            ! fr6  = x*s
+        fmac    fr0, fr13, fr5      ! fr5  = y*y*t + c    => XF5
+        fneg    fr3                 ! fr3  = -x*s
+        fmac    fr0, fr14, fr6      ! fr6  = y*z*t + x*s  => XF6
+        fmov    fr9, fr10           ! fr10 = c
+        fmul    fr14, fr15          ! fr15 = z*t
+        fmov    fr3, fr9            ! fr9  = -x*s
+        fmac    fr0, fr14, fr9      ! fr9  = y*z*t - x*s  => XF9
+        fldi0   fr7                 ! fr7  = 0            => XF7
+        ftrv    xmtrx, fv4
+        fmov    fr15, fr0           ! fr0  = z*t
+        fmac    fr0, fr14, fr10     ! fr10 = z*z*t + c    => XF10
+        fsts    fpul, fr0           ! fr0                 => XF0
+        fldi0   fr11                ! fr11 = 0            => XF11
+        fldi0   fr3                 ! fr3  = 0            => XF3
+        fschg
+        ftrv    xmtrx, fv8
+        fmov    xd12, dr12          ! fr12, fr13          => XF12, XF13
+        ftrv    xmtrx, fv0
+        fmov    xd14, dr14          ! fr14, fr15          => XF14, XF15
+        fschg
+        frchg
+    )"
+    : "+f" (fr12), "+f" (fr13), "+f" (fr14), "=f" (fr15)
+    : [angle] "r" (radians16)
+    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
+      "fr8", "fr9", "fr10", "fr11", "fpul");
+}
+
 SHZ_INLINE void shz_xmtrx_rotate_sh4(float angle, float x, float y, float z) SHZ_NOEXCEPT {
     const shz_vec3_t dir = shz_vec3_normalize(shz_vec3_init(x, y, z));
 
     shz_xmtrx_rotate_dir_sh4(angle, dir.x, dir.y, dir.z);
+}
+
+SHZ_INLINE void shz_xmtrx_rotate_u16_sh4(uint16_t radians16, float x, float y, float z) SHZ_NOEXCEPT {
+    const shz_vec3_t dir = shz_vec3_normalize(shz_vec3_init(x, y, z));
+
+    shz_xmtrx_rotate_dir_u16_sh4(radians16, dir.x, dir.y, dir.z);
 }
 
 SHZ_INLINE void shz_xmtrx_init_rotation_quat_sh4(shz_quat_t q) SHZ_NOEXCEPT {

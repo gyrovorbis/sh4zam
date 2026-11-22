@@ -1124,6 +1124,124 @@ SHZ_INLINE shz_vec3_t shz_vec3_rotate(shz_vec3_t vec, float angle, shz_vec3_t ax
 */
 SHZ_INLINE shz_vec3_t shz_vec3_rotate_dir(shz_vec3_t vec, float angle, shz_vec3_t axis) SHZ_NOEXCEPT;
 
+/*! Equivalent to shz_vec2_rotate(), with a 16-bit binary angle (65536 per turn, the FSCA unit).
+
+    For games whose orientations are stored as 16-bit angles. Signed 16-bit angles can be passed
+    as they are. The angle goes to FSCA as given, where shz_vec2_rotate() scales radians back to
+    this unit and truncates with FTRC, which can land one unit short.
+
+    \param  vec         The vector to rotate.
+    \param  radians16   Angle of rotation about the Z axis, as a 16-bit binary angle.
+    \returns            \p vec rotated by \p radians16.
+
+    \sa shz_vec2_rotate(), shz_sincosu16()
+*/
+SHZ_INLINE shz_vec2_t shz_vec2_rotate_u16(shz_vec2_t vec, uint16_t radians16) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_vec3_rotate_x(), with a 16-bit binary angle.
+
+    \param  vec         The vector to rotate.
+    \param  radians16   Angle of rotation about the X axis, as a 16-bit binary angle.
+    \returns            \p vec rotated by \p radians16.
+
+    \sa shz_vec3_rotate_x(), shz_xmtrx_rotate_x_u16()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_x_u16(shz_vec3_t vec, uint16_t radians16) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_vec3_rotate_y(), with a 16-bit binary angle.
+
+    \param  vec         The vector to rotate.
+    \param  radians16   Angle of rotation about the Y axis, as a 16-bit binary angle.
+    \returns            \p vec rotated by \p radians16.
+
+    \sa shz_vec3_rotate_y(), shz_xmtrx_rotate_y_u16()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_y_u16(shz_vec3_t vec, uint16_t radians16) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_vec3_rotate_z(), with a 16-bit binary angle.
+
+    \param  vec         The vector to rotate.
+    \param  radians16   Angle of rotation about the Z axis, as a 16-bit binary angle.
+    \returns            \p vec rotated by \p radians16.
+
+    \sa shz_vec3_rotate_z(), shz_xmtrx_rotate_z_u16()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_z_u16(shz_vec3_t vec, uint16_t radians16) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_vec3_rotate_xyz(), with 16-bit binary angles.
+
+    \param  vec         The vector to rotate.
+    \param  xAngle      Angle about the X axis, as a 16-bit binary angle.
+    \param  yAngle      Angle about the Y axis, as a 16-bit binary angle.
+    \param  zAngle      Angle about the Z axis, as a 16-bit binary angle.
+    \returns            \p vec rotated by the given angles.
+
+    \sa shz_vec3_rotate_xyz(), shz_xmtrx_init_rotation_xyz_u16()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_xyz_u16(shz_vec3_t vec, uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_vec3_rotate_zyx(), with 16-bit binary angles.
+
+    \param  vec         The vector to rotate.
+    \param  zAngle      Angle about the Z axis, as a 16-bit binary angle.
+    \param  yAngle      Angle about the Y axis, as a 16-bit binary angle.
+    \param  xAngle      Angle about the X axis, as a 16-bit binary angle.
+    \returns            \p vec rotated by the given angles.
+
+    \sa shz_vec3_rotate_zyx(), shz_xmtrx_init_rotation_zyx_u16()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_zyx_u16(shz_vec3_t vec, uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_vec3_rotate_zxy(), with 16-bit binary angles.
+
+    \param  vec         The vector to rotate.
+    \param  zAngle      Angle about the Z axis, as a 16-bit binary angle.
+    \param  xAngle      Angle about the X axis, as a 16-bit binary angle.
+    \param  yAngle      Angle about the Y axis, as a 16-bit binary angle.
+    \returns            \p vec rotated by the given angles.
+
+    \sa shz_vec3_rotate_zxy(), shz_xmtrx_init_rotation_zxy_u16()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_zxy_u16(shz_vec3_t vec, uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_vec3_rotate_yxz(), with 16-bit binary angles.
+
+    \param  vec         The vector to rotate.
+    \param  yAngle      Angle about the Y axis, as a 16-bit binary angle.
+    \param  xAngle      Angle about the X axis, as a 16-bit binary angle.
+    \param  zAngle      Angle about the Z axis, as a 16-bit binary angle.
+    \returns            \p vec rotated by the given angles.
+
+    \sa shz_vec3_rotate_yxz(), shz_xmtrx_init_rotation_yxz_u16()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_yxz_u16(shz_vec3_t vec, uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_vec3_rotate(), with a 16-bit binary angle.
+
+    The axis does not need to be normalized.
+
+    \param  vec         The vector to rotate.
+    \param  radians16   Angle of rotation, as a 16-bit binary angle.
+    \param  axis        Axis of rotation.
+    \returns            \p vec rotated by \p radians16 about \p axis.
+
+    \sa shz_vec3_rotate(), shz_vec3_rotate_dir_u16()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_u16(shz_vec3_t vec, uint16_t radians16, shz_vec3_t axis) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_vec3_rotate_dir(), with a 16-bit binary angle.
+
+    \warning The axis of rotation must be prenormalized!
+
+    \param  vec         The vector to rotate.
+    \param  radians16   Angle of rotation, as a 16-bit binary angle.
+    \param  axis        Unit-length axis of rotation.
+    \returns            \p vec rotated by \p radians16 about \p axis.
+
+    \sa shz_vec3_rotate_dir(), shz_vec3_rotate_u16()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_dir_u16(shz_vec3_t vec, uint16_t radians16, shz_vec3_t axis) SHZ_NOEXCEPT;
+
 //! @}
 
 /*! \name  Extending

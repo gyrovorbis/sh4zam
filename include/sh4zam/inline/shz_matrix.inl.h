@@ -622,6 +622,18 @@ SHZ_INLINE void shz_mat4x4_rotate_dir(shz_mat4x4_t* mat, float radians, float x,
     shz_xmtrx_store_4x4(mat);
 }
 
+SHZ_INLINE void shz_mat4x4_rotate_u16(shz_mat4x4_t* mat, uint16_t radians16, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_u16(radians16, xAxis, yAxis, zAxis);
+    shz_xmtrx_store_4x4(mat);
+}
+
+SHZ_INLINE void shz_mat4x4_rotate_dir_u16(shz_mat4x4_t* mat, uint16_t radians16, float x, float y, float z) SHZ_NOEXCEPT {
+    shz_xmtrx_load_4x4(mat);
+    shz_xmtrx_rotate_dir_u16(radians16, x, y, z);
+    shz_xmtrx_store_4x4(mat);
+}
+
 SHZ_INLINE void shz_mat4x4_mult(shz_mat4x4_t* mat, const shz_mat4x4_t* lhs, const shz_mat4x4_t* rhs) SHZ_NOEXCEPT {
     shz_xmtrx_load_apply_store_4x4(mat, lhs, rhs);
 }

@@ -904,6 +904,26 @@ struct xmtrx {
         rotate_dir(radians, dir.x, dir.y, dir.z);
     }
 
+    //! C++ wrapper around shz_xmtrx_rotate_u16().
+    SHZ_FORCE_INLINE static void rotate(uint16_t radians16, float x, float y, float z) noexcept {
+        shz_xmtrx_rotate_u16(radians16, x, y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_u16().
+    SHZ_FORCE_INLINE static void rotate(uint16_t radians16, const vec3& axis) noexcept {
+        rotate(radians16, axis.x, axis.y, axis.z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_dir_u16(). The axis must be prenormalized!
+    SHZ_FORCE_INLINE static void rotate_dir(uint16_t radians16, float x, float y, float z) noexcept {
+        shz_xmtrx_rotate_dir_u16(radians16, x, y, z);
+    }
+
+    //! C++ wrapper around shz_xmtrx_rotate_dir_u16(). The axis must be prenormalized!
+    SHZ_FORCE_INLINE static void rotate_dir(uint16_t radians16, const vec3& dir) noexcept {
+        rotate_dir(radians16, dir.x, dir.y, dir.z);
+    }
+
 /*! \name  Reverse GL Transformations
     \brief Pre-multiplication variants of OpenGL-style 4x4 matrix transforms.
     @{

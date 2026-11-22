@@ -550,6 +550,11 @@ struct vec2: vecN<vec2, shz_vec2_t, 2> {
     SHZ_FORCE_INLINE vec2 rotate(float radians) const noexcept {
         return shz_vec2_rotate(*this, radians);
     }
+
+    //! C++ wrapper for shz_vec2_rotate_u16().
+    SHZ_FORCE_INLINE vec2 rotate(uint16_t radians16) const noexcept {
+        return shz_vec2_rotate_u16(*this, radians16);
+    }
 //! @}
 };
 
@@ -616,6 +621,11 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
         return shz_vec3_rotate_x(*this, angle);
     }
 
+    //! C++ wrapper for shz_vec3_rotate_x_u16().
+    SHZ_FORCE_INLINE vec3 rotate_x(uint16_t radians16) const noexcept {
+        return shz_vec3_rotate_x_u16(*this, radians16);
+    }
+
     /*! Rotates a 3D vector about the Y axis by the given number of radians.
 
         \sa shz::xmtrx::rotate_y()
@@ -624,12 +634,22 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
         return shz_vec3_rotate_y(*this, angle);
     }
 
+    //! C++ wrapper for shz_vec3_rotate_y_u16().
+    SHZ_FORCE_INLINE vec3 rotate_y(uint16_t radians16) const noexcept {
+        return shz_vec3_rotate_y_u16(*this, radians16);
+    }
+
     /*! Rotates a 3D vector about the Z axis by the given number of radians.
 
         \sa shz::xmtrx::rotate_z()
     */
     SHZ_FORCE_INLINE vec3 rotate_z(float angle) const noexcept {
         return shz_vec3_rotate_z(*this, angle);
+    }
+
+    //! C++ wrapper for shz_vec3_rotate_z_u16().
+    SHZ_FORCE_INLINE vec3 rotate_z(uint16_t radians16) const noexcept {
+        return shz_vec3_rotate_z_u16(*this, radians16);
     }
 
     /*! Rotates a 3D vector by a X-Y-Z rotation, with the corresponding angles given in radians.
@@ -648,6 +668,11 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
         return shz_vec3_rotate_xyz(*this, angles.x, angles.y, angles.z);
     }
 
+    //! C++ wrapper for shz_vec3_rotate_xyz_u16().
+    SHZ_FORCE_INLINE vec3 rotate_xyz(uint16_t x, uint16_t y, uint16_t z) const noexcept {
+        return shz_vec3_rotate_xyz_u16(*this, x, y, z);
+    }
+
     /*! Rotates a 3D vector by a Z-Y-X rotation, with the corresponding angles given in radians.
 
         \sa shz::xmtrx::init_rotation_zyx()
@@ -662,6 +687,11 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
     */
     SHZ_FORCE_INLINE vec3 rotate_zyx(const vec3& angles) const noexcept {
         return shz_vec3_rotate_zyx(*this, angles.z, angles.y, angles.x);
+    }
+
+    //! C++ wrapper for shz_vec3_rotate_zyx_u16().
+    SHZ_FORCE_INLINE vec3 rotate_zyx(uint16_t z, uint16_t y, uint16_t x) const noexcept {
+        return shz_vec3_rotate_zyx_u16(*this, z, y, x);
     }
 
     /*! Rotates a 3D vector by a Z-X-Y rotation, with the corresponding angles given in radians.
@@ -680,6 +710,11 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
         return shz_vec3_rotate_zxy(*this, angles.z, angles.x, angles.y);
     }
 
+    //! C++ wrapper for shz_vec3_rotate_zxy_u16().
+    SHZ_FORCE_INLINE vec3 rotate_zxy(uint16_t z, uint16_t x, uint16_t y) const noexcept {
+        return shz_vec3_rotate_zxy_u16(*this, z, x, y);
+    }
+
     /*! Rotates a 3D vector by a Y-X-Z rotation, with the corresponding angles given in radians.
 
         \sa shz::xmtrx::init_rotation_yxz()
@@ -694,6 +729,11 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
     */
     SHZ_FORCE_INLINE vec3 rotate_yxz(const vec3& angles) const noexcept {
         return shz_vec3_rotate_yxz(*this, angles.y, angles.x, angles.z);
+    }
+
+    //! C++ wrapper for shz_vec3_rotate_yxz_u16().
+    SHZ_FORCE_INLINE vec3 rotate_yxz(uint16_t y, uint16_t x, uint16_t z) const noexcept {
+        return shz_vec3_rotate_yxz_u16(*this, y, x, z);
     }
 
     /*! Rotates a 3D vector by the given number of radians about the given axis.
@@ -712,6 +752,16 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
         return shz_vec3_rotate(*this, angle, shz_vec3_init(x, y, z));
     }
 
+    //! C++ wrapper for shz_vec3_rotate_u16().
+    SHZ_FORCE_INLINE vec3 rotate(uint16_t radians16, const vec3& axis) const noexcept {
+        return shz_vec3_rotate_u16(*this, radians16, axis);
+    }
+
+    //! C++ wrapper for shz_vec3_rotate_u16(), taking the axis as individual components.
+    SHZ_FORCE_INLINE vec3 rotate(uint16_t radians16, float x, float y, float z) const noexcept {
+        return shz_vec3_rotate_u16(*this, radians16, shz_vec3_init(x, y, z));
+    }
+
     /*! Rotates a 3D vector by the given number of radians about the given unit-length axis.
 
         \sa shz::xmtrx::init_rotation_dir()
@@ -726,6 +776,16 @@ struct vec3: vecN<vec3, shz_vec3_t, 3> {
     */
     SHZ_FORCE_INLINE vec3 rotate_dir(float angle, float x, float y, float z) const noexcept {
         return shz_vec3_rotate_dir(*this, angle, shz_vec3_init(x, y, z));
+    }
+
+    //! C++ wrapper for shz_vec3_rotate_dir_u16().
+    SHZ_FORCE_INLINE vec3 rotate_dir(uint16_t radians16, const vec3& axis) const noexcept {
+        return shz_vec3_rotate_dir_u16(*this, radians16, axis);
+    }
+
+    //! C++ wrapper for shz_vec3_rotate_dir_u16(), taking the axis as individual components.
+    SHZ_FORCE_INLINE vec3 rotate_dir(uint16_t radians16, float x, float y, float z) const noexcept {
+        return shz_vec3_rotate_dir_u16(*this, radians16, shz_vec3_init(x, y, z));
     }
 //! @}
 

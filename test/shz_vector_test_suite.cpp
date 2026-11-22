@@ -1072,6 +1072,476 @@ GBL_TEST_CASE(vec3RotateYXZ)
     }
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(vec2Rotate_u16)
+    for(int i = 0; i < 32; ++i) {
+        const shz::vec2 vec = shz::vec2(gblRandUniform(-100.0f, 100.0f), gblRandUniform(-100.0f, 100.0f));
+        const uint16_t  a16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const shz::vec2 res = vec.rotate(a16);
+        shz_glm_vec2    in, ref;
+
+        in.shz = vec;
+        glm_vec2_rotate(in.glm, a16 * (1.0f / shz::fsca_rad_factor), ref.glm);
+
+        GBL_TEST_VERIFY((res - shz::vec2(ref.shz)).magnitude() <= 1e-3f * vec.magnitude());
+    }
+
+    {
+        [[maybe_unused]]
+        alignas(32) static volatile float out[2];
+        volatile uint16_t                 angle16 = 0x2000;
+        volatile float                    in[3]   = { gblRandUniform(-100.0f, 100.0f),
+                                                      gblRandUniform(-100.0f, 100.0f),
+                                                      0x2000 * (1.0f / shz::fsca_rad_factor) };
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec2::rotate(uint16_t)",
+                                  [&](const volatile uint16_t* a, const volatile float* v) {
+                                      const shz::vec2 o = shz::vec2(v[0], v[1]).rotate(static_cast<uint16_t>(*a));
+                                      out[0] = o.x; out[1] = o.y;
+                                  },
+                                  "glm_vec2_rotate",
+                                  [&](const volatile uint16_t*, const volatile float* v) {
+                                      shz_glm_vec2 u, r;
+                                      u.shz = shz::vec2(v[0], v[1]);
+                                      glm_vec2_rotate(u.glm, v[2], r.glm);
+                                      out[0] = r.glm[0]; out[1] = r.glm[1];
+                                  },
+                                  &angle16, &in[0])
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3RotateX_u16)
+    for(int i = 0; i < 32; ++i) {
+        const shz::vec3 vec = vec3RotateRand_();
+        const uint16_t  a16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        shz_glm_vec3    ref, ax;
+
+        ref.shz = vec;
+        ax.shz  = shz::vec3(1.0f, 0.0f, 0.0f);
+        glmc_vec3_rotate(ref.glm, a16 * (1.0f / shz::fsca_rad_factor), ax.glm);
+
+        GBL_TEST_VERIFY((vec.rotate_x(a16) - shz::vec3(ref.shz)).magnitude() <= 1e-3f * vec.magnitude());
+    }
+
+    {
+        [[maybe_unused]]
+        alignas(32) static volatile float out[3];
+        volatile uint16_t                 angle16 = 0x2000;
+        volatile float                    in[4]   = { gblRandUniform(-100.0f, 100.0f),
+                                                      gblRandUniform(-100.0f, 100.0f),
+                                                      gblRandUniform(-100.0f, 100.0f),
+                                                      0x2000 * (1.0f / shz::fsca_rad_factor) };
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec3::rotate_x(uint16_t)",
+                                  [&](const volatile uint16_t* a, const volatile float* v) {
+                                      const shz::vec3 o = shz::vec3(v[0], v[1], v[2]).rotate_x(static_cast<uint16_t>(*a));
+                                      out[0] = o.x; out[1] = o.y; out[2] = o.z;
+                                  },
+                                  "glm_vec3_rotate",
+                                  [&](const volatile uint16_t*, const volatile float* v) {
+                                      shz_glm_vec3 u;
+                                      vec3         axis = { 1.0f, 0.0f, 0.0f };
+                                      u.shz = shz::vec3(v[0], v[1], v[2]);
+                                      glm_vec3_rotate(u.glm, v[3], axis);
+                                      out[0] = u.glm[0]; out[1] = u.glm[1]; out[2] = u.glm[2];
+                                  },
+                                  &angle16, &in[0])
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3RotateY_u16)
+    for(int i = 0; i < 32; ++i) {
+        const shz::vec3 vec = vec3RotateRand_();
+        const uint16_t  a16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        shz_glm_vec3    ref, ax;
+
+        ref.shz = vec;
+        ax.shz  = shz::vec3(0.0f, 1.0f, 0.0f);
+        glmc_vec3_rotate(ref.glm, a16 * (1.0f / shz::fsca_rad_factor), ax.glm);
+
+        GBL_TEST_VERIFY((vec.rotate_y(a16) - shz::vec3(ref.shz)).magnitude() <= 1e-3f * vec.magnitude());
+    }
+
+    {
+        [[maybe_unused]]
+        alignas(32) static volatile float out[3];
+        volatile uint16_t                 angle16 = 0x2000;
+        volatile float                    in[4]   = { gblRandUniform(-100.0f, 100.0f),
+                                                      gblRandUniform(-100.0f, 100.0f),
+                                                      gblRandUniform(-100.0f, 100.0f),
+                                                      0x2000 * (1.0f / shz::fsca_rad_factor) };
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec3::rotate_y(uint16_t)",
+                                  [&](const volatile uint16_t* a, const volatile float* v) {
+                                      const shz::vec3 o = shz::vec3(v[0], v[1], v[2]).rotate_y(static_cast<uint16_t>(*a));
+                                      out[0] = o.x; out[1] = o.y; out[2] = o.z;
+                                  },
+                                  "glm_vec3_rotate",
+                                  [&](const volatile uint16_t*, const volatile float* v) {
+                                      shz_glm_vec3 u;
+                                      vec3         axis = { 0.0f, 1.0f, 0.0f };
+                                      u.shz = shz::vec3(v[0], v[1], v[2]);
+                                      glm_vec3_rotate(u.glm, v[3], axis);
+                                      out[0] = u.glm[0]; out[1] = u.glm[1]; out[2] = u.glm[2];
+                                  },
+                                  &angle16, &in[0])
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3RotateZ_u16)
+    for(int i = 0; i < 32; ++i) {
+        const shz::vec3 vec = vec3RotateRand_();
+        const uint16_t  a16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        shz_glm_vec3    ref, ax;
+
+        ref.shz = vec;
+        ax.shz  = shz::vec3(0.0f, 0.0f, 1.0f);
+        glmc_vec3_rotate(ref.glm, a16 * (1.0f / shz::fsca_rad_factor), ax.glm);
+
+        GBL_TEST_VERIFY((vec.rotate_z(a16) - shz::vec3(ref.shz)).magnitude() <= 1e-3f * vec.magnitude());
+    }
+
+    {
+        [[maybe_unused]]
+        alignas(32) static volatile float out[3];
+        volatile uint16_t                 angle16 = 0x2000;
+        volatile float                    in[4]   = { gblRandUniform(-100.0f, 100.0f),
+                                                      gblRandUniform(-100.0f, 100.0f),
+                                                      gblRandUniform(-100.0f, 100.0f),
+                                                      0x2000 * (1.0f / shz::fsca_rad_factor) };
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec3::rotate_z(uint16_t)",
+                                  [&](const volatile uint16_t* a, const volatile float* v) {
+                                      const shz::vec3 o = shz::vec3(v[0], v[1], v[2]).rotate_z(static_cast<uint16_t>(*a));
+                                      out[0] = o.x; out[1] = o.y; out[2] = o.z;
+                                  },
+                                  "glm_vec3_rotate",
+                                  [&](const volatile uint16_t*, const volatile float* v) {
+                                      shz_glm_vec3 u;
+                                      vec3         axis = { 0.0f, 0.0f, 1.0f };
+                                      u.shz = shz::vec3(v[0], v[1], v[2]);
+                                      glm_vec3_rotate(u.glm, v[3], axis);
+                                      out[0] = u.glm[0]; out[1] = u.glm[1]; out[2] = u.glm[2];
+                                  },
+                                  &angle16, &in[0])
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3RotateXYZ_u16)
+    for(int i = 0; i < 32; ++i) {
+        const shz::vec3 vec = vec3RotateRand_();
+        const uint16_t  x16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const uint16_t  y16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const uint16_t  z16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const shz::vec3 res = vec.rotate_xyz(x16, y16, z16);
+        shz_glm_vec3    in, ref;
+        vec3            euler = { x16 * (1.0f / shz::fsca_rad_factor), y16 * (1.0f / shz::fsca_rad_factor), z16 * (1.0f / shz::fsca_rad_factor) };
+        mat4            m;
+
+        in.shz = vec;
+        glm_euler_xyz(euler, m);
+        glm_vec3_rotate_m4(m, in.glm, ref.glm);
+
+        GBL_TEST_VERIFY((res - shz::vec3(ref.shz)).magnitude() <= 1e-3f * vec.magnitude());
+    }
+
+    {
+        [[maybe_unused]]
+        alignas(32) static volatile float out[3];
+        volatile uint16_t                 angles16[3] = { 0x2000, 0x5000, 0xa000 };
+        volatile float                    in[6]       = { gblRandUniform(-100.0f, 100.0f),
+                                                          gblRandUniform(-100.0f, 100.0f),
+                                                          gblRandUniform(-100.0f, 100.0f),
+                                                          0x2000 * (1.0f / shz::fsca_rad_factor),
+                                                          0x5000 * (1.0f / shz::fsca_rad_factor),
+                                                          0xa000 * (1.0f / shz::fsca_rad_factor) };
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec3::rotate_xyz(uint16_t)",
+                                  [&](const volatile uint16_t* a, const volatile float* v) {
+                                      const shz::vec3 o = shz::vec3(v[0], v[1], v[2]).rotate_xyz(static_cast<uint16_t>(a[0]),
+                                                                                                static_cast<uint16_t>(a[1]),
+                                                                                                static_cast<uint16_t>(a[2]));
+                                      out[0] = o.x; out[1] = o.y; out[2] = o.z;
+                                  },
+                                  "glm_euler_xyz + glm_vec3_rotate_m4",
+                                  [&](const volatile uint16_t*, const volatile float* v) {
+                                      shz_glm_vec3 in, res;
+                                      vec3         euler = { v[3], v[4], v[5] };
+                                      mat4         m;
+
+                                      in.shz = shz::vec3(v[0], v[1], v[2]);
+                                      glm_euler_xyz(euler, m);
+                                      glm_vec3_rotate_m4(m, in.glm, res.glm);
+                                      out[0] = res.shz.x; out[1] = res.shz.y; out[2] = res.shz.z;
+                                  },
+                                  &angles16[0], &in[0])
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3RotateZYX_u16)
+    for(int i = 0; i < 32; ++i) {
+        const shz::vec3 vec = vec3RotateRand_();
+        const uint16_t  z16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const uint16_t  y16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const uint16_t  x16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const shz::vec3 res = vec.rotate_zyx(z16, y16, x16);
+        shz_glm_vec3    in, ref;
+        vec3            euler = { x16 * (1.0f / shz::fsca_rad_factor), y16 * (1.0f / shz::fsca_rad_factor), z16 * (1.0f / shz::fsca_rad_factor) };
+        mat4            m;
+
+        in.shz = vec;
+        glm_euler_zyx(euler, m);
+        glm_vec3_rotate_m4(m, in.glm, ref.glm);
+
+        GBL_TEST_VERIFY((res - shz::vec3(ref.shz)).magnitude() <= 1e-3f * vec.magnitude());
+    }
+
+    {
+        [[maybe_unused]]
+        alignas(32) static volatile float out[3];
+        volatile uint16_t                 angles16[3] = { 0x2000, 0x5000, 0xa000 };
+        volatile float                    in[6]       = { gblRandUniform(-100.0f, 100.0f),
+                                                          gblRandUniform(-100.0f, 100.0f),
+                                                          gblRandUniform(-100.0f, 100.0f),
+                                                          0x2000 * (1.0f / shz::fsca_rad_factor),
+                                                          0x5000 * (1.0f / shz::fsca_rad_factor),
+                                                          0xa000 * (1.0f / shz::fsca_rad_factor) };
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec3::rotate_zyx(uint16_t)",
+                                  [&](const volatile uint16_t* a, const volatile float* v) {
+                                      const shz::vec3 o = shz::vec3(v[0], v[1], v[2]).rotate_zyx(static_cast<uint16_t>(a[0]),
+                                                                                                static_cast<uint16_t>(a[1]),
+                                                                                                static_cast<uint16_t>(a[2]));
+                                      out[0] = o.x; out[1] = o.y; out[2] = o.z;
+                                  },
+                                  "glm_euler_zyx + glm_vec3_rotate_m4",
+                                  [&](const volatile uint16_t*, const volatile float* v) {
+                                      shz_glm_vec3 in, res;
+                                      vec3         euler = { v[5], v[4], v[3] };
+                                      mat4         m;
+
+                                      in.shz = shz::vec3(v[0], v[1], v[2]);
+                                      glm_euler_zyx(euler, m);
+                                      glm_vec3_rotate_m4(m, in.glm, res.glm);
+                                      out[0] = res.shz.x; out[1] = res.shz.y; out[2] = res.shz.z;
+                                  },
+                                  &angles16[0], &in[0])
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3RotateZXY_u16)
+    for(int i = 0; i < 32; ++i) {
+        const shz::vec3 vec = vec3RotateRand_();
+        const uint16_t  z16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const uint16_t  x16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const uint16_t  y16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const shz::vec3 res = vec.rotate_zxy(z16, x16, y16);
+        shz_glm_vec3    in, ref;
+        vec3            euler = { x16 * (1.0f / shz::fsca_rad_factor), y16 * (1.0f / shz::fsca_rad_factor), z16 * (1.0f / shz::fsca_rad_factor) };
+        mat4            m;
+
+        in.shz = vec;
+        glm_euler_zxy(euler, m);
+        glm_vec3_rotate_m4(m, in.glm, ref.glm);
+
+        GBL_TEST_VERIFY((res - shz::vec3(ref.shz)).magnitude() <= 1e-3f * vec.magnitude());
+    }
+
+    {
+        [[maybe_unused]]
+        alignas(32) static volatile float out[3];
+        volatile uint16_t                 angles16[3] = { 0x2000, 0x5000, 0xa000 };
+        volatile float                    in[6]       = { gblRandUniform(-100.0f, 100.0f),
+                                                          gblRandUniform(-100.0f, 100.0f),
+                                                          gblRandUniform(-100.0f, 100.0f),
+                                                          0x2000 * (1.0f / shz::fsca_rad_factor),
+                                                          0x5000 * (1.0f / shz::fsca_rad_factor),
+                                                          0xa000 * (1.0f / shz::fsca_rad_factor) };
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec3::rotate_zxy(uint16_t)",
+                                  [&](const volatile uint16_t* a, const volatile float* v) {
+                                      const shz::vec3 o = shz::vec3(v[0], v[1], v[2]).rotate_zxy(static_cast<uint16_t>(a[0]),
+                                                                                                static_cast<uint16_t>(a[1]),
+                                                                                                static_cast<uint16_t>(a[2]));
+                                      out[0] = o.x; out[1] = o.y; out[2] = o.z;
+                                  },
+                                  "glm_euler_zxy + glm_vec3_rotate_m4",
+                                  [&](const volatile uint16_t*, const volatile float* v) {
+                                      shz_glm_vec3 in, res;
+                                      vec3         euler = { v[4], v[5], v[3] };
+                                      mat4         m;
+
+                                      in.shz = shz::vec3(v[0], v[1], v[2]);
+                                      glm_euler_zxy(euler, m);
+                                      glm_vec3_rotate_m4(m, in.glm, res.glm);
+                                      out[0] = res.shz.x; out[1] = res.shz.y; out[2] = res.shz.z;
+                                  },
+                                  &angles16[0], &in[0])
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3RotateYXZ_u16)
+    for(int i = 0; i < 32; ++i) {
+        const shz::vec3 vec = vec3RotateRand_();
+        const uint16_t  y16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const uint16_t  x16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const uint16_t  z16 = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        const shz::vec3 res = vec.rotate_yxz(y16, x16, z16);
+        shz_glm_vec3    in, ref;
+        vec3            euler = { x16 * (1.0f / shz::fsca_rad_factor), y16 * (1.0f / shz::fsca_rad_factor), z16 * (1.0f / shz::fsca_rad_factor) };
+        mat4            m;
+
+        in.shz = vec;
+        glm_euler_yxz(euler, m);
+        glm_vec3_rotate_m4(m, in.glm, ref.glm);
+
+        GBL_TEST_VERIFY((res - shz::vec3(ref.shz)).magnitude() <= 1e-3f * vec.magnitude());
+    }
+
+    {
+        [[maybe_unused]]
+        alignas(32) static volatile float out[3];
+        volatile uint16_t                 angles16[3] = { 0x2000, 0x5000, 0xa000 };
+        volatile float                    in[6]       = { gblRandUniform(-100.0f, 100.0f),
+                                                          gblRandUniform(-100.0f, 100.0f),
+                                                          gblRandUniform(-100.0f, 100.0f),
+                                                          0x2000 * (1.0f / shz::fsca_rad_factor),
+                                                          0x5000 * (1.0f / shz::fsca_rad_factor),
+                                                          0xa000 * (1.0f / shz::fsca_rad_factor) };
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec3::rotate_yxz(uint16_t)",
+                                  [&](const volatile uint16_t* a, const volatile float* v) {
+                                      const shz::vec3 o = shz::vec3(v[0], v[1], v[2]).rotate_yxz(static_cast<uint16_t>(a[0]),
+                                                                                                static_cast<uint16_t>(a[1]),
+                                                                                                static_cast<uint16_t>(a[2]));
+                                      out[0] = o.x; out[1] = o.y; out[2] = o.z;
+                                  },
+                                  "glm_euler_yxz + glm_vec3_rotate_m4",
+                                  [&](const volatile uint16_t*, const volatile float* v) {
+                                      shz_glm_vec3 in, res;
+                                      vec3         euler = { v[4], v[3], v[5] };
+                                      mat4         m;
+
+                                      in.shz = shz::vec3(v[0], v[1], v[2]);
+                                      glm_euler_yxz(euler, m);
+                                      glm_vec3_rotate_m4(m, in.glm, res.glm);
+                                      out[0] = res.shz.x; out[1] = res.shz.y; out[2] = res.shz.z;
+                                  },
+                                  &angles16[0], &in[0])
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3Rotate_u16)
+    for(int i = 0; i < 32; ++i) {
+        const shz::vec3 vec  = vec3RotateRand_();
+        const shz::vec3 axis = shz::vec3(gblRandUniform(-10.0f, 10.0f),
+                                         gblRandUniform(-10.0f, 10.0f),
+                                         gblRandUniform(-10.0f, 10.0f));
+        const uint16_t  a16  = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        shz_glm_vec3    ref, ax;
+
+        ref.shz = vec;
+        ax.shz  = axis;
+        glmc_vec3_rotate(ref.glm, a16 * (1.0f / shz::fsca_rad_factor), ax.glm);
+
+        GBL_TEST_VERIFY((vec.rotate(a16, axis) - shz::vec3(ref.shz)).magnitude() <= 1e-3f * vec.magnitude());
+    }
+
+    {
+        [[maybe_unused]]
+        alignas(32) static volatile float out[3];
+        const shz::vec3                   dir     = shz::vec3(gblRandUniform(-10.0f, 10.0f),
+                                                              gblRandUniform(-10.0f, 10.0f),
+                                                              gblRandUniform(-10.0f, 10.0f));
+        volatile uint16_t                 angle16 = 0x2000;
+        volatile float                    in[7]   = { gblRandUniform(-100.0f, 100.0f),
+                                                      gblRandUniform(-100.0f, 100.0f),
+                                                      gblRandUniform(-100.0f, 100.0f),
+                                                      dir.x, dir.y, dir.z,
+                                                      0x2000 * (1.0f / shz::fsca_rad_factor) };
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec3::rotate(uint16_t)",
+                                  [&](const volatile uint16_t* a, const volatile float* v) {
+                                      const shz::vec3 o = shz::vec3(v[0], v[1], v[2]).rotate(static_cast<uint16_t>(*a), shz::vec3(v[3], v[4], v[5]));
+                                      out[0] = o.x; out[1] = o.y; out[2] = o.z;
+                                  },
+                                  "glm_vec3_rotate",
+                                  [&](const volatile uint16_t*, const volatile float* v) {
+                                      shz_glm_vec3 u, axis;
+                                      u.shz    = shz::vec3(v[0], v[1], v[2]);
+                                      axis.shz = shz::vec3(v[3], v[4], v[5]);
+                                      glm_vec3_rotate(u.glm, v[6], axis.glm);
+                                      out[0] = u.glm[0]; out[1] = u.glm[1]; out[2] = u.glm[2];
+                                  },
+                                  &angle16, &in[0])
+        );
+    }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(vec3RotateDir_u16)
+    for(int i = 0; i < 32; ++i) {
+        const shz::vec3 vec  = vec3RotateRand_();
+        const shz::vec3 axis = shz::vec3(gblRandUniform(-10.0f, 10.0f),
+                                         gblRandUniform(-10.0f, 10.0f),
+                                         gblRandUniform(-10.0f, 10.0f)).normalized();
+        const uint16_t  a16  = static_cast<uint16_t>(gblRandUniform(0.0f, 65535.0f));
+        shz_glm_vec3    ref, ax;
+
+        ref.shz = vec;
+        ax.shz  = axis;
+        glmc_vec3_rotate(ref.glm, a16 * (1.0f / shz::fsca_rad_factor), ax.glm);
+
+        GBL_TEST_VERIFY((vec.rotate_dir(a16, axis) - shz::vec3(ref.shz)).magnitude() <= 1e-3f * vec.magnitude());
+    }
+
+    {
+        [[maybe_unused]]
+        alignas(32) static volatile float out[3];
+        const shz::vec3                   dir     = shz::vec3(gblRandUniform(-10.0f, 10.0f),
+                                                              gblRandUniform(-10.0f, 10.0f),
+                                                              gblRandUniform(-10.0f, 10.0f)).normalized();
+        volatile uint16_t                 angle16 = 0x2000;
+        volatile float                    in[7]   = { gblRandUniform(-100.0f, 100.0f),
+                                                      gblRandUniform(-100.0f, 100.0f),
+                                                      gblRandUniform(-100.0f, 100.0f),
+                                                      dir.x, dir.y, dir.z,
+                                                      0x2000 * (1.0f / shz::fsca_rad_factor) };
+
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<void>)("shz::vec3::rotate_dir(uint16_t)",
+                                  [&](const volatile uint16_t* a, const volatile float* v) {
+                                      const shz::vec3 o = shz::vec3(v[0], v[1], v[2]).rotate_dir(static_cast<uint16_t>(*a), shz::vec3(v[3], v[4], v[5]));
+                                      out[0] = o.x; out[1] = o.y; out[2] = o.z;
+                                  },
+                                  "glm_vec3_rotate",
+                                  [&](const volatile uint16_t*, const volatile float* v) {
+                                      shz_glm_vec3 u, axis;
+                                      u.shz    = shz::vec3(v[0], v[1], v[2]);
+                                      axis.shz = shz::vec3(v[3], v[4], v[5]);
+                                      glm_vec3_rotate(u.glm, v[6], axis.glm);
+                                      out[0] = u.glm[0]; out[1] = u.glm[1]; out[2] = u.glm[2];
+                                  },
+                                  &angle16, &in[0])
+        );
+    }
+GBL_TEST_CASE_END
+
 GBL_TEST_CASE(vec3Orthonormalize)
    auto test = [&](shz::vec3 v1, shz::vec3 v2,
                    shz::vec3 e1, shz::vec3 e2) {
@@ -2707,6 +3177,16 @@ GBL_TEST_REGISTER(vec2Construct,
                   vec3RotateZYX,
                   vec3RotateZXY,
                   vec3RotateYXZ,
+                  vec2Rotate_u16,
+                  vec3RotateX_u16,
+                  vec3RotateY_u16,
+                  vec3RotateZ_u16,
+                  vec3RotateXYZ_u16,
+                  vec3RotateZYX_u16,
+                  vec3RotateZXY_u16,
+                  vec3RotateYXZ_u16,
+                  vec3Rotate_u16,
+                  vec3RotateDir_u16,
                   vec3Orthonormalize,
                   vec3Triple,
                   vec2Reject,

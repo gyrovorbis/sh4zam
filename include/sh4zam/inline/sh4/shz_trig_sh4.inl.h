@@ -36,16 +36,13 @@ SHZ_FORCE_INLINE void shz_sincosf_ftrc_sh4(float units, float* s, float* c) SHZ_
     : "fpul", "fr8", "fr9");
 }
 
+/* GCC's -ffast-math path currently has a bug in it that can
+   misoptimize sinf/cosf() patterns on uint16_t and emit full float
+   conversion code rather than just lds + fsca. Do it ourselves in
+   inline ASM to be safe. */
 SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16_sh4(uint16_t radians16) SHZ_NOEXCEPT {
     float rsin, rcos;
 
-#ifdef __FAST_MATH__
-    const float radians =
-        radians16 * (SHZ_F_TAU / (float)(UINT16_MAX + 1));
-
-    rsin = __builtin_sinf(radians);
-    rcos = __builtin_cosf(radians);
-#else
     asm(R"(
             lds  %2, fpul
             fsca fpul, dr8
@@ -55,7 +52,6 @@ SHZ_FORCE_INLINE shz_sincos_t shz_sincosu16_sh4(uint16_t radians16) SHZ_NOEXCEPT
         : "=&f" (rsin), "=&f" (rcos)
         : "r" (radians16)
         : "fpul", "fr8", "fr9");
-#endif
 
     return SHZ_INIT(shz_sincos_t, rsin, rcos);
 }

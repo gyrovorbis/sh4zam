@@ -1107,9 +1107,9 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_z_xy_sw(float x, float y) SHZ_NOEXCEPT {
     shz_xmtrx_mul4x4_cols_(rot);
 }
 
-SHZ_FORCE_INLINE void shz_xmtrx_rotate_dir_sw(float angle, float x, float y, float z) SHZ_NOEXCEPT {
-    const float s = shz_sinf(angle);
-    const float c = shz_cosf(angle);
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_dir_sw_(shz_sincos_t sc, float x, float y, float z) SHZ_NOEXCEPT {
+    const float s = sc.sin;
+    const float c = sc.cos;
     const float t = 1.0f - c;
 
     const float xs = x * s, ys = y * s, zs = z * s;
@@ -1125,11 +1125,26 @@ SHZ_FORCE_INLINE void shz_xmtrx_rotate_dir_sw(float angle, float x, float y, flo
     shz_xmtrx_mul4x4_cols_(rot);
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_dir_sw(float angle, float x, float y, float z) SHZ_NOEXCEPT {
+    shz_xmtrx_rotate_dir_sw_(shz_sincosf(angle), x, y, z);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_dir_u16_sw(uint16_t radians16, float x, float y, float z) SHZ_NOEXCEPT {
+    shz_xmtrx_rotate_dir_sw_(shz_sincosu16(radians16), x, y, z);
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_rotate_sw(float angle, float x, float y, float z) SHZ_NOEXCEPT {
     float len2 = x * x + y * y + z * z;
     float inv_len = shz_inv_sqrtf(len2);
 
     shz_xmtrx_rotate_dir_sw(angle, x * inv_len, y * inv_len, z * inv_len);
+}
+
+SHZ_FORCE_INLINE void shz_xmtrx_rotate_u16_sw(uint16_t radians16, float x, float y, float z) SHZ_NOEXCEPT {
+    float len2 = x * x + y * y + z * z;
+    float inv_len = shz_inv_sqrtf(len2);
+
+    shz_xmtrx_rotate_dir_u16_sw(radians16, x * inv_len, y * inv_len, z * inv_len);
 }
 
 /* ========== Reverse GL-style API ========== */

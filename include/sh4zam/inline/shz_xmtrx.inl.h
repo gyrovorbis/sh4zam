@@ -1225,6 +1225,22 @@ SHZ_INLINE void shz_xmtrx_rotate_dir(float angle, float x, float y, float z) SHZ
 #endif
 }
 
+SHZ_INLINE void shz_xmtrx_rotate_u16(uint16_t radians16, float x, float y, float z) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_u16_sh4(radians16, x, y, z);
+#else
+    shz_xmtrx_rotate_u16_sw(radians16, x, y, z);
+#endif
+}
+
+SHZ_INLINE void shz_xmtrx_rotate_dir_u16(uint16_t radians16, float x, float y, float z) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_rotate_dir_u16_sh4(radians16, x, y, z);
+#else
+    shz_xmtrx_rotate_dir_u16_sw(radians16, x, y, z);
+#endif
+}
+
 /* ========== Reverse GL Transformations ========== */
 
 SHZ_FORCE_INLINE void shz_xmtrx_translate_reverse(float x, float y, float z) SHZ_NOEXCEPT {

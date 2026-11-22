@@ -521,6 +521,11 @@ union shz_glm_mat4 {
     mat4        glm;
 };
 
+union shz_glm_vec2 {
+    shz::vec2 shz;
+    vec2      glm;
+};
+
 union shz_glm_vec3 {
     shz::vec3 shz;
     vec3      glm;

@@ -578,35 +578,43 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_from_angles_deg(float azimuth, float elevat
     return shz_vec3_from_sincos(shz_sincosf_deg(azimuth), shz_sincosf_deg(elevation));
 }
 
-SHZ_FORCE_INLINE shz_vec2_t shz_vec2_rotate(shz_vec2_t vec, float radians) SHZ_NOEXCEPT {
-    shz_sincos_t sincos = shz_sincosf(radians);
-
-    return shz_vec2_init(vec.x * sincos.cos - vec.y * sincos.sin,
-                         vec.x * sincos.sin + vec.y * sincos.cos);
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_rotate_(shz_vec2_t vec, shz_sincos_t sc) SHZ_NOEXCEPT {
+    return shz_vec2_init(vec.x * sc.cos - vec.y * sc.sin,
+                         vec.x * sc.sin + vec.y * sc.cos);
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_x(shz_vec3_t vec, float radians) SHZ_NOEXCEPT {
-    const shz_sincos_t sc = shz_sincosf(radians);
-
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_x_(shz_vec3_t vec, shz_sincos_t sc) SHZ_NOEXCEPT {
     return shz_vec3_init(vec.x,
                          vec.y * sc.cos - vec.z * sc.sin,
                          vec.y * sc.sin + vec.z * sc.cos);
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_y(shz_vec3_t vec, float radians) SHZ_NOEXCEPT {
-    const shz_sincos_t sc = shz_sincosf(radians);
-
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_y_(shz_vec3_t vec, shz_sincos_t sc) SHZ_NOEXCEPT {
     return shz_vec3_init(vec.x * sc.cos + vec.z * sc.sin,
                          vec.y,
                          vec.z * sc.cos - vec.x * sc.sin);
 }
 
-SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_z(shz_vec3_t vec, float radians) SHZ_NOEXCEPT {
-    const shz_sincos_t sc = shz_sincosf(radians);
-
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_z_(shz_vec3_t vec, shz_sincos_t sc) SHZ_NOEXCEPT {
     return shz_vec3_init(vec.x * sc.cos - vec.y * sc.sin,
                          vec.x * sc.sin + vec.y * sc.cos,
                          vec.z);
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_rotate(shz_vec2_t vec, float radians) SHZ_NOEXCEPT {
+    return shz_vec2_rotate_(vec, shz_sincosf(radians));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_x(shz_vec3_t vec, float radians) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_x_(vec, shz_sincosf(radians));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_y(shz_vec3_t vec, float radians) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_y_(vec, shz_sincosf(radians));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_z(shz_vec3_t vec, float radians) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_z_(vec, shz_sincosf(radians));
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_xyz(shz_vec3_t vec, float xRadians, float yRadians, float zRadians) SHZ_NOEXCEPT {
@@ -627,14 +635,58 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_yxz(shz_vec3_t vec, float yRadians, 
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_dir(shz_vec3_t vec, float angle, shz_vec3_t axis) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
-    return shz_vec3_rotate_dir_sh4(vec, angle, axis);
+    return shz_vec3_rotate_dir_sh4(vec, shz_sincosf(angle), axis);
 #else
-    return shz_vec3_rotate_dir_sw(vec, angle, axis);
+    return shz_vec3_rotate_dir_sw(vec, shz_sincosf(angle), axis);
 #endif
 }
 
 SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate(shz_vec3_t vec, float angle, shz_vec3_t axis) SHZ_NOEXCEPT {
     return shz_vec3_rotate_dir(vec, angle, shz_vec3_normalize(axis));
+}
+
+SHZ_FORCE_INLINE shz_vec2_t shz_vec2_rotate_u16(shz_vec2_t vec, uint16_t radians16) SHZ_NOEXCEPT {
+    return shz_vec2_rotate_(vec, shz_sincosu16(radians16));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_x_u16(shz_vec3_t vec, uint16_t radians16) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_x_(vec, shz_sincosu16(radians16));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_y_u16(shz_vec3_t vec, uint16_t radians16) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_y_(vec, shz_sincosu16(radians16));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_z_u16(shz_vec3_t vec, uint16_t radians16) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_z_(vec, shz_sincosu16(radians16));
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_xyz_u16(shz_vec3_t vec, uint16_t xAngle, uint16_t yAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_x_u16(shz_vec3_rotate_y_u16(shz_vec3_rotate_z_u16(vec, zAngle), yAngle), xAngle);
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_zyx_u16(shz_vec3_t vec, uint16_t zAngle, uint16_t yAngle, uint16_t xAngle) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_z_u16(shz_vec3_rotate_y_u16(shz_vec3_rotate_x_u16(vec, xAngle), yAngle), zAngle);
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_zxy_u16(shz_vec3_t vec, uint16_t zAngle, uint16_t xAngle, uint16_t yAngle) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_z_u16(shz_vec3_rotate_x_u16(shz_vec3_rotate_y_u16(vec, yAngle), xAngle), zAngle);
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_yxz_u16(shz_vec3_t vec, uint16_t yAngle, uint16_t xAngle, uint16_t zAngle) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_y_u16(shz_vec3_rotate_x_u16(shz_vec3_rotate_z_u16(vec, zAngle), xAngle), yAngle);
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_dir_u16(shz_vec3_t vec, uint16_t radians16, shz_vec3_t axis) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_vec3_rotate_dir_sh4(vec, shz_sincosu16(radians16), axis);
+#else
+    return shz_vec3_rotate_dir_sw(vec, shz_sincosu16(radians16), axis);
+#endif
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_u16(shz_vec3_t vec, uint16_t radians16, shz_vec3_t axis) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_dir_u16(vec, radians16, shz_vec3_normalize(axis));
 }
 
 SHZ_INLINE shz_vec2_t shz_vec2_refract(shz_vec2_t incidence, shz_vec2_t normal, float eta) SHZ_NOEXCEPT {

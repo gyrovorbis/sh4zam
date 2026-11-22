@@ -824,6 +824,35 @@ SHZ_INLINE void shz_xmtrx_rotate(float radians, float xAxis, float yAxis, float 
 */
 SHZ_INLINE void shz_xmtrx_rotate_dir(float radians, float x, float y, float z) SHZ_NOEXCEPT;
 
+/*! Equivalent to shz_xmtrx_rotate(), with a 16-bit binary angle (65536 per turn, the FSCA unit).
+
+    For games whose orientations are stored as 16-bit angles. Signed 16-bit angles can be passed
+    as they are. The angle goes to FSCA as given, where shz_xmtrx_rotate() scales radians back
+    to this unit and truncates with FTRC, which can land one unit short. The axis does not need
+    to be normalized.
+
+    \param radians16   Angle of rotation, as a 16-bit binary angle.
+    \param x           X component of the axis of rotation.
+    \param y           Y component of the axis of rotation.
+    \param z           Z component of the axis of rotation.
+
+    \sa shz_xmtrx_rotate(), shz_xmtrx_rotate_dir_u16(), shz_sincosu16()
+*/
+SHZ_INLINE void shz_xmtrx_rotate_u16(uint16_t radians16, float x, float y, float z) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_xmtrx_rotate_dir(), with a 16-bit binary angle.
+
+    \warning The vector components representing the axis of rotation must be prenormalized!
+
+    \param radians16   Angle of rotation, as a 16-bit binary angle.
+    \param x           X component of the unit axis of rotation.
+    \param y           Y component of the unit axis of rotation.
+    \param z           Z component of the unit axis of rotation.
+
+    \sa shz_xmtrx_rotate_dir(), shz_xmtrx_rotate_u16(), shz_sincosu16()
+*/
+SHZ_INLINE void shz_xmtrx_rotate_dir_u16(uint16_t radians16, float x, float y, float z) SHZ_NOEXCEPT;
+
 //!@}
 
 /*! \name  Reverse GL Transformations

@@ -827,6 +827,40 @@ SHZ_INLINE void shz_mat4x4_rotate(shz_mat4x4_t* mat, float radians, float xAxis,
 */
 SHZ_INLINE void shz_mat4x4_rotate_dir(shz_mat4x4_t* mat, float radians, float x, float y, float z) SHZ_NOEXCEPT;
 
+/*! Equivalent to shz_mat4x4_rotate(), with a 16-bit binary angle (65536 per turn, the FSCA unit).
+
+    For games whose orientations are stored as 16-bit angles. Signed 16-bit angles can be passed
+    as they are. The angle goes to FSCA as given, where shz_mat4x4_rotate() scales radians back
+    to this unit and truncates with FTRC, which can land one unit short. The axis does not need
+    to be normalized.
+
+    \warning This routine clobbers XMTRX.
+
+    \param mat         The matrix to rotate in-place.
+    \param radians16   Angle of rotation, as a 16-bit binary angle.
+    \param xAxis       X component of the axis of rotation.
+    \param yAxis       Y component of the axis of rotation.
+    \param zAxis       Z component of the axis of rotation.
+
+    \sa shz_mat4x4_rotate(), shz_mat4x4_rotate_dir_u16(), shz_xmtrx_rotate_u16()
+*/
+SHZ_INLINE void shz_mat4x4_rotate_u16(shz_mat4x4_t* mat, uint16_t radians16, float xAxis, float yAxis, float zAxis) SHZ_NOEXCEPT;
+
+/*! Equivalent to shz_mat4x4_rotate_dir(), with a 16-bit binary angle.
+
+    \warning The vector components representing the axis of rotation must be prenormalized!
+    \warning This routine clobbers XMTRX.
+
+    \param mat         The matrix to rotate in-place.
+    \param radians16   Angle of rotation, as a 16-bit binary angle.
+    \param x           X component of the unit axis of rotation.
+    \param y           Y component of the unit axis of rotation.
+    \param z           Z component of the unit axis of rotation.
+
+    \sa shz_mat4x4_rotate_dir(), shz_mat4x4_rotate_u16(), shz_xmtrx_rotate_dir_u16()
+*/
+SHZ_INLINE void shz_mat4x4_rotate_dir_u16(shz_mat4x4_t* mat, uint16_t radians16, float x, float y, float z) SHZ_NOEXCEPT;
+
 //!@}
 
 /*! \name  Reverse GL Transformations

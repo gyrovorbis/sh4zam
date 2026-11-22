@@ -686,6 +686,26 @@ namespace shz {
             rotate_dir(radians, dir.x, dir.y, dir.z);
         }
 
+        //! C++ wrapper around shz_mat4x4_rotate_u16().
+        SHZ_FORCE_INLINE void rotate(uint16_t radians16, float xAxis, float yAxis, float zAxis) noexcept {
+            shz_mat4x4_rotate_u16(this, radians16, xAxis, yAxis, zAxis);
+        }
+
+        //! C++ wrapper around shz_mat4x4_rotate_u16().
+        SHZ_FORCE_INLINE void rotate(uint16_t radians16, const vec3& axis) noexcept {
+            rotate(radians16, axis.x, axis.y, axis.z);
+        }
+
+        //! C++ wrapper around shz_mat4x4_rotate_dir_u16(). The axis must be prenormalized!
+        SHZ_FORCE_INLINE void rotate_dir(uint16_t radians16, float x, float y, float z) noexcept {
+            shz_mat4x4_rotate_dir_u16(this, radians16, x, y, z);
+        }
+
+        //! C++ wrapper around shz_mat4x4_rotate_dir_u16(). The axis must be prenormalized!
+        SHZ_FORCE_INLINE void rotate_dir(uint16_t radians16, const vec3& dir) noexcept {
+            rotate_dir(radians16, dir.x, dir.y, dir.z);
+        }
+
         //! @}
 
         /*! \name  Reverse GL Transformations
