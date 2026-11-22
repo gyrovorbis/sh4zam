@@ -106,6 +106,15 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec4_dot3_sw(shz_vec4_t l, shz_vec4_t r1, shz_ve
     return res;
 }
 
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_dir_sw(shz_vec3_t vec, float angle, shz_vec3_t axis) SHZ_NOEXCEPT {
+    const shz_sincos_t sc  = shz_sincosf(angle);
+    const float        kdv = (axis.x * vec.x + axis.y * vec.y + axis.z * vec.z) * (1.0f - sc.cos);
+
+    return shz_vec3_init(vec.x * sc.cos + (axis.y * vec.z - axis.z * vec.y) * sc.sin + axis.x * kdv,
+                         vec.y * sc.cos + (axis.z * vec.x - axis.x * vec.z) * sc.sin + axis.y * kdv,
+                         vec.z * sc.cos + (axis.x * vec.y - axis.y * vec.x) * sc.sin + axis.z * kdv);
+}
+
 //! \endcond
 
 #endif

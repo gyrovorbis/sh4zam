@@ -1935,18 +1935,19 @@ GBL_TEST_CASE(rotate)
     }
 
     {
-        volatile mat4 xmtrx = GLM_MAT4_IDENTITY_INIT;
+        volatile mat4  xmtrx = GLM_MAT4_IDENTITY_INIT;
+        volatile float in[4] = { 1.1f, 0.3f, -0.5f, 0.8f };
 
         GBL_TEST_VERIFY(
             (benchmark_cmp<void>)(
-                "shz::xmtrx::rotate", [](float angle, float x, float y, float z) {
-                    shz::xmtrx::rotate(angle, x, y, z);
+                "shz::xmtrx::rotate", [](const volatile float* a) {
+                    shz::xmtrx::rotate(a[0], a[1], a[2], a[3]);
                 },
-                "glm_rotate", [&](float angle, float x, float y, float z) {
-                    volatile vec3 axis = { x, y, z };
-                    glm_rotate(*const_cast<mat4*>(&xmtrx), angle, *const_cast<vec3*>(&axis));
+                "glm_rotate", [&](const volatile float* a) {
+                    volatile vec3 axis = { a[1], a[2], a[3] };
+                    glm_rotate(*const_cast<mat4*>(&xmtrx), a[0], *const_cast<vec3*>(&axis));
                 },
-                1.1f, 0.3f, -0.5f, 0.8f
+                &in[0]
             )
         );
     }

@@ -609,6 +609,34 @@ SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_z(shz_vec3_t vec, float radians) SHZ
                          vec.z);
 }
 
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_xyz(shz_vec3_t vec, float xRadians, float yRadians, float zRadians) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_x(shz_vec3_rotate_y(shz_vec3_rotate_z(vec, zRadians), yRadians), xRadians);
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_zyx(shz_vec3_t vec, float zRadians, float yRadians, float xRadians) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_z(shz_vec3_rotate_y(shz_vec3_rotate_x(vec, xRadians), yRadians), zRadians);
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_zxy(shz_vec3_t vec, float zRadians, float xRadians, float yRadians) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_z(shz_vec3_rotate_x(shz_vec3_rotate_y(vec, yRadians), xRadians), zRadians);
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_yxz(shz_vec3_t vec, float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_y(shz_vec3_rotate_x(shz_vec3_rotate_z(vec, zRadians), xRadians), yRadians);
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate_dir(shz_vec3_t vec, float angle, shz_vec3_t axis) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    return shz_vec3_rotate_dir_sh4(vec, angle, axis);
+#else
+    return shz_vec3_rotate_dir_sw(vec, angle, axis);
+#endif
+}
+
+SHZ_FORCE_INLINE shz_vec3_t shz_vec3_rotate(shz_vec3_t vec, float angle, shz_vec3_t axis) SHZ_NOEXCEPT {
+    return shz_vec3_rotate_dir(vec, angle, shz_vec3_normalize(axis));
+}
+
 SHZ_INLINE shz_vec2_t shz_vec2_refract(shz_vec2_t incidence, shz_vec2_t normal, float eta) SHZ_NOEXCEPT {
     const float dot = shz_vec2_dot(incidence, normal);
     const float k   = 1.0f - eta * eta * (1.0f - dot * dot);

@@ -959,6 +959,18 @@ SHZ_INLINE shz_vec2_t shz_vec2_from_angle_deg(float degrees) SHZ_NOEXCEPT;
 //! Returns the 3D unit vector representing the given rotation angles relative to the positive X axis in degrees.
 SHZ_INLINE shz_vec3_t shz_vec3_from_angles_deg(float azimuth, float elevation) SHZ_NOEXCEPT;
 
+//! @}
+
+/*! \name  Rotations
+    \brief Routines for rotating a given vector.
+
+    \warning
+    These should only be used for one-off rotations, as it's much faster to apply the
+    same rotation against a batch of multiple vectors by going through the XMTRX API.
+
+    @{
+*/
+
 //! Rotates the given 2D vector about the Z axis by the given angle in radians.
 SHZ_INLINE shz_vec2_t shz_vec2_rotate(shz_vec2_t vec, float radians) SHZ_NOEXCEPT;
 
@@ -991,6 +1003,126 @@ SHZ_INLINE shz_vec3_t shz_vec3_rotate_y(shz_vec3_t vec, float radians) SHZ_NOEXC
     \sa shz_xmtrx_rotate_z()
 */
 SHZ_INLINE shz_vec3_t shz_vec3_rotate_z(shz_vec3_t vec, float radians) SHZ_NOEXCEPT;
+
+/*! Rotates the given 3D vector by a X-Y-Z rotation, with the corresponding angles given in radians.
+
+    The result is equivalent to transforming \p vec by the matrix built by shz_xmtrx_init_rotation_xyz().
+
+    \note
+    The given angles are represented as Tait-Bryan angles, representing an intrinsic rotation.
+
+    \warning
+    This routine should only be used for one-off rotations of a single vector.
+    To rotate multiple vectors in a batch, use the XMTRX API.
+
+    \param  vec         The vector to rotate.
+    \param  xRadians    Angle about the X axis, in radians.
+    \param  yRadians    Angle about the Y axis, in radians.
+    \param  zRadians    Angle about the Z axis, in radians.
+    \returns            \p vec rotated by the given angles.
+
+    \sa shz_xmtrx_init_rotation_xyz(), shz_vec3_rotate_x(), shz_vec3_rotate_y(), shz_vec3_rotate_z()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_xyz(shz_vec3_t vec, float xRadians, float yRadians, float zRadians) SHZ_NOEXCEPT;
+
+/*! Rotates the given 3D vector by a Z-Y-X rotation, with the corresponding angles given in radians.
+
+    The result is equivalent to transforming \p vec by the matrix built by shz_xmtrx_init_rotation_zyx().
+
+    \note
+    The given angles are represented as Tait-Bryan angles, representing an intrinsic rotation.
+
+    \warning
+    This routine should only be used for one-off rotations of a single vector.
+    To rotate multiple vectors in a batch, use the XMTRX API.
+
+    \param  vec         The vector to rotate.
+    \param  zRadians    Angle about the Z axis, in radians.
+    \param  yRadians    Angle about the Y axis, in radians.
+    \param  xRadians    Angle about the X axis, in radians.
+    \returns            \p vec rotated by the given angles.
+
+    \sa shz_xmtrx_init_rotation_zyx(), shz_vec3_rotate_x(), shz_vec3_rotate_y(), shz_vec3_rotate_z()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_zyx(shz_vec3_t vec, float zRadians, float yRadians, float xRadians) SHZ_NOEXCEPT;
+
+/*! Rotates the given 3D vector by a Z-X-Y rotation, with the corresponding angles given in radians.
+
+    The result is equivalent to transforming \p vec by the matrix built by shz_xmtrx_init_rotation_zxy().
+
+    \note
+    The given angles are represented as Tait-Bryan angles, representing an intrinsic rotation.
+
+    \warning
+    This routine should only be used for one-off rotations of a single vector.
+    To rotate multiple vectors in a batch, use the XMTRX API.
+
+    \param  vec         The vector to rotate.
+    \param  zRadians    Angle about the Z axis, in radians.
+    \param  xRadians    Angle about the X axis, in radians.
+    \param  yRadians    Angle about the Y axis, in radians.
+    \returns            \p vec rotated by the given angles.
+
+    \sa shz_xmtrx_init_rotation_zxy(), shz_vec3_rotate_x(), shz_vec3_rotate_y(), shz_vec3_rotate_z()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_zxy(shz_vec3_t vec, float zRadians, float xRadians, float yRadians) SHZ_NOEXCEPT;
+
+/*! Rotates the given 3D vector by a Y-X-Z rotation, with the corresponding angles given in radians.
+
+    The result is equivalent to transforming \p vec by the matrix built by shz_xmtrx_init_rotation_yxz().
+
+    \note
+    The given angles are represented as Tait-Bryan angles, representing an intrinsic rotation.
+
+    \warning
+    This routine should only be used for one-off rotations of a single vector.
+    To rotate multiple vectors in a batch, use the XMTRX API.
+
+    \param  vec         The vector to rotate.
+    \param  yRadians    Angle about the Y axis, in radians.
+    \param  xRadians    Angle about the X axis, in radians.
+    \param  zRadians    Angle about the Z axis, in radians.
+    \returns            \p vec rotated by the given angles.
+
+    \sa shz_xmtrx_init_rotation_yxz(), shz_vec3_rotate_x(), shz_vec3_rotate_y(), shz_vec3_rotate_z()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_yxz(shz_vec3_t vec, float yRadians, float xRadians, float zRadians) SHZ_NOEXCEPT;
+
+/*! Rotates the given 3D vector by \p angle radians about the given axis.
+
+    The axis does not need to be normalized.
+
+    \warning
+    This routine should only be used for one-off rotations of a single vector.
+    To rotate multiple vectors in a batch, use the XMTRX API.
+
+    \param  vec     The vector to rotate.
+    \param  angle   Angle of rotation, in radians.
+    \param  axis    Axis of rotation.
+    \returns        \p vec rotated by \p angle about \p axis.
+
+    \sa shz_vec3_rotate_dir(), shz_xmtrx_init_rotation(), shz_vec3_rotate_x(), shz_vec3_rotate_xyz()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate(shz_vec3_t vec, float angle, shz_vec3_t axis) SHZ_NOEXCEPT;
+
+/*! Rotates the given 3D vector by \p angle radians about the given unit-length axis.
+
+    This is a faster version of shz_vec3_rotate() which skips normalizing the axis of rotation.
+
+    \warning The axis of rotation must be prenormalized!
+
+    \warning
+    This routine should only be used for one-off rotations of a single vector.
+    To rotate multiple vectors in a batch, use the XMTRX API.
+
+    \param  vec     The vector to rotate.
+    \param  angle   Angle of rotation, in radians.
+    \param  axis    Unit-length axis of rotation.
+    \returns        \p vec rotated by \p angle about \p axis.
+
+    \sa shz_vec3_rotate(), shz_xmtrx_init_rotation_dir()
+*/
+SHZ_INLINE shz_vec3_t shz_vec3_rotate_dir(shz_vec3_t vec, float angle, shz_vec3_t axis) SHZ_NOEXCEPT;
 
 //! @}
 

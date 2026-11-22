@@ -934,7 +934,9 @@ GBL_TEST_CASE(to_quat)
         return shzQuat == glmQuat;
     };
 
-    shz_glm_mat4 mat;
+    shz_glm_mat4                 mat;
+    const shz_glm_mat4* volatile matp = &mat;
+
     mat.shz.init_identity();
     GBL_TEST_VERIFY(test(mat));
     mat.shz.init_rotation_x(shz::deg_to_rad(90.0f));
@@ -947,15 +949,15 @@ GBL_TEST_CASE(to_quat)
 
     GBL_TEST_VERIFY(
         (benchmark_cmp<shz::quat>)(
-            "shz::mat4x4::to_quat", [](const shz_glm_mat4& mat) {
-               return mat.shz.to_quat();
+            "shz::mat4x4::to_quat", [](const shz_glm_mat4* const volatile* pp) {
+               return (*pp)->shz.to_quat();
             },
-            "glm_mat4_quat", [](const shz_glm_mat4& mat) {
+            "glm_mat4_quat", [](const shz_glm_mat4* const volatile* pp) {
                 versor glmQuat;
-                glm_mat4_quat(const_cast<mat4&>(mat.glm), glmQuat);
+                glm_mat4_quat(const_cast<mat4&>((*pp)->glm), glmQuat);
                 return shz_quat_init(glmQuat[3], glmQuat[0], glmQuat[1], glmQuat[2]);
             },
-            mat
+            &matp
         )
     );
 GBL_TEST_CASE_END

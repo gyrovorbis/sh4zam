@@ -575,15 +575,24 @@ GBL_TEST_CASE(transform_vec3)
     GBL_TEST_VERIFY(cross_check(shz::quat::from_rotation_xyz(0.5f, 1.0f, 1.5f), {3.0f, -1.0f, 0.0f}));
     GBL_TEST_VERIFY(cross_check(shz::quat::from_rotation_xyz(0.3f, 0.7f, 0.2f), {0.0f, 1.0f, -1.0f}));
     {
+        const shz::quat q     = shz::quat::from_rotation_xyz(0.0f, 1.0f, 2.0f);
+        volatile float  in[7] = { q.x, q.y, q.z, q.w,
+                                  gblRandUniform(-100.0f, 100.0f),
+                                  gblRandUniform(-100.0f, 100.0f),
+                                  gblRandUniform(-100.0f, 100.0f) };
+
         GBL_TEST_VERIFY(
             (benchmark_cmp<shz::vec3>)("shz::quat::transform(shz::vec3)",
-                                       [](const shz::quat& q, const shz::vec3& v) {
-                                            return q * v;
+                                       [](const volatile float* a) {
+                                            return shz::quat(a[3], a[0], a[1], a[2]) * shz::vec3(a[4], a[5], a[6]);
                                        },
                                        "Vector3RotateByQuaternion",
-                                       bench_fn(raylibVector3RotateByQuaternion),
-                                       shz::quat::from_rotation_xyz(0.0f, 1.0f, 2.0f),
-                                       shz::vec3{ gblRandf(), gblRandf(), gblRandf() })
+                                       [](const volatile float* a) {
+                                            shz::quat q(a[3], a[0], a[1], a[2]);
+                                            shz::vec3 v(a[4], a[5], a[6]);
+                                            return shz::vec3(raylibVector3RotateByQuaternion(q, v));
+                                       },
+                                       &in[0])
         );
     }
 GBL_TEST_CASE_END
