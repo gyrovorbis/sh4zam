@@ -2888,6 +2888,8 @@ GBL_TEST_CASE(screen)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(lookat)
+    volatile float in[9] = { 1.0f, 2.0f, 5.0f, 0.0f, 0.5f, -1.0f, 0.0f, 1.0f, 0.0f };
+
     auto test = [](shz::vec3 eye, shz::vec3 center, shz::vec3 up) {
         shz::mat4x4 shzMat, cglmMat;
 
@@ -2910,10 +2912,59 @@ GBL_TEST_CASE(lookat)
         return shzMat == cglmMat;
     };
 
+    auto test_projection = [](shz::vec3 eye, shz::vec3 center, shz::vec3 up) {
+        union {
+            alignas(32) mat4 glm;
+            shz::mat4x4      shz;
+        } proj, look, expected;
+        alignas(32) shz::mat4x4 actual;
+
+        shz::xmtrx::init_identity();
+        shz::xmtrx::perspective(shz::deg_to_rad(60.0f), 640.0f / 480.0f, 0.5f);
+        shz::xmtrx::store(&proj.shz);
+        shz::xmtrx::lookat(eye, center, up);
+        shz::xmtrx::store(&actual);
+
+        glm_lookat_rh(*reinterpret_cast<vec3*>(&eye),
+                      *reinterpret_cast<vec3*>(&center),
+                      *reinterpret_cast<vec3*>(&up),
+                      look.glm);
+        glm_mat4_mul(proj.glm, look.glm, expected.glm);
+
+        for(unsigned i = 0; i < 4; ++i) {
+            for(unsigned j = 0; j < 4; ++j) {
+                if(!shz_equalf(actual.elem2D[i][j], expected.shz.elem2D[i][j]))
+                    std::print("[{}][{}]: {} != {} ", j, i, actual.elem2D[i][j], expected.shz.elem2D[i][j]);
+            }
+        }
+
+        return actual == expected.shz;
+    };
+
     GBL_TEST_VERIFY(test({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }));
     GBL_TEST_VERIFY(test({ 0.0f, 0.0f, 5.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }));
     GBL_TEST_VERIFY(test({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 2.0f, 0.0f }));
     GBL_TEST_VERIFY(test({ 5.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }));
+
+    GBL_TEST_VERIFY(test_projection({ 0.0f, 0.0f, 5.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }));
+    GBL_TEST_VERIFY(test_projection({ 5.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }));
+    GBL_TEST_VERIFY(test_projection({ 1.0f, 2.0f, 5.0f }, { 0.0f, 0.5f, -1.0f }, { 0.0f, 1.0f, 0.0f }));
+    GBL_TEST_VERIFY(test_projection({ -3.0f, 4.0f, -2.0f }, { 1.0f, 0.0f, 2.0f }, { 0.0f, 0.0f, 1.0f }));
+
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::lookat", [](const volatile float* v) {
+            shz::xmtrx::lookat({ v[0], v[1], v[2] }, { v[3], v[4], v[5] }, { v[6], v[7], v[8] });
+        },
+        "glm_lookat_rh + glm_mat4_mul", [](const volatile float* v) {
+            static volatile mat4 m;
+            alignas(16) mat4     look;
+            vec3 eye    = { v[0], v[1], v[2] };
+            vec3 center = { v[3], v[4], v[5] };
+            vec3 up     = { v[6], v[7], v[8] };
+            glm_lookat_rh(eye, center, up, look);
+            glm_mat4_mul(*const_cast<mat4*>(&m), look, *const_cast<mat4*>(&m));
+        },
+        &in[0]));
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(load_3x4)

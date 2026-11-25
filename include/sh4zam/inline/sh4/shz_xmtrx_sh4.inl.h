@@ -3689,16 +3689,16 @@ SHZ_INLINE void shz_xmtrx_rotate_u16_sh4(uint16_t radians16, float x, float y, f
 }
 
 SHZ_INLINE void shz_xmtrx_init_rotation_quat_sh4(shz_quat_t q) SHZ_NOEXCEPT {
-    register float x asm("fr12") = q.x;
-    register float y asm("fr13") = q.y;
-    register float z asm("fr14") = q.z;
-    register float w asm("fr15") = q.w;
+    register float x asm("fr4") = q.x;
+    register float y asm("fr5") = q.y;
+    register float z asm("fr6") = q.z;
+    register float w asm("fr7") = q.w;
 
     asm volatile(R"(
         fschg
-        fmov    dr12, xd12
+        fmov    dr4, xd12
         frchg
-        fmov    xd14, dr14
+        fmov    xd6, dr14
         fschg
         fmov    fr13, fr7
         fadd    fr13, fr7
@@ -3854,18 +3854,19 @@ SHZ_INLINE void shz_xmtrx_transpose_sh4(void) SHZ_NOEXCEPT {
 SHZ_INLINE void shz_xmtrx_lookat_sh4(shz_vec3_t eye,
                                      shz_vec3_t center,
                                      shz_vec3_t up) SHZ_NOEXCEPT {
+    register float fr8  asm("fr8")  = center.x;
+    register float fr9  asm("fr9")  = center.y;
+    register float fr10 asm("fr10") = center.z;
+
+    register float fr12 asm("fr12") = eye.x;
+    register float fr13 asm("fr13") = eye.y;
+    register float fr14 asm("fr14") = eye.z;
+
+    register float fr4 asm("fr4") = up.x;
+    register float fr5 asm("fr5") = up.y;
+    register float fr6 asm("fr6") = up.z;
+
     asm volatile(R"(
-        fmov.s  @%[t]+, fr8
-        fmov.s  @%[t]+, fr9
-        fmov.s  @%[t]+, fr10
-        add     #-12, %[t]
-
-        fmov.s  @%[p]+, fr12
-        fmov.s  @%[p]+, fr13
-        fmov.s  @%[p]+, fr14
-        add     #-12, %[p]
-        fldi0   fr15
-
         /* z = position - target */
         fneg    fr8
         fadd    fr12, fr8
@@ -3875,11 +3876,6 @@ SHZ_INLINE void shz_xmtrx_lookat_sh4(shz_vec3_t eye,
         fadd    fr14, fr10
         fldi0   fr11
         fipr    fv8, fv8
-
-        fmov.s  @%[u]+, fr4
-        fmov.s  @%[u]+, fr5
-        fmov.s  @%[u]+, fr6
-        add     #-12, %[u]
 
         fsrra   fr11
         fmul    fr11, fr8
@@ -3903,9 +3899,8 @@ SHZ_INLINE void shz_xmtrx_lookat_sh4(shz_vec3_t eye,
         fmov    fr5, fr15
         fmul    fr8, fr15
         fsub    fr3, fr1
-        fsub    fr15, fr2
         fldi0   fr3
-        fldi0   fr15
+        fsub    fr15, fr2
         fipr    fv0, fv0
 
         fsrra   fr3
@@ -3930,9 +3925,8 @@ SHZ_INLINE void shz_xmtrx_lookat_sh4(shz_vec3_t eye,
         fmov    fr9, fr15
         fmul    fr0, fr15
         fsub    fr7, fr5
-        fsub    fr15, fr6
-
         fldi0   fr7
+        fsub    fr15, fr6
         fldi0   fr15
         fipr    fv12, fv4
 
@@ -3945,33 +3939,32 @@ SHZ_INLINE void shz_xmtrx_lookat_sh4(shz_vec3_t eye,
         fldi1   fr15
         ftrv    xmtrx, fv12
 
-        fmov    fr1, fr15
+        fmov    fr1, fr11
         fmov    fr2, fr3
         fmov    fr6, fr7
 
         fmov    fr4, fr1
         fmov    fr8, fr2
-        fmov    fr15, fr4
-        fmov    fr9, fr15
+        fmov    fr11, fr4
+        fmov    fr9, fr11
         fmov    fr3, fr8
         fmov    fr7, fr9
 
         fldi0   fr3
-        fldi0   fr7
-        fmov    fr15, fr6
         ftrv    xmtrx, fv0
-        fldi0   fr11
+        fldi0   fr7
+        fmov    fr11, fr6
         ftrv    xmtrx, fv4
-        fldi1   fr15
+        fldi0   fr11
         ftrv    xmtrx, fv8
 
         frchg
     )"
+    : "+f" (fr4), "+f" (fr5), "+f" (fr6),
+      "+f" (fr8), "+f" (fr9), "+f" (fr10),
+      "+f" (fr12), "+f" (fr13), "+f" (fr14)
     :
-    : [p] "u"(&eye), [t] "u"(&center), [u] "u"(&up),
-      "m" (eye), "m" (center), "m" (up)
-    : "fr0", "fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7",
-      "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15");
+    : "fr0", "fr1", "fr2", "fr3", "fr7", "fr11", "fr15");
 }
 
 
