@@ -241,6 +241,14 @@ SHZ_FORCE_INLINE void shz_xmtrx_store_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
 #endif
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_store_aligned32_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
+#if SHZ_BACKEND == SHZ_SH4
+    shz_xmtrx_store_aligned32_4x4_sh4(matrix);
+#else
+    shz_xmtrx_store_aligned32_4x4_sw(matrix);
+#endif
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_store_aligned4_4x4(float matrix[16]) SHZ_NOEXCEPT {
 #if SHZ_BACKEND == SHZ_SH4
     shz_xmtrx_store_aligned4_4x4_sh4(matrix);

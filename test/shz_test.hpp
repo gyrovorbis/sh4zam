@@ -8,6 +8,8 @@
 #include <print>
 #include <chrono>
 #include <array>
+#include <tuple>
+#include <functional>
 #include <bit>
 #include <cmath>
 #include <cstdint>
@@ -24,6 +26,10 @@
 
 #define BENCHMARK_ITERATION_MATCHES     3
 #define BENCHMARK_CMP_ROUNDS            4
+
+#ifndef BENCHMARK_PC2_UNCACHED_MODE
+#   define BENCHMARK_PC2_UNCACHED_MODE  PMCR_PIPELINE_FREEZE_BY_DCACHE_MISS_MODE
+#endif
 
 #if SHZ_TARGET == SHZ_SH4
 #   define PERF_CNTR       PRFC1
@@ -47,16 +53,9 @@
 #   define PMCTR_HIGH(o) ( *(reinterpret_cast<volatile uint32_t *>(0xff100004) + (o << 1)) )
 #   define PMCTR_LOW(o)  ( *(reinterpret_cast<volatile uint32_t *>(0xff100008) + (o << 1)) )
 
-SHZ_FORCE_INLINE void PERF_CNTR_START() {
-    PMCR_CTRL(PERF_CNTR) = PMCR_CLR | PMCR_RUN
-                         | (PMCR_COUNT_CPU_CYCLES << PMCR_PMCLK_SHIFT)
-                         | PMCR_ELAPSED_TIME_MODE;
-}
-
-SHZ_FORCE_INLINE uint64_t PERF_CNTR_STOP() {
-    PMCR_CTRL(PERF_CNTR) &= ~PMCR_RUN;
-    return ((static_cast<uint64_t>(PMCTR_HIGH(PERF_CNTR) & 0xfff) << 32) |
-            PMCTR_LOW(PERF_CNTR));
+SHZ_FORCE_INLINE uint64_t PERF_CNTR_READ(unsigned o) {
+    return ((static_cast<uint64_t>(PMCTR_HIGH(o) & 0xfff) << 32) |
+            PMCTR_LOW(o));
 }
 
 /* PRFC0: dual-purpose second counter.
@@ -70,18 +69,6 @@ SHZ_FORCE_INLINE uint64_t PERF_CNTR_STOP() {
    read ~0 -- so instead we measure PARALLEL_INSTRUCTION_ISSUED_MODE there,
    which gives a direct hardware count of dual-issued instructions, rather
    than inferring it indirectly from disassembly and address arithmetic. */
-SHZ_FORCE_INLINE void PERF_CNTR2_START(perf_cntr_event_t event) {
-    PMCR_CTRL(PERF_CNTR2) = PMCR_CLR | PMCR_RUN
-                          | (PMCR_COUNT_CPU_CYCLES << PMCR_PMCLK_SHIFT)
-                          | event;
-}
-
-SHZ_FORCE_INLINE uint64_t PERF_CNTR2_STOP() {
-    PMCR_CTRL(PERF_CNTR2) &= ~PMCR_RUN;
-    return ((static_cast<uint64_t>(PMCTR_HIGH(PERF_CNTR2) & 0xfff) << 32) |
-            PMCTR_LOW(PERF_CNTR2));
-}
-
 #endif
 
 namespace {
@@ -127,9 +114,52 @@ struct benchmark_stats {
 #   define BENCHMARK_NO_ICF
 #endif
 
+template<typename P>
+struct benchmark_result_of {
+    using type = std::remove_cvref_t<decltype(*std::declval<P>())>;
+};
+
+template<>
+struct benchmark_result_of<std::nullptr_t> {
+    using type = void;
+};
+
+template<typename R>
+struct benchmark_result_slot {
+    R value;
+};
+
+template<>
+struct benchmark_result_slot<void> {};
+
+template<typename T>
+using benchmark_arg_t = std::conditional_t<std::is_copy_constructible_v<std::decay_t<T>>,
+                                           std::decay_t<T>,
+                                           std::reference_wrapper<std::remove_reference_t<T>>>;
+
+template<typename T>
+SHZ_FORCE_INLINE T& benchmark_unwrap(T& arg) noexcept {
+    return arg;
+}
+
+template<typename T>
+SHZ_FORCE_INLINE T& benchmark_unwrap(std::reference_wrapper<T>& arg) noexcept {
+    return arg.get();
+}
+
+template<typename R, typename... Ts>
+struct alignas(32) benchmark_frame {
+    std::tuple<Ts...>                              args;
+    [[no_unique_address]] benchmark_result_slot<R> result;
+};
+
 template<bool CacheFlush, unsigned Copy = 0, typename... Args>
 SHZ_NO_INLINE BENCHMARK_NO_ICF SHZ_FUNC_ALIGNAS(32) SHZ_NO_UNROLL_LOOPS
 benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noexcept {
+    using result_t = typename benchmark_result_of<decltype(res)>::type;
+
+    benchmark_frame<result_t, benchmark_arg_t<Args>...> frame { std::tuple<benchmark_arg_t<Args>...>(std::forward<Args>(args)...), {} };
+
     uint64_t tmu_sum    = 0;
     uint64_t flush_sum  = 0;
     uint64_t sum        = 0;
@@ -166,14 +196,6 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
                 SHZ_INSTR_BARRIER();
                 uint64_t flush_start = ns_gettime64();
                 SHZ_INSTR_BARRIER();
-                /* The icache is direct-mapped (arch/cache.h), so any
-                   contiguous range >= its size hits every index exactly
-                   once -- invalidating the whole cache. Passing the full
-                   .text range here instead re-invalidates those same
-                   256 entries hundreds of times over (2.5MB / 32B is
-                   ~81000 loop iterations vs. the 256 actually needed),
-                   and dominates UNCACHED benchmark wall time for no
-                   benefit: the end state is identical either way. */
 #   if KOS_VERSION_BELOW(2, 3, 0)
                 icache_flush_range(reinterpret_cast<uintptr_t>(&_executable_start),
                                    8 * 1024);
@@ -189,26 +211,56 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
 #endif
 
         SHZ_INSTR_BARRIER();
+
 #if SHZ_TARGET == SHZ_SH4
-        PERF_CNTR_START();
-        if constexpr(CacheFlush)
-            PERF_CNTR2_START(PMCR_PIPELINE_FREEZE_BY_DCACHE_MISS_MODE);
-        else
-            PERF_CNTR2_START(PMCR_PARALLEL_INSTRUCTION_ISSUED_MODE);
-        SHZ_INSTR_BARRIER();
+        volatile uint16_t* pmcr1  = &PMCR_CTRL(PERF_CNTR);
+        volatile uint16_t* pmcr2  = &PMCR_CTRL(PERF_CNTR2);
+        uint16_t           start1 = PMCR_CLR | PMCR_RUN
+                                  | (PMCR_COUNT_CPU_CYCLES << PMCR_PMCLK_SHIFT)
+                                  | PMCR_ELAPSED_TIME_MODE;
+        uint16_t           start2 = PMCR_CLR | PMCR_RUN
+                                  | (PMCR_COUNT_CPU_CYCLES << PMCR_PMCLK_SHIFT)
+                                  | (CacheFlush? BENCHMARK_PC2_UNCACHED_MODE
+                                               : PMCR_PARALLEL_INSTRUCTION_ISSUED_MODE);
+        uint16_t           stop1  = start1 & ~(PMCR_CLR | PMCR_RUN);
+        uint16_t           stop2  = start2 & ~(PMCR_CLR | PMCR_RUN);
+
+        /* Caching perf counter constants and addresses so that they don't need to be
+           fetched from the dcache within the harness, polluting our readings. */
+        asm volatile("" : "+r"(pmcr1), "+r"(pmcr2), "+r"(start1), "+r"(start2), "+r"(stop1), "+r"(stop2));
+        // Align the functin-under-test to an icache line boundary on SH4 for fairness.
+        asm volatile(R"(
+            .balign 32;;;;;;;;;;;;;;;
+            mov.w   %[s1], @%[p1]
+            mov.w   %[s2], @%[p2]
+        )"
+        :
+        : [p1] "r"(pmcr1), [p2] "r"(pmcr2), [s1] "r"(start1), [s2] "r"(start2)
+        : "memory");
 #endif
-        [](auto r, auto&& fn, auto&&... fargs) {
-            if constexpr(std::same_as<decltype(r), std::nullptr_t>)
-                fn(std::forward<decltype(fargs)>(fargs)...);
-            else if constexpr(std::is_class_v<std::remove_cvref_t<decltype(*r)>>)
-                [[maybe_unused]] auto tmp = *r = fn(std::forward<decltype(fargs)>(fargs)...);
-            else
-                *r = fn(std::forward<decltype(fargs)>(fargs)...);
-        }(std::forward<decltype(res)>(res), std::forward<decltype(function)>(function), std::forward<decltype(args)>(args)...);
+
+        asm volatile("" : "+m"(frame.args));
+
+        if constexpr(std::is_void_v<result_t>) {
+            std::apply([&](auto&... a) { function(benchmark_unwrap(a)...); }, frame.args);
+        } else {
+            frame.result.value = std::apply([&](auto&... a) { return function(benchmark_unwrap(a)...); }, frame.args);
+            asm volatile("" : : "m"(frame.result.value));
+        }
+
         SHZ_INSTR_BARRIER();
 #if SHZ_TARGET == SHZ_SH4
-        uint64_t perfctr_cnt = PERF_CNTR_STOP();
-        uint64_t pc2_cnt     = PERF_CNTR2_STOP();
+
+        asm volatile(R"(
+            mov.w   %[s1], @%[p1]
+            mov.w   %[s2], @%[p2]
+        )"
+        :
+        : [p1] "r"(pmcr1), [p2] "r"(pmcr2), [s1] "r"(stop1), [s2] "r"(stop2)
+        : "memory");
+
+        uint64_t perfctr_cnt = PERF_CNTR_READ(PERF_CNTR);
+        uint64_t pc2_cnt     = PERF_CNTR_READ(PERF_CNTR2);
 #endif
         SHZ_INSTR_BARRIER();
 
@@ -239,6 +291,13 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
         }
 #endif
         SHZ_INSTR_BARRIER();
+    }
+
+    if constexpr(!std::is_void_v<result_t>) {
+        if constexpr(std::is_class_v<result_t>)
+            [[maybe_unused]] auto tmp = *res = frame.result.value;
+        else
+            *res = frame.result.value;
     }
 
     SHZ_INSTR_BARRIER();
@@ -331,8 +390,8 @@ struct benchmark_tolerance {
     float    clearCached   = 0.08f;
     uint64_t absCached     = 10;
     float    pctUncached   = 0.05f;
-    float    clearUncached = 0.20f;
-    uint64_t absUncached   = 24;
+    float    clearUncached = 0.08f;
+    uint64_t absUncached   = 10;
 };
 
 template<typename R, bool Quiet = false, benchmark_tolerance Tol = benchmark_tolerance{},
@@ -479,10 +538,10 @@ bool benchmark_cmp(const char* shzName, ShzFn&& shzFn,
         gainz = SHZ_BENCHMARK_GAINZ;
     } else if(cacheAxis == NOISE && uncacheAxis == NOISE) {
         gainz = SHZ_BENCHMARK_APPROX;
-    } else if((cacheAxis == BETTER && uncacheAxis == WORSE) || (cacheAxis == WORSE && uncacheAxis == BETTER)) {
-        gainz = SHZ_BENCHMARK_SKETCH;
-    } else {
+    } else if(cacheAxis == WORSE && uncacheAxis != BETTER) {
         gainz = SHZ_BENCHMARK_LOSSEZ;
+    } else {
+        gainz = SHZ_BENCHMARK_SKETCH;
     }
 
     benchmark_cmp_last.uncachedGainz = uncacheGainz;

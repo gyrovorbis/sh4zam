@@ -1138,10 +1138,7 @@ SHZ_INLINE void shz_mat4x4_copy(shz_mat4x4_t* dst, const shz_mat4x4_t* src) SHZ_
 */
 SHZ_INLINE void shz_mat4x4_copy_unaligned(shz_mat4x4_t* dst, const float src[16]) SHZ_NOEXCEPT;
 
-/*! Swaps the contents of the two given matrices, \p matA and \p matB.
-
-    \warning This routine clobbers XMTRX.
-*/
+//! Swaps the contents of the two given matrices, \p matA and \p matB.
 SHZ_INLINE void shz_mat4x4_swap(shz_mat4x4_t* matA, shz_mat4x4_t* matB) SHZ_NOEXCEPT;
 
 /*! Adds and accumulates a scaled 4x4 matrix into the given matrix.

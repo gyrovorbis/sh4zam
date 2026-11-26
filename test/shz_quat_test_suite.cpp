@@ -107,6 +107,161 @@ namespace {
           [](const shz::quat& q) { return q.to_angles_yxz(); },
           { { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } } },
     };
+
+    GBL_RESULT verify_from_rotation(GblTestSuite* pSelf, const euler_order& order) {
+        const float angles[][3] = {
+            {  0.0f,          0.0f,          0.0f         },
+            {  shz::pi_f_2,   0.0f,          0.0f         },
+            {  0.0f,          shz::pi_f_2,   0.0f         },
+            {  0.0f,          0.0f,          shz::pi_f_2  },
+            { -shz::pi_f_2,   shz::pi_f_2,  -shz::pi_f_2  },
+            {  shz::pi_f,     0.0f,          0.0f         },
+            {  0.0f,          shz::pi_f,     0.0f         },
+            {  0.0f,          0.0f,          shz::pi_f    },
+            {  shz::pi_f,     shz::pi_f_2,  -shz::pi_f_2  },
+            {  0.3f,         -1.2f,          2.5f         },
+            { -2.9f,          0.7f,         -0.4f         },
+            {  5.0f,         -4.0f,          3.5f         },
+        };
+
+        GBL_CTX_BEGIN(pSelf);
+
+        GBL_TEST_VERIFY(order.from_rotation(0.0f, 0.0f, 0.0f) == shz::quat::identity());
+
+        for(const auto& a : angles) {
+            const shz::quat q = order.from_rotation(a[0], a[1], a[2]);
+
+            shz::mat4x4 expected, actual;
+            order.mat_init(&expected, a[0], a[1], a[2]);
+            actual.init_rotation(q);
+            GBL_TEST_VERIFY(actual == expected);
+            GBL_TEST_VERIFY(shz::fabsf(max_element_error(actual, expected)) <= 2e-3f);
+
+            const shz::quat product = shz::quat::from_axis_angle(order.axes[0], a[0]) *
+                                      shz::quat::from_axis_angle(order.axes[1], a[1]) *
+                                      shz::quat::from_axis_angle(order.axes[2], a[2]);
+            GBL_TEST_VERIFY(q == product);
+
+            GBL_TEST_VERIFY(shz_equalf(q.magnitude(), 1.0f));
+        }
+
+        for(unsigned i = 0; i < 3; ++i) {
+            float a[3] = { 0.0f, 0.0f, 0.0f };
+            a[i] = shz::pi_f / 3.0f;
+            GBL_TEST_VERIFY(order.from_rotation(a[0], a[1], a[2]) ==
+                            shz::quat::from_axis_angle(order.axes[i], shz::pi_f / 3.0f));
+        }
+
+        GBL_CTX_END();
+    }
+
+    GBL_RESULT verify_from_rotation_u16(GblTestSuite* pSelf, const euler_order& order) {
+        const uint16_t angles[][3] = {
+            { 0x0000, 0x0000, 0x0000 },
+            { 0x4000, 0x0000, 0x0000 },
+            { 0x0000, 0x4000, 0x0000 },
+            { 0x0000, 0x0000, 0x4000 },
+            { 0xc000, 0x4000, 0xc000 },
+            { 0x8000, 0x0000, 0x0000 },
+            { 0x0000, 0x8000, 0x0000 },
+            { 0x0000, 0x0000, 0x8000 },
+            { 0x8000, 0x4000, 0xc000 },
+            { 0x04d2, 0xfedc, 0x7fff },
+            { 0x0001, 0xffff, 0x8001 },
+            { 0x2aaa, 0x9c40, 0x5555 },
+        };
+
+        GBL_CTX_BEGIN(pSelf);
+
+        GBL_TEST_VERIFY(order.from_rotation_u16(0, 0, 0) == shz::quat::identity());
+
+        for(const auto& a : angles) {
+            const float x = u16_to_radians(a[0]);
+            const float y = u16_to_radians(a[1]);
+            const float z = u16_to_radians(a[2]);
+
+            const shz::quat q = order.from_rotation_u16(a[0], a[1], a[2]);
+
+            GBL_TEST_VERIFY(same_rotation(q, order.from_rotation(x, y, z)));
+
+            shz::mat4x4 expected, actual;
+            order.mat_init(&expected, x, y, z);
+            actual.init_rotation(q);
+            GBL_TEST_VERIFY(actual == expected);
+            GBL_TEST_VERIFY(shz::fabsf(max_element_error(actual, expected)) <= 2e-3f);
+
+            GBL_TEST_VERIFY(shz_equalf(q.magnitude(), 1.0f));
+        }
+
+        GBL_CTX_END();
+    }
+
+    GBL_RESULT verify_to_angles(GblTestSuite* pSelf, const euler_order& order) {
+        auto near = [](float a, float b) {
+            return shz::fabsf(a - b) <= 3e-2f;
+        };
+
+        const float outers[]  = { -3.0f, -1.7f, -0.4f, 0.0f, 0.9f, 2.2f, 3.0f };
+        const float middles[] = { -1.4f, -0.8f, -0.2f, 0.0f, 0.5f, 1.1f, 1.4f };
+        const float locks[]   = { shz::pi_f_2, -shz::pi_f_2 };
+
+        GBL_CTX_BEGIN(pSelf);
+
+        GBL_TEST_VERIFY(order.to_angles(shz::quat::identity()) == shz::vec3(0.0f, 0.0f, 0.0f));
+
+        for(unsigned i = 0; i < 3; ++i) {
+            for(float angle : { 0.6f, -1.2f }) {
+                const auto r = order.to_angles(shz::quat::from_axis_angle(order.axes[i], angle));
+
+                for(unsigned j = 0; j < 3; ++j)
+                    GBL_TEST_VERIFY(near(r[j], (i == j)? angle : 0.0f));
+            }
+        }
+
+        for(float a : outers) {
+            for(float b : middles) {
+                for(float c : outers) {
+                    const auto q = order.from_rotation(a, b, c);
+                    const auto r = order.to_angles(q);
+
+                    GBL_TEST_VERIFY(near(r.x, a));
+                    GBL_TEST_VERIFY(near(r.y, b));
+                    GBL_TEST_VERIFY(near(r.z, c));
+                    GBL_TEST_VERIFY(same_rotation(order.from_rotation(r.x, r.y, r.z), q));
+                }
+            }
+        }
+
+        for(float b : locks) {
+            for(float a : outers) {
+                for(float c : outers) {
+                    const auto q = order.from_rotation(a, b, c);
+                    const auto r = order.to_angles(q);
+
+                    GBL_TEST_VERIFY(near(r.y, b));
+                    GBL_TEST_VERIFY(same_rotation(order.from_rotation(r.x, r.y, r.z), q));
+                }
+            }
+        }
+
+        GBL_CTX_END();
+    }
+
+    shz::quat glm_euler_quat(auto euler, float x, float y, float z) {
+        vec3   angles = { x, y, z };
+        versor v;
+        euler(angles, v);
+        return shz::quat(v[3], v[0], v[1], v[2]);
+    }
+
+    shz::vec3 glm_to_angles_xyz(const shz::quat& q) {
+        versor       v = { q.x, q.y, q.z, q.w };
+        mat4         m;
+        shz_glm_vec3 r;
+        glm_quat_mat4(v, m);
+        glm_euler_angles(m, r.glm);
+        return r.shz;
+    }
 }
 
 GBL_TEST_CASE(identity)
@@ -161,137 +316,103 @@ GBL_TEST_CASE(from_axis_angle)
     }
 GBL_TEST_CASE_END
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-GBL_TEST_CASE(from_angles_xyz)
-    // all-zero angles yield identity
-    GBL_TEST_VERIFY(shz::quat::from_angles_xyz(0.0f, 0.0f, 0.0f) == shz::quat::identity());
+GBL_TEST_CASE(from_rotation_xyz)
+    GBL_TEST_CALL(verify_from_rotation(GBL_SELF_TYPE_NAME, euler_orders[0]));
 
-    // single-axis 180° must agree with from_axis_angle
-    GBL_TEST_VERIFY(shz::quat::from_angles_xyz(shz::pi_f,   0.0f,        0.0f       ) ==
-                    shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, shz::pi_f));
-    GBL_TEST_VERIFY(shz::quat::from_angles_xyz(0.0f,        shz::pi_f,   0.0f       ) ==
-                    shz::quat::from_axis_angle({0.0f, 1.0f, 0.0f}, shz::pi_f));
-    GBL_TEST_VERIFY(shz::quat::from_angles_xyz(0.0f,        0.0f,        shz::pi_f  ) ==
-                    shz::quat::from_axis_angle({0.0f, 0.0f, 1.0f}, shz::pi_f));
-
-    // single-axis 90° must agree with from_axis_angle
-    GBL_TEST_VERIFY(shz::quat::from_angles_xyz(shz::pi_f_2, 0.0f,        0.0f       ) ==
-                    shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, shz::pi_f_2));
-    GBL_TEST_VERIFY(shz::quat::from_angles_xyz(0.0f,        shz::pi_f_2, 0.0f       ) ==
-                    shz::quat::from_axis_angle({0.0f, 1.0f, 0.0f}, shz::pi_f_2));
-    GBL_TEST_VERIFY(shz::quat::from_angles_xyz(0.0f,        0.0f,        shz::pi_f_2) ==
-                    shz::quat::from_axis_angle({0.0f, 0.0f, 1.0f}, shz::pi_f_2));
-
-    // produced quaternions must be unit quaternions
-    GBL_TEST_VERIFY(shz_equalf(shz::quat::from_angles_xyz(0.5f,        1.0f,        1.5f       ).magnitude(), 1.0f));
-    GBL_TEST_VERIFY(shz_equalf(shz::quat::from_angles_xyz(shz::pi_f_4, shz::pi_f_2, shz::pi_f  ).magnitude(), 1.0f));
-
-    GBL_TEST_VERIFY(shz::quat::from_angles_xyz(0.4f, -0.8f, 1.2f) == shz::quat::from_rotation_xyz(0.4f, -0.8f, 1.2f));
-GBL_TEST_CASE_END
-#pragma GCC diagnostic pop
-
-GBL_TEST_CASE(from_rotation)
-    // Angles in argument order: zero, quarter and half turns, and arbitrary ones, some beyond a half turn.
-    const float angles[][3] = {
-        {  0.0f,          0.0f,          0.0f         },
-        {  shz::pi_f_2,   0.0f,          0.0f         },
-        {  0.0f,          shz::pi_f_2,   0.0f         },
-        {  0.0f,          0.0f,          shz::pi_f_2  },
-        { -shz::pi_f_2,   shz::pi_f_2,  -shz::pi_f_2  },
-        {  shz::pi_f,     0.0f,          0.0f         },
-        {  0.0f,          shz::pi_f,     0.0f         },
-        {  0.0f,          0.0f,          shz::pi_f    },
-        {  shz::pi_f,     shz::pi_f_2,  -shz::pi_f_2  },
-        {  0.3f,         -1.2f,          2.5f         },
-        { -2.9f,          0.7f,         -0.4f         },
-        {  5.0f,         -4.0f,          3.5f         },
-    };
-
-    for(const auto& order : euler_orders) {
-        // All-zero angles yield identity.
-        GBL_TEST_VERIFY(order.from_rotation(0.0f, 0.0f, 0.0f) == shz::quat::identity());
-
-        for(const auto& a : angles) {
-            const shz::quat q = order.from_rotation(a[0], a[1], a[2]);
-
-            // Must be the same rotation as the matrix initializer of the same order.
-            shz::mat4x4 expected, actual;
-            order.mat_init(&expected, a[0], a[1], a[2]);
-            actual.init_rotation(q);
-            GBL_TEST_VERIFY(actual == expected);
-            // Tighter than ==, with headroom for FSCA quantizing angles to 1/65536 of a turn on SH4.
-            GBL_TEST_VERIFY(shz::fabsf(max_element_error(actual, expected)) <= 2e-3f);
-
-            // Must equal the product of the axis quaternions, in the order of the name.
-            const shz::quat product = shz::quat::from_axis_angle(order.axes[0], a[0]) *
-                                      shz::quat::from_axis_angle(order.axes[1], a[1]) *
-                                      shz::quat::from_axis_angle(order.axes[2], a[2]);
-            GBL_TEST_VERIFY(q == product);
-
-            // Must be a unit quaternion.
-            GBL_TEST_VERIFY(shz_equalf(q.magnitude(), 1.0f));
-        }
-    }
-
-    // Single-axis rotations must agree with from_axis_angle() for every order.
-    for(const auto& order : euler_orders) {
-        for(unsigned i = 0; i < 3; ++i) {
-            float a[3] = { 0.0f, 0.0f, 0.0f };
-            a[i] = shz::pi_f / 3.0f;
-            GBL_TEST_VERIFY(order.from_rotation(a[0], a[1], a[2]) ==
-                            shz::quat::from_axis_angle(order.axes[i], shz::pi_f / 3.0f));
-        }
-    }
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_xyz",
+                                   [](float x, float y, float z) { return shz::quat::from_rotation_xyz(x, y, z); },
+                                   "glm_euler_xyz_quat",
+                                   [](float x, float y, float z) { return glm_euler_quat(glm_euler_xyz_quat, x, y, z); },
+                                   0.4f, -0.8f, 1.2f)
+    );
 GBL_TEST_CASE_END
 
-GBL_TEST_CASE(from_rotation_u16)
-    // 16-bit binary angles, 0x4000 per quarter turn, in argument order.
-    const uint16_t angles[][3] = {
-        { 0x0000, 0x0000, 0x0000 },
-        { 0x4000, 0x0000, 0x0000 },
-        { 0x0000, 0x4000, 0x0000 },
-        { 0x0000, 0x0000, 0x4000 },
-        { 0xc000, 0x4000, 0xc000 },
-        { 0x8000, 0x0000, 0x0000 },
-        { 0x0000, 0x8000, 0x0000 },
-        { 0x0000, 0x0000, 0x8000 },
-        { 0x8000, 0x4000, 0xc000 },
-        { 0x04d2, 0xfedc, 0x7fff },
-        { 0x0001, 0xffff, 0x8001 },
-        { 0x2aaa, 0x9c40, 0x5555 },
-    };
+GBL_TEST_CASE(from_rotation_zyx)
+    GBL_TEST_CALL(verify_from_rotation(GBL_SELF_TYPE_NAME, euler_orders[1]));
 
-    for(const auto& order : euler_orders) {
-        // All-zero angles yield identity.
-        GBL_TEST_VERIFY(order.from_rotation_u16(0, 0, 0) == shz::quat::identity());
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zyx",
+                                   [](float x, float y, float z) { return shz::quat::from_rotation_zyx(z, y, x); },
+                                   "glm_euler_zyx_quat",
+                                   [](float x, float y, float z) { return glm_euler_quat(glm_euler_zyx_quat, x, y, z); },
+                                   0.4f, -0.8f, 1.2f)
+    );
+GBL_TEST_CASE_END
 
-        for(const auto& a : angles) {
-            const float x = u16_to_radians(a[0]);
-            const float y = u16_to_radians(a[1]);
-            const float z = u16_to_radians(a[2]);
+GBL_TEST_CASE(from_rotation_zxy)
+    GBL_TEST_CALL(verify_from_rotation(GBL_SELF_TYPE_NAME, euler_orders[2]));
 
-            const shz::quat q = order.from_rotation_u16(a[0], a[1], a[2]);
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zxy",
+                                   [](float x, float y, float z) { return shz::quat::from_rotation_zxy(z, x, y); },
+                                   "glm_euler_zxy_quat",
+                                   [](float x, float y, float z) { return glm_euler_quat(glm_euler_zxy_quat, x, y, z); },
+                                   0.4f, -0.8f, 1.2f)
+    );
+GBL_TEST_CASE_END
 
-            // Must be the same rotation as the radian version, up to the sign of the quaternion.
-            GBL_TEST_VERIFY(same_rotation(q, order.from_rotation(x, y, z)));
+GBL_TEST_CASE(from_rotation_yxz)
+    GBL_TEST_CALL(verify_from_rotation(GBL_SELF_TYPE_NAME, euler_orders[3]));
 
-            // Must be the same rotation as the matrix initializer of the same order.
-            shz::mat4x4 expected, actual;
-            order.mat_init(&expected, x, y, z);
-            actual.init_rotation(q);
-            GBL_TEST_VERIFY(actual == expected);
-            // Tighter than ==, with headroom for FSCA quantizing angles to 1/65536 of a turn on SH4.
-            GBL_TEST_VERIFY(shz::fabsf(max_element_error(actual, expected)) <= 2e-3f);
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_yxz",
+                                   [](float x, float y, float z) { return shz::quat::from_rotation_yxz(y, x, z); },
+                                   "glm_euler_yxz_quat",
+                                   [](float x, float y, float z) { return glm_euler_quat(glm_euler_yxz_quat, x, y, z); },
+                                   0.4f, -0.8f, 1.2f)
+    );
+GBL_TEST_CASE_END
 
-            // Must be a unit quaternion.
-            GBL_TEST_VERIFY(shz_equalf(q.magnitude(), 1.0f));
-        }
-    }
+GBL_TEST_CASE(from_rotation_xyz_u16)
+    GBL_TEST_CALL(verify_from_rotation_u16(GBL_SELF_TYPE_NAME, euler_orders[0]));
 
-    // Signed angles are accepted as they are: -0x4000 is a quarter turn the other way.
+    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_xyz(uint16_t)",
+                               [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_xyz(x, y, z); },
+                               "glm_euler_xyz_quat",
+                               [](uint16_t x, uint16_t y, uint16_t z) {
+                                   return glm_euler_quat(glm_euler_xyz_quat, u16_to_radians(x), u16_to_radians(y), u16_to_radians(z));
+                               },
+                               uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(from_rotation_zyx_u16)
+    GBL_TEST_CALL(verify_from_rotation_u16(GBL_SELF_TYPE_NAME, euler_orders[1]));
+
+    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zyx(uint16_t)",
+                               [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_zyx(z, y, x); },
+                               "glm_euler_zyx_quat",
+                               [](uint16_t x, uint16_t y, uint16_t z) {
+                                   return glm_euler_quat(glm_euler_zyx_quat, u16_to_radians(x), u16_to_radians(y), u16_to_radians(z));
+                               },
+                               uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(from_rotation_zxy_u16)
+    GBL_TEST_CALL(verify_from_rotation_u16(GBL_SELF_TYPE_NAME, euler_orders[2]));
+
+    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zxy(uint16_t)",
+                               [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_zxy(z, x, y); },
+                               "glm_euler_zxy_quat",
+                               [](uint16_t x, uint16_t y, uint16_t z) {
+                                   return glm_euler_quat(glm_euler_zxy_quat, u16_to_radians(x), u16_to_radians(y), u16_to_radians(z));
+                               },
+                               uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(from_rotation_yxz_u16)
+    GBL_TEST_CALL(verify_from_rotation_u16(GBL_SELF_TYPE_NAME, euler_orders[3]));
+
     GBL_TEST_VERIFY(shz::quat::from_rotation_yxz(uint16_t{0}, static_cast<uint16_t>(int16_t{-0x4000}), uint16_t{0}) ==
                     shz::quat::from_axis_angle({1.0f, 0.0f, 0.0f}, -shz::pi_f_2));
+
+    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_yxz(uint16_t)",
+                               [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_yxz(y, x, z); },
+                               "glm_euler_yxz_quat",
+                               [](uint16_t x, uint16_t y, uint16_t z) {
+                                   return glm_euler_quat(glm_euler_yxz_quat, u16_to_radians(x), u16_to_radians(y), u16_to_radians(z));
+                               },
+                               uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(to_angles_xyz)
@@ -358,157 +479,51 @@ GBL_TEST_CASE(to_angles_xyz)
             }
         }
     }
-GBL_TEST_CASE_END
 
-GBL_TEST_CASE(from_rotation_benchmark)
-    constexpr float u16_radians = shz::pi_f / 32768.0f;
+    GBL_TEST_CALL(verify_to_angles(GBL_SELF_TYPE_NAME, euler_orders[0]));
 
-#define glm_quat_(order, x, y, z) \
-    [&] { \
-        vec3         angles = { x, y, z }; \
-        versor       v; \
-        glm_euler_##order##_quat(angles, v); \
-        return shz::quat(v[3], v[0], v[1], v[2]); \
-    }()
-
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_xyz",
-                                   [](float x, float y, float z) { return shz::quat::from_rotation_xyz(x, y, z); },
-                                   "glm_euler_xyz_quat",
-                                   [](float x, float y, float z) { return glm_quat_(xyz, x, y, z); },
-                                   0.4f, -0.8f, 1.2f)
-    );
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zyx",
-                                   [](float x, float y, float z) { return shz::quat::from_rotation_zyx(z, y, x); },
-                                   "glm_euler_zyx_quat",
-                                   [](float x, float y, float z) { return glm_quat_(zyx, x, y, z); },
-                                   0.4f, -0.8f, 1.2f)
-    );
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zxy",
-                                   [](float x, float y, float z) { return shz::quat::from_rotation_zxy(z, x, y); },
-                                   "glm_euler_zxy_quat",
-                                   [](float x, float y, float z) { return glm_quat_(zxy, x, y, z); },
-                                   0.4f, -0.8f, 1.2f)
-    );
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_yxz",
-                                   [](float x, float y, float z) { return shz::quat::from_rotation_yxz(y, x, z); },
-                                   "glm_euler_yxz_quat",
-                                   [](float x, float y, float z) { return glm_quat_(yxz, x, y, z); },
-                                   0.4f, -0.8f, 1.2f)
-    );
-    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_xyz(uint16_t)",
-                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_xyz(x, y, z); },
-                                   "glm_euler_xyz_quat",
-                                   [](uint16_t x, uint16_t y, uint16_t z) {
-                                       return glm_quat_(xyz, x * u16_radians, y * u16_radians, z * u16_radians);
-                                   },
-                                   uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
-    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zyx(uint16_t)",
-                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_zyx(z, y, x); },
-                                   "glm_euler_zyx_quat",
-                                   [](uint16_t x, uint16_t y, uint16_t z) {
-                                       return glm_quat_(zyx, x * u16_radians, y * u16_radians, z * u16_radians);
-                                   },
-                                   uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
-    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_zxy(uint16_t)",
-                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_zxy(z, x, y); },
-                                   "glm_euler_zxy_quat",
-                                   [](uint16_t x, uint16_t y, uint16_t z) {
-                                       return glm_quat_(zxy, x * u16_radians, y * u16_radians, z * u16_radians);
-                                   },
-                                   uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
-    (benchmark_cmp<shz::quat>)("shz::quat::from_rotation_yxz(uint16_t)",
-                                   [](uint16_t x, uint16_t y, uint16_t z) { return shz::quat::from_rotation_yxz(y, x, z); },
-                                   "glm_euler_yxz_quat",
-                                   [](uint16_t x, uint16_t y, uint16_t z) {
-                                       return glm_quat_(yxz, x * u16_radians, y * u16_radians, z * u16_radians);
-                                   },
-                                   uint16_t{0x1234}, uint16_t{0xdcba}, uint16_t{0x5678});
-
-#undef glm_quat_
-GBL_TEST_CASE_END
-
-GBL_TEST_CASE(to_angles_benchmark)
-    const auto q = shz::quat::from_rotation_xyz(0.4f, -0.8f, 1.2f);
-
-    auto glm_to_angles_xyz = [](const shz::quat& q) {
-        versor       v = { q.x, q.y, q.z, q.w };
-        mat4         m;
-        shz_glm_vec3 r;
-        glm_quat_mat4(v, m);
-        glm_euler_angles(m, r.glm);
-        return r.shz;
-    };
-
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_xyz", [](const shz::quat& q) { return q.to_angles_xyz(); },
-                                   "glm_quat_mat4 + glm_euler_angles", bench_fn(glm_to_angles_xyz), q)
-    );
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_zyx", [](const shz::quat& q) { return q.to_angles_zyx(); },
-                                   "glm_quat_mat4 + glm_euler_angles", bench_fn(glm_to_angles_xyz), q)
-    );
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_zxy", [](const shz::quat& q) { return q.to_angles_zxy(); },
-                                   "glm_quat_mat4 + glm_euler_angles", bench_fn(glm_to_angles_xyz), q)
-    );
-    GBL_TEST_VERIFY(
-        (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_yxz", [](const shz::quat& q) { return q.to_angles_yxz(); },
-                                   "glm_quat_mat4 + glm_euler_angles", bench_fn(glm_to_angles_xyz), q)
-    );
-GBL_TEST_CASE_END
-
-GBL_TEST_CASE(to_angles)
     {
-        auto near = [](float a, float b) {
-            return shz::fabsf(a - b) <= 3e-2f;
-        };
+        const auto q = shz::quat::from_rotation_xyz(0.4f, -0.8f, 1.2f);
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_xyz", [](const shz::quat& q) { return q.to_angles_xyz(); },
+                                       "glm_quat_mat4 + glm_euler_angles", bench_fn(glm_to_angles_xyz), q)
+        );
+    }
+GBL_TEST_CASE_END
 
-        const float outers[] = { -3.0f, -1.7f, -0.4f, 0.0f, 0.9f, 2.2f, 3.0f };
-        const float middles[] = { -1.4f, -0.8f, -0.2f, 0.0f, 0.5f, 1.1f, 1.4f };
-        const float locks[] = { shz::pi_f_2, -shz::pi_f_2 };
+GBL_TEST_CASE(to_angles_zyx)
+    GBL_TEST_CALL(verify_to_angles(GBL_SELF_TYPE_NAME, euler_orders[1]));
 
-        for(const auto& order : euler_orders) {
-            GBL_TEST_VERIFY(order.to_angles(shz::quat::identity()) == shz::vec3(0.0f, 0.0f, 0.0f));
+    {
+        const auto q = shz::quat::from_rotation_xyz(0.4f, -0.8f, 1.2f);
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_zyx", [](const shz::quat& q) { return q.to_angles_zyx(); },
+                                       "glm_quat_mat4 + glm_euler_angles", bench_fn(glm_to_angles_xyz), q)
+        );
+    }
+GBL_TEST_CASE_END
 
-            for(unsigned i = 0; i < 3; ++i) {
-                for(float angle : { 0.6f, -1.2f }) {
-                    const auto r = order.to_angles(shz::quat::from_axis_angle(order.axes[i], angle));
+GBL_TEST_CASE(to_angles_zxy)
+    GBL_TEST_CALL(verify_to_angles(GBL_SELF_TYPE_NAME, euler_orders[2]));
 
-                    for(unsigned j = 0; j < 3; ++j)
-                        GBL_TEST_VERIFY(near(r[j], (i == j)? angle : 0.0f));
-                }
-            }
+    {
+        const auto q = shz::quat::from_rotation_xyz(0.4f, -0.8f, 1.2f);
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_zxy", [](const shz::quat& q) { return q.to_angles_zxy(); },
+                                       "glm_quat_mat4 + glm_euler_angles", bench_fn(glm_to_angles_xyz), q)
+        );
+    }
+GBL_TEST_CASE_END
 
-            for(float a : outers) {
-                for(float b : middles) {
-                    for(float c : outers) {
-                        const auto q = order.from_rotation(a, b, c);
-                        const auto r = order.to_angles(q);
+GBL_TEST_CASE(to_angles_yxz)
+    GBL_TEST_CALL(verify_to_angles(GBL_SELF_TYPE_NAME, euler_orders[3]));
 
-                        GBL_TEST_VERIFY(near(r.x, a));
-                        GBL_TEST_VERIFY(near(r.y, b));
-                        GBL_TEST_VERIFY(near(r.z, c));
-                        GBL_TEST_VERIFY(same_rotation(order.from_rotation(r.x, r.y, r.z), q));
-                    }
-                }
-            }
-
-            for(float b : locks) {
-                for(float a : outers) {
-                    for(float c : outers) {
-                        const auto q = order.from_rotation(a, b, c);
-                        const auto r = order.to_angles(q);
-
-                        GBL_TEST_VERIFY(near(r.y, b));
-                        GBL_TEST_VERIFY(same_rotation(order.from_rotation(r.x, r.y, r.z), q));
-                    }
-                }
-            }
-        }
+    {
+        const auto q = shz::quat::from_rotation_xyz(0.4f, -0.8f, 1.2f);
+        GBL_TEST_VERIFY(
+            (benchmark_cmp<shz::vec3>)("shz::quat::to_angles_yxz", [](const shz::quat& q) { return q.to_angles_yxz(); },
+                                       "glm_quat_mat4 + glm_euler_angles", bench_fn(glm_to_angles_xyz), q)
+        );
     }
 GBL_TEST_CASE_END
 
@@ -997,9 +1012,14 @@ GBL_TEST_CASE_END
 
 GBL_TEST_REGISTER(identity,
                   from_axis_angle,
-                  from_angles_xyz,
-                  from_rotation,
-                  from_rotation_u16,
+                  from_rotation_xyz,
+                  from_rotation_zyx,
+                  from_rotation_zxy,
+                  from_rotation_yxz,
+                  from_rotation_xyz_u16,
+                  from_rotation_zyx_u16,
+                  from_rotation_zxy_u16,
+                  from_rotation_yxz_u16,
                   transform_vec3,
                   slerp,
                   nlerp,
@@ -1014,7 +1034,7 @@ GBL_TEST_REGISTER(identity,
                   normalize_safe,
                   inverse,
                   invert,
-                  from_rotation_benchmark,
-                  to_angles_benchmark,
-                  to_angles,
-                  to_angles_xyz)
+                  to_angles_xyz,
+                  to_angles_zyx,
+                  to_angles_zxy,
+                  to_angles_yxz)

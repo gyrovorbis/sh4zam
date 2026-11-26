@@ -51,6 +51,8 @@ target_link_libraries(Sh4zamTests PRIVATE ${LIBS})
 if(PLATFORM_DREAMCAST)
     include(kallistios REQUIRED)
     kos_run_target(Sh4zamTests run-sh4zam-tests)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lto-cache)
+    target_link_options(Sh4zamTests PRIVATE -flto-incremental=${CMAKE_CURRENT_BINARY_DIR}/lto-cache)
 endif()
 
 add_subdirectory(util)

@@ -86,8 +86,8 @@ SHZ_INLINE shz_quat_t shz_quat_from_rotation_yxz(float yAngle, float xAngle, flo
 /*! Equivalent to shz_quat_from_rotation_xyz(), with 16-bit binary angles (65536 per turn, the FSCA unit).
 
     For games whose orientations are stored as 16-bit angles, such as N64 titles. Signed 16-bit
-    angles can be passed as they are. The angles are converted to radians and forwarded to
-    shz_quat_from_rotation_xyz(), so the half angles are quantized to FSCA's 1/65536 of a turn,
+    angles can be passed as they are. Each angle is halved with an arithmetic shift and passed
+    straight to shz_sincosu16(), so the half angles are quantized to FSCA's 1/65536 of a turn,
     which can be off by up to half a unit for odd angles.
 
     \sa shz_quat_from_rotation_xyz(), shz_sincosu16()

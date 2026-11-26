@@ -11,3 +11,21 @@ variables:
   BUILD_ANDROID_SIM_DISABLED: "YES"
   BUILD_IOS_SIM_DISABLED: "YES"
   TEST_DREAMCAST_EMU_DISABLED: "YES"
+stages:
+  - build
+  - test
+  - deploy
+  - docs-site
+
+docs-site:
+  stage: docs-site
+  tags:
+    - linux
+  variables:
+    GIT_DEPTH: "0"
+    GIT_SUBMODULE_STRATEGY: none
+  script:
+    - cd doc/site
+    - npm ci
+    - npm run build
+    - npm run check

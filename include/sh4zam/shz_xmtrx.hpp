@@ -199,6 +199,11 @@ struct xmtrx {
         shz_xmtrx_store_4x4(mat);
     }
 
+    //! C++ wrapper around shz_xmtrx_store_aligned32_4x4().
+    SHZ_FORCE_INLINE static void store_aligned32(shz_mat4x4_t* mat) noexcept {
+        shz_xmtrx_store_aligned32_4x4(mat);
+    }
+
     //! C++ wrapper around shz_xmtrx_store_unaligned_4x4().
     SHZ_FORCE_INLINE static void store(float cArray[16]) noexcept {
         shz_xmtrx_store_unaligned_4x4(cArray);

@@ -999,6 +999,27 @@ SHZ_INLINE void shz_xmtrx_store_4x4_sh4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
     : [mtx] "r" (matrix));
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_store_aligned32_4x4_sh4(shz_mat4x4_t* mat) SHZ_NOEXCEPT {
+    asm volatile(R"(
+        movca.l r0, @%[m]
+        add     #32, %[m]
+        movca.l r0, @%[m]
+        add     #32, %[m]
+        fschg
+        fmov.d  xd14, @-%[m]
+        fmov.d  xd12, @-%[m]
+        fmov.d  xd10, @-%[m]
+        fmov.d  xd8, @-%[m]
+        fmov.d  xd6, @-%[m]
+        fmov.d  xd4, @-%[m]
+        fmov.d  xd2, @-%[m]
+        fmov.d  xd0, @-%[m]
+        fschg
+    )"
+    : "=m" (*mat)
+    : [m] "u" (mat));
+}
+
 SHZ_INLINE void shz_xmtrx_store_aligned4_4x4_sh4(float matrix[16]) SHZ_NOEXCEPT {
     asm volatile(R"(
         frchg
@@ -3388,13 +3409,12 @@ SHZ_FORCE_INLINE void shz_xmtrx_set_translation_sh4(float x, float y, float z) S
     register float fr6 asm("fr6") = z;
 
     asm volatile(R"(
+        fschg
+        flds    fr6, fpul
         frchg
-        flds    fr15, fpul
-        fschg
         fmov    xd4, dr12
-        fmov    xd6, dr14
         fschg
-        fsts    fpul, fr15
+        fsts    fpul, fr14
         frchg
     )"
     :

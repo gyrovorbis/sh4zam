@@ -361,8 +361,8 @@ GBL_TEST_CASE(inverse_rigid)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(transform_vec3)
-    alignas(32) std::array<uint8_t, sizeof(shz_glm_mat4) + alignof(shz_glm_mat4)> buffer;
-    auto& mat = *reinterpret_cast<shz_glm_mat4*>(buffer.data() + alignof(shz_glm_mat4));
+    alignas(32) std::array<uint8_t, sizeof(shz_glm_mat4)> buffer;
+    auto& mat = *reinterpret_cast<shz_glm_mat4*>(buffer.data());
 
     mat.shz.init_identity();
     GBL_TEST_VERIFY(mat.shz.transform(shz::vec3( 1.0f, 2.0f, 3.0f )) ==
@@ -395,8 +395,8 @@ GBL_TEST_CASE(transform_vec3)
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(transform_vec4)
-    alignas(32) std::array<uint8_t, sizeof(shz_glm_mat4) + alignof(shz_glm_mat4)> buffer;
-    auto& mat = *reinterpret_cast<shz_glm_mat4*>(buffer.data() + alignof(shz_glm_mat4));
+    alignas(32) std::array<uint8_t, sizeof(shz_glm_mat4)> buffer;
+    auto& mat = *reinterpret_cast<shz_glm_mat4*>(buffer.data());
 
     mat.shz.init_identity();
     GBL_TEST_VERIFY(mat.shz.transform({ 1.0f, 2.0f, 3.0f, 4.0f }) ==
@@ -447,6 +447,70 @@ GBL_TEST_CASE(transform_vec4)
             )
         );
     }
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(transform_vec3_transpose)
+    alignas(32) std::array<uint8_t, sizeof(shz_glm_mat4)> buffer;
+    auto& mat = *reinterpret_cast<shz_glm_mat4*>(buffer.data());
+
+    mat.shz.init_identity();
+    GBL_TEST_VERIFY(mat.shz.transform_transpose(shz::vec3( 1.0f, 2.0f, 3.0f )) ==
+                    shz::vec3( 1.0f, 2.0f, 3.0f ));
+
+    mat.shz.scale_3x3(1.0f, 2.0f, 3.0f);
+    GBL_TEST_VERIFY(mat.shz.transform_transpose(shz::vec3( 1.0f, 2.0f, 3.0f )) ==
+                    shz::vec3( 1.0f, 4.0f, 9.0f ));
+
+    mat.shz.add_translation(-3.0f, -2.0f, -1.0f);
+    GBL_TEST_VERIFY(mat.shz.transform_transpose(shz::vec3( 1.0f, 2.0f, 3.0f )) ==
+                    shz::vec3( 1.0f, 4.0f, 9.0f ));
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec3>)(
+            "shz::mat4x4::transform_vec3_transpose", [](const shz_glm_mat4& m, const shz_glm_vec3& v) {
+                return m.shz.transform_transpose(v.shz);
+            },
+            "glm_vec3_dot x3", [](const shz_glm_mat4& m, const shz_glm_vec3& v) {
+                shz_glm_vec3 res;
+                for(unsigned c = 0; c < 3; ++c)
+                    res.glm[c] = glm_vec3_dot(const_cast<float*>(m.glm[c]), const_cast<vec3&>(v.glm));
+                return res.shz;
+            },
+            mat, shz_glm_vec3({ gblRandf(), gblRandf(), gblRandf() })
+        )
+    );
+GBL_TEST_CASE_END
+
+GBL_TEST_CASE(transform_vec4_transpose)
+    alignas(32) std::array<uint8_t, sizeof(shz_glm_mat4)> buffer;
+    auto& mat = *reinterpret_cast<shz_glm_mat4*>(buffer.data());
+
+    mat.shz.init_identity();
+    GBL_TEST_VERIFY(mat.shz.transform_transpose(shz::vec4( 1.0f, 2.0f, 3.0f, 4.0f )) ==
+                    shz::vec4( 1.0f, 2.0f, 3.0f, 4.0f ));
+
+    mat.shz.scale_3x3(1.0f, 2.0f, 3.0f);
+    GBL_TEST_VERIFY(mat.shz.transform_transpose(shz::vec4( 1.0f, 2.0f, 3.0f, 4.0f )) ==
+                    shz::vec4( 1.0f, 4.0f, 9.0f, 4.0f ));
+
+    mat.shz.add_translation(-3.0f, -2.0f, -1.0f);
+    GBL_TEST_VERIFY(mat.shz.transform_transpose(shz::vec4( 1.0f, 2.0f, 3.0f, 1.0f )) ==
+                    shz::vec4( 1.0f, 4.0f, 9.0f, -9.0f ));
+
+    GBL_TEST_VERIFY(
+        (benchmark_cmp<shz::vec4>)(
+            "shz::mat4x4::transform_vec4_transpose", [](const shz_glm_mat4& m, const shz_glm_vec4& v) {
+                return m.shz.transform_transpose(v.shz);
+            },
+            "glm_vec4_dot x4", [](const shz_glm_mat4& m, const shz_glm_vec4& v) {
+                shz_glm_vec4 res;
+                for(unsigned c = 0; c < 4; ++c)
+                    res.glm[c] = glm_vec4_dot(const_cast<vec4&>(m.glm[c]), const_cast<vec4&>(v.glm));
+                return res.shz;
+            },
+            mat, shz_glm_vec4({ gblRandf(), gblRandf(), gblRandf(), gblRandf() })
+        )
+    );
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(translate_reverse)
@@ -1974,6 +2038,8 @@ GBL_TEST_REGISTER(init_identity,
                   inverse_rigid,
                   transform_vec3,
                   transform_vec4,
+                  transform_vec3_transpose,
+                  transform_vec4_transpose,
                   translate_reverse,
                   scale_reverse,
                   set_scale,

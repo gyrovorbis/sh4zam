@@ -199,10 +199,11 @@ GBL_TEST_CASE(load_4x4)
                      7.0f,   8.0f,  9.0f, 10.0f,
                     11.0f, -12.0f, 13.0f, 14.0f })));
 
-    benchmark(nullptr, [&]() { shz::xmtrx::load(mat4); });
 #if SHZ_BACKEND == SHZ_SH4
-    (benchmark)(nullptr, "mat_load", bench_fn(mat_load),
-                reinterpret_cast<const float (*)[4][4]>(&mat4));
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::load", [](const shz_mat4x4_t* m) { shz::xmtrx::load(*m); },
+        "mat_load",         [](const shz_mat4x4_t* m) { mat_load(reinterpret_cast<const matrix_t*>(m)); },
+        &mat4));
 #endif
 GBL_TEST_CASE_END
 
@@ -291,16 +292,17 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(store_4x4)
     randomize_xmtrx_();
-    alignas(32) shz::mat4x4 mat;
+    alignas(32) shz_mat4x4_t mat;
     shz::xmtrx::store(&mat);
-    std::array<float, 16> array = std::to_array(mat.elem);
-    //GBL_TEST_SKIP("No fucking clue why this shits the bed.");
-    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
-    benchmark(nullptr, [&]{ shz::xmtrx::store(&mat); });
+    GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(std::to_array(mat.elem))));
+
 #if SHZ_BACKEND == SHZ_SH4
-    benchmark(nullptr, [&]{ mat_store(reinterpret_cast<float (*)[4][4]>(&mat)); });
+    GBL_TEST_VERIFY((benchmark_cmp<void>)(
+        "shz::xmtrx::store", [](shz_mat4x4_t* m) { shz::xmtrx::store(m); },
+        "mat_store",         [](shz_mat4x4_t* m) { mat_store(reinterpret_cast<matrix_t*>(m)); },
+        &mat));
 #endif
- GBL_TEST_CASE_END
+GBL_TEST_CASE_END
 
 GBL_TEST_CASE(store_unaligned_4x4)
     randomize_xmtrx_();
@@ -312,20 +314,14 @@ GBL_TEST_CASE_END
 
 GBL_TEST_CASE(store_aligned32_4x4)
     randomize_xmtrx_();
-
-    alignas(32) shz_mat4x4_t shzMat;
-    alignas(32) char buffer[sizeof(shz::mat4x4) + alignof(shz::mat4x4)];
-    auto* cMat = reinterpret_cast<shz::mat4x4*>(buffer + alignof(shz::mat4x4)); 
-
-
-    (benchmark)(nullptr, "shz::xmtrx::store_4x4 [unaligned32]",
-                [&] { shz::xmtrx::store(cMat); });
-    (benchmark)(nullptr, "shz::xmtrx::store_4x4 [aligned32]",
-                [&] { shz::xmtrx::store(&shzMat); });
-
-    std::array<float, 16> array = std::to_array(shzMat.elem);
-
+    alignas(32) shz::mat4x4 aligned;
+    shz::xmtrx::store_aligned32(&aligned);
+    std::array<float, 16> array = std::to_array(aligned.elem);
     GBL_TEST_CALL(verify_matrix(GBL_SELF_TYPE_NAME, transpose(array)));
+
+    (benchmark_cmp<void>)(
+        "shz::xmtrx::store_aligned32", [&] { shz::xmtrx::store_aligned32(&aligned); },
+        "shz::xmtrx::store",           [&] { shz::xmtrx::store(&aligned); });
 GBL_TEST_CASE_END
 
 GBL_TEST_CASE(store_transpose_4x4)
@@ -4728,9 +4724,12 @@ GBL_TEST_CASE(init_billboard_y)
         { {  0.0f, 0.0f,  0.0f }, {  0.0f, -1.0f, -1.0f } },
     };
     static const shz::vec3 onAxis[2]  = { { 1.0f, 2.0f, 3.0f }, { 1.0f, 9.0f, 3.0f } };
-    static volatile float  in[6]      = { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f };
+    alignas(32) static struct {
+        mat4           glmMat;
+        volatile float in[6];
+    } bench = { {}, { 1.0f, 2.0f, 3.0f, 4.0f, -1.0f, 7.0f } };
+    auto& [glmMat, in] = bench;
     shz::mat4x4            out;
-    mat4                   glmMat;
 
     for(const auto& c : cases) {
         randomize_xmtrx_();

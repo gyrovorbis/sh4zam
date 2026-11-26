@@ -204,6 +204,22 @@ SHZ_INLINE void shz_xmtrx_load_2x2(const shz_mat2x2_t* matrix) SHZ_NOEXCEPT;
 //! Stores the current values held within XMTRX into the given 4x4 matrix.
 SHZ_INLINE void shz_xmtrx_store_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
 
+/*! Stores the current values held within XMTRX into the given 32-byte aligned 4x4 matrix.
+
+    Equivalent to shz_xmtrx_store_4x4(), except that the destination's two cache lines
+    are preallocated rather than being fetched from memory first. This drastically
+    reduces the pipeline stall penalties when \p matrix is not within the cache.
+
+    \warning
+    \p matrix must be 32-byte aligned. Both 32-byte cache lines it spans are allocated
+    without being read on SH4, so any other data sharing those lines is lost.
+
+    \param matrix   32-byte aligned matrix to store XMTRX into.
+
+    \sa shz_xmtrx_store_4x4()
+*/
+SHZ_INLINE void shz_xmtrx_store_aligned32_4x4(shz_mat4x4_t* matrix) SHZ_NOEXCEPT;
+
 //! Stores the current values held within XMTRX into the given unaligned 16-float array.
 SHZ_INLINE void shz_xmtrx_store_unaligned_4x4(float matrix[16]) SHZ_NOEXCEPT;
 

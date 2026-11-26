@@ -353,6 +353,10 @@ SHZ_FORCE_INLINE void shz_xmtrx_store_4x4_sw(shz_mat4x4_t* matrix) SHZ_NOEXCEPT 
     cols[3] = xmtrx_state_->col[3];
 }
 
+SHZ_FORCE_INLINE void shz_xmtrx_store_aligned32_4x4_sw(shz_mat4x4_t* matrix) SHZ_NOEXCEPT {
+    shz_xmtrx_store_4x4_sw(matrix);
+}
+
 SHZ_FORCE_INLINE void shz_xmtrx_store_unaligned_4x4_sw(float matrix[16]) SHZ_NOEXCEPT {
     memcpy(matrix, shz_xmtrx_state_(), 16 * sizeof(float));
 }
