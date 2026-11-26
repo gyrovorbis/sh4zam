@@ -239,13 +239,17 @@ benchmark_stats benchmark_measure(auto res, auto&& function, Args&&... args) noe
         : "memory");
 #endif
 
+#ifndef SHZ_MSVC
         asm volatile("" : "+m"(frame.args));
+#endif
 
         if constexpr(std::is_void_v<result_t>) {
             std::apply([&](auto&... a) { function(benchmark_unwrap(a)...); }, frame.args);
         } else {
             frame.result.value = std::apply([&](auto&... a) { return function(benchmark_unwrap(a)...); }, frame.args);
+#ifndef SHZ_MSVC
             asm volatile("" : : "m"(frame.result.value));
+#endif
         }
 
         SHZ_INSTR_BARRIER();
