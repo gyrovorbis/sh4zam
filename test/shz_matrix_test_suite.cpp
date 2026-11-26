@@ -325,38 +325,37 @@ GBL_TEST_CASE(inverse_rigid)
         {  0.9f,  0.2f, -1.6f,   4.0f,  6.0f, -1.0f, -1.0f }
     };
 
-    shz_glm_mat4 mat, glmInverted;
-    shz::mat4x4  shzInverted, invertedInverted;
+    shz_glm_mat4 mat, glmInverted, shzInverted;
+    shz::mat4x4  invertedInverted;
 
     for(const auto& c : cases) {
         mat.shz.init_rotation_xyz(c.rx, c.ry, c.rz);
         mat.shz.scale_3x3(c.mirror, 1.0f, 1.0f);
         mat.shz.add_translation(c.tx, c.ty, c.tz);
 
-        mat.shz.inverse_rigid(&shzInverted);
+        mat.shz.inverse_rigid(&shzInverted.shz);
         glm_mat4_copy(mat.glm, glmInverted.glm);
         glm_inv_tr(glmInverted.glm);
 
-        GBL_TEST_VERIFY(shzInverted == glmInverted.shz);
-        GBL_TEST_VERIFY(shzInverted.elem[3]  == 0.0f && shzInverted.elem[7]  == 0.0f &&
-                        shzInverted.elem[11] == 0.0f && shzInverted.elem[15] == 1.0f);
+        GBL_TEST_VERIFY(shzInverted.shz == glmInverted.shz);
+        GBL_TEST_VERIFY(shzInverted.shz.elem[3]  == 0.0f && shzInverted.shz.elem[7]  == 0.0f &&
+                        shzInverted.shz.elem[11] == 0.0f && shzInverted.shz.elem[15] == 1.0f);
 
-        shzInverted.inverse_rigid(&invertedInverted);
+        shzInverted.shz.inverse_rigid(&invertedInverted);
         GBL_TEST_VERIFY(mat.shz == invertedInverted);
     }
 
     GBL_TEST_VERIFY(
         (benchmark_cmp<void>)("shz::mat4x4::inverse_rigid",
-                              [](const shz::mat4x4& src, shz::mat4x4* dst) {
-                                  src.inverse_rigid(dst);
+                              [](const shz_glm_mat4& src, shz_glm_mat4* dst) {
+                                  src.shz.inverse_rigid(&dst->shz);
                               },
                               "glm_inv_tr",
-                              [](const shz::mat4x4& src, shz::mat4x4* dst) {
-                                  glm_mat4_copy(*reinterpret_cast<mat4*>(const_cast<shz::mat4x4*>(&src)),
-                                                *reinterpret_cast<mat4*>(dst));
-                                  glm_inv_tr(*reinterpret_cast<mat4*>(dst));
+                              [](const shz_glm_mat4& src, shz_glm_mat4* dst) {
+                                  glm_mat4_copy(const_cast<mat4&>(src.glm), dst->glm);
+                                  glm_inv_tr(dst->glm);
                               },
-                              mat.shz, &shzInverted)
+                              mat, &shzInverted)
     );
 GBL_TEST_CASE_END
 
