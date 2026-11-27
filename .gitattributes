@@ -1,1 +1,2 @@
 include/sh4zam/inline/sh4/* linguist-language=Assembly
+test/** linguist-detectable=false
