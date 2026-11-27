@@ -19,7 +19,7 @@ stages:
 
 docs-site:
   stage: docs-site
-  needs: []
+  when: always
   tags:
     - linux
   variables:
