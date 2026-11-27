@@ -342,6 +342,49 @@ GBL_TEST_CASE(memcpy_alignment_sweep_full)
     (memcpy_offset_bench<512,  3, 17, PADDING>)("shz::memcpy s+3  d+17");
 GBL_TEST_CASE_END
 
+GBL_TEST_CASE(memset8)
+    static MemcpyBuffer<BUFFER_SIZE + 32, 32, PADDING> dst;
+    constexpr uint64_t value = 0x0123456789abcdefull;
+
+    for(size_t offset : { size_t(0), size_t(8), size_t(24) }) {
+        for(size_t bytes : { size_t(0), size_t(8), size_t(24), size_t(64), size_t(72), size_t(BUFFER_SIZE) }) {
+            for(auto& c : dst.prepad ) c = 0;
+            for(auto& c : dst.buffer ) c = 0xaa;
+            for(auto& c : dst.postpad) c = 0;
+
+            uint8_t* d = dst.buffer.data() + offset;
+
+            GBL_TEST_VERIFY(shz::memset8(d, value, bytes) == d);
+
+            for(auto c : dst.prepad)
+                GBL_TEST_VERIFY(!c);
+            for(auto c : dst.postpad)
+                GBL_TEST_VERIFY(!c);
+            for(size_t b = 0; b < offset; ++b)
+                GBL_TEST_VERIFY(dst.buffer[b] == 0xaa);
+            for(size_t b = 0; b < bytes; b += sizeof(uint64_t)) {
+                uint64_t word;
+                memcpy(&word, &d[b], sizeof(word));
+                GBL_TEST_VERIFY(word == value);
+            }
+            for(size_t b = offset + bytes; b < dst.buffer.size(); ++b)
+                GBL_TEST_VERIFY(dst.buffer[b] == 0xaa);
+        }
+    }
+
+    (benchmark_cmp<void*>)(
+        "shz::memset8",
+        [](void* d, uint64_t v, size_t n) { return shz::memset8(d, v, n); },
+        "uint64_t loop",
+        [](void* d, uint64_t v, size_t n) {
+            auto* w = static_cast<uint64_t*>(d);
+            for(size_t i = 0; i < n / sizeof(uint64_t); ++i)
+                w[i] = v;
+            return d;
+        },
+        dst.buffer.data(), value, size_t(BUFFER_SIZE));
+GBL_TEST_CASE_END
+
 GBL_TEST_REGISTER(memcpy1,
                   memcpy2,
                   memcpy4,
@@ -355,4 +398,5 @@ GBL_TEST_REGISTER(memcpy1,
                   memcpy_sq_32_xmtrx,
                   memcpy_profile,
                   memcpy_alignment_sweep,
-                  memcpy_alignment_sweep_full)
+                  memcpy_alignment_sweep_full,
+                  memset8)

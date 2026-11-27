@@ -266,10 +266,65 @@ SHZ_INLINE void* shz_memcpy8_sh4(      void* SHZ_RESTRICT dst,
     return dst;
 }
 
-void* shz_memset8_sh4_(void* dst, uint64_t value, size_t bytes) SHZ_NOEXCEPT;
+SHZ_INLINE void* shz_memset8_sh4(void* dst, uint64_t value, size_t bytes) SHZ_NOEXCEPT {
+    uintptr_t start  = (uintptr_t)dst;
+    uintptr_t end    = start + bytes;
+    uintptr_t lstart = (start + 31) & ~(uintptr_t)31;
+    uintptr_t lend   = end & ~(uintptr_t)31;
+    uint8_t*  p      = (uint8_t*)end;
+    uint8_t*  q;
 
-SHZ_FORCE_INLINE void* shz_memset8_sh4(void* dst, uint64_t value, size_t bytes) SHZ_NOEXCEPT {
-    return shz_memset8_sh4_(dst, value, bytes);
+    assert(!(bytes % 8) && !((uintptr_t)dst & 7));
+
+    if(lstart >= lend)
+        lstart = lend = start;
+
+    size_t tail  = (end - lend) >> 3;
+    size_t lines = (lend - lstart) >> 5;
+    size_t head  = (lstart - start) >> 3;
+
+    asm(R"(
+        lds       %[lo], fpul
+        fschg
+        fsts      fpul, fr4
+        lds       %[hi], fpul
+        tst       %[tail], %[tail]
+        fsts      fpul, fr5
+        bt        2f
+    1:
+        dt        %[tail]
+        bf.s      1b
+        fmov.d    dr4, @-%[p]
+    2:
+        tst       %[n], %[n]
+        bt        4f
+    3:
+        mov       %[p], %[q]
+        add       #-32, %[p]
+        movca.l   r0, @%[p]
+        mov.l     %[hi], @(4, %[p])
+        dt        %[n]
+        fmov.d    dr4, @-%[q]
+        fmov.d    dr4, @-%[q]
+        bf.s      3b
+        fmov.d    dr4, @-%[q]
+    4:
+        tst       %[head], %[head]
+        bt        6f
+    5:
+        dt        %[head]
+        bf.s      5b
+        fmov.d    dr4, @-%[p]
+    6:
+        fschg
+    )"
+    : [p] "+&r" (p), [q] "=&r" (q), [n] "+&r" (lines),
+      [tail] "+&r" (tail), [head] "+&r" (head),
+      "=m" (*((uint8_t (*)[])dst))
+    : [lo] "z" ((uint32_t)value), [hi] "r" ((uint32_t)(value >> 32))
+    : "t", "fpul", "fr4", "fr5");
+
+    return dst;
 }
 
 SHZ_COLD
